@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BV</string>
+    <string name="title_activity_video_info">VideoInfoActivity</string>
+    <string name="title_activity_player">PlayerActivity</string>
+</resources>
