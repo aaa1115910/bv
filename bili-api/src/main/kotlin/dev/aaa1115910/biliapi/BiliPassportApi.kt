@@ -11,14 +11,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.http.setCookie
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import mu.KotlinLogging
 
 object BiliPassportApi {
-    private var endPoint: String = ""
     private lateinit var client: HttpClient
-    private val logger = KotlinLogging.logger { }
 
     init {
         createClient()
@@ -52,9 +50,13 @@ object BiliPassportApi {
     /**
      * 使用[qrcodeKey]进行二维码登录
      */
-    suspend fun loginWithQR(qrcodeKey: String): QRLoginResponse =
-        client.get("/x/passport-login/web/qrcode/poll") {
+    suspend fun loginWithQR(qrcodeKey: String): QRLoginResponse {
+        val loginResponse = client.get("/x/passport-login/web/qrcode/poll") {
             parameter("qrcode_key", qrcodeKey)
-        }.body()
+        }
+        val result = loginResponse.body<QRLoginResponse>()
+        result.cookies = loginResponse.setCookie()
+        return result
+    }
 
 }

@@ -1,14 +1,18 @@
 package dev.aaa1115910.biliapi.entity.login.qr
 
+import io.ktor.http.Cookie
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class QRLoginResponse(
     val code: Int,
     val message: String,
     val ttl: Int,
-    val data: QRLoginData
+    val data: QRLoginData,
+    @Transient
+    var cookies: List<Cookie> = emptyList()
 )
 
 @Serializable
