@@ -2,4 +2,6 @@
     <string name="app_name">BV</string>
     <string name="title_activity_video_info">VideoInfoActivity</string>
     <string name="title_activity_player">PlayerActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_user_info">UserInfoActivity</string>
 </resources>

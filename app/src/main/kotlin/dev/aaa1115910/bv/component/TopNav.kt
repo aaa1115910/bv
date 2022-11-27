@@ -34,7 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.aaa1115910.bv.PlayerActivity
+import dev.aaa1115910.bv.LoginActivity
+import dev.aaa1115910.bv.UserInfoActivity
+import dev.aaa1115910.bv.util.Prefs
 
 val topNavItems = listOf("搜索", "热门推荐", "分区", "番剧", "动态")
 
@@ -75,7 +77,11 @@ fun TopNav(
             }
             IconButton(
                 onClick = {
-                    context.startActivity(Intent(context, PlayerActivity::class.java))
+                    if(Prefs.isLogin){
+                        context.startActivity(Intent(context, UserInfoActivity::class.java))
+                    }else {
+                        context.startActivity(Intent(context, LoginActivity::class.java))
+                    }
                 },
                 modifier = Modifier
                     .clip(CircleShape)

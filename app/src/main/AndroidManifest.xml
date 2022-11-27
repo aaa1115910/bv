@@ -21,6 +21,16 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".UserInfoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_user_info"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:label="@string/title_activity_login"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".PlayerActivity"
             android:exported="false"
             android:label="@string/title_activity_player"
