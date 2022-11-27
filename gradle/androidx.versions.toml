@@ -3,6 +3,7 @@ activity = "1.7.0-alpha02"
 compose-bom = "2022.11.00"
 compose-tv = "1.0.0-alpha02"
 core = "1.9.0"
+dataStore = "1.1.0-alpha01"
 lifecycle = "2.6.0-alpha03"
 media3 = "1.0.0-beta02"
 
@@ -44,6 +45,10 @@ compose-constraint = { module = "androidx.constraintlayout:constraintlayout-comp
 
 # https://developer.android.com/jetpack/androidx/releases/core
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }
+
+# https://developer.android.com/topic/libraries/architecture/datastore
+datastore-typed = { module = "androidx.datastore:datastore", version.ref = "dataStore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "dataStore" }
 
 # https://developer.android.com/jetpack/androidx/releases/lifecycle
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }

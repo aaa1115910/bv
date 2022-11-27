@@ -6,6 +6,8 @@ koin = "3.2.2"
 kotlinx-serialization = "1.4.1"
 ktor = "2.1.3"
 logging = "3.0.4"
+qrcode = "3.2.0"
+rememberPreference = "1.0.0"
 slf4j-android-mvysny = "2.0.0"
 
 [libraries]
@@ -40,6 +42,12 @@ ktor-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "kt
 
 # https://github.com/MicroUtils/kotlin-logging
 logging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "logging" }
+
+# https://github.com/g0dkar/qrcode-kotlin
+qrcode = { module = "io.github.g0dkar:qrcode-kotlin-android", version.ref = "qrcode" }
+
+# https://github.com/burnoo/compose-remember-preference
+rememberPreference = { module = "dev.burnoo:compose-remember-preference", version.ref = "rememberPreference" }
 
 # https://gitlab.com/mvysny/slf4j-handroid
 slf4j-android-mvysny = { module = "com.gitlab.mvysny.slf4j:slf4j-handroid", version.ref = "slf4j-android-mvysny" }
