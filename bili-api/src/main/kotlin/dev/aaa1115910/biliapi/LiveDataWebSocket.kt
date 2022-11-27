@@ -63,9 +63,9 @@ object LiveDataWebSocket {
         roomId: Int,
         onEvent: (event: LiveEvent) -> Unit
     ) {
-        val danmuInfo = BiliApi.getLiveDanmuInfo(roomId).data ?: throw CancellationException()
+        val danmuInfo = BiliLiveApi.getLiveDanmuInfo(roomId).data ?: throw CancellationException()
         val realRoomId =
-            BiliApi.getLiveRoomPlayInfo(roomId).data?.roomId ?: throw CancellationException()
+            BiliLiveApi.getLiveRoomPlayInfo(roomId).data?.roomId ?: throw CancellationException()
         val hosts = danmuInfo.hostList.last()
 
         val data = buildJsonObject {
@@ -208,7 +208,7 @@ object LiveDataWebSocket {
                 val bytePack = ByteReadPacket(decompress)
                 val packageHeader = bytePack.readFrameHeader()
                 val body =
-                    bytePack.readBytes((packageHeader.totalLength - packageHeader.headerLength).toInt())
+                    bytePack.readBytes((packageHeader.totalLength - packageHeader.headerLength))
                 if (bytePack.remaining > 16) {
                     result += handleLiveEventBody(bytePack.readFrameHeader(), bytePack.readBytes())
                 }

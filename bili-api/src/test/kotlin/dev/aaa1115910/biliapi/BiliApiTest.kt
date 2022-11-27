@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 internal class BiliApiTest {
 
     @Test
-    fun getPopularVideoData() {
+    fun `get popular videos`() {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getPopularVideoData()
@@ -18,7 +18,7 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun getVideoInfo() {
+    fun `get video info`() {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getVideoInfo(av = 170001)
@@ -28,7 +28,7 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun getVideoPlayUrl() {
+    fun `get video play url`() {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getVideoPlayUrl(av = 170001, cid = 267714)
@@ -38,20 +38,10 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun getDanmakuXml() {
+    fun `get video danmaku from xml`() {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getDanmakuXml(cid = 267714)
-                println(response)
-            }
-        }
-    }
-
-    @Test
-    fun getLiveDanmuHistory() {
-        assertDoesNotThrow {
-            runBlocking {
-                val response = BiliApi.getLiveDanmuHistory(roomId = 22739471)
                 println(response)
             }
         }
