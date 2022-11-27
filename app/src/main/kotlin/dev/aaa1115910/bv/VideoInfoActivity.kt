@@ -62,6 +62,10 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
+import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.biliapi.entity.video.VideoInfo
+import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -237,7 +241,7 @@ fun VideoInfoData(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row{
+                Row {
                     Box(modifier = Modifier.focusable(true)) {}
                     FavoriteButton(
                         isFavorite = false,

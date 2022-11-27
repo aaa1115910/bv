@@ -23,6 +23,9 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 
+# https://kotlinlang.org/docs/jvm-test-using-junit.html
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+
 # https://github.com/Kotlin/kotlinx.serialization
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 

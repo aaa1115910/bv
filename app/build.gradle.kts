@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.logging)
     implementation(libs.material)
     implementation(libs.slf4j.android.mvysny)
+    implementation(project(mapOf("path" to ":bili-api")))
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)

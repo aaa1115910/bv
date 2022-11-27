@@ -16,7 +16,7 @@ import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
-import dev.aaa1115910.bv.BiliApi
+import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.util.swapMap

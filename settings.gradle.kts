@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "BV"
 include(":app")
+include(":bili-api")
