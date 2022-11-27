@@ -1,0 +1,34 @@
+{
+  "cmd": "LIKE_INFO_V3_CLICK",
+  "data": {
+    "show_area": 0,
+    "msg_type": 6,
+    "like_icon": "https://i0.hdslb.com/bfs/live/23678e3d90402bea6a65251b3e728044c21b1f0f.png",
+    "uid": 393552291,
+    "like_text": "为主播点赞了",
+    "uname": "有卢克迪丽歇斯",
+    "uname_color": "",
+    "identities": [
+      1
+    ],
+    "fans_medal": {
+      "target_id": 0,
+      "medal_level": 0,
+      "medal_name": "",
+      "medal_color": 0,
+      "medal_color_start": 12632256,
+      "medal_color_end": 12632256,
+      "medal_color_border": 12632256,
+      "is_lighted": 0,
+      "guard_level": 0,
+      "special": "",
+      "icon_id": 0,
+      "anchor_roomid": 0,
+      "score": 0
+    },
+    "contribution_info": {
+      "grade": 0
+    },
+    "dmscore": 20
+  }
+}

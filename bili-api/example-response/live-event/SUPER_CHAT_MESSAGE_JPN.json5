@@ -1,0 +1,51 @@
+{
+  "cmd": "SUPER_CHAT_MESSAGE_JPN",
+  "data": {
+    "id": "5639015",
+    "uid": "11437137",
+    "price": 30,
+    "rate": 1000,
+    "message": "多喝热水(・∀・)",
+    "message_jpn": "",
+    "is_ranked": 1,
+    "background_image": "https://i0.hdslb.com/bfs/live/a712efa5c6ebc67bafbe8352d3e74b820a00c13e.png",
+    "background_color": "#EDF5FF",
+    "background_icon": "",
+    "background_price_color": "#7497CD",
+    "background_bottom_color": "#2A60B2",
+    "ts": 1669434119,
+    "token": "9555B0B6",
+    "medal_info": {
+      "icon_id": 0,
+      "target_id": 401742377,
+      "special": "",
+      "anchor_uname": "原神",
+      "anchor_roomid": 21987615,
+      "medal_level": 8,
+      "medal_name": "粉丝团",
+      "medal_color": "#5d7b9e"
+    },
+    "user_info": {
+      "uname": "Phain-",
+      "face": "https://i0.hdslb.com/bfs/face/3d2b2e6afbf9aed3eccf7d00a7c02d2351b22cf3.jpg",
+      "face_frame": "",
+      "guard_level": 0,
+      "user_level": 6,
+      "level_color": "#969696",
+      "is_vip": 0,
+      "is_svip": 0,
+      "is_main_vip": 0,
+      "title": "0",
+      "manager": 0
+    },
+    "time": 59,
+    "start_time": 1669434118,
+    "end_time": 1669434178,
+    "gift": {
+      "num": 1,
+      "gift_id": 12000,
+      "gift_name": "醒目留言"
+    }
+  },
+  "roomid": "1017"
+}

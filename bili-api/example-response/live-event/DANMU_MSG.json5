@@ -1,0 +1,88 @@
+{
+  "cmd": "DANMU_MSG",
+  "info": [
+    [
+      0,
+      1,
+      25,
+      5816798,
+      1669371202340,
+      -338894660,
+      0,
+      "987fef1e",
+      0,
+      0,
+      0,
+      "",
+      0,
+      "{}",
+      "{}",
+      {
+        "mode": 0,
+        "show_player_type": 0,
+        "extra": "{\"send_from_me\":false,\"mode\":0,\"color\":5816798,\"dm_type\":0,\"font_size\":25,\"player_mode\":1,\"show_player_type\":0,\"content\":\"遗物不卖有啥用？走文化吗？\",\"user_hash\":\"2558521118\",\"emoticon_unique\":\"\",\"bulge_display\":0,\"recommend_score\":1,\"main_state_dm_color\":\"\",\"objective_state_dm_color\":\"\",\"direction\":0,\"pk_direction\":0,\"quartet_direction\":0,\"anniversary_crowd\":0,\"yeah_space_type\":\"\",\"yeah_space_url\":\"\",\"jump_to_url\":\"\",\"space_type\":\"\",\"space_url\":\"\"}"
+      },
+      {
+        "activity_identity": "",
+        "activity_source": 0,
+        "not_show": 0
+      }
+    ],
+    //弹幕内容
+    "遗物不卖有啥用？走文化吗？",
+    [
+      //mid
+      39344889,
+      //用户名
+      "风的节奏_疾风",
+      0,
+      0,
+      0,
+      10000,
+      1,
+      ""
+    ],
+    //粉丝勋章 未佩戴为[]
+    [
+      14,
+      //粉丝勋章等级
+      "子轩",
+      //粉丝勋章名称
+      "战术级子轩",
+      13355,
+      12478086,
+      "",
+      0,
+      12478086,
+      12478086,
+      12478086,
+      0,
+      1,
+      3519797
+    ],
+    [
+      15,
+      0,
+      6406234,
+      "\u003e50000",
+      0
+    ],
+    [
+      "",
+      ""
+    ],
+    0,
+    0,
+    null,
+    {
+      "ts": 1669371202,
+      "ct": "347A3E92"
+    },
+    0,
+    0,
+    null,
+    null,
+    0,
+    42
+  ]
+}

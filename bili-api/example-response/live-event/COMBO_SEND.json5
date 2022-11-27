@@ -1,0 +1,39 @@
+{
+  "cmd": "COMBO_SEND",
+  "data": {
+    "action": "投喂",
+    "batch_combo_id": "batch:gift:combo_id:21486712:168598:31036:1669433933.0434",
+    "batch_combo_num": 2,
+    "combo_id": "gift:combo_id:21486712:168598:31036:1669433933.0427",
+    "combo_num": 2,
+    "combo_total_coin": 200,
+    "dmscore": 56,
+    "gift_id": 31036,
+    "gift_name": "小花花",
+    "gift_num": 0,
+    "is_naming": false,
+    "is_show": 1,
+    "medal_info": {
+      "anchor_roomid": 0,
+      "anchor_uname": "",
+      "guard_level": 0,
+      "icon_id": 0,
+      "is_lighted": 1,
+      "medal_color": 9272486,
+      "medal_color_border": 9272486,
+      "medal_color_end": 9272486,
+      "medal_color_start": 9272486,
+      "medal_level": 11,
+      "medal_name": "刺儿",
+      "special": "",
+      "target_id": 168598
+    },
+    "name_color": "",
+    "r_uname": "逍遥散人",
+    "ruid": 168598,
+    "send_master": null,
+    "total_num": 2,
+    "uid": 21486712,
+    "uname": "Ms星鸢"
+  }
+}

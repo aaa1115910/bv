@@ -1,0 +1,46 @@
+{
+  "cmd": "NOTICE_MSG",
+  "id": 712,
+  "name": "地区争-任务100元",
+  "full": {
+    "head_icon": "https://i0.hdslb.com/bfs/live/ab106f494f4cc0c94fb78ed46144c72f6db000f6.webp",
+    "tail_icon": "https://i0.hdslb.com/bfs/live/822da481fdaba986d738db5d8fd469ffa95a8fa1.webp",
+    "head_icon_fa": "https://i0.hdslb.com/bfs/live/ab106f494f4cc0c94fb78ed46144c72f6db000f6.webp",
+    "tail_icon_fa": "https://i0.hdslb.com/bfs/live/38cb2a9f1209b16c0f15162b0b553e3b28d9f16f.png",
+    "head_icon_fan": 1,
+    "tail_icon_fan": 4,
+    "background": "#b6272b",
+    "color": "#FFFFFFFF",
+    "highlight": "#FDFF2FFF",
+    "time": 15
+  },
+  "half": {
+    "head_icon": "https://i0.hdslb.com/bfs/live/ab106f494f4cc0c94fb78ed46144c72f6db000f6.webp",
+    "tail_icon": "",
+    "background": "#b6272b",
+    "color": "#FFFFFFFF",
+    "highlight": "#FDFF2FFF",
+    "time": 15
+  },
+  "side": {
+    "head_icon": "",
+    "background": "",
+    "color": "",
+    "highlight": "",
+    "border": ""
+  },
+  "roomid": 25906864,
+  "real_roomid": 25906864,
+  "msg_common": "恭喜<%酥软奶甜-满月快乐%>完成BLS年终决选赛任务，直播间发放价值100元的红包，快来抢鸭！",
+  "msg_self": "恭喜<%酥软奶甜-满月快乐%>完成BLS年终决选赛任务，直播间发放价值100元的红包，快来抢鸭！",
+  "link_url": "https://live.bilibili.com/25906864?broadcast_type=1&is_room_feed=1&from=28003&extra_jump_from=28003&live_lottery_type=1",
+  "msg_type": 2,
+  "shield_uid": -1,
+  "business_id": "106",
+  "scatter": {
+    "min": 0,
+    "max": 0
+  },
+  "marquee_id": "",
+  "notice_type": 0
+}

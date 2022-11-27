@@ -1,0 +1,33 @@
+{
+  "cmd": "WIDGET_BANNER",
+  "data": {
+    "timestamp": 1669400283,
+    "widget_list": {
+      "280": {
+        "id": 280,
+        "title": "BLS年终赛·地区争锋赛",
+        "cover": "",
+        "web_cover": "",
+        "tip_text": "地区争锋赛",
+        "tip_text_color": "#FFFFFF",
+        "tip_bottom_color": "#3F2D25",
+        "jump_url": "https://live.bilibili.com/activity/live-activity-battle/index.html?app_name=bls_winter_2022&is_live_half_webview=1&hybrid_rotate_d=1&hybrid_half_ui=1,3,100p,70p,0,0,0,0,12,0;2,2,375,100p,0,0,0,0,12,0;3,3,100p,70p,0,0,0,0,12,0;4,2,375,100p,0,0,0,0,12,0;5,3,100p,70p,0,0,0,0,12,0;6,3,100p,70p,0,0,0,0,12,0;7,3,100p,70p,0,0,0,0,12,0;8,3,100p,70p,0,0,0,0,12,0&room_id=545068&uid=8739477#/area",
+        "url": "",
+        "stay_time": 5,
+        "site": 1,
+        "platform_in": [
+          "live",
+          "blink",
+          "live_link",
+          "web",
+          "pc_link"
+        ],
+        "type": 1,
+        "band_id": 101318,
+        "sub_key": "",
+        "sub_data": "%7B%22act_status%22%3A1%2C%22stage%22%3A1%2C%22text%22%3A%22%22%2C%22stage_1%22%3A%7B%22current_value%22%3A4923%2C%22target_value%22%3A50000%2C%22current_level%22%3A5%2C%22is_all_complete%22%3A2%7D%2C%22stage_2%22%3A%7B%22settlement%22%3A0%2C%22rank%22%3A0%2C%22score%22%3A0%2C%22rank_type%22%3A0%2C%22rank_distance_score%22%3A0%7D%2C%22stage_3%22%3A%7B%22settlement%22%3A0%2C%22show_type%22%3A0%2C%22rank_all%22%3A0%2C%22rank%22%3A0%2C%22score%22%3A0%2C%22rank_type%22%3A0%2C%22rank_distance_score%22%3A0%7D%2C%22stage_4%22%3A%7B%22settlement%22%3A0%2C%22rank%22%3A0%2C%22score%22%3A0%2C%22rank_type%22%3A0%2C%22rank_distance_score%22%3A0%2C%22team_name%22%3A%22%22%2C%22anchor_img%22%3A%22%22%7D%2C%22notice%22%3A%7B%22type%22%3A0%2C%22sub_type%22%3A0%2C%22number%22%3A%22%22%2C%22is_get%22%3A0%2C%22rank%22%3A0%2C%22pond_pk_amount%22%3A0%2C%22rank_distance_score%22%3A0%2C%22red_packet_multiple%22%3A0%2C%22red_packet_amount%22%3A0%2C%22time%22%3A0%2C%22timeout%22%3A0%2C%22level%22%3A0%7D%7D",
+        "is_add": true
+      }
+    }
+  }
+}

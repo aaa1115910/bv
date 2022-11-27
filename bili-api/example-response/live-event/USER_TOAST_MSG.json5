@@ -1,0 +1,28 @@
+{
+  "cmd": "USER_TOAST_MSG",
+  "data": {
+    "anchor_show": true,
+    "color": "#00D1F1",
+    "dmscore": 90,
+    "effect_id": 397,
+    "end_time": 1669435051,
+    "face_effect_id": 44,
+    "gift_id": 10003,
+    "guard_level": 3,
+    "is_show": 0,
+    "num": 1,
+    "op_type": 3,
+    "payflow_id": "2211261157000842110278874",
+    "price": 138000,
+    "role_name": "舰长",
+    "room_effect_id": 590,
+    "start_time": 1669435051,
+    "svga_block": 0,
+    "target_guard_count": 972,
+    "toast_msg": "<%玉紫%> 续费了舰长，今天是TA陪伴主播的第691天",
+    "uid": 6501027,
+    "unit": "月",
+    "user_show": true,
+    "username": "玉紫"
+  }
+}
