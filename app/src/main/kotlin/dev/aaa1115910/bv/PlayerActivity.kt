@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_BOOKMARK
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_LEFT
@@ -49,6 +50,7 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //val trackSelector = DefaultTrackSelector(this, AdaptiveTrackSelection.Factory())
         val player = ExoPlayer
             .Builder(this)
             .setSeekForwardIncrementMs(1000 * 10)
@@ -62,7 +64,7 @@ class PlayerActivity : ComponentActivity() {
             val aid = intent.getIntExtra("avid", 170001)
             val cid = intent.getIntExtra("cid", 170001)
             logger.info { "Launch parameter: [aid=$aid, cid=$cid]" }
-            playerViewModel.loadPlayUrl(this@PlayerActivity, aid, cid)
+            playerViewModel.loadPlayUrl(aid, cid)
         } else {
             logger.info { "Null launch parameter" }
         }
@@ -84,7 +86,8 @@ class PlayerActivity : ComponentActivity() {
             KEYCODE_DPAD_DOWN -> Keys.Down
             KEYCODE_DPAD_LEFT -> Keys.Left
             KEYCODE_DPAD_RIGHT -> Keys.Right
-            KEYCODE_MENU -> Keys.Menu
+            //KEYCODE_BOOKMARK用于在虚拟机下调试时使用书签键代替菜单键
+            KEYCODE_MENU, KEYCODE_BOOKMARK -> Keys.Menu
             KEYCODE_BACK -> Keys.Back
             KEYCODE_DPAD_CENTER -> Keys.Center
             else -> Keys.Other

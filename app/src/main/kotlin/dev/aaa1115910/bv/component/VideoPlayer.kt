@@ -3,24 +3,18 @@ package dev.aaa1115910.bv.component
 import android.app.Activity
 import android.os.CountDownTimer
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,10 +27,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaMetadata
@@ -49,9 +41,16 @@ import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import com.kuaishou.akdanmaku.ui.DanmakuView
 import dev.aaa1115910.bv.Keys
+import dev.aaa1115910.bv.component.controllers.BottomControls
+import dev.aaa1115910.bv.component.controllers.RightMenuControl
+import dev.aaa1115910.bv.component.controllers.RightPartControl
+import dev.aaa1115910.bv.entity.DanmakuSize
+import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import java.util.Timer
@@ -73,11 +72,14 @@ fun VideoPlayer(
     var totalDuration by remember { mutableStateOf(0L) }
     var currentTime by remember { mutableStateOf(0L) }
     var bufferedPercentage by remember { mutableStateOf(0) }
+    var size by remember { mutableStateOf("") }
+    var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     val updateSeek: () -> Unit = {
         totalDuration = player.duration.coerceAtLeast(0L)
         currentTime = player.currentPosition.coerceAtLeast(0L)
         bufferedPercentage = player.bufferedPercentage
+        size = "${player.videoSize.width} x ${player.videoSize.height}"
     }
 
     DisposableEffect(Unit) {
@@ -128,7 +130,6 @@ fun VideoPlayer(
                         logger.info { "onPlayWhenReadyChanged: [playWhenReady=$playWhenReady, reason=$reason]" }
                         if (playWhenReady) {
                             logger.info { "Start danmaku" }
-                            val danmakuConfig = DanmakuConfig(visibility = true)
                             danmakuPlayer.updateConfig(danmakuConfig)
                             danmakuPlayer.start(danmakuConfig)
                             danmakuPlayer.seekTo(player.currentPosition)
@@ -189,6 +190,29 @@ fun VideoPlayer(
             bufferedPercentage = bufferedPercentage,
             onSeekChanged = { timeMs ->
                 player.seekTo(timeMs.toLong())
+            },
+            onChooseResolution = { qualityId ->
+                player.pause()
+                val current = player.currentPosition
+                scope.launch(Dispatchers.Default) {
+                    playerViewModel.playQuality(qualityId)
+                    withContext(Dispatchers.Main) {
+                        player.seekTo(current)
+                        player.play()
+                    }
+                }
+            },
+            onSwitchDanmaku = { enable ->
+                danmakuConfig.visibility = enable
+                danmakuPlayer.updateConfig(danmakuConfig)
+            },
+            onDanmakuSizeChange = { size ->
+                danmakuConfig.textSizeScale = size.scale
+                danmakuPlayer.updateConfig(danmakuConfig)
+            },
+            onDanmakuTransparencyChange = {
+                danmakuConfig.alpha = it.transparency
+                danmakuPlayer.updateConfig(danmakuConfig)
             }
         )
 
@@ -196,6 +220,7 @@ fun VideoPlayer(
             Text("totalDuration: $totalDuration")
             Text("currentTime: $currentTime")
             Text("bufferedPercentage: $bufferedPercentage")
+            Text("size: $size")
         }
     }
 }
@@ -233,7 +258,11 @@ fun PlayerControllers(
     totalDuration: Long,
     currentTime: Long,
     bufferedPercentage: Int,
-    onSeekChanged: (timeMs: Float) -> Unit
+    onSeekChanged: (timeMs: Float) -> Unit,
+    onChooseResolution: (qualityId: Int) -> Unit,
+    onSwitchDanmaku: (enable: Boolean) -> Unit,
+    onDanmakuSizeChange: (DanmakuSize) -> Unit,
+    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
 ) {
     val context = LocalContext.current
     val playerViewModel: PlayerViewModel = koinViewModel()
@@ -249,6 +278,26 @@ fun PlayerControllers(
     var timer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val showRightController: () -> Boolean = { showRightMenuController || showRightPartController }
+
+    val onBackRightController: () -> Unit = {
+
+    }
+
+    val onHideRightMenu: () -> Unit = {
+        if (showRightPartController) {
+            //do nothing
+        } else {
+            showRightMenuController = false
+        }
+    }
+
+    val onHideRightPart: () -> Unit = {
+        if (showRightMenuController) {
+            //do nothing
+        } else {
+            showRightPartController = false
+        }
+    }
 
     LaunchedEffect(showRightMenuController || showRightPartController) {
         playerViewModel.showingRightMenu = showRightMenuController || showRightPartController
@@ -294,9 +343,12 @@ fun PlayerControllers(
 
                 //show right controller - menu
                 Keys.Menu -> {
-                    if (showRightController()) return@LaunchedEffect
+                    if (showRightController()) {
+                        onHideRightMenu()
+                        return@LaunchedEffect
+                    }
 
-                    //showRightMenuController = true
+                    showRightMenuController = !showRightMenuController
                 }
 
                 //play and pause
@@ -311,7 +363,10 @@ fun PlayerControllers(
                 }
 
                 Keys.Back -> {
-                    if (showRightController()) return@LaunchedEffect
+                    if (showRightController()) {
+                        showRightMenuController = false
+                        return@LaunchedEffect
+                    }
 
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastPressBack < 1000 * 3) {
@@ -404,8 +459,19 @@ fun PlayerControllers(
                     bufferedPercentage = bufferedPercentage
                 )
             }
-            AnimatedVisibility(visible = showRightMenuController) {
-                RightMenuControl()
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                visible = showRightMenuController,
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
+            ) {
+                RightMenuControl(
+                    resolutionMap = playerViewModel.availableQuality,
+                    onChooseResolution = onChooseResolution,
+                    onSwitchDanmaku = onSwitchDanmaku,
+                    onDanmakuSizeChange = onDanmakuSizeChange,
+                    onDanmakuTransparencyChange = onDanmakuTransparencyChange
+                )
             }
             AnimatedVisibility(visible = showRightPartController) {
                 RightPartControl()
@@ -423,90 +489,6 @@ fun PlayerControllers(
         }
     }
 }
-
-@Composable
-private fun BottomControls(
-    modifier: Modifier = Modifier,
-    totalDuration: Long,
-    currentTime: Long,
-    bufferedPercentage: Int,
-    onSeekChanged: (timeMs: Float) -> Unit
-) {
-    Column(
-        modifier = modifier
-            .background(
-                Brush.verticalGradient(
-                    0.0f to Color.Transparent,
-                    1.0f to Color.Black.copy(alpha = 0.5f),
-                    startY = 0.0f,
-                    endY = 80.0f
-                )
-            )
-            .padding(bottom = 12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-                .focusable(false),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Spacer(modifier = Modifier)
-            Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 0.dp, end = 40.dp),
-                text = "${currentTime.formatMinSec()} / ${totalDuration.formatMinSec()}",
-                color = Color.White
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        ) {
-            Slider(
-                modifier = Modifier.fillMaxWidth(),
-                value = bufferedPercentage.toFloat(),
-                enabled = false,
-                onValueChange = { /*do nothing*/ },
-                valueRange = 0f..100f,
-                colors = SliderDefaults.colors(
-                    disabledThumbColor = Color.Transparent,
-                    disabledInactiveTrackColor = Color.Transparent,
-                    disabledActiveTrackColor = Color.Gray
-                )
-            )
-
-            Slider(
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false,
-                value = currentTime.toFloat(),
-                onValueChange = onSeekChanged,
-                valueRange = 0f..totalDuration.toFloat(),
-                colors = SliderDefaults.colors(
-                    disabledThumbColor = Color.Transparent,
-                    disabledInactiveTrackColor = Color.Gray.copy(alpha = 0.5f),
-                    disabledActiveTrackColor = Color.White
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun RightMenuControl(
-    modifier: Modifier = Modifier
-) {
-
-}
-
-
-@Composable
-private fun RightPartControl(
-    modifier: Modifier = Modifier
-) {
-
-}
-
 
 @Composable
 private fun TopController(
@@ -537,15 +519,4 @@ fun Long.formatMinSec(): String {
                     )
         )
     }
-}
-
-@Preview
-@Composable
-fun BottomControlsPreview() {
-    BottomControls(
-        totalDuration = 123456,
-        currentTime = 23333,
-        bufferedPercentage = 68,
-        onSeekChanged = {}
-    )
 }

@@ -1,6 +1,5 @@
 package dev.aaa1115910.bv.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -17,6 +16,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.util.swapMap
@@ -40,8 +40,11 @@ class PlayerViewModel : ViewModel() {
     var errorMessage by mutableStateOf("")
 
     var availableQuality = mutableStateMapOf<Int, String>()
+    var currentQuality by mutableStateOf(0)
 
     var danmakuData = mutableStateListOf<DanmakuItemData>()
+
+    var dashData: Dash? = null
 
     companion object {
         private val logger = KotlinLogging.logger { }
@@ -67,18 +70,16 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun loadPlayUrl(
-        context: Context,
         avid: Int,
         cid: Int
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            loadPlayUrl(context, avid, cid, 4048)
+            loadPlayUrl(avid, cid, 4048)
             loadDanmaku(cid)
         }
     }
 
     private suspend fun loadPlayUrl(
-        context: Context,
         avid: Int,
         cid: Int,
         fnval: Int = 4048,
@@ -108,40 +109,20 @@ class PlayerViewModel : ViewModel() {
 
             //读取清晰度
             val qualityMap = mutableMapOf<Int, String>()
-            response.data?.acceptQuality?.forEachIndexed { index, quality ->
-                qualityMap[quality] = response.data?.acceptDescription?.get(index) ?: "未知清晰度"
+            val qualityIdList = response.data?.dash?.video
+                ?.map { it.id }?.toHashSet()?.toList() ?: emptyList()
+            qualityIdList.forEach { qualityId ->
+                val index = response.data?.acceptQuality?.indexOf(qualityId) ?: -1
+                qualityMap[qualityId] = response.data?.acceptDescription?.get(index) ?: "未知清晰度"
             }
             logger.info { "Video available quality: $qualityMap" }
             availableQuality.swapMap(qualityMap)
+            currentQuality = response.data!!.dash!!.video[0].id
 
+            dashData = response.data!!.dash!!
 
-            val videoMediaItem = MediaItem.fromUri(response.data!!.dash!!.video[0].baseUrl)
-            val audioMediaItem = MediaItem.fromUri(response.data!!.dash!!.audio[0].baseUrl)
+            playQuality(qn)
 
-            val userAgent =
-                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
-            val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
-                .setUserAgent(userAgent)
-                .setDefaultRequestProperties(
-                    mapOf(
-                        "referer" to "https://www.bilibili.com"
-                    )
-                )
-
-            val videoMediaSource =
-                ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
-                    .createMediaSource(videoMediaItem)
-            val audioMediaSource =
-                ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
-                    .createMediaSource(audioMediaItem)
-            //set data
-            val mms = MergingMediaSource(videoMediaSource, audioMediaSource)
-
-            withContext(Dispatchers.Main) {
-                player!!.addMediaSource(mms)
-                player!!.prepare()
-                player!!.playWhenReady = true
-            }
         }.onFailure {
             errorMessage = it.stackTraceToString()
             loadState = RequestState.Failed
@@ -150,6 +131,44 @@ class PlayerViewModel : ViewModel() {
         }.onSuccess {
             loadState = RequestState.Success
             logger.warn { "Load play url success" }
+        }
+    }
+
+    suspend fun playQuality(qn: Int = 80) {
+        val videoUrl = dashData!!.video
+            .find { it.id == qn }
+            ?.baseUrl
+            ?: dashData!!.video[0].baseUrl
+        val audioUrl = dashData!!.audio
+            .find { it.id == qn }
+            ?.baseUrl
+            ?: dashData!!.audio[0].baseUrl
+        val videoMediaItem = MediaItem.fromUri(videoUrl)
+        val audioMediaItem = MediaItem.fromUri(audioUrl)
+
+        val userAgent =
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+        val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setUserAgent(userAgent)
+            .setDefaultRequestProperties(
+                mapOf(
+                    "referer" to "https://www.bilibili.com"
+                )
+            )
+
+        val videoMediaSource =
+            ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
+                .createMediaSource(videoMediaItem)
+        val audioMediaSource =
+            ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
+                .createMediaSource(audioMediaItem)
+        //set data
+        val mms = MergingMediaSource(videoMediaSource, audioMediaSource)
+
+        withContext(Dispatchers.Main) {
+            player!!.setMediaSource(mms)
+            player!!.prepare()
+            player!!.playWhenReady = true
         }
     }
 
