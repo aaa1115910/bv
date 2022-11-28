@@ -13,6 +13,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,11 +34,16 @@ import dev.aaa1115910.biliapi.entity.video.VideoInfo
 fun VideoCard(
     modifier: Modifier = Modifier,
     video: VideoInfo,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onFocus: () -> Unit = {}
 ) {
     var isFocussed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(if (isFocussed) 1f else 0.9f)
     val borderAlpha by animateFloatAsState(if (isFocussed) 1f else 0f)
+
+    LaunchedEffect(isFocussed) {
+        if (isFocussed) onFocus()
+    }
 
     Card(
         modifier = modifier

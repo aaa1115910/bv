@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,33 +24,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
+import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.items
+import androidx.tv.foundation.lazy.grid.itemsIndexed
 import androidx.tv.foundation.lazy.list.TvLazyRow
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.component.VideoCard
-import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.viewmodel.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = koinViewModel()
+) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var data = remember { mutableStateListOf<VideoInfo>() }
 
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.Default) {
-            data.clear()
-            data.addAll(BiliApi.getPopularVideoData(sessData = Prefs.sessData).data.list)
+            homeViewModel.loadMore()
         }
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopNav()
         },
@@ -69,7 +70,7 @@ fun HomeScreen() {
             ) {
                 HomeCarousel()
             }*/
-            items(data.toList()) { video ->
+            itemsIndexed(homeViewModel.popularVideoList) { index, video ->
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
@@ -77,10 +78,22 @@ fun HomeScreen() {
                         video = video,
                         onClick = {
                             VideoInfoActivity.actionStart(context, video.aid)
+                        },
+                        onFocus = {
+                            if (index + 12 > homeViewModel.popularVideoList.size) {
+                                scope.launch(Dispatchers.Default) { homeViewModel.loadMore() }
+
+                            }
                         }
                     )
                 }
             }
+            if (homeViewModel.loading)
+                item(
+                    span = { TvGridItemSpan(4) }
+                ) {
+                    Text(text = "Loading")
+                }
         }
     }
 }

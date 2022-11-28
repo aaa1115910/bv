@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.repository.UserRepository
+import dev.aaa1115910.bv.viewmodel.HomeViewModel
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import org.koin.android.ext.koin.androidContext
@@ -40,8 +41,9 @@ class BVApp : Application() {
 
 val appModule = module {
     single { UserRepository() }
-    viewModel { PlayerViewModel() }
+    viewModel { HomeViewModel() }
     viewModel { LoginViewModel(get()) }
+    viewModel { PlayerViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")
