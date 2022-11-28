@@ -47,7 +47,7 @@
             android:icon="@drawable/app_icon_your_company"
             android:logo="@drawable/app_icon_your_company"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.BV">
+            android:theme="@style/Theme.BV.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

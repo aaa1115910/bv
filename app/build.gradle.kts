@@ -73,6 +73,7 @@ dependencies {
     implementation(platform("${libs.firebase.bom.get()}"))
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
+    implementation(androidx.core.splashscreen)
     implementation(androidx.compose.ui)
     implementation(androidx.compose.ui.util)
     implementation(androidx.compose.ui.tooling.preview)
