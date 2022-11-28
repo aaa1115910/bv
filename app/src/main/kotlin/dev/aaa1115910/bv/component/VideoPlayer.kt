@@ -7,6 +7,7 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,10 +37,12 @@ import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import com.kuaishou.akdanmaku.ui.DanmakuView
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.component.controllers.BottomControls
 import dev.aaa1115910.bv.component.controllers.RightMenuControl
@@ -111,7 +114,12 @@ fun VideoPlayer(
         danmakuPlayer.updateData(playerViewModel.danmakuData)
     }
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
         DisposableEffect(key1 = Unit) {
 
             val listener =
@@ -187,6 +195,7 @@ fun VideoPlayer(
             factory = {
                 PlayerView(context).apply {
                     this.player = player
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     useController = false
                 }
             }
@@ -236,11 +245,15 @@ fun VideoPlayer(
             }
         )
 
-        Column {
-            Text("totalDuration: $totalDuration")
-            Text("currentTime: $currentTime")
-            Text("bufferedPercentage: $bufferedPercentage")
-            Text("size: $size")
+        if (BuildConfig.DEBUG) {
+            Column(
+                modifier = Modifier.align(Alignment.TopStart)
+            ) {
+                Text("totalDuration: $totalDuration")
+                Text("currentTime: $currentTime")
+                Text("bufferedPercentage: $bufferedPercentage")
+                Text("size: $size")
+            }
         }
     }
 }
