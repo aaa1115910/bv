@@ -25,14 +25,12 @@ import java.io.ByteArrayOutputStream
 import java.util.Timer
 import java.util.TimerTask
 
-
 class LoginViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
     var state by mutableStateOf(LoginState.Ready)
     private val logger = KotlinLogging.logger { }
     var loginUrl by mutableStateOf("")
-    val isLogin get() = userRepository.isLogin
     var qrImage by mutableStateOf(ImageBitmap(1, 1, ImageBitmapConfig.Argb8888))
     private var key = ""
 
@@ -92,6 +90,7 @@ class LoginViewModel(
                             ?: throw IllegalArgumentException("Cookie expires date not found")
                     )
                     state = LoginState.LoginSuccess
+                    timer.cancel()
                 }
 
                 86101 -> {
