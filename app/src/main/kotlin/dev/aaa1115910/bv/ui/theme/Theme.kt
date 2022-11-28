@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import dev.aaa1115910.bv.component.Disclaimer
 
 private val BiliColorScheme = darkColorScheme(
     primary = Color(0xFFFB7299),
@@ -48,6 +49,8 @@ fun BVTheme(
         ) {
             Surface {
                 content()
+
+                Disclaimer()
             }
         }
     }

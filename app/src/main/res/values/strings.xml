@@ -4,4 +4,7 @@
     <string name="title_activity_player">PlayerActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
+    <string name="disclaimer_dialog_title">注意了！</string>
+    <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
+    <string name="confirm">确认</string>
 </resources>
