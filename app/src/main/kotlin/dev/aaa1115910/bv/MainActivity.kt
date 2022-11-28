@@ -49,6 +49,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.bv.component.HomeCarousel
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -73,7 +74,7 @@ fun BvApp() {
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.Default) {
             data.clear()
-            data.addAll(BiliApi.getPopularVideoData().data.list)
+            data.addAll(BiliApi.getPopularVideoData(sessData = Prefs.sessData).data.list)
         }
     }
     Scaffold(

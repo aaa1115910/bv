@@ -31,7 +31,13 @@ internal class BiliApiTest {
     fun `get video play url`() {
         assertDoesNotThrow {
             runBlocking {
-                val response = BiliApi.getVideoPlayUrl(av = 170001, cid = 267714)
+                val response = BiliApi.getVideoPlayUrl(
+                    av = 648092492,
+                    cid = 903675075,
+                    fnval = 4048,
+                    qn = 127,
+                    sessData = ""
+                )
                 println(response)
             }
         }
@@ -41,7 +47,7 @@ internal class BiliApiTest {
     fun `get video danmaku from xml`() {
         assertDoesNotThrow {
             runBlocking {
-                val response = BiliApi.getDanmakuXml(cid = 267714)
+                val response = BiliApi.getDanmakuXml(cid = 903675075)
                 println(response)
             }
         }

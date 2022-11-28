@@ -19,6 +19,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.swapMap
 import dev.aaa1115910.bv.util.toAndroidColor
 import kotlinx.coroutines.Dispatchers
@@ -97,7 +98,8 @@ class PlayerViewModel : ViewModel() {
                 fnval = fnval,
                 qn = qn,
                 fnver = fnver,
-                fourk = fourk
+                fourk = fourk,
+                sessData = Prefs.sessData
             )
             logger.info { "Load play url response: $response" }
             if (response.code != 0) {
@@ -174,7 +176,7 @@ class PlayerViewModel : ViewModel() {
 
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
-            val test = BiliApi.getDanmakuXml(cid)
+            val test = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
             danmakuData.addAll(test.data.map {
                 DanmakuItemData(
                     danmakuId = it.dmid,

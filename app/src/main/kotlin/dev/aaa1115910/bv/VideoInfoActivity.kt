@@ -69,6 +69,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -116,7 +117,7 @@ fun VideoInfoScreen(
             val aid = intent.getIntExtra("aid", 170001)
             scope.launch(Dispatchers.Default) {
                 runCatching {
-                    val response = BiliApi.getVideoInfo(av = aid)
+                    val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.data
                 }.onFailure {
                     withContext(Dispatchers.Main) {

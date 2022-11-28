@@ -13,6 +13,7 @@ import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.serialization.kotlinx.json.json
@@ -56,10 +57,12 @@ object BiliApi {
      */
     suspend fun getPopularVideoData(
         pageNumber: Int = 1,
-        pageSize: Int = 20
+        pageSize: Int = 20,
+        sessData: String = ""
     ): PopularVideosResponse = client.get("/x/web-interface/popular") {
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
     /**
@@ -67,10 +70,12 @@ object BiliApi {
      */
     suspend fun getVideoInfo(
         av: Int? = null,
-        bv: String? = null
+        bv: String? = null,
+        sessData: String = ""
     ): VideoInfoResponse = client.get("/x/web-interface/view") {
         parameter("aid", av)
         parameter("bvid", bv)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
     /**
@@ -78,7 +83,7 @@ object BiliApi {
      */
     suspend fun getVideoPlayUrl(
         av: Int? = null,
-        bv: Int? = null,
+        bv: String? = null,
         cid: Int,
         qn: Int? = null,
         fnval: Int? = null,
@@ -87,7 +92,8 @@ object BiliApi {
         session: String? = null,
         otype: String = "json",
         type: String = "",
-        platform: String = "oc"
+        platform: String = "oc",
+        sessData: String = ""
     ): PlayUrlResponse = client.get("/x/player/playurl") {
         parameter("avid", av)
         parameter("bvid", bv)
@@ -100,16 +106,19 @@ object BiliApi {
         parameter("otype", otype)
         parameter("type", type)
         parameter("platform", platform)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
     /**
      * 通过[cid]获取视频弹幕
      */
     suspend fun getDanmakuXml(
-        cid: Int
+        cid: Int,
+        sessData: String = ""
     ): DanmakuResponse {
         val xmlChannel = client.get("/x/v1/dm/list.so") {
             parameter("oid", cid)
+            header("Cookie", "SESSDATA=$sessData;")
         }.bodyAsChannel()
 
         val dbFactory = DocumentBuilderFactory.newInstance()
