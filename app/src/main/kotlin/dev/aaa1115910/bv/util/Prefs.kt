@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.util
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
@@ -17,6 +18,10 @@ private val prefSessDataKey = stringPreferencesKey("sd")
 private val prefBiliJctKey = stringPreferencesKey("bj")
 private val prefUidCkMd5Key = stringPreferencesKey("ucm")
 private val prefTokenExpiredDateKey = longPreferencesKey("ted")
+private val prefDefaultQualityKey = intPreferencesKey("dq")
+private val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
+private val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
+private val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
 
 val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
 val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -25,6 +30,10 @@ val prefSessDataRequest = PreferenceRequest(prefSessDataKey, "")
 val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
 val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
 val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
+val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, 80)
+val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 0)
+val prefDefaultDanmakuTransparencyRequest = PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
+val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
 
 //SESSDATA
 object Prefs {
@@ -58,6 +67,22 @@ object Prefs {
     var tokenExpiredData: Date
         get() = Date(runBlocking { dsm.getPreferenceFlow(prefTokenExpiredDateRequest).first() })
         set(value) = runBlocking { dsm.editPreference(prefTokenExpiredDateKey, value.time) }
+
+    var defaultQuality: Int
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultQualityRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultQualityKey, value) }
+
+    var defaultDanmakuSize: Int
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuSizeRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value) }
+
+    var defaultDanmakuTransparency: Int
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuTransparencyRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuTransparencyKey, value) }
+
+    var defaultDanmakuEnabled: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuEnabledRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuEnabledKey, value) }
 
     fun logout() {
         logger.info { "Logout uid: $uid" }

@@ -1,9 +1,12 @@
 package dev.aaa1115910.bv.component.controllers
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,9 +28,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.foundation.lazy.list.items
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
+import mu.KotlinLogging
 
 @Composable
 fun RightMenuControl(
@@ -40,8 +47,11 @@ fun RightMenuControl(
     onChooseResolution: (Int) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
-    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
+    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
+    menuWidth: Dp = 200.dp,
+    secondMenuHorizontalPadding: Dp = 86.dp
 ) {
+    val logger = KotlinLogging.logger { }
     val focusRequester = remember { FocusRequester() }
 
     var inQualityMenu by remember { mutableStateOf(false) }
@@ -51,6 +61,7 @@ fun RightMenuControl(
 
     var showAnySecondMenu by remember { mutableStateOf(false) }
 
+    val qualityMap by remember { mutableStateOf(resolutionMap.toSortedMap(compareByDescending { it })) }
     LaunchedEffect(inQualityMenu || inDanmakuSwitchMenu || inDanmakuSizeMenu || inDanmakuTransparencyMenu) {
         showAnySecondMenu =
             inQualityMenu || inDanmakuSwitchMenu || inDanmakuSizeMenu || inDanmakuTransparencyMenu
@@ -68,88 +79,122 @@ fun RightMenuControl(
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 AnimatedVisibility(visible = inQualityMenu) {
-                    Column(
-                        modifier = Modifier.width(200.dp)
+                    TvLazyColumn(
+                        modifier = Modifier.width(menuWidth),
+                        contentPadding = PaddingValues(vertical = secondMenuHorizontalPadding)
                     ) {
-                        resolutionMap.forEach { (id, name) ->
-                            ControllerMenuItem(text = name) {
+                        items(items = qualityMap.keys.toList()) { id ->
+                            ControllerMenuItem(
+                                text = qualityMap[id] ?: "unknown: $id",
+                                selected = currentResolution == id
+                            ) {
+                                logger.info { "Choose video quality: ${qualityMap[id]}" }
                                 onChooseResolution(id)
                             }
                         }
                     }
                 }
                 AnimatedVisibility(visible = inDanmakuSwitchMenu) {
-                    Column(
-                        modifier = Modifier.width(200.dp)
+                    TvLazyColumn(
+                        modifier = Modifier.width(menuWidth),
+                        contentPadding = PaddingValues(vertical = secondMenuHorizontalPadding)
                     ) {
-                        ControllerMenuItem(text = "开启") {
-                            onSwitchDanmaku(true)
+                        item {
+                            ControllerMenuItem(
+                                text = "开启",
+                                selected = currentDanmakuEnabled
+                            ) {
+                                logger.info { "Choose danmaku enabled: true" }
+                                onSwitchDanmaku(true)
+                            }
                         }
-                        ControllerMenuItem(text = "关闭") {
-                            onSwitchDanmaku(false)
+                        item {
+                            ControllerMenuItem(
+                                text = "关闭",
+                                selected = !currentDanmakuEnabled
+                            ) {
+                                logger.info { "Choose danmaku enabled: false" }
+                                onSwitchDanmaku(false)
+                            }
                         }
                     }
                 }
                 AnimatedVisibility(visible = inDanmakuSizeMenu) {
-                    Column(
-                        modifier = Modifier.width(200.dp)
+                    TvLazyColumn(
+                        modifier = Modifier.width(menuWidth),
+                        contentPadding = PaddingValues(vertical = secondMenuHorizontalPadding)
                     ) {
-                        DanmakuSize.values().forEach {
-                            ControllerMenuItem(text = it.name) {
-                                onDanmakuSizeChange(it)
+                        items(items = DanmakuSize.values()) { danmakuSize ->
+                            ControllerMenuItem(
+                                text = "${danmakuSize.scale}x",
+                                selected = currentDanmakuSize == danmakuSize
+                            ) {
+                                logger.info { "Choose danmaku size: $danmakuSize" }
+                                onDanmakuSizeChange(danmakuSize)
                             }
                         }
                     }
                 }
                 AnimatedVisibility(visible = inDanmakuTransparencyMenu) {
-                    Column(
-                        modifier = Modifier.width(200.dp)
+                    TvLazyColumn(
+                        modifier = Modifier.width(menuWidth),
+                        contentPadding = PaddingValues(vertical = secondMenuHorizontalPadding)
                     ) {
-                        DanmakuTransparency.values().forEach {
-                            ControllerMenuItem(text = it.name) {
-                                onDanmakuTransparencyChange(it)
+                        items(items = DanmakuTransparency.values()) { danmakuTransparency ->
+                            ControllerMenuItem(
+                                text = "${danmakuTransparency.transparency}",
+                                selected = currentDanmakuTransparency == danmakuTransparency
+                            ) {
+                                logger.info { "Choose danmaku transparency: $danmakuTransparency" }
+                                onDanmakuTransparencyChange(danmakuTransparency)
                             }
                         }
                     }
                 }
                 AnimatedVisibility(visible = true) {
                     Column(
-                        modifier = Modifier.width(200.dp)
+                        modifier = Modifier.width(menuWidth)
                     ) {
                         ControllerMenuItem(
                             modifier = Modifier.focusRequester(focusRequester),
-                            text = "清晰度"
+                            text = "清晰度",
+                            selected = inQualityMenu
                         ) {
-                            println("click 清晰度")
+                            logger.info { "Click quality menu" }
                             inQualityMenu = !inQualityMenu
                             inDanmakuSwitchMenu = false
                             inDanmakuSizeMenu = false
                             inDanmakuTransparencyMenu = false
                         }
                         ControllerMenuItem(
-                            text = "弹幕开关"
+                            text = "弹幕开关",
+                            selected = inDanmakuSwitchMenu
                         ) {
-                            println("click 弹幕开关")
+                            logger.info { "Click danmaku enabled menu" }
                             inQualityMenu = false
                             inDanmakuSwitchMenu = !inDanmakuSwitchMenu
                             inDanmakuSizeMenu = false
                             inDanmakuTransparencyMenu = false
                         }
                         ControllerMenuItem(
-                            text = "弹幕大小"
+                            text = "弹幕大小",
+                            selected = inDanmakuSizeMenu
                         ) {
-                            println("click 弹幕大小")
+                            logger.info { "Click danmaku size menu" }
                             inQualityMenu = false
                             inDanmakuSwitchMenu = false
                             inDanmakuSizeMenu = !inDanmakuSizeMenu
                             inDanmakuTransparencyMenu = false
                         }
                         ControllerMenuItem(
-                            text = "弹幕透明度"
+                            text = "弹幕透明",
+                            selected = inDanmakuTransparencyMenu
                         ) {
-                            println("click 弹幕透明度")
+                            logger.info { "Click danmaku transparency menu" }
                             inQualityMenu = false
                             inDanmakuSwitchMenu = false
                             inDanmakuSizeMenu = false
@@ -174,25 +219,31 @@ fun RightPartControl(
 private fun ControllerMenuItem(
     modifier: Modifier = Modifier,
     text: String,
+    selected: Boolean = false,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
+    val borderAlpha by animateFloatAsState(if (selected) 1f else 0f)
+
     Surface(
         modifier = modifier
-            //.focusable()
             .height(60.dp)
             .fillMaxWidth()
-            .onFocusChanged { hasFocus = it.hasFocus }
+            .onFocusChanged { isFocused = it.hasFocus }
             .clickable { onClick() },
-        color = if (hasFocus) Color.Black else Color.Transparent
+        color = if (isFocused) Color.White else Color.Transparent
     ) {
         Box(
+            modifier = Modifier.border(
+                width = 2.dp,
+                color = (if (isFocused) Color.Black else Color.White).copy(alpha = borderAlpha)
+            ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White
+                color = if (isFocused) Color.Black else Color.White
             )
         }
     }

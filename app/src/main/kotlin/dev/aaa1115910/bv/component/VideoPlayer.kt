@@ -46,6 +46,7 @@ import dev.aaa1115910.bv.component.controllers.RightMenuControl
 import dev.aaa1115910.bv.component.controllers.RightPartControl
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,15 @@ fun VideoPlayer(
     var currentTime by remember { mutableStateOf(0L) }
     var bufferedPercentage by remember { mutableStateOf(0) }
     var size by remember { mutableStateOf("") }
-    var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
+    var danmakuConfig by remember {
+        mutableStateOf(
+            DanmakuConfig(
+                visibility = playerViewModel.currentDanmakuEnabled,
+                textSizeScale = playerViewModel.currentDanmakuSize.scale * 2,
+                alpha = playerViewModel.currentDanmakuTransparency.transparency
+            )
+        )
+    }
 
     val updateSeek: () -> Unit = {
         totalDuration = player.duration.coerceAtLeast(0L)
@@ -120,6 +129,8 @@ fun VideoPlayer(
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         logger.info { "onPlaybackStateChanged: [playbackState=$playbackState]" }
                         if (playbackState == Player.STATE_READY) {
+                            println("---------------1")
+                            danmakuPlayer.start(danmakuConfig)
                             danmakuPlayer.seekTo(player.currentPosition)
                         } else {
                             danmakuPlayer.pause()
@@ -131,8 +142,9 @@ fun VideoPlayer(
                         if (playWhenReady) {
                             logger.info { "Start danmaku" }
                             danmakuPlayer.updateConfig(danmakuConfig)
-                            danmakuPlayer.start(danmakuConfig)
-                            danmakuPlayer.seekTo(player.currentPosition)
+                            //danmakuPlayer.start(danmakuConfig)
+                            //println("---------------2")
+                            //danmakuPlayer.seekTo(player.currentPosition)
                         } else {
                             logger.info { "Pause danmaku" }
                             danmakuPlayer.pause()
@@ -192,6 +204,8 @@ fun VideoPlayer(
                 player.seekTo(timeMs.toLong())
             },
             onChooseResolution = { qualityId ->
+                Prefs.defaultQuality = qualityId
+                playerViewModel.currentQuality = qualityId
                 player.pause()
                 val current = player.currentPosition
                 scope.launch(Dispatchers.Default) {
@@ -203,15 +217,21 @@ fun VideoPlayer(
                 }
             },
             onSwitchDanmaku = { enable ->
+                Prefs.defaultDanmakuEnabled = enable
+                playerViewModel.currentDanmakuEnabled = enable
                 danmakuConfig.visibility = enable
                 danmakuPlayer.updateConfig(danmakuConfig)
             },
             onDanmakuSizeChange = { size ->
-                danmakuConfig.textSizeScale = size.scale
+                Prefs.defaultDanmakuSize = size.ordinal
+                playerViewModel.currentDanmakuSize = size
+                danmakuConfig.textSizeScale = size.scale * 2
                 danmakuPlayer.updateConfig(danmakuConfig)
             },
-            onDanmakuTransparencyChange = {
-                danmakuConfig.alpha = it.transparency
+            onDanmakuTransparencyChange = { transparency ->
+                Prefs.defaultDanmakuTransparency = transparency.ordinal
+                playerViewModel.currentDanmakuTransparency = transparency
+                danmakuConfig.alpha = transparency.transparency
                 danmakuPlayer.updateConfig(danmakuConfig)
             }
         )
@@ -323,6 +343,7 @@ fun PlayerControllers(
                     showBottomController = true
                     lastChangedSeek = System.currentTimeMillis()
                     playerViewModel.player?.seekForward()
+                    playerViewModel.player?.play()
                 }
 
                 //change progress
@@ -332,6 +353,7 @@ fun PlayerControllers(
                     showBottomController = true
                     lastChangedSeek = System.currentTimeMillis()
                     playerViewModel.player?.seekBack()
+                    playerViewModel.player?.play()
                 }
 
                 //show right controller - part
@@ -359,6 +381,7 @@ fun PlayerControllers(
                         playerViewModel.player?.pause()
                     } else {
                         playerViewModel.player?.play()
+                        playerViewModel.danmakuPlayer?.start()
                     }
                 }
 
@@ -467,6 +490,10 @@ fun PlayerControllers(
             ) {
                 RightMenuControl(
                     resolutionMap = playerViewModel.availableQuality,
+                    currentResolution = playerViewModel.currentQuality,
+                    currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
+                    currentDanmakuSize = playerViewModel.currentDanmakuSize,
+                    currentDanmakuTransparency = playerViewModel.currentDanmakuTransparency,
                     onChooseResolution = onChooseResolution,
                     onSwitchDanmaku = onSwitchDanmaku,
                     onDanmakuSizeChange = onDanmakuSizeChange,

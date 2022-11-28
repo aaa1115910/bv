@@ -20,6 +20,8 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
+import dev.aaa1115910.bv.entity.DanmakuSize
+import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.swapMap
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,9 @@ class PlayerViewModel : ViewModel() {
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var currentQuality by mutableStateOf(0)
+    var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
+    var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
+    var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
 
     var danmakuData = mutableStateListOf<DanmakuItemData>()
 
@@ -119,7 +124,24 @@ class PlayerViewModel : ViewModel() {
             }
             logger.info { "Video available quality: $qualityMap" }
             availableQuality.swapMap(qualityMap)
-            currentQuality = response.data!!.dash!!.video[0].id
+
+            //是否支持默认清晰度
+            val existDefaultQuality =
+                availableQuality.keys.find { it == Prefs.defaultQuality } != null
+            if (existDefaultQuality) {
+                //使用默认清晰度
+                currentQuality = Prefs.defaultQuality
+            } else {
+                //不存在默认清晰度，则选择次一等的清晰度
+                var tempList = qualityMap.keys.sorted()
+                //默认清晰度选择最低清晰度
+                currentQuality = tempList.first()
+                tempList.forEach {
+                    if (it <= Prefs.defaultQuality) {
+                        currentQuality = it
+                    }
+                }
+            }
 
             dashData = response.data!!.dash!!
 
@@ -203,5 +225,13 @@ class PlayerViewModel : ViewModel() {
             }
             logger.warn { "Load danmaku success: ${danmakuData.size}" }
         }
+    }
+
+    fun releaseDanmakuPlayer(){
+
+    }
+
+    fun newDanmakuPlayer(){
+
     }
 }
