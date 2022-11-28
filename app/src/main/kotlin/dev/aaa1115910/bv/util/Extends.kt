@@ -4,7 +4,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -42,8 +41,4 @@ fun <K, V> SnapshotStateMap<K, V>.swapMap(newMap: Map<K, V>) {
 fun <K, V> SnapshotStateMap<K, V>.swapMap(newMap: Map<K, V>, afterSwap: () -> Unit) {
     this.swapMap(newMap)
     afterSwap()
-}
-
-fun Color.toAndroidColor(): Int {
-    return android.graphics.Color.rgb(this.red, this.green, this.blue)
 }

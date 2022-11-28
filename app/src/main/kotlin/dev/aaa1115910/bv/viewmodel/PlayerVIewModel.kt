@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -21,7 +22,6 @@ import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.swapMap
-import dev.aaa1115910.bv.util.toAndroidColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -188,7 +188,7 @@ class PlayerViewModel : ViewModel() {
                         else -> DanmakuItemData.DANMAKU_MODE_ROLLING
                     },
                     textSize = it.size,
-                    textColor = Color(it.color).toAndroidColor()
+                    textColor = Color(it.color).toArgb()
                 )
             })
             danmakuPlayer?.updateData(danmakuData)
