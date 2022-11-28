@@ -6,6 +6,9 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.viewmodel.HomeViewModel
@@ -25,6 +28,7 @@ class BVApp : Application() {
         lateinit var context: Context
         lateinit var dataStoreManager: DataStoreManager
         lateinit var koinApplication: KoinApplication
+        lateinit var firebaseAnalytics: FirebaseAnalytics
     }
 
     override fun onCreate() {
@@ -36,6 +40,7 @@ class BVApp : Application() {
             androidContext(this@BVApp)
             modules(appModule)
         }
+        firebaseAnalytics = Firebase.analytics
     }
 }
 

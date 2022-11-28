@@ -1,6 +1,7 @@
 [versions]
 akdanmaku = "1.0.3"
 coil = "2.2.2"
+firebase-bom = "31.1.0"
 material = "1.8.0-alpha02"
 koin = "3.2.2"
 kotlinx-serialization = "1.4.1"
@@ -16,6 +17,11 @@ akdanmaku = { module = "com.kuaishou:akdanmaku", version.ref = "akdanmaku" }
 
 # https://coil-kt.github.io/coil/
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+# https://firebase.google.com/docs/android/setup
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 
 # https://github.com/material-components/material-components-android
 material = { module = "com.google.android.material:material", version.ref = "material" }

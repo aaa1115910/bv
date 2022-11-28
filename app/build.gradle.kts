@@ -1,5 +1,9 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+
 plugins {
     alias(gradleLibs.plugins.android.application)
+    alias(gradleLibs.plugins.firebase.crashlytics)
+    alias(gradleLibs.plugins.google.services)
     alias(gradleLibs.plugins.kotlin.android)
     alias(gradleLibs.plugins.kotlin.serialization)
 }
@@ -21,11 +25,14 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -47,10 +54,23 @@ android {
         }
         resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
     }
+
+    applicationVariants.configureEach {
+        val variant = this
+        outputs.configureEach {
+            (this as ApkVariantOutputImpl).apply {
+                outputFileName =
+                    "BV-${AppConfiguration.versionCode}-${AppConfiguration.versionName}.${variant.buildType.name}.apk"
+                versionNameOverride =
+                    "${variant.versionName}.${variant.buildType.name}"
+            }
+        }
+    }
 }
 
 dependencies {
     implementation(platform("${androidx.compose.bom.get()}"))
+    implementation(platform("${libs.firebase.bom.get()}"))
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
     implementation(androidx.compose.ui)
@@ -70,6 +90,8 @@ dependencies {
     implementation(androidx.media3.ui)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.kotlinx.serialization)
