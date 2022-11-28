@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.component
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.aaa1115910.bv.LoginActivity
+import dev.aaa1115910.bv.UserInfoActivity
 import dev.aaa1115910.bv.util.Prefs
 
 val topNavItems = listOf("搜索", "热门推荐", "分区", "番剧", "动态")
@@ -73,8 +76,12 @@ fun TopNav(
                 }
             }
             UserIcon(
-                onGotoLogin = {},
-                onGotoInfo = {}
+                onGotoLogin = {
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                },
+                onGotoInfo = {
+                    context.startActivity(Intent(context, UserInfoActivity::class.java))
+                }
             )
         }
     }
@@ -118,7 +125,7 @@ private fun UserIcon(
     onGotoInfo: () -> Unit
 ) {
     TextButton(
-        modifier=modifier,
+        modifier = modifier,
         onClick = { if (Prefs.isLogin) onGotoInfo() else onGotoLogin() }
     ) {
         Row(
