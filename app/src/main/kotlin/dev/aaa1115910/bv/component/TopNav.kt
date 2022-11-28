@@ -1,7 +1,5 @@
 package dev.aaa1115910.bv.component
 
-import android.content.Intent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,14 +7,15 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,8 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.aaa1115910.bv.LoginActivity
-import dev.aaa1115910.bv.UserInfoActivity
 import dev.aaa1115910.bv.util.Prefs
 
 val topNavItems = listOf("搜索", "热门推荐", "分区", "番剧", "动态")
@@ -75,20 +72,10 @@ fun TopNav(
                     TabButton(content = content)
                 }
             }
-            IconButton(
-                onClick = {
-                    if(Prefs.isLogin){
-                        context.startActivity(Intent(context, UserInfoActivity::class.java))
-                    }else {
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    }
-                },
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(color = Color.Gray),
-            ) {
-                Text(text = "头像")
-            }
+            UserIcon(
+                onGotoLogin = {},
+                onGotoInfo = {}
+            )
         }
     }
 }
@@ -122,4 +109,33 @@ private fun TabButton(
         ),
         content = content
     )
+}
+
+@Composable
+private fun UserIcon(
+    modifier: Modifier = Modifier,
+    onGotoLogin: () -> Unit,
+    onGotoInfo: () -> Unit
+) {
+    TextButton(
+        modifier=modifier,
+        onClick = { if (Prefs.isLogin) onGotoInfo() else onGotoLogin() }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+        ) {
+            Text(text = if (Prefs.isLogin) "已登录" else "未登录")
+            Box {
+                Surface(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    color = Color.White
+                ) {
+                    Text(text = "头像")
+                }
+            }
+        }
+    }
 }
