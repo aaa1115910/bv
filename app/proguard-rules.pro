@@ -84,3 +84,9 @@
 #-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
 #    static <1>$$serializer INSTANCE;
 #}
+
+# ktor 混淆后，请求参数会莫名其妙消失
+-keep class io.ktor.**
+# 这部分是加上不混淆 ktor 后冒出来的 missing rules
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean
