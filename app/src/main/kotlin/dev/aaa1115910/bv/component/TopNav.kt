@@ -47,7 +47,8 @@ import dev.aaa1115910.bv.util.Prefs
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
-    onSelectedChange: (TopNavItem) -> Unit = {}
+    onSelectedChange: (TopNavItem) -> Unit = {},
+    onClick: (TopNavItem) -> Unit = {}
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -86,7 +87,8 @@ fun TopNav(
                                 onSelectedChange(topNavItem)
                                 selectedNav = topNavItem
                             }
-                        }
+                        },
+                        onClick = onClick
                     )
                 }
             }
@@ -108,6 +110,7 @@ private fun NavTabButton(
     navItem: TopNavItem,
     selected: Boolean,
     onFocused: () -> Unit = {},
+    onClick: (TopNavItem) -> Unit
 ) {
     val context = LocalContext.current
     val primary = MaterialTheme.colorScheme.primary
@@ -118,7 +121,7 @@ private fun NavTabButton(
 
     Box {
         TextButton(
-            onClick = {},
+            onClick = { onClick(navItem) },
             modifier = modifier
                 .onFocusChanged {
                     if (it.isFocused) {

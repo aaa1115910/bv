@@ -12,8 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
+import androidx.tv.foundation.lazy.grid.TvLazyGridState
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.component.VideoCard
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
@@ -24,6 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PopularScreen(
     modifier: Modifier = Modifier,
+    tvLazyGridState:TvLazyGridState,
     popularViewModel: PopularViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -31,6 +34,7 @@ fun PopularScreen(
 
     TvLazyVerticalGrid(
         modifier = modifier,
+        state = tvLazyGridState,
         columns = TvGridCells.Fixed(4),
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),

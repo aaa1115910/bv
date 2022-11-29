@@ -47,7 +47,7 @@ class BVApp : Application() {
 
 val appModule = module {
     single { UserRepository() }
-    viewModel { DynamicViewModel() }
+    viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { PlayerViewModel() }

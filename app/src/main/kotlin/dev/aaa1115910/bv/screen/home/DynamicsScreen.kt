@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
+import androidx.tv.foundation.lazy.grid.TvLazyGridState
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import coil.compose.AsyncImage
@@ -47,57 +48,68 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DynamicsScreen(
     modifier: Modifier = Modifier,
+    tvLazyGridState: TvLazyGridState,
     dynamicViewModel: DynamicViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    TvLazyVerticalGrid(
-        modifier = modifier,
-        columns = TvGridCells.Fixed(4),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
-            Box(
-                contentAlignment = Alignment.Center
-            ) {
-                DynamicVideoCard(
-                    dynamic = dynamic,
-                    onClick = {
-                        VideoInfoActivity.actionStart(
-                            context,
-                            dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
-                        )
-                    },
-                    onFocus = {
-                        if (index + 24 > dynamicViewModel.dynamicList.size) {
-                            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
-                        }
-                    }
-                )
-            }
-        }
-        if (dynamicViewModel.loading)
-            item(
-                span = { TvGridItemSpan(4) }
-            ) {
-                Text(
-                    text = "Loading",
-                    color = Color.White
-                )
-            }
+    if (dynamicViewModel.isLogin) {
 
-        if (!dynamicViewModel.hasMore)
-            item(
-                span = { TvGridItemSpan(4) }
-            ) {
-                Text(
-                    text = "没有更多了捏",
-                    color = Color.White
-                )
+        TvLazyVerticalGrid(
+            modifier = modifier,
+            columns = TvGridCells.Fixed(4),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    DynamicVideoCard(
+                        dynamic = dynamic,
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context,
+                                dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
+                            )
+                        },
+                        onFocus = {
+                            if (index + 24 > dynamicViewModel.dynamicList.size) {
+                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                            }
+                        }
+                    )
+                }
             }
+            if (dynamicViewModel.loading)
+                item(
+                    span = { TvGridItemSpan(4) }
+                ) {
+                    Text(
+                        text = "Loading",
+                        color = Color.White
+                    )
+                }
+
+            if (!dynamicViewModel.hasMore)
+                item(
+                    span = { TvGridItemSpan(4) }
+                ) {
+                    Text(
+                        text = "没有更多了捏",
+                        color = Color.White
+                    )
+                }
+        }
+    } else {
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "请先登录")
+        }
     }
 }
 

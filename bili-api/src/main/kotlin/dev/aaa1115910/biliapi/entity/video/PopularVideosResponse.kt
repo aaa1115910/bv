@@ -8,7 +8,7 @@ data class PopularVideosResponse(
     val code: Int,
     val message: String,
     val ttl: Int,
-    val data: PopularVideoData
+    val data: PopularVideoData? = null
 )
 
 @Serializable

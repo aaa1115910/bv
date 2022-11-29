@@ -35,7 +35,7 @@ class PopularViewModel : ViewModel() {
                     sessData = Prefs.sessData
                 )
             }
-            popularVideoList.addAll(response.data.list)
+            popularVideoList.addAll(response.data!!.list)
         }.onFailure {
             logger.error { "Load popular video list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {
@@ -43,5 +43,16 @@ class PopularViewModel : ViewModel() {
             }
         }
         loading = false
+    }
+
+    fun clearData() {
+        popularVideoList.clear()
+        currentPage = 0
+        loading = false
+        pageSize = 20
+    }
+
+    fun readAllData(){
+
     }
 }

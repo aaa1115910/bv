@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicItem
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-class DynamicViewModel : ViewModel() {
+class DynamicViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
     private val logger = KotlinLogging.logger {}
     val dynamicList = mutableStateListOf<DynamicItem>()
 
@@ -20,6 +23,7 @@ class DynamicViewModel : ViewModel() {
     var loading = false
     var hasMore = true
     private var offset: String? = null
+    val isLogin get() = userRepository.isLogin
 
     @Suppress("RedundantSuspendModifier")
     suspend fun loadMore() {
@@ -27,7 +31,7 @@ class DynamicViewModel : ViewModel() {
     }
 
     private suspend fun loadData() {
-        if (!hasMore) return
+        if (!hasMore || !userRepository.isLogin) return
         loading = true
         logger.info { "Load more dynamic videos" }
         runCatching {
@@ -56,5 +60,13 @@ class DynamicViewModel : ViewModel() {
             }
         }
         loading = false
+    }
+
+    fun clearData() {
+        dynamicList.clear()
+        currentPage = 0
+        loading = false
+        hasMore = true
+        offset = null
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.component.TopNavItem
@@ -33,6 +34,7 @@ import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +45,10 @@ fun HomeScreen(
     dynamicViewModel: DynamicViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
+    val logger=KotlinLogging.logger {  }
+
+    val popularState = rememberTvLazyGridState()
+    val dynamicState = rememberTvLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
 
@@ -59,7 +65,62 @@ fun HomeScreen(
         modifier = modifier,
         topBar = {
             TopNav(
-                onSelectedChange = { selectedTab = it }
+                onSelectedChange = { nav ->
+                    selectedTab = nav
+                    when (nav) {
+                        TopNavItem.Popular -> {
+                            scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
+                        }
+
+                        TopNavItem.Partition -> {
+
+                        }
+
+                        TopNavItem.Anime -> {
+
+                        }
+
+                        TopNavItem.Dynamics -> {
+                            scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
+                            if(!dynamicViewModel.loading&&dynamicViewModel.isLogin&&dynamicViewModel.dynamicList.isEmpty()){
+                                scope.launch ( Dispatchers.Default){dynamicViewModel.loadMore() }
+                            }
+                        }
+
+                        TopNavItem.Search -> {
+
+                        }
+                    }
+                },
+                onClick = { nav ->
+                    when (nav) {
+                        TopNavItem.Popular -> {
+                            //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
+                            logger.info{"clear popular data"}
+                            popularViewModel.clearData()
+                            logger.info{"reload popular data"}
+                            scope.launch ( Dispatchers.Default){popularViewModel.loadMore() }
+                        }
+
+                        TopNavItem.Partition -> {
+
+                        }
+
+                        TopNavItem.Anime -> {
+
+                        }
+
+                        TopNavItem.Dynamics -> {
+                            //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
+                            dynamicViewModel.clearData()
+                            scope.launch ( Dispatchers.Default){dynamicViewModel.loadMore() }
+                        }
+
+                        TopNavItem.Search -> {
+
+                        }
+                    }
+                }
             )
         },
         containerColor = Color.Black
@@ -69,11 +130,19 @@ fun HomeScreen(
         ) {
             Crossfade(targetState = selectedTab) { screen ->
                 when (screen) {
-                    TopNavItem.Popular -> PopularScreen()
+                    TopNavItem.Popular -> PopularScreen(
+                        tvLazyGridState = popularState
+                    )
+
                     TopNavItem.Partition -> PartitionScreen()
                     TopNavItem.Anime -> AnimeScreen()
-                    TopNavItem.Dynamics -> DynamicsScreen()
-                    else -> PopularScreen()
+                    TopNavItem.Dynamics -> DynamicsScreen(
+                        tvLazyGridState = dynamicState
+                    )
+
+                    else -> PopularScreen(
+                        tvLazyGridState = popularState
+                    )
                 }
             }
         }
