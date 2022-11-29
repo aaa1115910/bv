@@ -1,0 +1,15 @@
+{
+  "cmd": "HOT_RANK_SETTLEMENT",
+  "data": {
+    "area_name": "手游",
+    "cache_key": "c2f8a79cc9a709237fb65df23fd61025",
+    "dm_msg": "恭喜主播 <% 逍遥散人 %> 荣登限时热门榜手游榜top9! 即将获得轮播资源位推荐哦！",
+    "dmscore": 144,
+    "face": "https://i1.hdslb.com/bfs/face/8a5de2d7486251e80307d8600cbf8649eb4035fe.jpg",
+    "icon": "https://i0.hdslb.com/bfs/live/b4961bcfba56a26b69c35690dfcbdabbeb973c64.png",
+    "rank": 9,
+    "timestamp": 1669435204,
+    "uname": "逍遥散人",
+    "url": "https://live.bilibili.com/p/html/live-app-hotrank/result.html?is_live_half_webview=1&hybrid_half_ui=1,5,250,200,f4eefa,0,30,0,0,0;2,5,250,200,f4eefa,0,30,0,0,0;3,5,250,200,f4eefa,0,30,0,0,0;4,5,250,200,f4eefa,0,30,0,0,0;5,5,250,200,f4eefa,0,30,0,0,0;6,5,250,200,f4eefa,0,30,0,0,0;7,5,250,200,f4eefa,0,30,0,0,0;8,5,250,200,f4eefa,0,30,0,0,0&areaId=3&cache_key=c2f8a79cc9a709237fb65df23fd61025"
+  }
+}

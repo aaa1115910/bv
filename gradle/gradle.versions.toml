@@ -1,0 +1,18 @@
+[versions]
+agp = "8.0.0-alpha08"
+firebase-crashlytics = "2.9.2"
+gms = "4.3.14"
+kotlin = "1.7.20"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# https://firebase.google.com/docs/crashlytics/get-started?platform=android
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }
+
+#https://developers.google.com/android/guides/google-services-plugin
+google-services = { id = "com.google.gms.google-services", version.ref = "gms" }

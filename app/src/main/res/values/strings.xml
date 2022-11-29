@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+    <string name="app_name">BV</string>
+
+    <string name="confirm">确认</string>
+
+    <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
+    <string name="disclaimer_dialog_title">注意了！</string>
+
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_player">PlayerActivity</string>
+    <string name="title_activity_user_info">UserInfoActivity</string>
+    <string name="title_activity_video_info">VideoInfoActivity</string>
+
+    <string name="top_nav_item_anime">番剧</string>
+    <string name="top_nav_item_dynamics">动态</string>
+    <string name="top_nav_item_partition">分区</string>
+    <string name="top_nav_item_popular">热门推荐</string>
+    <string name="top_nav_item_search">搜索</string>
+</resources>

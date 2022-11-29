@@ -1,0 +1,40 @@
+{
+  "cmd": "INTERACT_WORD",
+  "data": {
+    "contribution": {
+      "grade": 0
+    },
+    "dmscore": 2,
+    "fans_medal": {
+      "anchor_roomid": 0,
+      "guard_level": 0,
+      "icon_id": 0,
+      "is_lighted": 0,
+      "medal_color": 0,
+      "medal_color_border": 0,
+      "medal_color_end": 0,
+      "medal_color_start": 0,
+      "medal_level": 0,
+      "medal_name": "",
+      "score": 0,
+      "special": "",
+      "target_id": 0
+    },
+    "identities": [
+      1
+    ],
+    "is_spread": 0,
+    "msg_type": 1,
+    "privilege_type": 0,
+    "roomid": 21721813,
+    "score": 1669399871533,
+    "spread_desc": "",
+    "spread_info": "",
+    "tail_icon": 0,
+    "timestamp": 1669399871,
+    "trigger_time": 1669399870422980000,
+    "uid": 268831673,
+    "uname": "丸子泡汤ON",
+    "uname_color": ""
+  }
+}

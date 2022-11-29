@@ -1,0 +1,12 @@
+{
+  "cmd": "ONLINE_RANK_TOP3",
+  "data": {
+    "dmscore": 112,
+    "list": [
+      {
+        "msg": "恭喜 <%玉紫%> 成为高能用户",
+        "rank": 2
+      }
+    ]
+  }
+}

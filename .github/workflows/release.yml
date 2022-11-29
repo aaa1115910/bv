@@ -1,0 +1,98 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Write google-services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA > app/google-services.json
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Add signing properties
+        env:
+          SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
+        run: |
+          echo ${{ secrets.SIGNING_PROPERTIES }} > encoded_signing_properties
+          base64 -d encoded_signing_properties > signing.properties
+
+      - name: Add jks file
+        run: |
+          echo ${{ secrets.SIGN_KEY }} > ./encoded_key
+          base64 -d encoded_key > key.jks
+
+      - name: Build APK
+        run: ./gradlew assembleRelease
+
+      - name: Print Apk Output Metadata
+        run: |
+          cat app/build/outputs/apk/release/output-metadata.json
+          ls app/build/outputs/apk/release
+
+      - name: Read APK Output Metadata
+        id: apk-meta
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: app/build/outputs/apk/release/output-metadata.json
+
+      - name: Parse Version Info
+        id: version-info
+        run: |
+          echo "::set-output name=VERSION_CODE::${{ fromJson(steps.apk-meta.outputs.content).elements[0].versionCode }}"
+          echo "::set-output name=VERSION_NAME::${{ fromJson(steps.apk-meta.outputs.content).elements[0].versionName }}"
+          echo "::set-output name=APK_FILENAME::${{ fromJson(steps.apk-meta.outputs.content).elements[0].outputFile }}"
+
+      - name: Get Current Time
+        id: date
+        run: echo "::set-output name=CURRENT_TIME::$(date +'%Y-%m-%d_%H:%M:%S')"
+
+      - name: Zip Outputs
+        uses: papeloto/action-zip@v1
+        with:
+          files: app/build/outputs
+          dest: BV_${{ steps.version-info.outputs.VERSION_CODE }}_${{ steps.version-info.outputs.VERSION_NAME }}_${{ steps.date.outputs.CURRENT_TIME }}.zip
+
+#      - name: Send Changelog To Telegram
+#        env:
+#          CHANNEL_ID: ${{ secrets.TELEGRAM_TO }}
+#          BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+#          FILE: BV_${{ steps.version-info.outputs.VERSION_CODE }}_${{ steps.version-info.outputs.VERSION_NAME }}_${{ steps.date.outputs.CURRENT_TIME }}.zip
+#          COMMIT_MESSAGE:
+#        run: |
+#          ESCAPED=`python3 -c 'import json,os,urllib.parse; print(urllib.parse.quote(json.dumps(os.environ["COMMIT_MESSAGE"])))'`
+#          curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22:%22document%22,%20%22media%22:%22attach://release%22,%22parse_mode%22:%22MarkdownV2%22,%22caption%22:${ESCAPED}%7D%5D"  -F release="@$FILE"
+
+      - name: Upload Outputs
+        uses: Difegue/action-megacmd@1.2.0
+        with:
+          args: put BV_${{ steps.version-info.outputs.VERSION_CODE }}_${{ steps.version-info.outputs.VERSION_NAME }}_${{ steps.date.outputs.CURRENT_TIME }}.zip
+        env:
+          USERNAME: ${{ secrets.MEGA_USERNAME }}
+          PASSWORD: ${{ secrets.MEGA_PASSWORD }}
+
+      - name: Upload Apk to App Center
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
+        with:
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public
+          file: app/build/outputs/apk/release/${{ steps.version-info.outputs.APK_FILENAME }}
+          notifyTesters: true
+          debug: false
+
