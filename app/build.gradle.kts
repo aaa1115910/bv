@@ -1,5 +1,7 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import java.io.FileInputStream
+import java.util.*
 
 plugins {
     alias(gradleLibs.plugins.android.application)
@@ -9,7 +11,23 @@ plugins {
     alias(gradleLibs.plugins.kotlin.serialization)
 }
 
+val signingProp = file(project.rootProject.file("signing.properties"))
+
 android {
+    signingConfigs {
+        if (signingProp.exists()) {
+            val properties = Properties().apply {
+                load(FileInputStream(signingProp))
+            }
+            create("key") {
+                storeFile = rootProject.file(properties.getProperty("keystore.path"))
+                storePassword = properties.getProperty("keystore.pwd")
+                keyAlias = properties.getProperty("keystore.alias")
+                keyPassword = properties.getProperty("keystore.alias_pwd")
+            }
+        }
+    }
+
     namespace = AppConfiguration.appId
     compileSdk = AppConfiguration.compileSdk
 
@@ -31,6 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
         }
         debug {
             isMinifyEnabled = false

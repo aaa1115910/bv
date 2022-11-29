@@ -6,3 +6,4 @@
 /captures
 .externalNativeBuild
 .cxx
+/signing.properties
