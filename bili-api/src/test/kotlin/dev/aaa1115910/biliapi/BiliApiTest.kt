@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test
 
 internal class BiliApiTest {
 
+    companion object {
+        const val SESSDATA = ""
+    }
+
     @Test
     fun `get popular videos`() {
         assertDoesNotThrow {
@@ -36,7 +40,7 @@ internal class BiliApiTest {
                     cid = 903675075,
                     fnval = 4048,
                     qn = 127,
-                    sessData = ""
+                    sessData = SESSDATA
                 )
                 println(response)
             }
@@ -48,6 +52,19 @@ internal class BiliApiTest {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getDanmakuXml(cid = 903675075)
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get dynamic list with type all`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getDynamicList(
+                    type = "article",
+                    sessData = SESSDATA
+                )
                 println(response)
             }
         }

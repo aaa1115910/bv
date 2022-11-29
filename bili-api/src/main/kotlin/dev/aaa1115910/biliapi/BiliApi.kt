@@ -2,6 +2,7 @@ package dev.aaa1115910.biliapi
 
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
+import dev.aaa1115910.biliapi.entity.dynamic.DynamicResponse
 import dev.aaa1115910.biliapi.entity.video.PlayUrlResponse
 import dev.aaa1115910.biliapi.entity.video.PopularVideosResponse
 import dev.aaa1115910.biliapi.entity.video.VideoInfoResponse
@@ -147,4 +148,21 @@ object BiliApi {
 
         return DanmakuResponse(chatServer, chatId, maxLimit, state, realName, source, data)
     }
+
+    /**
+     * 获取动态列表
+     *
+     * @param type 返回数据额类型 all:全部 video:视频投稿 pgc:追番追剧 article：专栏
+     */
+    suspend fun getDynamicList(
+        timezoneOffset: Int = -480,
+        type: String = "all",
+        page: Int = 1,
+        sessData: String = ""
+    ): DynamicResponse = client.get("/x/polymer/web-dynamic/v1/feed/all") {
+        parameter("timezone_offset", timezoneOffset)
+        parameter("type", type)
+        parameter("page", page)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
 }
