@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 
 plugins {
     alias(gradleLibs.plugins.android.application)
@@ -33,6 +34,13 @@ android {
         }
         debug {
             isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
         }
     }
     compileOptions {
