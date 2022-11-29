@@ -153,16 +153,19 @@ object BiliApi {
      * 获取动态列表
      *
      * @param type 返回数据额类型 all:全部 video:视频投稿 pgc:追番追剧 article：专栏
+     * @param offset 请求第2页及其之后时填写，填写上一次请求获得的offset
      */
     suspend fun getDynamicList(
         timezoneOffset: Int = -480,
         type: String = "all",
         page: Int = 1,
+        offset: String? = null,
         sessData: String = ""
     ): DynamicResponse = client.get("/x/polymer/web-dynamic/v1/feed/all") {
         parameter("timezone_offset", timezoneOffset)
         parameter("type", type)
         parameter("page", page)
+        offset?.let { parameter("offset", offset) }
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }

@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.viewmodel
+package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -7,10 +7,12 @@ import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-class HomeViewModel : ViewModel() {
+class PopularViewModel : ViewModel() {
     private val logger = KotlinLogging.logger {}
     val popularVideoList = mutableStateListOf<VideoInfo>()
 
@@ -18,13 +20,11 @@ class HomeViewModel : ViewModel() {
     private var pageSize = 20
     var loading = false
 
-    @Suppress("RedundantSuspendModifier")
     suspend fun loadMore() {
         if (!loading) loadData()
     }
 
-    @Synchronized
-    private fun loadData() {
+    private suspend fun loadData() {
         loading = true
         logger.info { "Load more popular videos" }
         runCatching {
@@ -37,8 +37,10 @@ class HomeViewModel : ViewModel() {
             }
             popularVideoList.addAll(response.data.list)
         }.onFailure {
-            "加载热门视频失败: ${it.localizedMessage}".toast(BVApp.context)
             logger.error { "Load popular video list failed: ${it.stackTraceToString()}" }
+            withContext(Dispatchers.Main) {
+                "加载热门视频失败: ${it.localizedMessage}".toast(BVApp.context)
+            }
         }
         loading = false
     }

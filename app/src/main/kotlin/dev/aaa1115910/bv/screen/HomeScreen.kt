@@ -29,7 +29,8 @@ import dev.aaa1115910.bv.screen.home.AnimeScreen
 import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
-import dev.aaa1115910.bv.viewmodel.HomeViewModel
+import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
+import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -38,7 +39,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = koinViewModel()
+    popularViewModel: PopularViewModel = koinViewModel(),
+    dynamicViewModel: DynamicViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
 
@@ -46,7 +48,10 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.Default) {
-            homeViewModel.loadMore()
+            popularViewModel.loadMore()
+        }
+        scope.launch(Dispatchers.Default) {
+            dynamicViewModel.loadMore()
         }
     }
 

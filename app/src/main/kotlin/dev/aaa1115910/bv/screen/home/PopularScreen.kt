@@ -16,7 +16,7 @@ import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.component.VideoCard
-import dev.aaa1115910.bv.viewmodel.HomeViewModel
+import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -24,7 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PopularScreen(
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = koinViewModel()
+    popularViewModel: PopularViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -41,7 +41,7 @@ fun PopularScreen(
         ) {
             HomeCarousel()
         }*/
-        itemsIndexed(homeViewModel.popularVideoList) { index, video ->
+        itemsIndexed(popularViewModel.popularVideoList) { index, video ->
             Box(
                 contentAlignment = Alignment.Center
             ) {
@@ -51,15 +51,15 @@ fun PopularScreen(
                         VideoInfoActivity.actionStart(context, video.aid)
                     },
                     onFocus = {
-                        if (index + 12 > homeViewModel.popularVideoList.size) {
-                            scope.launch(Dispatchers.Default) { homeViewModel.loadMore() }
+                        if (index + 12 > popularViewModel.popularVideoList.size) {
+                            scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
 
                         }
                     }
                 )
             }
         }
-        if (homeViewModel.loading)
+        if (popularViewModel.loading)
             item(
                 span = { TvGridItemSpan(4) }
             ) {

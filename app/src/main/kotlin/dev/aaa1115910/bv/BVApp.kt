@@ -11,9 +11,10 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.repository.UserRepository
-import dev.aaa1115910.bv.viewmodel.HomeViewModel
+import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -46,7 +47,8 @@ class BVApp : Application() {
 
 val appModule = module {
     single { UserRepository() }
-    viewModel { HomeViewModel() }
+    viewModel { DynamicViewModel() }
+    viewModel { PopularViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { PlayerViewModel() }
 }
