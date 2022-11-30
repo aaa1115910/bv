@@ -15,13 +15,15 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import dev.aaa1115910.bv.component.Disclaimer
+import dev.aaa1115910.bv.util.VerityUtil
 
 private val BiliColorScheme = darkColorScheme(
     primary = Color(0xFFFB7299),
-    onPrimary=Color.White/*
+    onPrimary = Color.White/*
     secondary = Color(0xFFCCC2DC),
     tertiary = Color(0xFFEFB8C8)*/
 )
@@ -31,6 +33,7 @@ fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = BiliColorScheme
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -53,6 +56,10 @@ fun BVTheme(
                 Disclaimer()
             }
         }
+    }
+
+    VerityUtil.hackCheck(context) {
+        throw NullPointerException()
     }
 }
 
