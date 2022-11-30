@@ -52,6 +52,10 @@ class PlayerViewModel : ViewModel() {
 
     var dashData: Dash? = null
 
+    var logs by mutableStateOf("")
+    var showLogs by mutableStateOf(false)
+    var showBuffering by mutableStateOf(false)
+
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -79,8 +83,12 @@ class PlayerViewModel : ViewModel() {
         avid: Int,
         cid: Int
     ) {
+        showLogs = true
+        addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
+            addLogs("av$avid，cid:$cid")
             loadPlayUrl(avid, cid, 4048)
+            addLogs("加载弹幕中")
             loadDanmaku(cid)
         }
     }
@@ -148,17 +156,21 @@ class PlayerViewModel : ViewModel() {
             playQuality(qn)
 
         }.onFailure {
+            addLogs("加载视频地址失败：${it.localizedMessage}")
             errorMessage = it.stackTraceToString()
             loadState = RequestState.Failed
             logger.warn { "Load video filed: ${it.message}" }
             logger.error { it.stackTraceToString() }
         }.onSuccess {
+            addLogs("加载视频地址成功")
             loadState = RequestState.Success
             logger.warn { "Load play url success" }
         }
     }
 
     suspend fun playQuality(qn: Int = 80) {
+        showLogs = true
+        addLogs("播放清晰度：${availableQuality[qn]}")
         val videoUrl = dashData!!.video
             .find { it.id == qn }
             ?.baseUrl
@@ -193,6 +205,7 @@ class PlayerViewModel : ViewModel() {
             player!!.setMediaSource(mms)
             player!!.prepare()
             player!!.playWhenReady = true
+            showBuffering = true
         }
     }
 
@@ -215,11 +228,13 @@ class PlayerViewModel : ViewModel() {
             })
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
+            addLogs("加载弹幕失败：${it.localizedMessage}")
             withContext(Dispatchers.Main) {
                 "Load danmaku failed: ${it.message}"
             }
             logger.warn { "Load danmaku filed: ${it.message}" }
         }.onSuccess {
+            addLogs("已加载 ${danmakuData.size} 条弹幕")
             withContext(Dispatchers.Main) {
                 "Load danmaku success: ${danmakuData.size}"
             }
@@ -227,11 +242,16 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun releaseDanmakuPlayer(){
-
-    }
-
-    fun newDanmakuPlayer(){
-
+    private fun addLogs(text: String) {
+        val lines = logs.lines().toMutableList()
+        lines.add(text)
+        while (lines.size > 8) {
+            lines.removeAt(0)
+        }
+        var newTip = ""
+        lines.forEach {
+            newTip += if (newTip == "") it else "\n$it"
+        }
+        logs = newTip
     }
 }
