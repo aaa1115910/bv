@@ -50,7 +50,7 @@ import kotlinx.serialization.Serializable
  * @param seasonType
  * @param isOgv
  * @param ogvInfo
- *
+ * @param rcmdReason 热门推荐理由
  */
 @Serializable
 data class VideoInfo(
@@ -111,8 +111,17 @@ data class VideoInfo(
     @SerialName("is_ogv")
     val isOgv: Boolean = false,
     @SerialName("ogv_info")
-    val ogvInfo: String? = null
-)
+    val ogvInfo: String? = null,
+    @SerialName("rcmd_reason")
+    val rcmdReason: RcmdReason? = null,
+) {
+    @Serializable
+    data class RcmdReason(
+        val content: String,
+        @SerialName("corner_mark")
+        val cornerMark: Int
+    )
+}
 
 /**
  * 视频属性标志
