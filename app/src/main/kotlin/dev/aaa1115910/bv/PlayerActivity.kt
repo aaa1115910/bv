@@ -88,7 +88,11 @@ class PlayerActivity : ComponentActivity() {
             //KEYCODE_BOOKMARK用于在虚拟机下调试时使用书签键代替菜单键
             KEYCODE_MENU, KEYCODE_BOOKMARK -> Keys.Menu
             KEYCODE_BACK -> Keys.Back
-            KEYCODE_DPAD_CENTER -> Keys.Center
+            KEYCODE_DPAD_CENTER -> {
+                //长按确认键实现菜单键
+                if (event?.isLongPress == true) Keys.Menu else Keys.Center
+            }
+
             else -> Keys.Other
         }
         playerViewModel.lastPressedKey = key
