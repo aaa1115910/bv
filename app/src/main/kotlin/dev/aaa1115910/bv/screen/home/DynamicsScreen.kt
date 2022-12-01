@@ -36,10 +36,11 @@ fun DynamicsScreen(
 
         TvLazyVerticalGrid(
             modifier = modifier,
+            state = tvLazyGridState,
             columns = TvGridCells.Fixed(4),
             contentPadding = PaddingValues(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
                 Box(
