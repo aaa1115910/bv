@@ -17,6 +17,7 @@ import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,12 +50,14 @@ fun PopularScreen(
                 contentAlignment = Alignment.Center
             ) {
                 SmallVideoCard(
-                    title = video.title,
-                    cover = video.pic,
-                    play = video.stat.view,
-                    danmaku = video.stat.danmaku,
-                    upName = video.owner.name,
-                    time = video.duration * 1000,
+                    data = VideoCardData(
+                        title = video.title,
+                        cover = video.pic,
+                        play = video.stat.view,
+                        danmaku = video.stat.danmaku,
+                        upName = video.owner.name,
+                        time = video.duration * 1000L
+                    ),
                     onClick = {
                         VideoInfoActivity.actionStart(context, video.aid)
                     },

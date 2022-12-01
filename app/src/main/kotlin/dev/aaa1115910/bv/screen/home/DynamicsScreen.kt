@@ -18,6 +18,7 @@ import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,14 +48,17 @@ fun DynamicsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     SmallVideoCard(
-                        title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
-                        cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
-                        playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play ?: "",
-                        danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
-                            ?: "",
-                        upName = dynamic.modules.moduleAuthor.name,
-                        timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
-                            ?: "",
+                        data = VideoCardData(
+                            title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
+                            cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
+                            playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play
+                                ?: "",
+                            danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
+                                ?: "",
+                            upName = dynamic.modules.moduleAuthor.name,
+                            timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
+                                ?: ""
+                        ),
                         onClick = {
                             VideoInfoActivity.actionStart(
                                 context,

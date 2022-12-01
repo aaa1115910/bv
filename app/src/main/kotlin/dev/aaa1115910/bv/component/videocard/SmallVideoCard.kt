@@ -33,21 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.component.UpIcon
-import dev.aaa1115910.bv.component.formatMinSec
+import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @Composable
 fun SmallVideoCard(
     modifier: Modifier = Modifier,
-    title: String,
-    cover: String,
-    upName: String,
-    play: Int? = null,
-    playString: String = "",
-    danmaku: Int? = null,
-    danmakuString: String = "",
-    time: Int? = null,
-    timeString: String = "",
+    data: VideoCardData,
     onClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
@@ -79,7 +71,7 @@ fun SmallVideoCard(
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
                         .clip(MaterialTheme.shapes.large),
-                    model = cover,
+                    model = data.cover,
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
                 )
@@ -92,7 +84,7 @@ fun SmallVideoCard(
                 ) {
                     Text(
                         modifier = Modifier.padding(4.dp),
-                        text = time?.toLong()?.formatMinSec() ?: timeString,
+                        text = data.timeString,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )
@@ -102,7 +94,7 @@ fun SmallVideoCard(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
-                    text = title,
+                    text = data.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -112,7 +104,7 @@ fun SmallVideoCard(
                 ) {
                     UpIcon()
                     Text(
-                        text = upName,
+                        text = data.upName,
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -126,15 +118,18 @@ fun SmallVideoCard(
 @Preview
 @Composable
 fun SmallVideoCardPreview() {
+    val data = VideoCardData(
+        title = "震惊！太震惊了！真的是太震惊了！我的天呐！真TMD震惊！",
+        cover = "http://i2.hdslb.com/bfs/archive/af17fc07b8f735e822563cc45b7b5607a491dfff.jpg",
+        upName = "bishi",
+        play = 2333,
+        danmaku = 666,
+        time = 2333 * 1000
+    )
     BVTheme {
         Surface {
             SmallVideoCard(
-                title = "震惊！太震惊了！真的是太震惊了！我的天呐！真TMD震惊！",
-                cover = "http://i2.hdslb.com/bfs/archive/af17fc07b8f735e822563cc45b7b5607a491dfff.jpg",
-                upName = "bishi",
-                play = 2333,
-                danmaku = 666,
-                time = 2333 * 1000
+                data = data
             )
         }
     }
