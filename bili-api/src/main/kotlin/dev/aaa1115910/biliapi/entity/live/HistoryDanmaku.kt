@@ -8,70 +8,62 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
-data class HistoryDanmakuResponse(
-    val code: Int,
-    val msg: String,
-    val message: String,
-    val data: HistoryDanmaku
+data class HistoryDanmaku(
+    //val admin:List<Any>,
+    val room: List<HistoryDanmakuItem>
 ) {
     @Serializable
-    data class HistoryDanmaku(
-        //val admin:List<Any>,
-        val room: List<HistoryDanmakuItem>
+    data class HistoryDanmakuItem(
+        val text: String,
+        @SerialName("dm_type")
+        val dmType: Int,
+        val uid: Long,
+        val nickname: String,
+        @SerialName("uname_color")
+        val unameColor: String,
+        val timeline: String,
+        @SerialName("isadmin")
+        val isAdmin: Int,
+        val vip: Int,
+        val svip: Int,
+        @SerialName("medal")
+        private val _medal: List<JsonElement>,
+        @Transient
+        var medal: Medal? = null,
+        val title: List<String>,
+        @SerialName("user_level")
+        val userLevel: List<JsonElement>,
+        val rank: Int,
+        @SerialName("teamid")
+        val teamId: Int,
+        val rnd: Int,
+        @SerialName("user_title")
+        val userTitle: String,
+        @SerialName("guard_level")
+        val guardLevel: Int,
+        val bubble: Int,
+        @SerialName("bubble_color")
+        val bubbleColor: String,
+        val lpl: Int,
+        @SerialName("yeah_space_url")
+        val yeahSpaceUrl: String,
+        @SerialName("jump_to_url")
+        val jumpToUrl: String,
+        @SerialName("check_info")
+        val checkInfo: CheckInfo,
+        @SerialName("voice_dm_info")
+        val voiceDmInfo: VoiceDmInfo,
+        val emoticon: Emoticon
     ) {
-        @Serializable
-        data class HistoryDanmakuItem(
-            val text: String,
-            @SerialName("dm_type")
-            val dmType: Int,
-            val uid: Long,
-            val nickname: String,
-            @SerialName("uname_color")
-            val unameColor: String,
-            val timeline: String,
-            @SerialName("isadmin")
-            val isAdmin: Int,
-            val vip: Int,
-            val svip: Int,
-            @SerialName("medal")
-            private val _medal: List<JsonElement>,
-            @Transient
-            var medal: Medal? = null,
-            val title: List<String>,
-            @SerialName("user_level")
-            val userLevel: List<JsonElement>,
-            val rank: Int,
-            @SerialName("teamid")
-            val teamId: Int,
-            val rnd: Int,
-            @SerialName("user_title")
-            val userTitle: String,
-            @SerialName("guard_level")
-            val guardLevel: Int,
-            val bubble: Int,
-            @SerialName("bubble_color")
-            val bubbleColor: String,
-            val lpl: Int,
-            @SerialName("yeah_space_url")
-            val yeahSpaceUrl: String,
-            @SerialName("jump_to_url")
-            val jumpToUrl: String,
-            @SerialName("check_info")
-            val checkInfo: CheckInfo,
-            @SerialName("voice_dm_info")
-            val voiceDmInfo: VoiceDmInfo,
-            val emoticon: Emoticon
-        ) {
-            init {
-                medal = runCatching {
-                    Medal(
-                        level = _medal[0].jsonPrimitive.int,
-                        name = _medal[1].jsonPrimitive.content,
-                        up = _medal[2].jsonPrimitive.content,
-                        roomId = _medal[3].jsonPrimitive.int
-                    )
-                }.getOrNull()
-            }
+        init {
+            medal = runCatching {
+                Medal(
+                    level = _medal[0].jsonPrimitive.int,
+                    name = _medal[1].jsonPrimitive.content,
+                    up = _medal[2].jsonPrimitive.content,
+                    roomId = _medal[3].jsonPrimitive.int
+                )
+            }.getOrNull()
         }
     }
 }

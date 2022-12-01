@@ -1,11 +1,15 @@
 package dev.aaa1115910.biliapi
 
+import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
-import dev.aaa1115910.biliapi.entity.dynamic.DynamicResponse
-import dev.aaa1115910.biliapi.entity.video.PlayUrlResponse
-import dev.aaa1115910.biliapi.entity.video.PopularVideosResponse
-import dev.aaa1115910.biliapi.entity.video.VideoInfoResponse
+import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
+import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.biliapi.entity.user.UserCardData
+import dev.aaa1115910.biliapi.entity.user.UserInfoData
+import dev.aaa1115910.biliapi.entity.video.PlayUrlData
+import dev.aaa1115910.biliapi.entity.video.PopularVideoData
+import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -60,7 +64,7 @@ object BiliApi {
         pageNumber: Int = 1,
         pageSize: Int = 20,
         sessData: String = ""
-    ): PopularVideosResponse = client.get("/x/web-interface/popular") {
+    ): BiliResponse<PopularVideoData> = client.get("/x/web-interface/popular") {
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
@@ -73,7 +77,7 @@ object BiliApi {
         av: Int? = null,
         bv: String? = null,
         sessData: String = ""
-    ): VideoInfoResponse = client.get("/x/web-interface/view") {
+    ): BiliResponse<VideoInfo> = client.get("/x/web-interface/view") {
         parameter("aid", av)
         parameter("bvid", bv)
         header("Cookie", "SESSDATA=$sessData;")
@@ -95,7 +99,7 @@ object BiliApi {
         type: String = "",
         platform: String = "oc",
         sessData: String = ""
-    ): PlayUrlResponse = client.get("/x/player/playurl") {
+    ): BiliResponse<PlayUrlData> = client.get("/x/player/playurl") {
         parameter("avid", av)
         parameter("bvid", bv)
         parameter("cid", cid)
@@ -161,11 +165,49 @@ object BiliApi {
         page: Int = 1,
         offset: String? = null,
         sessData: String = ""
-    ): DynamicResponse = client.get("/x/polymer/web-dynamic/v1/feed/all") {
+    ): BiliResponse<DynamicData> = client.get("/x/polymer/web-dynamic/v1/feed/all") {
         parameter("timezone_offset", timezoneOffset)
         parameter("type", type)
         parameter("page", page)
         offset?.let { parameter("offset", offset) }
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    /**
+     * 获取用户[uid]的详细信息
+     */
+    suspend fun getUserInfo(
+        uid: Long,
+        sessData: String = ""
+    ): BiliResponse<UserInfoData> = client.get("/x/space/acc/info") {
+        parameter("mid", uid)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+
+    /**
+     * 获取用户[uid]的卡片信息
+     *
+     * @param uid 用户id
+     * @param photo 是否请求用户主页头图
+     */
+    suspend fun getUserCardInfo(
+        uid: Long,
+        photo: Boolean = false,
+        sessData: String = ""
+    ): BiliResponse<UserCardData> = client.get("/x/web-interface/card") {
+        parameter("mid", uid)
+        parameter("photo", photo)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 通过[sessData]获取用户个人信息
+     */
+    suspend fun getUserSelfInfo(
+        sessData: String = ""
+    ): BiliResponse<MyInfoData> = client.get("/x/space/myinfo") {
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
 }

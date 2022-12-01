@@ -20,6 +20,9 @@ class UserRepository {
     var biliJct by mutableStateOf(Prefs.biliJct)
     var expiredDate by mutableStateOf(Prefs.tokenExpiredData)
 
+    var username by mutableStateOf("")
+    var face by mutableStateOf("")
+
     fun reloadFromPrefs() {
         uid = Prefs.uid
         uidCkMd5 = Prefs.uidCkMd5

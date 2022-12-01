@@ -35,18 +35,22 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.LoginActivity
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.UserInfoActivity
-import dev.aaa1115910.bv.util.Prefs
 
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
+    isLogin: Boolean,
+    username: String,
+    face: String,
     onSelectedChange: (TopNavItem) -> Unit = {},
     onClick: (TopNavItem) -> Unit = {}
 ) {
@@ -93,6 +97,9 @@ fun TopNav(
                 }
             }
             UserIcon(
+                isLogin = isLogin,
+                username = username,
+                face = face,
                 onGotoLogin = {
                     context.startActivity(Intent(context, LoginActivity::class.java))
                 },
@@ -162,18 +169,21 @@ private fun NavTabButton(
 @Composable
 private fun UserIcon(
     modifier: Modifier = Modifier,
+    isLogin: Boolean,
+    username: String,
+    face: String,
     onGotoLogin: () -> Unit,
     onGotoInfo: () -> Unit
 ) {
     TextButton(
         modifier = modifier,
-        onClick = { if (Prefs.isLogin) onGotoInfo() else onGotoLogin() }
+        onClick = { if (isLogin) onGotoInfo() else onGotoLogin() }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Text(text = if (Prefs.isLogin) "已登录" else "未登录")
+            Text(text = if (isLogin) username else "未登录")
             Box {
                 Surface(
                     modifier = Modifier
@@ -181,7 +191,14 @@ private fun UserIcon(
                         .clip(CircleShape),
                     color = Color.White
                 ) {
-                    Text(text = "头像")
+                    AsyncImage(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        model = face,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds
+                    )
                 }
             }
         }

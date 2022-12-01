@@ -4,14 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LiveRoomPlayInfoResponse(
-    val code: Int,
-    val message: String,
-    val ttl: Int,
-    val data: RoomPlayInfoData? = null
-)
-
-@Serializable
 data class RoomPlayInfoData(
     @SerialName("room_id")
     val roomId: Int,

@@ -12,6 +12,7 @@ import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
 import android.view.KeyEvent.KEYCODE_MENU
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -49,6 +50,7 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         //val trackSelector = DefaultTrackSelector(this, AdaptiveTrackSelection.Factory())
         val player = ExoPlayer
             .Builder(this)
@@ -79,6 +81,11 @@ class PlayerActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val key = when (keyCode) {
             KEYCODE_DPAD_UP -> Keys.Up
@@ -88,7 +95,11 @@ class PlayerActivity : ComponentActivity() {
             //KEYCODE_BOOKMARK用于在虚拟机下调试时使用书签键代替菜单键
             KEYCODE_MENU, KEYCODE_BOOKMARK -> Keys.Menu
             KEYCODE_BACK -> Keys.Back
-            KEYCODE_DPAD_CENTER -> Keys.Center
+            KEYCODE_DPAD_CENTER -> {
+                //长按确认键实现菜单键
+                if (event?.isLongPress == true) Keys.Menu else Keys.Center
+            }
+
             else -> Keys.Other
         }
         playerViewModel.lastPressedKey = key

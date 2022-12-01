@@ -53,6 +53,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -77,6 +78,7 @@ fun VideoPlayer(
     var currentTime by remember { mutableStateOf(0L) }
     var bufferedPercentage by remember { mutableStateOf(0) }
     var size by remember { mutableStateOf("") }
+
     var danmakuConfig by remember {
         mutableStateOf(
             DanmakuConfig(
@@ -130,18 +132,28 @@ fun VideoPlayer(
                         updateSeek()
                         logger.info { "totalDuration: $totalDuration currentTime:$currentTime bufferedPercentage:$bufferedPercentage" }
                         when (events) {
-
                         }
                     }
 
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         logger.info { "onPlaybackStateChanged: [playbackState=$playbackState]" }
                         if (playbackState == Player.STATE_READY) {
-                            println("---------------1")
                             danmakuPlayer.start(danmakuConfig)
                             danmakuPlayer.seekTo(player.currentPosition)
+
+                            playerViewModel.showBuffering = false
+
                         } else {
                             danmakuPlayer.pause()
+                            if (playbackState == Player.STATE_BUFFERING) {
+                                playerViewModel.showBuffering = true
+                            }
+
+                            //隐藏左下角日志
+                            scope.launch(Dispatchers.Default) {
+                                delay(3_000)
+                                playerViewModel.showLogs = false
+                            }
                         }
                     }
 
@@ -150,9 +162,6 @@ fun VideoPlayer(
                         if (playWhenReady) {
                             logger.info { "Start danmaku" }
                             danmakuPlayer.updateConfig(danmakuConfig)
-                            //danmakuPlayer.start(danmakuConfig)
-                            //println("---------------2")
-                            //danmakuPlayer.seekTo(player.currentPosition)
                         } else {
                             logger.info { "Pause danmaku" }
                             danmakuPlayer.pause()
@@ -209,6 +218,7 @@ fun VideoPlayer(
             totalDuration = totalDuration,
             currentTime = currentTime,
             bufferedPercentage = bufferedPercentage,
+            buffering = playerViewModel.showBuffering,
             onSeekChanged = { timeMs ->
                 player.seekTo(timeMs.toLong())
             },
@@ -249,11 +259,18 @@ fun VideoPlayer(
             Column(
                 modifier = Modifier.align(Alignment.TopStart)
             ) {
-                Text("totalDuration: $totalDuration")
-                Text("currentTime: $currentTime")
-                Text("bufferedPercentage: $bufferedPercentage")
-                Text("size: $size")
+                Text("视频长度: $totalDuration")
+                Text("当前时间: $currentTime")
+                Text("缓冲: $bufferedPercentage%")
+                Text("分辨率: $size")
+                Text("")
             }
+        }
+        if (playerViewModel.showLogs) {
+            Text(
+                modifier = Modifier.align(Alignment.BottomStart),
+                text = playerViewModel.logs
+            )
         }
     }
 }
@@ -291,6 +308,7 @@ fun PlayerControllers(
     totalDuration: Long,
     currentTime: Long,
     bufferedPercentage: Int,
+    buffering: Boolean,
     onSeekChanged: (timeMs: Float) -> Unit,
     onChooseResolution: (qualityId: Int) -> Unit,
     onSwitchDanmaku: (enable: Boolean) -> Unit,
@@ -464,14 +482,18 @@ fun PlayerControllers(
                     modifier = Modifier
                         .padding(28.dp, 28.dp, 28.dp, (3 * 28).dp)
                         .size(64.dp),
-                    color = Color.Green
+                    color = MaterialTheme.colorScheme.primary
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("暂停")
+                        if (buffering) {
+                            Text(text = "缓冲中")
+                        } else {
+                            Text(text = "暂停")
+                        }
                     }
                 }
             }

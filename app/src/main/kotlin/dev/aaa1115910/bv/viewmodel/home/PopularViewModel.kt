@@ -28,14 +28,14 @@ class PopularViewModel : ViewModel() {
         loading = true
         logger.info { "Load more popular videos" }
         runCatching {
-            val response = runBlocking {
+            val responseData = runBlocking {
                 BiliApi.getPopularVideoData(
                     pageNumber = ++currentPage,
                     pageSize = pageSize,
                     sessData = Prefs.sessData
-                )
+                ).getResponseData()
             }
-            popularVideoList.addAll(response.data!!.list)
+            popularVideoList.addAll(responseData.list)
         }.onFailure {
             logger.error { "Load popular video list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {

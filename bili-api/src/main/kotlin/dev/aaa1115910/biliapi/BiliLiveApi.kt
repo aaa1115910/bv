@@ -1,8 +1,9 @@
 package dev.aaa1115910.biliapi
 
-import dev.aaa1115910.biliapi.entity.live.HistoryDanmakuResponse
-import dev.aaa1115910.biliapi.entity.live.LiveDanmuInfoResponse
-import dev.aaa1115910.biliapi.entity.live.LiveRoomPlayInfoResponse
+import dev.aaa1115910.biliapi.entity.BiliResponse
+import dev.aaa1115910.biliapi.entity.live.DanmuInfoData
+import dev.aaa1115910.biliapi.entity.live.HistoryDanmaku
+import dev.aaa1115910.biliapi.entity.live.RoomPlayInfoData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -20,7 +21,6 @@ object BiliLiveApi {
     private var endPoint: String = ""
     private lateinit var client: HttpClient
     private val logger = KotlinLogging.logger { }
-
 
     init {
         createClient()
@@ -45,11 +45,10 @@ object BiliLiveApi {
         }
     }
 
-
     /**
      * 获取直播间[roomId]的弹幕连接地址等信息，例如 token
      */
-    suspend fun getLiveDanmuInfo(roomId: Int): LiveDanmuInfoResponse =
+    suspend fun getLiveDanmuInfo(roomId: Int): BiliResponse<DanmuInfoData> =
         client.get("/xlive/web-room/v1/index/getDanmuInfo") {
             parameter("id", roomId)
         }.body()
@@ -57,7 +56,7 @@ object BiliLiveApi {
     /**
      * 获取直播间[roomId]的信息
      */
-    suspend fun getLiveRoomPlayInfo(roomId: Int): LiveRoomPlayInfoResponse =
+    suspend fun getLiveRoomPlayInfo(roomId: Int): BiliResponse<RoomPlayInfoData> =
         client.get("/xlive/web-room/v1/index/getRoomPlayInfo") {
             parameter("room_id", roomId)
         }.body()
@@ -65,7 +64,7 @@ object BiliLiveApi {
     /**
      * 获取直播间[roomId]的历史弹幕
      */
-    suspend fun getLiveDanmuHistory(roomId: Int): HistoryDanmakuResponse =
+    suspend fun getLiveDanmuHistory(roomId: Int): BiliResponse<HistoryDanmaku> =
         client.get("/xlive/web-room/v1/dM/gethistory") {
             parameter("roomid", roomId)
         }.body()

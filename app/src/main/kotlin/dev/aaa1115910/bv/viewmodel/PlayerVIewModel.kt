@@ -52,6 +52,10 @@ class PlayerViewModel : ViewModel() {
 
     var dashData: Dash? = null
 
+    var logs by mutableStateOf("")
+    var showLogs by mutableStateOf(false)
+    var showBuffering by mutableStateOf(false)
+
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -79,8 +83,12 @@ class PlayerViewModel : ViewModel() {
         avid: Int,
         cid: Int
     ) {
+        showLogs = true
+        addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
+            addLogs("av$avid，cid:$cid")
             loadPlayUrl(avid, cid, 4048)
+            addLogs("加载弹幕中")
             loadDanmaku(cid)
         }
     }
@@ -97,7 +105,7 @@ class PlayerViewModel : ViewModel() {
         loadState = RequestState.Ready
         logger.info { "Set request state: ready" }
         runCatching {
-            val response = BiliApi.getVideoPlayUrl(
+            val responseData = BiliApi.getVideoPlayUrl(
                 av = avid,
                 cid = cid,
                 fnval = fnval,
@@ -105,22 +113,16 @@ class PlayerViewModel : ViewModel() {
                 fnver = fnver,
                 fourk = fourk,
                 sessData = Prefs.sessData
-            )
-            logger.info { "Load play url response: $response" }
-            if (response.code != 0) {
-                logger.info { "Error code, finish method" }
-                errorMessage = response.message
-                loadState = RequestState.Failed
-                return
-            }
+            ).getResponseData()
+            logger.info { "Load play url response: $responseData" }
 
             //读取清晰度
             val qualityMap = mutableMapOf<Int, String>()
-            val qualityIdList = response.data?.dash?.video
+            val qualityIdList = responseData.dash?.video
                 ?.map { it.id }?.toHashSet()?.toList() ?: emptyList()
             qualityIdList.forEach { qualityId ->
-                val index = response.data?.acceptQuality?.indexOf(qualityId) ?: -1
-                qualityMap[qualityId] = response.data?.acceptDescription?.get(index) ?: "未知清晰度"
+                val index = responseData.acceptQuality.indexOf(qualityId)
+                qualityMap[qualityId] = responseData.acceptDescription[index]
             }
             logger.info { "Video available quality: $qualityMap" }
             availableQuality.swapMap(qualityMap)
@@ -133,7 +135,7 @@ class PlayerViewModel : ViewModel() {
                 currentQuality = Prefs.defaultQuality
             } else {
                 //不存在默认清晰度，则选择次一等的清晰度
-                var tempList = qualityMap.keys.sorted()
+                val tempList = qualityMap.keys.sorted()
                 //默认清晰度选择最低清晰度
                 currentQuality = tempList.first()
                 tempList.forEach {
@@ -143,22 +145,26 @@ class PlayerViewModel : ViewModel() {
                 }
             }
 
-            dashData = response.data!!.dash!!
+            dashData = responseData.dash!!
 
             playQuality(qn)
 
         }.onFailure {
+            addLogs("加载视频地址失败：${it.localizedMessage}")
             errorMessage = it.stackTraceToString()
             loadState = RequestState.Failed
             logger.warn { "Load video filed: ${it.message}" }
             logger.error { it.stackTraceToString() }
         }.onSuccess {
+            addLogs("加载视频地址成功")
             loadState = RequestState.Success
             logger.warn { "Load play url success" }
         }
     }
 
     suspend fun playQuality(qn: Int = 80) {
+        showLogs = true
+        addLogs("播放清晰度：${availableQuality[qn]}")
         val videoUrl = dashData!!.video
             .find { it.id == qn }
             ?.baseUrl
@@ -193,13 +199,14 @@ class PlayerViewModel : ViewModel() {
             player!!.setMediaSource(mms)
             player!!.prepare()
             player!!.playWhenReady = true
+            showBuffering = true
         }
     }
 
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
-            val test = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
-            danmakuData.addAll(test.data.map {
+            val danmakuXmlData = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+            danmakuData.addAll(danmakuXmlData.data.map {
                 DanmakuItemData(
                     danmakuId = it.dmid,
                     position = (it.time * 1000).toLong(),
@@ -215,23 +222,24 @@ class PlayerViewModel : ViewModel() {
             })
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
-            withContext(Dispatchers.Main) {
-                "Load danmaku failed: ${it.message}"
-            }
+            addLogs("加载弹幕失败：${it.localizedMessage}")
             logger.warn { "Load danmaku filed: ${it.message}" }
         }.onSuccess {
-            withContext(Dispatchers.Main) {
-                "Load danmaku success: ${danmakuData.size}"
-            }
+            addLogs("已加载 ${danmakuData.size} 条弹幕")
             logger.warn { "Load danmaku success: ${danmakuData.size}" }
         }
     }
 
-    fun releaseDanmakuPlayer(){
-
-    }
-
-    fun newDanmakuPlayer(){
-
+    private fun addLogs(text: String) {
+        val lines = logs.lines().toMutableList()
+        lines.add(text)
+        while (lines.size > 8) {
+            lines.removeAt(0)
+        }
+        var newTip = ""
+        lines.forEach {
+            newTip += if (newTip == "") it else "\n$it"
+        }
+        logs = newTip
     }
 }
