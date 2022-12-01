@@ -30,6 +30,7 @@ import dev.aaa1115910.bv.screen.home.AnimeScreen
 import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
+import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,16 +43,18 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     modifier: Modifier = Modifier,
     popularViewModel: PopularViewModel = koinViewModel(),
-    dynamicViewModel: DynamicViewModel = koinViewModel()
+    dynamicViewModel: DynamicViewModel = koinViewModel(),
+    userViewModel: UserViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
-    val logger=KotlinLogging.logger {  }
+    val logger = KotlinLogging.logger { }
 
     val popularState = rememberTvLazyGridState()
     val dynamicState = rememberTvLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
 
+    //启动时刷新数据
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.Default) {
             popularViewModel.loadMore()
@@ -59,17 +62,34 @@ fun HomeScreen(
         scope.launch(Dispatchers.Default) {
             dynamicViewModel.loadMore()
         }
+        scope.launch(Dispatchers.Default) {
+            userViewModel.updateUserInfo()
+        }
+    }
+
+    //监听登录变化
+    LaunchedEffect(userViewModel.isLogin ){
+        if(userViewModel.isLogin){
+            //login
+            userViewModel.updateUserInfo()
+        }else{
+            //logout
+
+        }
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopNav(
+                isLogin = userViewModel.isLogin,
+                username = userViewModel.username,
+                face = userViewModel.face,
                 onSelectedChange = { nav ->
                     selectedTab = nav
                     when (nav) {
                         TopNavItem.Popular -> {
-                            scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
+                            //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
                         }
 
                         TopNavItem.Partition -> {
@@ -81,9 +101,9 @@ fun HomeScreen(
                         }
 
                         TopNavItem.Dynamics -> {
-                            scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
-                            if(!dynamicViewModel.loading&&dynamicViewModel.isLogin&&dynamicViewModel.dynamicList.isEmpty()){
-                                scope.launch ( Dispatchers.Default){dynamicViewModel.loadMore() }
+                            //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
+                            if (!dynamicViewModel.loading && dynamicViewModel.isLogin && dynamicViewModel.dynamicList.isEmpty()) {
+                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
                             }
                         }
 
@@ -96,10 +116,10 @@ fun HomeScreen(
                     when (nav) {
                         TopNavItem.Popular -> {
                             //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
-                            logger.info{"clear popular data"}
+                            logger.info { "clear popular data" }
                             popularViewModel.clearData()
-                            logger.info{"reload popular data"}
-                            scope.launch ( Dispatchers.Default){popularViewModel.loadMore() }
+                            logger.info { "reload popular data" }
+                            scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
                         }
 
                         TopNavItem.Partition -> {
@@ -113,7 +133,7 @@ fun HomeScreen(
                         TopNavItem.Dynamics -> {
                             //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
                             dynamicViewModel.clearData()
-                            scope.launch ( Dispatchers.Default){dynamicViewModel.loadMore() }
+                            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
                         }
 
                         TopNavItem.Search -> {

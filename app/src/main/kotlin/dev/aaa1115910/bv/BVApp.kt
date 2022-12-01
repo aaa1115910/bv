@@ -17,6 +17,7 @@ import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import io.ktor.util.encodeBase64
@@ -69,6 +70,7 @@ val appModule = module {
     viewModel { PopularViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { PlayerViewModel() }
+    viewModel { UserViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")
