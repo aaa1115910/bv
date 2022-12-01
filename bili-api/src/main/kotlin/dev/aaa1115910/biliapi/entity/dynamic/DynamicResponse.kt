@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.entity.dynamic
 
+import dev.aaa1115910.biliapi.entity.user.Pendant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -95,18 +96,6 @@ data class DynamicItem(
             data class OfficialVerify(
                 val desc: String,
                 val type: Int
-            )
-
-            @Serializable
-            data class Pendant(
-                val expire: Int,
-                val image: String,
-                @SerialName("image_enhance")
-                val imageEnhance: String,
-                @SerialName("image_enhance_frame")
-                val imageEnhanceFrame: String,
-                val name: String,
-                val pid: Int
             )
 
             @Serializable

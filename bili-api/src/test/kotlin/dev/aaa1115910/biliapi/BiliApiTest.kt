@@ -69,4 +69,43 @@ internal class BiliApiTest {
             }
         }
     }
+
+    @Test
+    fun `get user info from Mr_He`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getUserInfo(
+                    uid = 163637592,
+                    sessData = SESSDATA
+                )
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get user card info from Mr_He`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getUserCardInfo(
+                    uid = 163637592,
+                    photo = true,
+                    sessData = SESSDATA
+                )
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get self user info`(){
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getUserSelfInfo(
+                    sessData = SESSDATA
+                )
+                println(response)
+            }
+        }
+    }
 }

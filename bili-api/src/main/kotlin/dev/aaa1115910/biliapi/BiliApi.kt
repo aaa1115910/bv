@@ -3,6 +3,9 @@ package dev.aaa1115910.biliapi
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicResponse
+import dev.aaa1115910.biliapi.entity.user.UserSelfInfoResponse
+import dev.aaa1115910.biliapi.entity.user.UserCardInfoResponse
+import dev.aaa1115910.biliapi.entity.user.UserInfoResponse
 import dev.aaa1115910.biliapi.entity.video.PlayUrlResponse
 import dev.aaa1115910.biliapi.entity.video.PopularVideosResponse
 import dev.aaa1115910.biliapi.entity.video.VideoInfoResponse
@@ -168,4 +171,42 @@ object BiliApi {
         offset?.let { parameter("offset", offset) }
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    /**
+     * 获取用户[uid]的详细信息
+     */
+    suspend fun getUserInfo(
+        uid: Long,
+        sessData: String = ""
+    ): UserInfoResponse = client.get("/x/space/acc/info") {
+        parameter("mid", uid)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+
+    /**
+     * 获取用户[uid]的卡片信息
+     *
+     * @param uid 用户id
+     * @param photo 是否请求用户主页头图
+     */
+    suspend fun getUserCardInfo(
+        uid: Long,
+        photo: Boolean = false,
+        sessData: String = ""
+    ): UserCardInfoResponse = client.get("/x/web-interface/card") {
+        parameter("mid", uid)
+        parameter("photo", photo)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 通过[sessData]获取用户个人信息
+     */
+    suspend fun getUserSelfInfo(
+        sessData: String = ""
+    ): UserSelfInfoResponse = client.get("/x/space/myinfo") {
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
 }
