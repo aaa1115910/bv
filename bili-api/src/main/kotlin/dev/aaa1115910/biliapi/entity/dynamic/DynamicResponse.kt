@@ -5,14 +5,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DynamicResponse(
-    val code: Int,
-    val message: String,
-    val ttl: Int,
-    val data: DynamicData? = null
-)
-
-@Serializable
 data class DynamicData(
     @SerialName("has_more")
     val hasMore: Boolean,

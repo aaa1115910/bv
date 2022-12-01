@@ -25,7 +25,6 @@ class DynamicViewModel(
     private var offset: String? = null
     val isLogin get() = userRepository.isLogin
 
-    @Suppress("RedundantSuspendModifier")
     suspend fun loadMore() {
         if (!loading) loadData()
     }
@@ -35,24 +34,24 @@ class DynamicViewModel(
         loading = true
         logger.info { "Load more dynamic videos" }
         runCatching {
-            val response = runBlocking {
+            val responseData = runBlocking {
                 BiliApi.getDynamicList(
                     page = ++currentPage,
                     type = "video",
                     offset = offset,
                     sessData = Prefs.sessData
-                )
+                ).getResponseData()
             }
-            dynamicList.addAll(response.data?.items ?: emptyList())
-            offset = response.data!!.offset
+            dynamicList.addAll(responseData.items)
+            offset = responseData.offset
 
-            logger.info { "Load dynamic list page: ${currentPage},size: ${response.data?.items?.size}" }
-            val avList = response.data?.items?.map {
+            logger.info { "Load dynamic list page: ${currentPage},size: ${responseData.items.size}" }
+            val avList = responseData.items.map {
                 it.modules.moduleDynamic.major!!.archive!!.aid
             }
             logger.info { "Load dynamic list ${avList}}" }
 
-            hasMore = response.data!!.hasMore
+            hasMore = responseData.hasMore
         }.onFailure {
             logger.error { "Load dynamic list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {

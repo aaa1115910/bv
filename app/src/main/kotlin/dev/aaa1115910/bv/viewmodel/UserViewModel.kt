@@ -21,17 +21,11 @@ class UserViewModel(
         if (!shouldUpdateInfo || !userRepository.isLogin) return
         logger.info { "Update user info" }
         viewModelScope.launch {
-            val response = BiliApi.getUserSelfInfo(sessData = Prefs.sessData)
-            if (response.code != 0) {
-                logger.info { "Update user info failed: ${response.message}" }
-                return@launch
-            } else {
-                logger.info { "Update user info success" }
-                shouldUpdateInfo = false
-            }
-            userRepository.username = response.data!!.name
-            userRepository.face = response.data!!.face
-            //logger.info { "Username: ${userRepository.username}" }
+            val responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+            logger.info { "Update user info success" }
+            shouldUpdateInfo = false
+            userRepository.username = responseData.name
+            userRepository.face = responseData.face
         }
     }
 

@@ -3,15 +3,6 @@ package dev.aaa1115910.biliapi.entity.video
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
-@Serializable
-data class PlayUrlResponse(
-    val code: Int,
-    val message: String,
-    val ttl: Int,
-    val data: PlayUrlData? = null
-)
-
 /**
  * @param from local 作用尚不明确
  * @param result suee 作用尚不明确

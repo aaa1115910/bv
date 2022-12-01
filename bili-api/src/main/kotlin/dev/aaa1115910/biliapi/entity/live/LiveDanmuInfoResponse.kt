@@ -4,14 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LiveDanmuInfoResponse(
-    val code: Int,
-    val message: String,
-    val ttl: Int,
-    val data: DanmuInfoData? = null
-)
-
-@Serializable
 data class DanmuInfoData(
     val group: String,
     @SerialName("business_id")

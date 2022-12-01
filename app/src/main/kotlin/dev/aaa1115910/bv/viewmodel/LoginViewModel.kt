@@ -30,7 +30,7 @@ class LoginViewModel(
 ) : ViewModel() {
     var state by mutableStateOf(LoginState.Ready)
     private val logger = KotlinLogging.logger { }
-    var loginUrl by mutableStateOf("")
+    private var loginUrl by mutableStateOf("")
     var qrImage by mutableStateOf(ImageBitmap(1, 1, ImageBitmapConfig.Argb8888))
     private var key = ""
 
@@ -42,10 +42,10 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
                 state = LoginState.RequestingQRCode
-                val response = BiliPassportApi.getQRUrl()
-                loginUrl = response.data.url
-                key = response.data.qrcodeKey
-                logger.info { "Get login request code url: ${response.data.url}" }
+                val responseData = BiliPassportApi.getQRUrl().getResponseData()
+                loginUrl = responseData.url
+                key = responseData.qrcodeKey
+                logger.info { "Get login request code url: ${responseData.url}" }
                 generateQRImage()
                 runCatching { timer.cancel() }
                 timer = Timer()
@@ -70,11 +70,10 @@ class LoginViewModel(
     suspend fun checkLoginResult() {
         logger.info { "Check for login result" }
         runCatching {
-            val response = BiliPassportApi.loginWithQR(key)
-            require(response.code == 0) { "Check qr state failed" }
-            when (response.data.code) {
+            val (response, cookies) = BiliPassportApi.loginWithQR(key)
+            val responseData = response.getResponseData()
+            when (responseData.code) {
                 0 -> {
-                    val cookies = response.cookies
                     userRepository.setLoginData(
                         uid = cookies.find { it.name == "DedeUserID" }?.value?.toLong()
                             ?: throw IllegalArgumentException("Cookie DedeUserID not found"),

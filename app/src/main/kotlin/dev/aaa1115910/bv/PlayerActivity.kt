@@ -82,6 +82,7 @@ class PlayerActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 

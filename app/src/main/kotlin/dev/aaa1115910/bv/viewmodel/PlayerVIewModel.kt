@@ -105,7 +105,7 @@ class PlayerViewModel : ViewModel() {
         loadState = RequestState.Ready
         logger.info { "Set request state: ready" }
         runCatching {
-            val response = BiliApi.getVideoPlayUrl(
+            val responseData = BiliApi.getVideoPlayUrl(
                 av = avid,
                 cid = cid,
                 fnval = fnval,
@@ -113,22 +113,16 @@ class PlayerViewModel : ViewModel() {
                 fnver = fnver,
                 fourk = fourk,
                 sessData = Prefs.sessData
-            )
-            logger.info { "Load play url response: $response" }
-            if (response.code != 0) {
-                logger.info { "Error code, finish method" }
-                errorMessage = response.message
-                loadState = RequestState.Failed
-                return
-            }
+            ).getResponseData()
+            logger.info { "Load play url response: $responseData" }
 
             //读取清晰度
             val qualityMap = mutableMapOf<Int, String>()
-            val qualityIdList = response.data?.dash?.video
+            val qualityIdList = responseData.dash?.video
                 ?.map { it.id }?.toHashSet()?.toList() ?: emptyList()
             qualityIdList.forEach { qualityId ->
-                val index = response.data?.acceptQuality?.indexOf(qualityId) ?: -1
-                qualityMap[qualityId] = response.data?.acceptDescription?.get(index) ?: "未知清晰度"
+                val index = responseData.acceptQuality.indexOf(qualityId)
+                qualityMap[qualityId] = responseData.acceptDescription[index]
             }
             logger.info { "Video available quality: $qualityMap" }
             availableQuality.swapMap(qualityMap)
@@ -141,7 +135,7 @@ class PlayerViewModel : ViewModel() {
                 currentQuality = Prefs.defaultQuality
             } else {
                 //不存在默认清晰度，则选择次一等的清晰度
-                var tempList = qualityMap.keys.sorted()
+                val tempList = qualityMap.keys.sorted()
                 //默认清晰度选择最低清晰度
                 currentQuality = tempList.first()
                 tempList.forEach {
@@ -151,7 +145,7 @@ class PlayerViewModel : ViewModel() {
                 }
             }
 
-            dashData = response.data!!.dash!!
+            dashData = responseData.dash!!
 
             playQuality(qn)
 
@@ -211,8 +205,8 @@ class PlayerViewModel : ViewModel() {
 
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
-            val test = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
-            danmakuData.addAll(test.data.map {
+            val danmakuXmlData = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+            danmakuData.addAll(danmakuXmlData.data.map {
                 DanmakuItemData(
                     danmakuId = it.dmid,
                     position = (it.time * 1000).toLong(),
@@ -229,15 +223,9 @@ class PlayerViewModel : ViewModel() {
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
-            withContext(Dispatchers.Main) {
-                "Load danmaku failed: ${it.message}"
-            }
             logger.warn { "Load danmaku filed: ${it.message}" }
         }.onSuccess {
             addLogs("已加载 ${danmakuData.size} 条弹幕")
-            withContext(Dispatchers.Main) {
-                "Load danmaku success: ${danmakuData.size}"
-            }
             logger.warn { "Load danmaku success: ${danmakuData.size}" }
         }
     }
