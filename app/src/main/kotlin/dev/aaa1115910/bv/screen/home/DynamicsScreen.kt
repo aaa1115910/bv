@@ -49,6 +49,8 @@ fun DynamicsScreen(
                 ) {
                     SmallVideoCard(
                         data = VideoCardData(
+                            avid = dynamic.modules.moduleDynamic.major?.archive?.aid?.toInt()
+                                ?: 170001,
                             title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
                             cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
                             playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play

@@ -17,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import dev.aaa1115910.bv.VideoInfoActivity
 import dev.aaa1115910.bv.entity.VideoCardData
 
 @Composable
@@ -31,6 +33,7 @@ fun VideosRow(
     videos: List<VideoCardData>,
     showMore: () -> Unit
 ) {
+    val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.Gray
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
@@ -55,7 +58,10 @@ fun VideosRow(
             items(items = videos) { videoData ->
                 SmallVideoCard(
                     modifier = Modifier.width(200.dp),
-                    data = videoData
+                    data = videoData,
+                    onClick = {
+                        VideoInfoActivity.actionStart(context, videoData.avid)
+                    }
                 )
             }
             if (!hideShowMore) {

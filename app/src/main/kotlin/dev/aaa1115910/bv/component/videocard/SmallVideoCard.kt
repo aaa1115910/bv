@@ -119,6 +119,7 @@ fun SmallVideoCard(
 @Composable
 fun SmallVideoCardPreview() {
     val data = VideoCardData(
+        avid = 0,
         title = "震惊！太震惊了！真的是太震惊了！我的天呐！真TMD震惊！",
         cover = "http://i2.hdslb.com/bfs/archive/af17fc07b8f735e822563cc45b7b5607a491dfff.jpg",
         upName = "bishi",

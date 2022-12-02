@@ -3,10 +3,11 @@ package dev.aaa1115910.bv.entity
 import dev.aaa1115910.bv.component.formatMinSec
 
 data class VideoCardData(
+    val avid: Int,
     val title: String,
     val cover: String,
     val upName: String,
-    val reason:String="",
+    val reason: String = "",
     val play: Int? = null,
     var playString: String = "",
     val danmaku: Int? = null,

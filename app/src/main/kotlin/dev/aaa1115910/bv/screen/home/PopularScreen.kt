@@ -51,6 +51,7 @@ fun PopularScreen(
             ) {
                 SmallVideoCard(
                     data = VideoCardData(
+                        avid = video.aid,
                         title = video.title,
                         cover = video.pic,
                         play = video.stat.view,
