@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 internal class BiliApiTest {
 
     companion object {
-        const val SESSDATA = ""
+        const val SESSDATA = "65fa7e8d%2C1685462434%2Cb0ddc%2Ac1"
     }
 
     @Test
@@ -98,11 +98,35 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun `get self user info`(){
+    fun `get self user info`() {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getUserSelfInfo(
                     sessData = SESSDATA
+                )
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get histories`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getHistories(
+                    sessData = SESSDATA
+                )
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get related vidoes`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getRelatedVideos(
+                    avid = 170001
                 )
                 println(response)
             }

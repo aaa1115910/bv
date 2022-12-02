@@ -4,11 +4,13 @@ import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
+import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
+import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -210,4 +212,32 @@ object BiliApi {
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
+    /**
+     * 获取截止至目标id[max]和目标时间[viewAt]历史记录
+     *
+     * @param business 分类 貌似无效
+     * @param pageSize 页面大小
+     */
+    suspend fun getHistories(
+        max: Long = 0,
+        business: String = "",
+        viewAt: Long = 0,
+        pageSize: Int = 20,
+        sessData: String = ""
+    ): BiliResponse<HistoryData> = client.get("/x/web-interface/history/cursor") {
+        parameter("max", max)
+        parameter("business", business)
+        parameter("viewAt", viewAt)
+        parameter("pageSize", pageSize)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    suspend fun getRelatedVideos(
+        avid: Long? = null,
+        bvid: String? = null
+    ): RelatedVideosResponse = client.get("/x/web-interface/archive/related") {
+        check(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        parameter("aid", avid)
+        parameter("bvid", bvid)
+    }.body()
 }
