@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,19 +35,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,7 +63,10 @@ import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.PlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
+import dev.aaa1115910.bv.component.videocard.VideosRow
+import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,11 +85,13 @@ fun VideoInfoScreen(
     val intent = (context as Activity).intent
 
     var videoInfo: VideoInfo? by remember { mutableStateOf(null) }
+    val relatedVideos = remember { mutableStateListOf<VideoCardData>() }
     val logger = KotlinLogging.logger { }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
+            //获取视频信息
             scope.launch(Dispatchers.Default) {
                 runCatching {
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
@@ -98,6 +99,27 @@ fun VideoInfoScreen(
                 }.onFailure {
                     withContext(Dispatchers.Main) {
                         "${it.message}".toast(context)
+                    }
+                }
+            }
+            //获取相关视频
+            scope.launch(Dispatchers.Default) {
+                runCatching {
+                    val response = BiliApi.getRelatedVideos(avid = aid.toLong())
+                    relatedVideos.swapList(response.data.map {
+                        VideoCardData(
+                            avid = it.aid,
+                            title = it.title,
+                            cover = it.pic,
+                            upName = it.owner.name,
+                            time = it.duration.toLong(),
+                            play = it.stat.view,
+                            danmaku = it.stat.danmaku
+                        )
+                    })
+                }.onFailure {
+                    withContext(Dispatchers.Main) {
+                        "获取相关视频失败：${it.localizedMessage}".toast(context)
                     }
                 }
             }
@@ -135,12 +157,18 @@ fun VideoInfoScreen(
                     alpha = 0.6f
                 )
                 TvLazyColumn(
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
                         VideoInfoData(
-                            videoInfo = videoInfo!!
+                            videoInfo = videoInfo!!,
+                            onClickCover = {
+                                logger.info { "Click video cover" }
+                                PlayerActivity.actionStart(
+                                    context, videoInfo!!.aid, videoInfo!!.pages.first().cid
+                                )
+                            }
                         )
                     }
                     item {
@@ -157,9 +185,15 @@ fun VideoInfoScreen(
                             }
                         )
                     }
+                    item {
+                        VideosRow(
+                            header = "视频推荐",
+                            videos = relatedVideos,
+                            showMore = {}
+                        )
+                    }
                 }
             }
-
         }
     }
 }
@@ -167,24 +201,40 @@ fun VideoInfoScreen(
 @Composable
 fun VideoInfoData(
     modifier: Modifier = Modifier,
-    videoInfo: VideoInfo
+    videoInfo: VideoInfo,
+    onClickCover: () -> Unit
 ) {
     val localDensity = LocalDensity.current
-    var heightIs by remember {
-        mutableStateOf(0.dp)
+    val focusRequester = remember { FocusRequester() }
+    var hasFocus by remember { mutableStateOf(false) }
+    val borderAlpha by animateFloatAsState(if (hasFocus) 1f else 0f)
+
+    var heightIs by remember { mutableStateOf(0.dp) }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
+
     Row(
         modifier = modifier
-            .padding(16.dp),
+            .padding(horizontal = 50.dp, vertical = 16.dp),
     ) {
         AsyncImage(
             modifier = Modifier
+                .onFocusChanged { hasFocus = it.hasFocus }
+                .focusRequester(focusRequester)
                 .weight(3f)
                 .aspectRatio(1.6f)
                 .clip(MaterialTheme.shapes.large)
                 .onGloballyPositioned { coordinates ->
                     heightIs = with(localDensity) { coordinates.size.height.toDp() }
-                },
+                }
+                .border(
+                    width = 2.dp,
+                    color = Color.White.copy(alpha = borderAlpha),
+                    shape = MaterialTheme.shapes.large
+                )
+                .clickable { onClickCover() },
             model = videoInfo.pic,
             contentDescription = null,
             contentScale = ContentScale.FillBounds
@@ -275,37 +325,33 @@ fun VideoDescription(
     description: String
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleFontSize by animateFloatAsState(if (hasFocus) 18f else 16f)
+    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 50.dp),
     ) {
+        Text(
+            text = "视频简介",
+            fontSize = titleFontSize.sp,
+            color = titleColor
+        )
         Box(
-            modifier = Modifier.height(36.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "视频简介",
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = titleFontSize.sp,
-                color = Color.White
-            )
-        }
-        Surface(
             modifier = Modifier
+                .padding(top = 15.dp)
+                .onFocusChanged { hasFocus = it.hasFocus }
+                .clip(MaterialTheme.shapes.medium)
                 .border(
                     width = 2.dp,
                     color = if (hasFocus) Color.White else Color.Transparent,
                     shape = MaterialTheme.shapes.medium
                 )
                 .padding(8.dp)
-                .onFocusChanged { hasFocus = it.hasFocus }
                 .clickable {
                     showDescriptionDialog = true
-                },
-            color = Color.Transparent
+                }
         ) {
             Text(
                 text = description,
@@ -316,13 +362,11 @@ fun VideoDescription(
         }
     }
 
-    ProvideTextStyle(TextStyle(color = Color.Unspecified)) {
-        VideoDescriptionDialog(
-            show = showDescriptionDialog,
-            onHideDialog = { showDescriptionDialog = false },
-            description = description
-        )
-    }
+    VideoDescriptionDialog(
+        show = showDescriptionDialog,
+        onHideDialog = { showDescriptionDialog = false },
+        description = description
+    )
 }
 
 @Composable
@@ -385,7 +429,6 @@ fun VideoPartButton(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
@@ -393,52 +436,32 @@ fun VideoPartRow(
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleFontSize by animateFloatAsState(if (hasFocus) 18f else 16f)
+    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
         modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .padding(horizontal = 16.dp),
+            .padding(start = 50.dp)
+            .onFocusChanged { hasFocus = it.hasFocus },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(
-            modifier = Modifier.height(36.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "视频分 P",
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = titleFontSize.sp,
-                color = Color.White
-            )
-        }
-        Row {
-            //在 index==0 时再按左键会崩溃，但是运行 preview 就不会出现这个问题，加上这个 Box 可以通过玄学解决
-            //但加上这个 Box 后，如果按上键并且在上方没有可供转移焦点的组件，则也会出现一样的崩溃
-            Box(modifier = Modifier.focusable(true)) {}
+        Text(
+            text = "视频分 P",
+            fontSize = titleFontSize.sp,
+            color = titleColor
+        )
 
-            var isFocusingFirst by remember { mutableStateOf(false) }
-            TvLazyRow(
-                modifier = modifier,
-                contentPadding = PaddingValues(0.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
-                    val firstModifier = Modifier
-                        .onFocusChanged {
-                            if (it.hasFocus) {
-                                isFocusingFirst = it.hasFocus
-                            }
-                        }
-                        .onKeyEvent {
-                            it.key == Key.DirectionLeft
-                        }
-                    VideoPartButton(
-                        modifier = if (index == 0) firstModifier else Modifier,
-                        title = page.part,
-                        onClick = { onClick(page.cid) }
-                    )
-                }
+        TvLazyRow(
+            modifier = Modifier
+                .padding(top = 15.dp),
+            contentPadding = PaddingValues(0.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
+                VideoPartButton(
+                    title = page.part,
+                    onClick = { onClick(page.cid) }
+                )
             }
         }
     }
