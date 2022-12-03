@@ -17,4 +17,5 @@
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门推荐</string>
     <string name="top_nav_item_search">搜索</string>
+    <string name="title_activity_history">HistoryActivity</string>
 </resources>

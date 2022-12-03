@@ -20,6 +20,7 @@ import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
+import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import io.ktor.util.encodeBase64
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -71,6 +72,7 @@ val appModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { PlayerViewModel() }
     viewModel { UserViewModel(get()) }
+    viewModel { HistoryViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

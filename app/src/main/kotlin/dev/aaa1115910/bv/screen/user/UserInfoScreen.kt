@@ -1,5 +1,6 @@
-package dev.aaa1115910.bv.screen
+package dev.aaa1115910.bv.screen.user
 
+import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -21,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
+import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.bv.HistoryActivity
 import dev.aaa1115910.bv.component.videocard.VideosRow
+import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +58,10 @@ fun UserInfoScreen(
     userViewModel: UserViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
     var showLargeTitle by remember { mutableStateOf(true) }
+
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
     val title by remember {
         mutableStateOf(
@@ -67,10 +79,31 @@ fun UserInfoScreen(
         )
     }
 
-    val focusRequester = remember { FocusRequester() }
+    val histories = remember { mutableStateListOf<VideoCardData>() }
+    val anime = remember { mutableStateListOf<VideoCardData>() }
+    val favorites = remember { mutableStateListOf<VideoCardData>() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+
+        //update histories
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                val responseData = BiliApi.getHistories(sessData = Prefs.sessData).getResponseData()
+                responseData.list.forEach { historyItem ->
+                    if (historyItem.history.business != "archive") return@forEach
+                    histories.add(
+                        VideoCardData(
+                            avid = historyItem.history.oid,
+                            title = historyItem.title,
+                            cover = historyItem.cover,
+                            upName = historyItem.authorName,
+                            time = historyItem.duration.toLong()
+                        )
+                    )
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -105,8 +138,9 @@ fun UserInfoScreen(
             }
             item {
                 RecentVideosRow(
+                    videos = histories,
                     showMore = {
-                        "还没写呢！！！".toast(context)
+                        context.startActivity(Intent(context, HistoryActivity::class.java))
                     }
                 )
             }
@@ -209,6 +243,7 @@ private fun UserInfo(
 @Composable
 private fun RecentVideosRow(
     modifier: Modifier = Modifier,
+    videos: List<VideoCardData>,
     showMore: () -> Unit
 ) {
     VideosRow(
@@ -217,7 +252,7 @@ private fun RecentVideosRow(
         header = "最近播放记录",
         hideShowMore = false,
         showMore = showMore,
-        videos = listOf()
+        videos = videos
     )
 }
 
