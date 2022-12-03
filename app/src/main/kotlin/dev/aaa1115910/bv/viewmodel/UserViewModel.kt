@@ -1,8 +1,12 @@
 package dev.aaa1115910.bv.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import kotlinx.coroutines.launch
@@ -17,15 +21,17 @@ class UserViewModel(
     val username get() = userRepository.username
     val face get() = userRepository.face
 
+    var responseData: MyInfoData? by mutableStateOf(null)
+
     fun updateUserInfo() {
         if (!shouldUpdateInfo || !userRepository.isLogin) return
         logger.info { "Update user info" }
         viewModelScope.launch {
-            val responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+            responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
             logger.info { "Update user info success" }
             shouldUpdateInfo = false
-            userRepository.username = responseData.name
-            userRepository.face = responseData.face
+            userRepository.username = responseData!!.name
+            userRepository.face = responseData!!.face
         }
     }
 

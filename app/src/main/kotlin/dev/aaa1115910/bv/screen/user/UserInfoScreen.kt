@@ -2,13 +2,15 @@ package dev.aaa1115910.bv.screen.user
 
 import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +22,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -36,6 +39,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -44,6 +50,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.bv.HistoryActivity
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -85,6 +92,7 @@ fun UserInfoScreen(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+        userViewModel.updateUserInfo()
 
         //update histories
         scope.launch(Dispatchers.Default) {
@@ -130,6 +138,12 @@ fun UserInfoScreen(
                         .focusRequester(focusRequester),
                     face = userViewModel.face,
                     username = userViewModel.username,
+                    uid = userViewModel.responseData?.mid ?: 0,
+                    level = userViewModel.responseData?.level ?: 0,
+                    currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
+                    nextLevelExp = userViewModel.responseData?.levelExp?.currentMin ?: 1,
+                    showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
+                    labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic ?: "",
                     onFocusChange = { hasFocus ->
                         //当焦点在此项时，显示大标题
                         showLargeTitle = hasFocus
@@ -167,9 +181,19 @@ private fun UserInfo(
     modifier: Modifier = Modifier,
     face: String,
     username: String,
+    uid: Long,
+    level: Int,
+    currentExp: Int,
+    nextLevelExp: Int,
+    showLabel: Boolean,
+    labelUrl: String,
     onFocusChange: (hasFocus: Boolean) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
+    val levelSlider by animateFloatAsState(
+        targetValue = currentExp.toFloat() / nextLevelExp,
+        animationSpec = spring(dampingRatio = 2f)
+    )
 
     Surface(
         modifier = modifier
@@ -178,7 +202,7 @@ private fun UserInfo(
                 onFocusChange(it.hasFocus)
             }
             .padding(horizontal = 50.dp, vertical = 28.dp)
-            .size(400.dp, 140.dp)
+            .size(480.dp, 140.dp)
             .focusable()
             .border(
                 width = 2.dp,
@@ -209,7 +233,7 @@ private fun UserInfo(
             }
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxHeight()
                     .padding(
                         start = 6.dp,
                         top = 24.dp,
@@ -218,21 +242,36 @@ private fun UserInfo(
                     ),
             ) {
                 val startPaddingValue = 6.dp
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Row(
+                        modifier = Modifier.padding(end = startPaddingValue),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (showLabel)
+                            AsyncImage(
+                                model = labelUrl,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds
+                            )
+                        Text(
+                            text = username,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+
                 Text(
                     modifier = Modifier.padding(start = startPaddingValue),
-                    text = username,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    modifier = Modifier.padding(start = startPaddingValue),
-                    text = "xxxxx"
+                    text = "UID: $uid"
                 )
                 Slider(
                     enabled = false,
-                    value = 0.8f,
+                    value = levelSlider,
                     onValueChange = {},
                     colors = SliderDefaults.colors(
-                        disabledThumbColor = Color.Transparent
+                        disabledThumbColor = Color.Transparent,
+                        disabledActiveTrackColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -284,4 +323,22 @@ private fun FavoriteVideosRow(
         showMore = showMore,
         videos = listOf()
     )
+}
+
+@Preview
+@Composable
+private fun UserInfoPreview() {
+    BVTheme {
+        UserInfo(
+            face = "",
+            username = "Username",
+            uid = 12345,
+            level = 6,
+            currentExp = 1234,
+            nextLevelExp = 2345,
+            showLabel = false,
+            labelUrl = "",
+            onFocusChange = {}
+        )
+    }
 }
