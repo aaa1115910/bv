@@ -66,6 +66,7 @@ import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -112,7 +113,7 @@ fun VideoInfoScreen(
                             title = it.title,
                             cover = it.pic,
                             upName = it.owner.name,
-                            time = it.duration.toLong(),
+                            time = it.duration * 1000L,
                             play = it.stat.view,
                             danmaku = it.stat.danmaku
                         )
@@ -274,7 +275,7 @@ fun VideoInfoData(
                         color = Color.White
                     )
                     Text(
-                        text = "${Date(videoInfo.ctime.toLong() * 1000)}",
+                        text = Date(videoInfo.ctime.toLong() * 1000).formatPubTimeString(),
                         maxLines = 1,
                         color = Color.White
                     )

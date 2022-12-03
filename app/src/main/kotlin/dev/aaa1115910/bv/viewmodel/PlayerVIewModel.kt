@@ -147,7 +147,7 @@ class PlayerViewModel : ViewModel() {
 
             dashData = responseData.dash!!
 
-            playQuality(qn)
+            playQuality(currentQuality)
 
         }.onFailure {
             addLogs("加载视频地址失败：${it.localizedMessage}")

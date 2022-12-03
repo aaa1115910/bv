@@ -4,9 +4,14 @@
 
     <string name="confirm">确认</string>
 
+    <string name="date_format_hours_age">%1$d 小时前</string>
+    <string name="date_format_just_now">刚刚</string>
+    <string name="date_format_minutes_age">%1$d 分钟前</string>
+
     <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
     <string name="disclaimer_dialog_title">注意了！</string>
 
+    <string name="title_activity_history">HistoryActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_player">PlayerActivity</string>
     <string name="title_activity_user_info">UserInfoActivity</string>

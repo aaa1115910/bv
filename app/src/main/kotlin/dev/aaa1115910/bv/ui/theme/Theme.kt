@@ -53,7 +53,7 @@ fun BVTheme(
             Surface {
                 content()
 
-                Disclaimer()
+                if (!view.isInEditMode) Disclaimer()
             }
         }
     }

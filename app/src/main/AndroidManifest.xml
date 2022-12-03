@@ -21,6 +21,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:label="@string/title_activity_history"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".UserInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_user_info"

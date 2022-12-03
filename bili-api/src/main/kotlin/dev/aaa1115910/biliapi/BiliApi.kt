@@ -227,8 +227,8 @@ object BiliApi {
     ): BiliResponse<HistoryData> = client.get("/x/web-interface/history/cursor") {
         parameter("max", max)
         parameter("business", business)
-        parameter("viewAt", viewAt)
-        parameter("pageSize", pageSize)
+        parameter("view_at", viewAt)
+        parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
