@@ -113,7 +113,7 @@ fun VideoInfoScreen(
                             title = it.title,
                             cover = it.pic,
                             upName = it.owner.name,
-                            time = it.duration.toLong(),
+                            time = it.duration * 1000L,
                             play = it.stat.view,
                             danmaku = it.stat.danmaku
                         )
