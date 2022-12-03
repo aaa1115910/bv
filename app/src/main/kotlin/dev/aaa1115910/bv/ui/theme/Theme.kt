@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import dev.aaa1115910.bv.component.Disclaimer
-import dev.aaa1115910.bv.util.VerityUtil
 
 private val BiliColorScheme = darkColorScheme(
     primary = Color(0xFFFB7299),
@@ -56,10 +55,6 @@ fun BVTheme(
                 if (!view.isInEditMode) Disclaimer()
             }
         }
-    }
-
-    VerityUtil.hackCheck(context) {
-        throw NullPointerException()
     }
 }
 
