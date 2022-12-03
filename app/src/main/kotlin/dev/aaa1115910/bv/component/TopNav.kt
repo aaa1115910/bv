@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,6 +45,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.LoginActivity
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.SettingsActivity
 import dev.aaa1115910.bv.UserInfoActivity
 
 @Composable
@@ -96,17 +99,32 @@ fun TopNav(
                     )
                 }
             }
-            UserIcon(
-                isLogin = isLogin,
-                username = username,
-                face = face,
-                onGotoLogin = {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
-                },
-                onGotoInfo = {
-                    context.startActivity(Intent(context, UserInfoActivity::class.java))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    context.startActivity(
+                        Intent(context, SettingsActivity::class.java)
+                    )
+                }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-            )
+                UserIcon(
+                    isLogin = isLogin,
+                    username = username,
+                    face = face,
+                    onGotoLogin = {
+                        context.startActivity(Intent(context, LoginActivity::class.java))
+                    },
+                    onGotoInfo = {
+                        context.startActivity(Intent(context, UserInfoActivity::class.java))
+                    }
+                )
+            }
         }
     }
 }
