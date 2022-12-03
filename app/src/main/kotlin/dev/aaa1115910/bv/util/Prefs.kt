@@ -31,7 +31,7 @@ val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
 val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
 val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
 val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, 80)
-val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 0)
+val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
 val prefDefaultDanmakuTransparencyRequest = PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
 val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
 
