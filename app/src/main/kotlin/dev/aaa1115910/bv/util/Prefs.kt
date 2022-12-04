@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.entity.Resolution
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -30,7 +31,7 @@ val prefSessDataRequest = PreferenceRequest(prefSessDataKey, "")
 val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
 val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
 val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
-val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, 80)
+val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
 val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
 val prefDefaultDanmakuTransparencyRequest = PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
 val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)

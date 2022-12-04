@@ -2,6 +2,12 @@ package dev.aaa1115910.bv.component
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -32,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -102,17 +109,11 @@ fun TopNav(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {
-                    context.startActivity(
-                        Intent(context, SettingsActivity::class.java)
-                    )
-                }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                SettingsIcon(
+                    onClick = {
+                        context.startActivity(Intent(context, SettingsActivity::class.java))
+                    }
+                )
                 UserIcon(
                     isLogin = isLogin,
                     username = username,
@@ -180,6 +181,37 @@ private fun NavTabButton(
                 .align(Alignment.BottomCenter),
             thickness = 3.dp,
             color = if (isFocused) Color.White else if (selected) primary else Color.Transparent
+        )
+    }
+}
+
+@Composable
+private fun SettingsIcon(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    var hasFocus by remember { mutableStateOf(false) }
+
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val iconRotate by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 60f,
+        animationSpec = infiniteRepeatable(
+            tween(1000, easing = LinearEasing), RepeatMode.Restart
+        )
+    )
+
+    IconButton(
+        modifier = modifier
+            .onFocusChanged { hasFocus = it.hasFocus },
+        onClick = onClick
+    ) {
+        Icon(
+            modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),
+            imageVector = Icons.Rounded.Settings,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }
