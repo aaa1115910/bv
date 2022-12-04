@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +43,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -74,21 +76,7 @@ fun UserInfoScreen(
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
-    val title by remember {
-        mutableStateOf(
-            listOf(
-                "吾",
-                "秘密基地",
-                "熟悉的地方",
-                "你来啦",
-                "I Need More Power!!!",
-                "别看了",
-                "我的",
-                "BUG 满天飞 ~",
-                "你说得对，但是"
-            ).random()
-        )
-    }
+    val title by remember { mutableStateOf(randomTitleList.random()) }
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val anime = remember { mutableStateListOf<VideoCardData>() }
@@ -241,6 +229,7 @@ private fun UserInfo(
     onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
+    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
@@ -307,7 +296,7 @@ private fun UserInfo(
                                 }),
                                 model = labelUrl,
                                 contentDescription = null,
-                                contentScale = ContentScale.FillBounds
+                                contentScale = ContentScale.FillHeight
                             )
                         Text(
                             text = username,
@@ -398,3 +387,15 @@ private fun UserInfoPreview() {
         )
     }
 }
+
+val randomTitleList = listOf(
+    "吾",
+    "熟悉的屏幕",
+    "你来辣",
+    "I Need More Power!!!",
+    "别看了",
+    "我的",
+    "BUG 满天飞 ~",
+    "你说得对，但是",
+    "让我康康"
+)
