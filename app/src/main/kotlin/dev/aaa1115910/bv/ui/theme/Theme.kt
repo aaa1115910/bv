@@ -12,7 +12,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -21,10 +20,18 @@ import androidx.core.view.WindowCompat
 import dev.aaa1115910.bv.component.Disclaimer
 
 private val BiliColorScheme = darkColorScheme(
-    primary = Color(0xFFFB7299),
-    onPrimary = Color.White/*
-    secondary = Color(0xFFCCC2DC),
-    tertiary = Color(0xFFEFB8C8)*/
+    primary = md_theme_dark_primary,
+    onPrimary = md_theme_dark_onPrimary,
+    primaryContainer = md_theme_dark_primaryContainer,
+    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
+    secondary = md_theme_dark_secondary,
+    onSecondary = md_theme_dark_onSecondary,
+    secondaryContainer = md_theme_dark_secondaryContainer,
+    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+    tertiary = md_theme_dark_tertiary,
+    onTertiary = md_theme_dark_onTertiary,
+    tertiaryContainer = md_theme_dark_tertiaryContainer,
+    onTertiaryContainer = md_theme_dark_onTertiaryContainer
 )
 
 @Composable
