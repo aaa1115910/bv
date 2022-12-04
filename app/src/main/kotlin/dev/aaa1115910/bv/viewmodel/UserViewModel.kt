@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
@@ -27,12 +29,20 @@ class UserViewModel(
         if (!shouldUpdateInfo || !userRepository.isLogin) return
         logger.info { "Update user info" }
         viewModelScope.launch {
-            responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
-            logger.info { "Update user info success" }
-            shouldUpdateInfo = false
-            userRepository.username = responseData!!.name
-            userRepository.face = responseData!!.face
+            runCatching {
+                responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+                logger.info { "Update user info success" }
+                shouldUpdateInfo = false
+                userRepository.username = responseData!!.name
+                userRepository.face = responseData!!.face
+            }.onFailure {
+               "获取用户信息失败：${it.message}".toast(BVApp.context)
+            }
         }
+    }
+
+    fun logout() {
+        userRepository.logout()
     }
 
     fun clearUserInfo() {
