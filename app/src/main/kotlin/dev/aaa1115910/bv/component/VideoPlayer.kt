@@ -223,7 +223,6 @@ fun VideoPlayer(
                 player.seekTo(timeMs.toLong())
             },
             onChooseResolution = { qualityId ->
-                Prefs.defaultQuality = qualityId
                 playerViewModel.currentQuality = qualityId
                 player.pause()
                 val current = player.currentPosition

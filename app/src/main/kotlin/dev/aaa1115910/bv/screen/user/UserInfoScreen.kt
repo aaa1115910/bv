@@ -1,19 +1,22 @@
 package dev.aaa1115910.bv.screen.user
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -21,6 +24,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +43,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -68,23 +73,10 @@ fun UserInfoScreen(
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     var showLargeTitle by remember { mutableStateOf(true) }
+    var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
-    val title by remember {
-        mutableStateOf(
-            listOf(
-                "吾",
-                "秘密基地",
-                "熟悉的地方",
-                "你来啦",
-                "I Need More Power!!!",
-                "别看了",
-                "我的",
-                "BUG 满天飞 ~",
-                "你说得对，但是"
-            ).random()
-        )
-    }
+    val title by remember { mutableStateOf(randomTitleList.random()) }
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val anime = remember { mutableStateListOf<VideoCardData>() }
@@ -147,7 +139,8 @@ fun UserInfoScreen(
                     onFocusChange = { hasFocus ->
                         //当焦点在此项时，显示大标题
                         showLargeTitle = hasFocus
-                    }
+                    },
+                    onClick = { showLogoutConfirmDialog = true }
                 )
             }
             item {
@@ -174,6 +167,52 @@ fun UserInfoScreen(
             }
         }
     }
+
+    LogoutConfirmDialog(
+        show = showLogoutConfirmDialog,
+        onHideDialog = { showLogoutConfirmDialog = false },
+        onConfirm = {
+            userViewModel.logout()
+            (context as Activity).finish()
+        }
+    )
+}
+
+@Composable
+private fun LogoutConfirmDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onHideDialog: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(show) {
+        if (show) focusRequester.requestFocus()
+    }
+
+    if (show) {
+        AlertDialog(
+            modifier = modifier,
+            onDismissRequest = { onHideDialog() },
+            title = { Text(text = "登出确认") },
+            text = { Text(text = "是否登出账号 ${Prefs.uid}") },
+            confirmButton = {
+                TextButton(onClick = { onConfirm() }) {
+                    Text(text = "gkd 别墨迹")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    modifier = Modifier
+                        .focusRequester(focusRequester),
+                    onClick = { onHideDialog() }
+                ) {
+                    Text(text = "不，我不想")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -187,8 +226,10 @@ private fun UserInfo(
     nextLevelExp: Int,
     showLabel: Boolean,
     labelUrl: String,
-    onFocusChange: (hasFocus: Boolean) -> Unit
+    onFocusChange: (hasFocus: Boolean) -> Unit,
+    onClick: () -> Unit
 ) {
+    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
@@ -203,12 +244,12 @@ private fun UserInfo(
             }
             .padding(horizontal = 50.dp, vertical = 28.dp)
             .size(480.dp, 140.dp)
-            .focusable()
             .border(
                 width = 2.dp,
                 color = if (hasFocus) Color.White else Color.Transparent,
                 shape = MaterialTheme.shapes.large
-            ),
+            )
+            .clickable { onClick() },
         color = MaterialTheme.colorScheme.secondaryContainer,
         shape = MaterialTheme.shapes.large
     ) {
@@ -250,9 +291,12 @@ private fun UserInfo(
                     ) {
                         if (showLabel)
                             AsyncImage(
+                                modifier = Modifier.height(with(density) {
+                                    MaterialTheme.typography.titleLarge.fontSize.toDp()
+                                }),
                                 model = labelUrl,
                                 contentDescription = null,
-                                contentScale = ContentScale.FillBounds
+                                contentScale = ContentScale.FillHeight
                             )
                         Text(
                             text = username,
@@ -338,7 +382,20 @@ private fun UserInfoPreview() {
             nextLevelExp = 2345,
             showLabel = false,
             labelUrl = "",
-            onFocusChange = {}
+            onFocusChange = {},
+            onClick = {}
         )
     }
 }
+
+val randomTitleList = listOf(
+    "吾",
+    "熟悉的屏幕",
+    "你来辣",
+    "I Need More Power!!!",
+    "别看了",
+    "我的",
+    "BUG 满天飞 ~",
+    "你说得对，但是",
+    "让我康康"
+)

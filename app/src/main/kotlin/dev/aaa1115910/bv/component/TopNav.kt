@@ -2,6 +2,12 @@ package dev.aaa1115910.bv.component
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -13,9 +19,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -43,6 +52,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.LoginActivity
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.SettingsActivity
 import dev.aaa1115910.bv.UserInfoActivity
 
 @Composable
@@ -96,17 +106,26 @@ fun TopNav(
                     )
                 }
             }
-            UserIcon(
-                isLogin = isLogin,
-                username = username,
-                face = face,
-                onGotoLogin = {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
-                },
-                onGotoInfo = {
-                    context.startActivity(Intent(context, UserInfoActivity::class.java))
-                }
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SettingsIcon(
+                    onClick = {
+                        context.startActivity(Intent(context, SettingsActivity::class.java))
+                    }
+                )
+                UserIcon(
+                    isLogin = isLogin,
+                    username = username,
+                    face = face,
+                    onGotoLogin = {
+                        context.startActivity(Intent(context, LoginActivity::class.java))
+                    },
+                    onGotoInfo = {
+                        context.startActivity(Intent(context, UserInfoActivity::class.java))
+                    }
+                )
+            }
         }
     }
 }
@@ -162,6 +181,37 @@ private fun NavTabButton(
                 .align(Alignment.BottomCenter),
             thickness = 3.dp,
             color = if (isFocused) Color.White else if (selected) primary else Color.Transparent
+        )
+    }
+}
+
+@Composable
+private fun SettingsIcon(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    var hasFocus by remember { mutableStateOf(false) }
+
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val iconRotate by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 60f,
+        animationSpec = infiniteRepeatable(
+            tween(1000, easing = LinearEasing), RepeatMode.Restart
+        )
+    )
+
+    IconButton(
+        modifier = modifier
+            .onFocusChanged { hasFocus = it.hasFocus },
+        onClick = onClick
+    ) {
+        Icon(
+            modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),
+            imageVector = Icons.Rounded.Settings,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }

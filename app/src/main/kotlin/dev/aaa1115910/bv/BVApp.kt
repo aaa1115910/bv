@@ -6,10 +6,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.github.javiersantos.piracychecker.allow
-import com.github.javiersantos.piracychecker.callback
-import com.github.javiersantos.piracychecker.doNotAllow
-import com.github.javiersantos.piracychecker.piracyChecker
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -21,7 +17,6 @@ import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
-import io.ktor.util.encodeBase64
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -48,19 +43,6 @@ class BVApp : Application() {
             androidContext(this@BVApp)
             modules(appModule)
         }
-
-        val exitFun: () -> Unit = { throw NullPointerException() }
-        context.piracyChecker {
-            val a = byteArrayOf(
-                30, 26, -44, 73, -37, -78, -55, 65, 102,
-                46, -105, 88, 83, -36, 53, 96, 9, 10, 85, -24
-            )
-            if (!BuildConfig.DEBUG) enableSigningCertificates(a.encodeBase64())
-            callback {
-                allow {}
-                doNotAllow { exitFun() }
-            }
-        }.start()
         firebaseAnalytics = Firebase.analytics
     }
 }
