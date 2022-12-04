@@ -88,7 +88,7 @@ data class HistoryItem(
     @SerialName("author_face")
     val authorFace: String,
     @SerialName("author_mid")
-    val authorMid: Int,
+    val authorMid: Long,
     @SerialName("view_at")
     val viewAt: Int,
     val progress: Int,

@@ -35,7 +35,7 @@ data class SubtitleListItem(
     @SerialName("is_lock")
     val isLock: Boolean,
     @SerialName("author_mid")
-    val authorMid: Int? = null,
+    val authorMid: Long? = null,
     @SerialName("subtitle_url")
     val subtitleUrl: String,
     val author: SubtitleAuthor
