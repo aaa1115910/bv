@@ -51,6 +51,7 @@ class PlayerViewModel : ViewModel() {
     var danmakuData = mutableStateListOf<DanmakuItemData>()
 
     var dashData: Dash? = null
+    var title by mutableStateOf("")
 
     var logs by mutableStateOf("")
     var showLogs by mutableStateOf(false)
