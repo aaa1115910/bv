@@ -29,6 +29,7 @@ object BiliPassportApi {
             BrowserUserAgent()
             install(ContentNegotiation) {
                 json(Json {
+                    coerceInputValues = true
                     ignoreUnknownKeys = true
                     prettyPrint = true
                 })

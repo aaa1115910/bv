@@ -61,6 +61,7 @@ import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.PlayerActivity
+import dev.aaa1115910.bv.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -166,8 +167,12 @@ fun VideoInfoScreen(
                             videoInfo = videoInfo!!,
                             onClickCover = {
                                 logger.info { "Click video cover" }
-                                PlayerActivity.actionStart(
-                                    context, videoInfo!!.aid, videoInfo!!.pages.first().cid
+                                VideoPlayerActivity.actionStart(
+                                    context = context,
+                                    avid = videoInfo!!.aid,
+                                    cid = videoInfo!!.pages.first().cid,
+                                    title = videoInfo!!.title,
+                                    partTitle = videoInfo!!.pages.first().part
                                 )
                             }
                         )
@@ -182,7 +187,13 @@ fun VideoInfoScreen(
                             pages = videoInfo?.pages ?: emptyList(),
                             onClick = { cid ->
                                 logger.info { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                PlayerActivity.actionStart(context, videoInfo!!.aid, cid)
+                                VideoPlayerActivity.actionStart(
+                                    context = context,
+                                    avid = videoInfo!!.aid,
+                                    cid = cid,
+                                    title = videoInfo!!.title,
+                                    partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part
+                                )
                             }
                         )
                     }

@@ -65,11 +65,12 @@ fun InfoSetting(
                         displayMetrics.widthPixels, displayMetrics.heightPixels
                     )
                 )
-                Text(
-                    text = stringResource(
-                        R.string.settings_info_soc, Build.SOC_MANUFACTURER, Build.SOC_MODEL
+                if (Build.VERSION.SDK_INT >= 31)
+                    Text(
+                        text = stringResource(
+                            R.string.settings_info_soc, Build.SOC_MANUFACTURER, Build.SOC_MODEL
+                        )
                     )
-                )
                 Text(text = stringResource(R.string.settings_info_memory, getMemoryInfo()))
                 Text(text = stringResource(R.string.settings_info_storage, getStorageInfo()))
             }

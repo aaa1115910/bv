@@ -46,10 +46,29 @@
     <string name="title_activity_up_info">UpInfoActivity</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="title_activity_video_info">VideoInfoActivity</string>
+    <string name="title_activity_video_player">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
     <string name="top_nav_item_dynamics">动态</string>
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门推荐</string>
     <string name="top_nav_item_search">搜索</string>
+    <string name="resolution_240p_short">240P</string>
+    <string name="resolution_360p_short">360P</string>
+    <string name="resolution_480p_short">480P</string>
+    <string name="resolution_720p_short">720P</string>
+    <string name="resolution_720p_60_short">720P60</string>
+    <string name="resolution_1080p_short">1080P</string>
+    <string name="resolution_1080p_plus_short">1080P+</string>
+    <string name="resolution_1080p_60_short">1080P60</string>
+    <string name="resolution_4k_short">4K</string>
+    <string name="resolution_hdr_short">HDR</string>
+    <string name="resolution_dolby_bision_short">杜比视界</string>
+    <string name="resolution_8k_short">8K</string>
+    <string name="player_controller_menu_danmaku_enabled">开启</string>
+    <string name="player_controller_menu_danmaku_disabled">关闭</string>
+    <string name="player_controller_menu_item_resolution">分辨率</string>
+    <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
+    <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
+    <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
 </resources>
