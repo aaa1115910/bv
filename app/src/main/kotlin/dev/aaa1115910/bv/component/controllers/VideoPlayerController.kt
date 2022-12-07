@@ -218,6 +218,13 @@ fun VideoPlayerController(
                         return@onPreviewKeyEvent true
                     }
 
+                    //KEYCODE_CENTER_LONG
+                    763->{
+                        if (showingRightController()) return@onPreviewKeyEvent false
+                        showMenuController = true
+                        return@onPreviewKeyEvent true
+                    }
+
                     KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_BOOKMARK -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                         logger.info { "Pressed dpad menu" }
