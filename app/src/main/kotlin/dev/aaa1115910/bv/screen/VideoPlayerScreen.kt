@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -10,9 +11,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.Player
@@ -33,7 +36,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import java.util.Timer
 import java.util.TimerTask
-
 
 @Composable
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
@@ -245,8 +247,13 @@ fun VideoPlayerScreen(
             focusRequester.requestFocus()
         }
     ) {
-        Box {
+        Box(
+            modifier = Modifier.background(Color.Black)
+        ) {
             AndroidView(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center),
                 factory = {
                     PlayerView(context).apply {
                         player = videoPlayer
@@ -257,6 +264,7 @@ fun VideoPlayerScreen(
             )
 
             DanmakuPlayerCompose(
+                modifier = Modifier.align(Alignment.TopCenter),
                 danmakuPlayer = danmakuPlayer
             )
         }
