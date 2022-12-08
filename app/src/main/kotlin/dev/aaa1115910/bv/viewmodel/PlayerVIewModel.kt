@@ -18,11 +18,14 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
+import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.Keys
 import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
+import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +46,9 @@ class PlayerViewModel : ViewModel() {
     var errorMessage by mutableStateOf("")
 
     var availableQuality = mutableStateMapOf<Int, String>()
+    var availableVideoCodec = mutableStateListOf<VideoCodec>()
     var currentQuality by mutableStateOf(0)
+    var currentVideoCodec by mutableStateOf(VideoCodec.AVC)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
     var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
@@ -118,26 +123,26 @@ class PlayerViewModel : ViewModel() {
             logger.info { "Load play url response: $responseData" }
 
             //读取清晰度
-            val qualityMap = mutableMapOf<Int, String>()
-            val qualityIdList = responseData.dash?.video
-                ?.map { it.id }?.toHashSet()?.toList() ?: emptyList()
-            qualityIdList.forEach { qualityId ->
-                val index = responseData.acceptQuality.indexOf(qualityId)
-                qualityMap[qualityId] = responseData.acceptDescription[index]
+            val resolutionMap = mutableMapOf<Int, String>()
+            responseData.dash?.video?.forEach {
+                if (!resolutionMap.containsKey(it.id)) {
+                    val index = responseData.acceptQuality.indexOf(it.id)
+                    resolutionMap[it.id] = responseData.acceptDescription[index]
+                }
             }
-            logger.info { "Video available quality: $qualityMap" }
-            availableQuality.swapMap(qualityMap)
 
-            //是否支持默认清晰度
-            val existDefaultQuality =
+            logger.info { "Video available resolution: $resolutionMap" }
+            availableQuality.swapMap(resolutionMap)
+
+            currentQuality = Prefs.defaultQuality
+            currentVideoCodec = Prefs.defaultVideoCodec
+
+            //先确认最终所选清晰度
+            val existDefaultResolution =
                 availableQuality.keys.find { it == Prefs.defaultQuality } != null
-            if (existDefaultQuality) {
-                //使用默认清晰度
-                currentQuality = Prefs.defaultQuality
-            } else {
-                //不存在默认清晰度，则选择次一等的清晰度
-                val tempList = qualityMap.keys.sorted()
-                //默认清晰度选择最低清晰度
+
+            if (!existDefaultResolution) {
+                val tempList = resolutionMap.keys.sorted()
                 currentQuality = tempList.first()
                 tempList.forEach {
                     if (it <= Prefs.defaultQuality) {
@@ -146,9 +151,23 @@ class PlayerViewModel : ViewModel() {
                 }
             }
 
+            val currentResolutionInfo =
+                responseData.supportFormats.find { it.quality == currentQuality }
+
+            //再确认最终所选视频编码
+            val codecList = currentResolutionInfo!!.codecs!!
+                .mapNotNull { VideoCodec.fromCodecString(it) }
+            availableVideoCodec.swapList(codecList)
+
+            currentVideoCodec = if (codecList.contains(Prefs.defaultVideoCodec)) {
+                Prefs.defaultVideoCodec
+            } else {
+                codecList.minByOrNull { it.ordinal }!!
+            }
+
             dashData = responseData.dash!!
 
-            playQuality(currentQuality)
+            playQuality(qn = currentQuality, codec = currentVideoCodec)
 
         }.onFailure {
             addLogs("加载视频地址失败：${it.localizedMessage}")
@@ -163,11 +182,11 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    suspend fun playQuality(qn: Int = 80) {
+    suspend fun playQuality(qn: Int = 80, codec: VideoCodec = currentVideoCodec) {
         showLogs = true
-        addLogs("播放清晰度：${availableQuality[qn]}")
+        addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
         val videoUrl = dashData!!.video
-            .find { it.id == qn }
+            .find { it.id == qn && it.codecs.startsWith(codec.prefix) }
             ?.baseUrl
             ?: dashData!!.video[0].baseUrl
         val audioUrl = dashData!!.audio

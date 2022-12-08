@@ -64,7 +64,8 @@ fun VideoPlayerScreen(
                 currentTime = 0,
                 bufferedPercentage = 0,
                 resolutionWidth = 0,
-                resolutionHeight = 0
+                resolutionHeight = 0,
+                codec = "null"
             )
         )
     }
@@ -85,7 +86,8 @@ fun VideoPlayerScreen(
             currentTime = videoPlayer.currentPosition.coerceAtLeast(0L),
             bufferedPercentage = videoPlayer.bufferedPercentage,
             resolutionWidth = videoPlayer.videoSize.width,
-            resolutionHeight = videoPlayer.videoSize.height
+            resolutionHeight = videoPlayer.videoSize.height,
+            codec = videoPlayer.videoFormat?.codecs ?: "null"
         )
     }
 
@@ -184,7 +186,9 @@ fun VideoPlayerScreen(
         infoData = infoData,
 
         resolutionMap = playerViewModel.availableQuality,
+        availableVideoCodec = playerViewModel.availableVideoCodec,
         currentResolution = playerViewModel.currentQuality,
+        currentVideoCodec = playerViewModel.currentVideoCodec,
         currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
         currentDanmakuSize = playerViewModel.currentDanmakuSize,
         currentDanmakuTransparency = playerViewModel.currentDanmakuTransparency,
@@ -204,6 +208,18 @@ fun VideoPlayerScreen(
             val current = videoPlayer.currentPosition
             scope.launch(Dispatchers.Default) {
                 playerViewModel.playQuality(qualityId)
+                withContext(Dispatchers.Main) {
+                    videoPlayer.seekTo(current)
+                    videoPlayer.play()
+                }
+            }
+        },
+        onChooseVideoCodec = { videoCodec ->
+            playerViewModel.currentVideoCodec = videoCodec
+            videoPlayer.pause()
+            val current = videoPlayer.currentPosition
+            scope.launch(Dispatchers.Default) {
+                playerViewModel.playQuality(playerViewModel.currentQuality, videoCodec)
                 withContext(Dispatchers.Main) {
                     videoPlayer.seekTo(current)
                     videoPlayer.play()

@@ -17,6 +17,7 @@
     <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
     <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
     <string name="player_controller_menu_item_resolution">分辨率</string>
+    <string name="player_controller_menu_item_video_codec">视频编码</string>
 
     <string name="resolution_1080p">1080P 高清</string>
     <string name="resolution_1080p_60">1080P60 高帧率</string>
