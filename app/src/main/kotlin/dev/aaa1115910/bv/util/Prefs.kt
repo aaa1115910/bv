@@ -1,12 +1,14 @@
 package dev.aaa1115910.bv.util
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.Resolution
+import dev.aaa1115910.bv.entity.VideoCodec
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -23,6 +25,8 @@ private val prefDefaultQualityKey = intPreferencesKey("dq")
 private val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
 private val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
 private val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
+private val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
+private val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
 
 val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
 val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -35,8 +39,10 @@ val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolut
 val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
 val prefDefaultDanmakuTransparencyRequest = PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
 val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
+val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
+val prefDefaultVideoCodecRequest =
+    PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
 
-//SESSDATA
 object Prefs {
     val dsm = BVApp.dataStoreManager
     val logger = KotlinLogging.logger { }
@@ -84,6 +90,16 @@ object Prefs {
     var defaultDanmakuEnabled: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuEnabledRequest).first() }
         set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuEnabledKey, value) }
+
+    var defaultDanmakuArea: Float
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuAreaRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuAreaKey, value) }
+
+    var defaultVideoCodec: VideoCodec
+        get() = VideoCodec.fromCode(
+            runBlocking { dsm.getPreferenceFlow(prefDefaultVideoCodecRequest).first() }
+        )
+        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value.ordinal) }
 
     fun logout() {
         logger.info { "Logout uid: $uid" }

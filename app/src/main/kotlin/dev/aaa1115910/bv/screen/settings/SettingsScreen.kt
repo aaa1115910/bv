@@ -46,10 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.screen.settings.content.GroupSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
-import dev.aaa1115910.bv.screen.settings.content.VersionSetting
+import dev.aaa1115910.bv.screen.settings.content.AboutSetting
+import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,9 +155,9 @@ fun SettingsNav(
 
 enum class SettingsMenuNavItem(private val strRes: Int) {
     Resolution(R.string.settings_item_resolution),
-    Group(R.string.settings_item_group),
+    VideoCodec(R.string.settings_item_codec),
     Info(R.string.settings_item_info),
-    Version(R.string.settings_item_version);
+    About(R.string.settings_item_about);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
@@ -180,9 +180,9 @@ fun SettingContent(
         ) {
             when (currentMenu) {
                 SettingsMenuNavItem.Resolution -> ResolutionSetting()
-                SettingsMenuNavItem.Group -> GroupSetting()
                 SettingsMenuNavItem.Info -> InfoSetting()
-                SettingsMenuNavItem.Version -> VersionSetting()
+                SettingsMenuNavItem.About -> AboutSetting()
+                SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
             }
         }
     }

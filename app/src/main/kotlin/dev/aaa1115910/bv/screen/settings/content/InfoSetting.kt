@@ -8,7 +8,9 @@ import android.os.StatFs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,6 +53,7 @@ fun InfoSetting(
                 text = SettingsMenuNavItem.Info.getDisplayName(context),
                 style = MaterialTheme.typography.displaySmall
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {

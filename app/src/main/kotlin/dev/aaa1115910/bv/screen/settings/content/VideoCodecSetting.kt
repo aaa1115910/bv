@@ -20,17 +20,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
-import dev.aaa1115910.bv.entity.Resolution
+import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuSelectItem
 import dev.aaa1115910.bv.util.Prefs
 
 @Composable
-fun ResolutionSetting(
+fun VideoCodecSetting(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var selectedResolution by remember { mutableStateOf(Resolution.fromCode(Prefs.defaultQuality)) }
+    var selectedVideoCodec by remember { mutableStateOf(Prefs.defaultVideoCodec) }
 
     Box(
         modifier = modifier
@@ -43,20 +43,20 @@ fun ResolutionSetting(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = SettingsMenuNavItem.Resolution.getDisplayName(context),
+                text = SettingsMenuNavItem.VideoCodec.getDisplayName(context),
                 style = MaterialTheme.typography.displaySmall
             )
             Spacer(modifier = Modifier.height(12.dp))
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = Resolution.values().reversed()) { resolution ->
+                items(items=VideoCodec.values()){videoCodec->
                     SettingsMenuSelectItem(
-                        text = resolution.getDisplayName(context),
-                        selected = selectedResolution == resolution,
+                        text = videoCodec.getDisplayName(context),
+                        selected = selectedVideoCodec == videoCodec,
                         onClick = {
-                            selectedResolution = resolution
-                            Prefs.defaultQuality = resolution.code
+                            selectedVideoCodec = videoCodec
+                            Prefs.defaultVideoCodec = videoCodec
                         }
                     )
                 }
