@@ -22,11 +22,14 @@ fun VideoPlayerInfoTip(
         color = Color.Black.copy(alpha = 0.4f),
         shape = MaterialTheme.shapes.medium
     ) {
-        Column {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
             Text(text = "视频长度: ${data.totalDuration.formatMinSec()}")
             Text(text = "当前时间: ${data.currentTime.formatMinSec()}")
             Text(text = "缓冲进度: ${data.bufferedPercentage}%")
             Text(text = "分辨率: ${data.resolutionWidth} x ${data.resolutionHeight}")
+            Text(text = "视频编码: ${data.codec}")
         }
     }
 }
@@ -36,5 +39,6 @@ data class VideoPlayerInfoData(
     val currentTime: Long,
     val bufferedPercentage: Int,
     val resolutionWidth: Int,
-    val resolutionHeight: Int
+    val resolutionHeight: Int,
+    val codec: String
 )

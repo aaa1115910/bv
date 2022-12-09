@@ -11,20 +11,39 @@
     <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
     <string name="disclaimer_dialog_title">注意了！</string>
 
+    <string name="player_controller_menu_danmaku_disabled">关闭</string>
+    <string name="player_controller_menu_danmaku_enabled">开启</string>
+    <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
+    <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
+    <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
+    <string name="player_controller_menu_item_resolution">分辨率</string>
+    <string name="player_controller_menu_item_video_codec">视频编码</string>
+
     <string name="resolution_1080p">1080P 高清</string>
     <string name="resolution_1080p_60">1080P60 高帧率</string>
+    <string name="resolution_1080p_60_short">1080P60</string>
     <string name="resolution_1080p_plus">1080P+ 高码率</string>
+    <string name="resolution_1080p_plus_short">1080P+</string>
+    <string name="resolution_1080p_short">1080P</string>
     <string name="resolution_240p">240P 极速</string>
+    <string name="resolution_240p_short">240P</string>
     <string name="resolution_360p">360P 流畅</string>
+    <string name="resolution_360p_short">360P</string>
     <string name="resolution_480p">480P 清晰</string>
+    <string name="resolution_480p_short">480P</string>
     <string name="resolution_4k">4K 超清</string>
+    <string name="resolution_4k_short">4K</string>
     <string name="resolution_720p">720P 高清</string>
+    <string name="resolution_720p_60_short">720P60</string>
+    <string name="resolution_720p_short">720P</string>
     <string name="resolution_8k">8K 超高清</string>
+    <string name="resolution_8k_short">8K</string>
     <string name="resolution__720p_60">720P60 高帧率</string>
+    <string name="resolution_dolby_bision_short">杜比视界</string>
     <string name="resolution_dolby_vision">杜比视界</string>
     <string name="resolution_hdr">HDR 真彩色</string>
+    <string name="resolution_hdr_short">HDR</string>
 
-    <string name="settings_group_content">目前应该还没有吧</string>
     <string name="settings_info_manufacturer">厂商: %1$s</string>
     <string name="settings_info_memory">内存: %1$s</string>
     <string name="settings_info_model">型号: %1$s (%2$s)</string>
@@ -32,10 +51,10 @@
     <string name="settings_info_soc">SOC: %1$s %2$s</string>
     <string name="settings_info_storage">存储: %1$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
-    <string name="settings_item_group">交流群组</string>
+    <string name="settings_item_about">关于</string>
+    <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
     <string name="settings_item_resolution">默认分辨率</string>
-    <string name="settings_item_version">应用版本</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
@@ -53,22 +72,9 @@
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门推荐</string>
     <string name="top_nav_item_search">搜索</string>
-    <string name="resolution_240p_short">240P</string>
-    <string name="resolution_360p_short">360P</string>
-    <string name="resolution_480p_short">480P</string>
-    <string name="resolution_720p_short">720P</string>
-    <string name="resolution_720p_60_short">720P60</string>
-    <string name="resolution_1080p_short">1080P</string>
-    <string name="resolution_1080p_plus_short">1080P+</string>
-    <string name="resolution_1080p_60_short">1080P60</string>
-    <string name="resolution_4k_short">4K</string>
-    <string name="resolution_hdr_short">HDR</string>
-    <string name="resolution_dolby_bision_short">杜比视界</string>
-    <string name="resolution_8k_short">8K</string>
-    <string name="player_controller_menu_danmaku_enabled">开启</string>
-    <string name="player_controller_menu_danmaku_disabled">关闭</string>
-    <string name="player_controller_menu_item_resolution">分辨率</string>
-    <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
-    <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
-    <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
+
+    <string name="video_codec_av1">AV1</string>
+    <string name="video_codec_avc">H.264</string>
+    <string name="video_codec_dvh1">Dolby Vision</string>
+    <string name="video_codec_hevc">H.265</string>
 </resources>

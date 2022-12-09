@@ -38,17 +38,20 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
-
+import dev.aaa1115910.bv.entity.VideoCodec
 
 @Composable
 fun VideoPlayerMenuController(
     modifier: Modifier = Modifier,
     resolutionMap: Map<Int, String> = emptyMap(),
+    availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
+    currentVideoCodec: VideoCodec=VideoCodec.AVC,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     onChooseResolution: (Int) -> Unit,
+    onChooseVideoCodec: (VideoCodec) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
@@ -79,11 +82,14 @@ fun VideoPlayerMenuController(
                 onFocusBackMenuList = { focusInNav = true },
                 currentMenu = currentMenu,
                 resolutionMap = resolutionMap,
+                availableVideoCodec = availableVideoCodec,
                 currentResolution = currentResolution,
+                currentVideoCodec = currentVideoCodec,
                 currentDanmakuEnabled = currentDanmakuEnabled,
                 currentDanmakuSize = currentDanmakuSize,
                 currentDanmakuTransparency = currentDanmakuTransparency,
                 onChooseResolution = onChooseResolution,
+                onChooseVideoCodec = onChooseVideoCodec,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange
@@ -142,6 +148,7 @@ private fun VideoPlayerMenuControllerNav(
 
 private enum class VideoPlayerMenuItem(private val strRes: Int) {
     Resolution(R.string.player_controller_menu_item_resolution),
+    VideoCodec(R.string.player_controller_menu_item_video_codec),
     DanmakuSwitch(R.string.player_controller_menu_item_danmaku_switch),
     DanmakuSize(R.string.player_controller_menu_item_dankamu_size),
     DanmakuTransparency(R.string.player_controller_menu_item_danmaku_transparency);
@@ -156,11 +163,14 @@ private fun VideoPlayerMenuControllerContent(
     onFocusBackMenuList: () -> Unit,
     currentMenu: VideoPlayerMenuItem,
     resolutionMap: Map<Int, String> = emptyMap(),
+    availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
+    currentVideoCodec: VideoCodec=VideoCodec.AVC,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     onChooseResolution: (Int) -> Unit,
+    onChooseVideoCodec: (VideoCodec) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
@@ -195,10 +205,15 @@ private fun VideoPlayerMenuControllerContent(
                 currentDanmakuTransparency = currentDanmakuTransparency,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange
             )
+
+            VideoPlayerMenuItem.VideoCodec -> VideoCodecMenuContent(
+                availableVideoCodec = availableVideoCodec,
+                currentVideoCodec = currentVideoCodec,
+                onVideoCodecChange = onChooseVideoCodec
+            )
         }
     }
 }
-
 
 
 @Composable
@@ -224,6 +239,30 @@ private fun ResolutionMenuContent(
                 }.getOrDefault("unknown: $id"),
                 selected = currentResolution == id
             ) { onResolutionChange(id) }
+        }
+    }
+}
+
+@Composable
+private fun VideoCodecMenuContent(
+    modifier: Modifier = Modifier,
+    availableVideoCodec: List<VideoCodec> = emptyList(),
+    currentVideoCodec: VideoCodec,
+    onVideoCodecChange: (VideoCodec) -> Unit,
+) {
+    val context = LocalContext.current
+
+    TvLazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 120.dp)
+    ) {
+        items(items = availableVideoCodec) { videoCodec ->
+            MenuListItem(
+                modifier = Modifier.fillMaxWidth(),
+                text = videoCodec.getDisplayName(context),
+                selected = currentVideoCodec == videoCodec
+            ) { onVideoCodecChange(videoCodec) }
         }
     }
 }
