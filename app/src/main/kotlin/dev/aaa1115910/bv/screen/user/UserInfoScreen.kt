@@ -91,7 +91,8 @@ fun UserInfoScreen(
             runCatching {
                 val responseData = BiliApi.getHistories(sessData = Prefs.sessData).getResponseData()
                 responseData.list.forEach { historyItem ->
-                    if (historyItem.history.business != "archive") return@forEach
+                    val supportedBusinessList = listOf("archive", "pgc")
+                    if (!supportedBusinessList.contains(historyItem.history.business)) return@forEach
                     histories.add(
                         VideoCardData(
                             avid = historyItem.history.oid,
