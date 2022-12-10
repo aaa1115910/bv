@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 internal class BiliApiTest {
 
     companion object {
-        const val SESSDATA = "65fa7e8d%2C1685462434%2Cb0ddc%2Ac1"
+        const val SESSDATA = ""
     }
 
     @Test
@@ -130,6 +130,49 @@ internal class BiliApiTest {
                 )
                 println(response)
             }
+        }
+    }
+
+    @Test
+    fun `get favorite folder metadata from id 2333`(){
+        runBlocking {
+            val response = BiliApi.getFavoriteFolderInfo(
+                mediaId = 2333
+            )
+            println(response)
+        }
+    }
+
+    @Test
+    fun `get all favorite folders metadata`(){
+        runBlocking {
+            val response = BiliApi.getAllFavoriteFoldersInfo(
+                mid = 2333,
+                sessData= SESSDATA
+            )
+            println(response)
+        }
+    }
+
+    @Test
+    fun `get all favorite item ids`(){
+        runBlocking {
+            val response = BiliApi.getFavoriteIdList(
+                mediaId = 2333,
+                sessData= SESSDATA
+            )
+            println(response)
+        }
+    }
+
+    @Test
+    fun `get favorite list`(){
+        runBlocking {
+            val response = BiliApi.getFavoriteList(
+                mediaId = 2333,
+                sessData= SESSDATA
+            )
+            println(response)
         }
     }
 }

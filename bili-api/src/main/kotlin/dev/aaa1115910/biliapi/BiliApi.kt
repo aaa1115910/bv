@@ -8,6 +8,10 @@ import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
+import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfo
+import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfoListData
+import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteItemIdListResponse
+import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
@@ -233,6 +237,9 @@ object BiliApi {
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
+    /**
+     * 获取与视频[avid]或[bvid]有关的相关推荐视频
+     */
     suspend fun getRelatedVideos(
         avid: Long? = null,
         bvid: String? = null
@@ -240,5 +247,80 @@ object BiliApi {
         check(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
         parameter("aid", avid)
         parameter("bvid", bvid)
+    }.body()
+
+    /**
+     * 获取收藏夹[mediaId]的元数据
+     */
+    suspend fun getFavoriteFolderInfo(
+        mediaId: Long,
+        sessData: String = ""
+    ): BiliResponse<FavoriteFolderInfo> = client.get("/x/v3/fav/folder/info") {
+        parameter("media_id", mediaId)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取用户[mid]的所有收藏夹信息
+     *
+     * @param type 目标内容属性 默认为全部 0：全部 2：视频稿件
+     * @param rid 目标内容id 视频稿件：视频稿件avid
+     */
+    suspend fun getAllFavoriteFoldersInfo(
+        mid: Long,
+        type: Int = 0,
+        rid: Int? = null,
+        sessData: String = ""
+    ): BiliResponse<UserFavoriteFoldersData> = client.get("/x/v3/fav/folder/created/list-all") {
+        parameter("up_mid", mid)
+        parameter("type", type)
+        parameter("rid", rid)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取收藏夹[mediaId]的详细内容
+     *
+     * @param tid 分区tid 默认为全部分区 0：全部分区
+     * @param keyword 搜索关键字
+     * @param order 排序方式 按收藏时间:mtime 按播放量: view 按投稿时间：pubtime
+     * @param type 查询范围 0：当前收藏夹（对应media_id） 1：全部收藏夹
+     * @param pageSize 每页数量 定义域：1-20
+     * @param pageNumber 页码 默认为1
+     * @param platform 平台标识 可为web（影响内容列表类型）
+     */
+    suspend fun getFavoriteList(
+        mediaId: Long,
+        tid: Int = 0,
+        keyword: String? = null,
+        order: String? = null,
+        type: Int = 0,
+        pageSize: Int = 20,
+        pageNumber: Int = 1,
+        platform: String? = null,
+        sessData: String = ""
+    ): BiliResponse<FavoriteFolderInfoListData> = client.get("/x/v3/fav/resource/list") {
+        parameter("media_id", mediaId)
+        parameter("tid", tid)
+        parameter("keyword", keyword)
+        parameter("order", order)
+        parameter("type", type)
+        parameter("ps", pageSize)
+        parameter("pn", pageNumber)
+        parameter("platform", platform)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取收藏夹[mediaId]的全部内容id
+     */
+    suspend fun getFavoriteIdList(
+        mediaId: Long,
+        platform: String? = null,
+        sessData: String = ""
+    ): FavoriteItemIdListResponse = client.get("/x/v3/fav/resource/ids") {
+        parameter("media_id", mediaId)
+        parameter("platform", platform)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }
