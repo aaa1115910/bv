@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.LocalIndication
@@ -8,6 +9,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,6 +43,9 @@ fun BVTheme(
 ) {
     val context = LocalContext.current
     val colorScheme = BiliColorScheme
+    val typography =
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypography else Typography()
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -52,6 +57,7 @@ fun BVTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
+        typography = typography
     ) {
         CompositionLocalProvider(
             LocalIndication provides NoRippleIndication,
