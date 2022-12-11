@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(context, this, duration).show()
@@ -60,5 +61,20 @@ fun Date.formatPubTimeString(context: Context = BVApp.context): String {
         )
 
         else -> context.getString(R.string.date_format_just_now)
+    }
+}
+
+fun Long.formatMinSec(): String {
+    return if (this == 0L) {
+        "..."
+    } else {
+        String.format(
+            "%02d:%02d",
+            TimeUnit.MILLISECONDS.toMinutes(this),
+            TimeUnit.MILLISECONDS.toSeconds(this) -
+                    TimeUnit.MINUTES.toSeconds(
+                        TimeUnit.MILLISECONDS.toMinutes(this)
+                    )
+        )
     }
 }

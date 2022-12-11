@@ -19,8 +19,6 @@ import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.Keys
-import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoCodec
@@ -36,11 +34,6 @@ class PlayerViewModel : ViewModel() {
     var player: ExoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
     var show by mutableStateOf(false)
-    var showingRightMenu by mutableStateOf(false)
-
-    var lastPressedKey by mutableStateOf(Keys.Other)
-    var lastPressedTime by mutableStateOf(0L)
-    var lastConsumeTime by mutableStateOf(0L)
 
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")
@@ -262,4 +255,8 @@ class PlayerViewModel : ViewModel() {
         }
         logs = newTip
     }
+}
+
+enum class RequestState {
+    Ready, Doing, Done, Success, Failed
 }

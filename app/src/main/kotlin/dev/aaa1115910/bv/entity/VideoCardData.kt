@@ -1,6 +1,6 @@
 package dev.aaa1115910.bv.entity
 
-import dev.aaa1115910.bv.component.formatMinSec
+import dev.aaa1115910.bv.util.formatMinSec
 
 data class VideoCardData(
     val avid: Int,

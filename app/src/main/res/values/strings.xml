@@ -60,7 +60,6 @@
 
     <string name="title_activity_history">HistoryActivity</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="title_activity_player">PlayerActivity</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_up_info">UpInfoActivity</string>
     <string name="title_activity_user_info">UserInfoActivity</string>

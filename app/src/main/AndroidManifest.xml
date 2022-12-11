@@ -51,11 +51,6 @@
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".PlayerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_player"
-            android:theme="@style/Theme.BV" />
-        <activity
             android:name=".VideoInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_video_info"
