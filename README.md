@@ -22,7 +22,15 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 :bug: Bug 多多。
 
-## 安装包
+## 安装
 
 你可以在 [这里](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
 获取到持续集成版本。
+
+## 自行编译注意事项
+
+### google-services.json
+
+该项目使用 Firebase Crashlytics 进行异常日志统计，因此需要用到 `google-services.json` 文件。
+
+你应该在 [Firebase](https://console.firebase.google.com/) 上创建一个新的应用，并下载获取你自己的 `google-services.json` 文件，并将其放置于 `app` 目录下。

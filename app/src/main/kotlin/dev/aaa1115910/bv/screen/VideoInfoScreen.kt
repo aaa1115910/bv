@@ -60,13 +60,13 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
-import dev.aaa1115910.bv.PlayerActivity
 import dev.aaa1115910.bv.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
@@ -166,7 +166,7 @@ fun VideoInfoScreen(
                         VideoInfoData(
                             videoInfo = videoInfo!!,
                             onClickCover = {
-                                logger.info { "Click video cover" }
+                                logger.fInfo { "Click video cover" }
                                 VideoPlayerActivity.actionStart(
                                     context = context,
                                     avid = videoInfo!!.aid,
@@ -186,7 +186,7 @@ fun VideoInfoScreen(
                         VideoPartRow(
                             pages = videoInfo?.pages ?: emptyList(),
                             onClick = { cid ->
-                                logger.info { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
+                                logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
                                 VideoPlayerActivity.actionStart(
                                     context = context,
                                     avid = videoInfo!!.aid,

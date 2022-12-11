@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -30,7 +31,7 @@ class HistoryViewModel : ViewModel() {
 
     private suspend fun updateHistories() {
         if (updating) return
-        logger.info { "Updating histories with params [max=$max, viewAt=$viewAt]" }
+        logger.fInfo { "Updating histories with params [max=$max, viewAt=$viewAt]" }
         updating = true
         runCatching {
             val responseData = BiliApi.getHistories(
@@ -55,10 +56,10 @@ class HistoryViewModel : ViewModel() {
             //update cursor
             max = responseData.cursor.max
             viewAt = responseData.cursor.viewAt
-            logger.info { "Update history cursor: [max=$max, viewAt=$viewAt]" }
-            logger.info { "Update histories success" }
+            logger.fInfo { "Update history cursor: [max=$max, viewAt=$viewAt]" }
+            logger.fInfo { "Update histories success" }
         }.onFailure {
-            logger.info { "Update histories failed: ${it.stackTraceToString()}" }
+            logger.fInfo { "Update histories failed: ${it.stackTraceToString()}" }
         }
         updating = false
     }

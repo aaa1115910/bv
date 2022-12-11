@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
-import dev.aaa1115910.bv.component.formatMinSec
+import dev.aaa1115910.bv.util.formatMinSec
 
 @Composable
 fun BottomControls(

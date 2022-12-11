@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliPassportApi
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
+import dev.aaa1115910.bv.util.fError
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.g0dkar.qrcode.QRCode
 import io.ktor.util.date.toJvmDate
@@ -38,14 +40,15 @@ class LoginViewModel(
 
     fun requestQRCode() {
         state = LoginState.Ready
-        logger.info { "Request login qr code" }
+        logger.fInfo { "Request login qr code" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
                 state = LoginState.RequestingQRCode
                 val responseData = BiliPassportApi.getQRUrl().getResponseData()
                 loginUrl = responseData.url
                 key = responseData.qrcodeKey
-                logger.info { "Get login request code url: ${responseData.url}" }
+                logger.fInfo { "Get login request code url" }
+                logger.info { responseData.url }
                 generateQRImage()
                 runCatching { timer.cancel() }
                 timer = Timer()
@@ -61,14 +64,14 @@ class LoginViewModel(
                     it.message?.toast(BVApp.context)
                 }
                 state = LoginState.Error
-                logger.error { "Get login request code url failed: ${it.stackTraceToString()}" }
+                logger.fError { "Get login request code url failed: ${it.stackTraceToString()}" }
                 timer.cancel()
             }
         }
     }
 
     suspend fun checkLoginResult() {
-        logger.info { "Check for login result" }
+        logger.fInfo { "Check for login result" }
         runCatching {
             val (response, cookies) = BiliPassportApi.loginWithQR(key)
             val responseData = response.getResponseData()
@@ -88,41 +91,42 @@ class LoginViewModel(
                         expiredDate = cookies.first().expires?.toJvmDate()
                             ?: throw IllegalArgumentException("Cookie expires date not found")
                     )
+                    logger.fInfo { "Login success" }
                     state = LoginState.LoginSuccess
                     timer.cancel()
                 }
 
                 86101 -> {
-                    logger.info { "Waiting to scan" }
+                    logger.fInfo { "Waiting to scan" }
                     state = LoginState.WaitToScan
                 }
 
                 86090 -> {
-                    logger.info { "Waiting to confirm" }
+                    logger.fInfo { "Waiting to confirm" }
                     state = LoginState.WaitToConfirm
                 }
 
                 86038 -> {
-                    logger.info { "QR expired" }
+                    logger.fInfo { "QR expired" }
                     state = LoginState.QRExpired
                     timer.cancel()
                 }
 
                 else -> {
-                    logger.info { "Get unknown response code: $response" }
+                    logger.fInfo { "Get unknown response code: $response" }
                 }
             }
 
         }.onFailure {
             if (it is CancellationException) {
-                logger.info { "Timer job cancelled" }
+                logger.fInfo { "Timer job cancelled" }
                 return@onFailure
             }
             withContext(Dispatchers.Main) {
                 it.message?.toast(BVApp.context)
             }
             state = LoginState.Error
-            logger.error { "Check qr state failed: ${it.stackTraceToString()}" }
+            logger.fError { "Check qr state failed: ${it.stackTraceToString()}" }
         }
     }
 
@@ -131,7 +135,7 @@ class LoginViewModel(
         QRCode(loginUrl).render().writeImage(output)
         val input = ByteArrayInputStream(output.toByteArray())
         qrImage = BitmapFactory.decodeStream(input).asImageBitmap()
-        logger.info { "Generated qr image" }
+        logger.fInfo { "Generated qr image" }
     }
 }
 

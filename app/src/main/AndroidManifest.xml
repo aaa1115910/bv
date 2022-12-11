@@ -21,6 +21,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".FavoriteActivity"
+            android:exported="false"
+            android:label="@string/title_activity_favorite"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".VideoPlayerActivity"
             android:exported="false"
             android:label="@string/title_activity_video_player"
@@ -49,11 +54,6 @@
             android:name=".LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.BV" />
-        <activity
-            android:name=".PlayerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_player"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".VideoInfoActivity"

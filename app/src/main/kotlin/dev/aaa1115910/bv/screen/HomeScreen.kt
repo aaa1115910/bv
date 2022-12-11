@@ -21,6 +21,7 @@ import dev.aaa1115910.bv.screen.home.AnimeScreen
 import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
@@ -107,9 +108,9 @@ fun HomeScreen(
                     when (nav) {
                         TopNavItem.Popular -> {
                             //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
-                            logger.info { "clear popular data" }
+                            logger.fInfo { "clear popular data" }
                             popularViewModel.clearData()
-                            logger.info { "reload popular data" }
+                            logger.fInfo { "reload popular data" }
                             scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
                         }
 

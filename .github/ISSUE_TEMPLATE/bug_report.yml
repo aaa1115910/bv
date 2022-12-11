@@ -1,0 +1,69 @@
+name: Bug 报告
+description: 创建 Bug 报告以帮助开发者改进
+title: "以简单的一段字概括你所遇到的问题"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 反馈须知
+        - 请务必完整填写下面的内容，如果缺少必要的信息，可能会在未核实的情况下直接关闭
+        - 一个 issue 请只反馈一个 bug 或功能建议，一次性反馈多个不同的问题或建议将会直接关闭（因为这不便于追踪问题）
+        - 注意你的标题，以简单的一段字概括你所遇到的问题。无意义标题直接关闭
+
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: Bug 描述
+      description: 请简短的描述你遇到的问题
+  - type: textarea
+    id: steps
+    validations:
+      required: true
+    attributes:
+      label: 复现问题的步骤
+      render: plain text
+      description: 请提供复现问题的步骤，如果不能，请写明原因
+      placeholder: |
+        示例步骤:
+        1. 进入 '...'
+        2. 点击 '....'
+        3. 滚动到 '....'
+        4. 出现问题
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: 预期行为
+      description: 简要描述你希望看到什么样的结果
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图
+      description: 如果可以，提交截图更有助于我们分析问题
+  - type: input
+    id: app-version
+    validations:
+      required: true
+    attributes:
+      label: 应用版本
+      placeholder: 0.0.1.r29.a6d7ecb.release
+  - type: input
+    id: android-version
+    validations:
+      required: true
+    attributes:
+      label: Android 版本
+      placeholder: Android 13
+  - type: input
+    id: device-info
+    attributes:
+      label: 设备厂商及型号
+      placeholder: Sony - BRAVIA XR MASTER SERIES Z9K
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 附加信息
+      description: 添加你认为有必要的信息，例如出现问题的相关视频等等

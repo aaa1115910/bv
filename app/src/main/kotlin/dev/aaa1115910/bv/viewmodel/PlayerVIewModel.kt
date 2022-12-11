@@ -19,12 +19,13 @@ import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.Keys
-import dev.aaa1115910.bv.RequestState
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fException
+import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
 import kotlinx.coroutines.Dispatchers
@@ -36,11 +37,6 @@ class PlayerViewModel : ViewModel() {
     var player: ExoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
     var show by mutableStateOf(false)
-    var showingRightMenu by mutableStateOf(false)
-
-    var lastPressedKey by mutableStateOf(Keys.Other)
-    var lastPressedTime by mutableStateOf(0L)
-    var lastConsumeTime by mutableStateOf(0L)
 
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")
@@ -67,13 +63,13 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun preparePlayer(player: ExoPlayer) {
-        logger.info { "Set player" }
+        logger.fInfo { "Set player" }
         this.player = player
         show = true
     }
 
     fun prepareDanmakuPlayer(danmakuPlayer: DanmakuPlayer) {
-        logger.info { "Set danmaku plauer" }
+        logger.fInfo { "Set danmaku plauer" }
         this.danmakuPlayer = danmakuPlayer
     }
 
@@ -107,9 +103,9 @@ class PlayerViewModel : ViewModel() {
         fnver: Int = 0,
         fourk: Int = 0
     ) {
-        logger.info { "Load play url: [av=$avid, cid=$cid, fnval=$fnval, qn=$qn, fnver=$fnver, fourk=$fourk]" }
+        logger.fInfo { "Load play url: [av=$avid, cid=$cid, fnval=$fnval, qn=$qn, fnver=$fnver, fourk=$fourk]" }
         loadState = RequestState.Ready
-        logger.info { "Set request state: ready" }
+        logger.fInfo { "Set request state: ready" }
         runCatching {
             val responseData = BiliApi.getVideoPlayUrl(
                 av = avid,
@@ -120,7 +116,7 @@ class PlayerViewModel : ViewModel() {
                 fourk = fourk,
                 sessData = Prefs.sessData
             ).getResponseData()
-            logger.info { "Load play url response: $responseData" }
+            logger.fInfo { "Load play url response: $responseData" }
 
             //读取清晰度
             val resolutionMap = mutableMapOf<Int, String>()
@@ -131,7 +127,7 @@ class PlayerViewModel : ViewModel() {
                 }
             }
 
-            logger.info { "Video available resolution: $resolutionMap" }
+            logger.fInfo { "Video available resolution: $resolutionMap" }
             availableQuality.swapMap(resolutionMap)
 
             currentQuality = Prefs.defaultQuality
@@ -173,12 +169,11 @@ class PlayerViewModel : ViewModel() {
             addLogs("加载视频地址失败：${it.localizedMessage}")
             errorMessage = it.stackTraceToString()
             loadState = RequestState.Failed
-            logger.warn { "Load video filed: ${it.message}" }
-            logger.error { it.stackTraceToString() }
+            logger.fException(it) { "Load video failed" }
         }.onSuccess {
             addLogs("加载视频地址成功")
             loadState = RequestState.Success
-            logger.warn { "Load play url success" }
+            logger.fInfo { "Load play url success" }
         }
     }
 
@@ -243,10 +238,10 @@ class PlayerViewModel : ViewModel() {
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
-            logger.warn { "Load danmaku filed: ${it.message}" }
+            logger.fWarn { "Load danmaku filed: ${it.message}" }
         }.onSuccess {
             addLogs("已加载 ${danmakuData.size} 条弹幕")
-            logger.warn { "Load danmaku success: ${danmakuData.size}" }
+            logger.fInfo { "Load danmaku success: ${danmakuData.size}" }
         }
     }
 
@@ -262,4 +257,8 @@ class PlayerViewModel : ViewModel() {
         }
         logs = newTip
     }
+}
+
+enum class RequestState {
+    Ready, Doing, Done, Success, Failed
 }

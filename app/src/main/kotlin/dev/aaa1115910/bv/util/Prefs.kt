@@ -102,7 +102,7 @@ object Prefs {
         set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value.ordinal) }
 
     fun logout() {
-        logger.info { "Logout uid: $uid" }
+        logger.fInfo { "Logout uid: $uid" }
         isLogin = false
         uid = 0
         sid = ""
