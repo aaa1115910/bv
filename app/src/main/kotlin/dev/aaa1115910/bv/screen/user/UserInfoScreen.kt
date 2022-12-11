@@ -56,16 +56,20 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.bv.FavoriteActivity
 import dev.aaa1115910.bv.HistoryActivity
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fException
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,15 +80,17 @@ fun UserInfoScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger { }
     val focusRequester = remember { FocusRequester() }
     var showLargeTitle by remember { mutableStateOf(true) }
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
-    val anime = remember { mutableStateListOf<VideoCardData>() }
+    val animes = remember { mutableStateListOf<VideoCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
 
     LaunchedEffect(Unit) {
@@ -108,6 +114,47 @@ fun UserInfoScreen(
                         )
                     )
                 }
+            }.onFailure {
+                logger.fException(it) { "Load recent videos failed" }
+            }
+        }
+
+        //update favorite videos
+        scope.launch(Dispatchers.Default) {
+            var folderId: Long = 0
+            runCatching {
+                val foldersInfo = BiliApi.getAllFavoriteFoldersInfo(
+                    mid = Prefs.uid,
+                    type = 2,
+                    sessData = Prefs.sessData
+                ).getResponseData()
+                if (foldersInfo.count == 0) {
+                    "未找到收藏夹".toast(context)
+                    return@launch
+                }
+                logger.fInfo { "Get favorite folders: ${foldersInfo.list.map { it.id }}" }
+                folderId = foldersInfo.list.first().id
+            }.onFailure {
+                logger.fException(it) { "Load favorite folders failed" }
+            }
+            runCatching {
+                val favoriteItems = BiliApi.getFavoriteList(
+                    mediaId = folderId,
+                    sessData = Prefs.sessData
+                ).getResponseData().medias
+                favoriteItems.forEach { favoriteItem ->
+                    favorites.add(
+                        VideoCardData(
+                            avid = favoriteItem.id.toInt(),
+                            title = favoriteItem.title,
+                            cover = favoriteItem.cover,
+                            upName = favoriteItem.upper.name,
+                            time = favoriteItem.duration.toLong()
+                        )
+                    )
+                }
+            }.onFailure {
+                logger.fException(it) { "Load favorite items failed" }
             }
         }
     }
@@ -159,6 +206,7 @@ fun UserInfoScreen(
             }
             item {
                 AnimeVideosRow(
+                    videos = animes,
                     showMore = {
                         "还没写呢！！！".toast(context)
                     }
@@ -166,8 +214,9 @@ fun UserInfoScreen(
             }
             item {
                 FavoriteVideosRow(
+                    videos = favorites,
                     showMore = {
-                        "还没写呢！！！".toast(context)
+                        context.startActivity(Intent(context, FavoriteActivity::class.java))
                     }
                 )
             }
@@ -344,7 +393,7 @@ private fun RecentVideosRow(
     VideosRow(
         modifier = modifier
             .padding(vertical = 8.dp),
-        header = "最近播放记录",
+        header = stringResource(R.string.user_homepage_recent),
         hideShowMore = false,
         showMore = showMore,
         videos = videos
@@ -354,30 +403,32 @@ private fun RecentVideosRow(
 @Composable
 private fun AnimeVideosRow(
     modifier: Modifier = Modifier,
+    videos: List<VideoCardData>,
     showMore: () -> Unit
 ) {
     VideosRow(
         modifier = modifier
             .padding(vertical = 8.dp),
-        header = "我追的番",
+        header = stringResource(R.string.user_homepage_anime),
         hideShowMore = false,
         showMore = showMore,
-        videos = listOf()
+        videos = videos
     )
 }
 
 @Composable
 private fun FavoriteVideosRow(
     modifier: Modifier = Modifier,
+    videos: List<VideoCardData>,
     showMore: () -> Unit
 ) {
     VideosRow(
         modifier = modifier
             .padding(vertical = 8.dp),
-        header = "私人藏品",
+        header = stringResource(R.string.user_homepage_favorite),
         hideShowMore = false,
         showMore = showMore,
-        videos = listOf()
+        videos = videos
     )
 }
 
@@ -399,15 +450,3 @@ private fun UserInfoPreview() {
         )
     }
 }
-
-val randomTitleList = listOf(
-    "吾",
-    "熟悉的屏幕",
-    "你来辣",
-    "I Need More Power!!!",
-    "别看了",
-    "我的",
-    "BUG 满天飞 ~",
-    "你说得对，但是",
-    "让我康康"
-)

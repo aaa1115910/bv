@@ -11,6 +11,8 @@
     <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
     <string name="disclaimer_dialog_title">注意了！</string>
 
+    <string name="load_data_count">已加载 %1$d 条数据</string>
+
     <string name="logout_dialog_confirm">gkd 别墨迹</string>
     <string name="logout_dialog_dismiss">不，我不想</string>
     <string name="logout_dialog_text">是否登出账号 %1$s</string>
@@ -63,6 +65,7 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
+    <string name="title_activity_favorite">FavoriteActivity</string>
     <string name="title_activity_history">HistoryActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_settings">设置</string>
@@ -76,6 +79,10 @@
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门推荐</string>
     <string name="top_nav_item_search">搜索</string>
+
+    <string name="user_homepage_anime">我追的番</string>
+    <string name="user_homepage_favorite">私人藏品</string>
+    <string name="user_homepage_recent">最近播放记录</string>
 
     <string name="video_codec_av1">AV1</string>
     <string name="video_codec_avc">H.264</string>
