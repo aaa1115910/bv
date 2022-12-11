@@ -27,6 +27,7 @@ import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.VideoPlayerController
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -52,7 +53,7 @@ fun VideoPlayerScreen(
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        logger.info { "Request focus on controller" }
+        logger.fInfo { "Request focus on controller" }
         focusRequester.requestFocus()
         //focusRequester.captureFocus()
     }
@@ -133,10 +134,10 @@ fun VideoPlayerScreen(
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 if (playWhenReady) {
-                    logger.info { "Start danmaku" }
+                    logger.fInfo { "Start danmaku" }
                     danmakuPlayer.updateConfig(danmakuConfig)
                 } else {
-                    logger.info { "Pause danmaku" }
+                    logger.fInfo { "Pause danmaku" }
                     danmakuPlayer.pause()
                 }
             }
@@ -174,7 +175,7 @@ fun VideoPlayerScreen(
     }
 
     LaunchedEffect(playerViewModel.danmakuData) {
-        logger.info { "Update danmaku data" }
+        logger.fInfo { "Update danmaku data" }
         danmakuPlayer.updateData(playerViewModel.danmakuData)
     }
 

@@ -43,6 +43,7 @@ import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import mu.KotlinLogging
 
@@ -128,12 +129,12 @@ fun VideoPlayerController(
     }
 
     LaunchedEffect(Unit) {
-        logger.info { "Request focus on controller" }
+        logger.fInfo { "Request focus on controller" }
         //focusRequester.captureFocus()
     }
 
     LaunchedEffect(tick) {
-        //logger.info { "Request focus on controller2" }
+        //logger.fInfo { "Request focus on controller2" }
         //focusRequester.requestFocus()
     }
 
@@ -156,7 +157,7 @@ fun VideoPlayerController(
             .focusable()
             .fillMaxSize()
             .onPreviewKeyEvent {
-                if (BuildConfig.DEBUG) logger.info { "Native key event: ${it.nativeKeyEvent}" }
+                if (BuildConfig.DEBUG) logger.fInfo { "Native key event: ${it.nativeKeyEvent}" }
 
                 if (showingRightController()) {
                     if (listOf(
@@ -175,14 +176,14 @@ fun VideoPlayerController(
                 when (it.nativeKeyEvent.keyCode) {
                     KeyEvent.KEYCODE_DPAD_UP -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad up" }
+                        logger.fInfo { "Pressed dpad up" }
                         if (showingRightController()) return@onPreviewKeyEvent false
 
                     }
 
                     KeyEvent.KEYCODE_DPAD_DOWN -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad down" }
+                        logger.fInfo { "Pressed dpad down" }
                         if (showingRightController()) return@onPreviewKeyEvent false
                         showSeekController = !showSeekController
                         return@onPreviewKeyEvent true
@@ -190,7 +191,7 @@ fun VideoPlayerController(
 
                     KeyEvent.KEYCODE_DPAD_LEFT -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad left" }
+                        logger.fInfo { "Pressed dpad left" }
                         if (showingRightController()) return@onPreviewKeyEvent false
                         showSeekController = true
                         lastChangedSeek = System.currentTimeMillis()
@@ -200,7 +201,7 @@ fun VideoPlayerController(
 
                     KeyEvent.KEYCODE_DPAD_RIGHT -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad right" }
+                        logger.fInfo { "Pressed dpad right" }
                         if (showingRightController()) return@onPreviewKeyEvent false
                         showSeekController = true
                         lastChangedSeek = System.currentTimeMillis()
@@ -209,14 +210,14 @@ fun VideoPlayerController(
                     }
 
                     KeyEvent.KEYCODE_DPAD_CENTER -> {
-                        logger.info { "Pressed dpad center" }
+                        logger.fInfo { "Pressed dpad center" }
                         if (showingRightController()) return@onPreviewKeyEvent false
                         if (it.nativeKeyEvent.isLongPress) {
-                            logger.info { "long pressing" }
+                            logger.fInfo { "long pressing" }
                             showMenuController = true
                             return@onPreviewKeyEvent true
                         }
-                        logger.info { "short pressing" }
+                        logger.fInfo { "short pressing" }
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                         if (isPlaying) onPause() else onPlay()
                         return@onPreviewKeyEvent true
@@ -231,7 +232,7 @@ fun VideoPlayerController(
 
                     KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_BOOKMARK -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad menu" }
+                        logger.fInfo { "Pressed dpad menu" }
                         if (showingRightController()) {
                             showMenuController = false
                             showPartController = false
@@ -243,16 +244,16 @@ fun VideoPlayerController(
 
                     KeyEvent.KEYCODE_BACK -> {
                         if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.info { "Pressed dpad back" }
+                        logger.fInfo { "Pressed dpad back" }
                         if (showingRightController()) {
-                            logger.info { "Close menu and part controller" }
+                            logger.fInfo { "Close menu and part controller" }
                             showMenuController = false
                             showPartController = false
                             return@onPreviewKeyEvent true
                         } else {
                             val currentTime = System.currentTimeMillis()
                             if (currentTime - lastPressBack < 1000 * 3) {
-                                logger.info { "Exiting video player" }
+                                logger.fInfo { "Exiting video player" }
                                 (context as Activity).finish()
                             } else {
                                 lastPressBack = currentTime

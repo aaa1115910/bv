@@ -15,6 +15,7 @@ import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import mu.KotlinLogging
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -53,11 +54,11 @@ class VideoPlayerActivity : ComponentActivity() {
             val cid = intent.getIntExtra("cid", 170001)
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
-            logger.info { "Launch parameter: [aid=$aid, cid=$cid]" }
+            logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.loadPlayUrl(aid, cid)
             playerViewModel.title = title
         } else {
-            logger.info { "Null launch parameter" }
+            logger.fInfo { "Null launch parameter" }
         }
 
         setContent {

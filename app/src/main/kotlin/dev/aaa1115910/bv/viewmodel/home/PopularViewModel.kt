@@ -6,6 +6,8 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fError
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -26,7 +28,7 @@ class PopularViewModel : ViewModel() {
 
     private suspend fun loadData() {
         loading = true
-        logger.info { "Load more popular videos" }
+        logger.fInfo { "Load more popular videos" }
         runCatching {
             val responseData = runBlocking {
                 BiliApi.getPopularVideoData(
@@ -37,7 +39,7 @@ class PopularViewModel : ViewModel() {
             }
             popularVideoList.addAll(responseData.list)
         }.onFailure {
-            logger.error { "Load popular video list failed: ${it.stackTraceToString()}" }
+            logger.fError { "Load popular video list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {
                 "加载热门视频失败: ${it.localizedMessage}".toast(BVApp.context)
             }
