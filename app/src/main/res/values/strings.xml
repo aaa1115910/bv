@@ -11,6 +11,11 @@
     <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
     <string name="disclaimer_dialog_title">注意了！</string>
 
+    <string name="logout_dialog_confirm">gkd 别墨迹</string>
+    <string name="logout_dialog_dismiss">不，我不想</string>
+    <string name="logout_dialog_text">是否登出账号 %1$s</string>
+    <string name="logout_dialog_title">登出确认</string>
+
     <string name="player_controller_menu_danmaku_disabled">关闭</string>
     <string name="player_controller_menu_danmaku_enabled">开启</string>
     <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>

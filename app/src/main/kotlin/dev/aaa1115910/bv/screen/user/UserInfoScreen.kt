@@ -2,8 +2,9 @@ package dev.aaa1115910.bv.screen.user
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +47,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -53,6 +57,7 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.bv.HistoryActivity
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -196,11 +201,11 @@ private fun LogoutConfirmDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = { onHideDialog() },
-            title = { Text(text = "登出确认") },
-            text = { Text(text = "是否登出账号 ${Prefs.uid}") },
+            title = { Text(text = stringResource(R.string.logout_dialog_title)) },
+            text = { Text(text = stringResource(R.string.logout_dialog_text, Prefs.uid)) },
             confirmButton = {
                 TextButton(onClick = { onConfirm() }) {
-                    Text(text = "gkd 别墨迹")
+                    Text(text = stringResource(R.string.logout_dialog_confirm))
                 }
             },
             dismissButton = {
@@ -209,7 +214,7 @@ private fun LogoutConfirmDialog(
                         .focusRequester(focusRequester),
                     onClick = { onHideDialog() }
                 ) {
-                    Text(text = "不，我不想")
+                    Text(text = stringResource(R.string.logout_dialog_dismiss))
                 }
             }
         )
@@ -234,7 +239,10 @@ private fun UserInfo(
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
-        animationSpec = spring(dampingRatio = 2f)
+        animationSpec = tween(
+            durationMillis = 1500,
+            easing = LinearEasing
+        )
     )
 
     Surface(
@@ -292,16 +300,19 @@ private fun UserInfo(
                     ) {
                         if (showLabel)
                             AsyncImage(
-                                modifier = Modifier.height(with(density) {
-                                    MaterialTheme.typography.titleLarge.fontSize.toDp()
-                                }),
+                                //大会员 Tag 给定指定大小范围，避免加载时大小会突然变得非常大导致画面闪烁
+                                modifier = Modifier
+                                    .height(22.dp)
+                                    .widthIn(max = 80.dp),
                                 model = labelUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.FillHeight
                             )
                         Text(
                             text = username,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
