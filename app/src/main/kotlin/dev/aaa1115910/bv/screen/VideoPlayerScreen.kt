@@ -208,6 +208,7 @@ fun VideoPlayerScreen(
             videoPlayer.pause()
             val current = videoPlayer.currentPosition
             scope.launch(Dispatchers.Default) {
+                playerViewModel.updateAvailableCodec()
                 playerViewModel.playQuality(qualityId)
                 withContext(Dispatchers.Main) {
                     videoPlayer.seekTo(current)
@@ -220,7 +221,10 @@ fun VideoPlayerScreen(
             videoPlayer.pause()
             val current = videoPlayer.currentPosition
             scope.launch(Dispatchers.Default) {
-                playerViewModel.playQuality(playerViewModel.currentQuality, videoCodec)
+                playerViewModel.playQuality(
+                    playerViewModel.currentQuality,
+                    playerViewModel.currentVideoCodec
+                )
                 withContext(Dispatchers.Main) {
                     videoPlayer.seekTo(current)
                     videoPlayer.play()

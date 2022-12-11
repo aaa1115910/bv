@@ -99,7 +99,7 @@ object Prefs {
         get() = VideoCodec.fromCode(
             runBlocking { dsm.getPreferenceFlow(prefDefaultVideoCodecRequest).first() }
         )
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value.ordinal) }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultVideoCodecKey, value.ordinal) }
 
     fun logout() {
         logger.fInfo { "Logout uid: $uid" }

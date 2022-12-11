@@ -18,6 +18,7 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
+import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
@@ -41,10 +42,12 @@ class PlayerViewModel : ViewModel() {
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")
 
+    private var playUrlResponse: PlayUrlData? by mutableStateOf(null)
+
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
-    var currentQuality by mutableStateOf(0)
-    var currentVideoCodec by mutableStateOf(VideoCodec.AVC)
+    var currentQuality by mutableStateOf(Prefs.defaultQuality)
+    var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
     var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
@@ -116,6 +119,7 @@ class PlayerViewModel : ViewModel() {
                 fourk = fourk,
                 sessData = Prefs.sessData
             ).getResponseData()
+            playUrlResponse = responseData
             logger.fInfo { "Load play url response: $responseData" }
 
             //读取清晰度
@@ -129,9 +133,6 @@ class PlayerViewModel : ViewModel() {
 
             logger.fInfo { "Video available resolution: $resolutionMap" }
             availableQuality.swapMap(resolutionMap)
-
-            currentQuality = Prefs.defaultQuality
-            currentVideoCodec = Prefs.defaultVideoCodec
 
             //先确认最终所选清晰度
             val existDefaultResolution =
@@ -147,19 +148,8 @@ class PlayerViewModel : ViewModel() {
                 }
             }
 
-            val currentResolutionInfo =
-                responseData.supportFormats.find { it.quality == currentQuality }
-
             //再确认最终所选视频编码
-            val codecList = currentResolutionInfo!!.codecs!!
-                .mapNotNull { VideoCodec.fromCodecString(it) }
-            availableVideoCodec.swapList(codecList)
-
-            currentVideoCodec = if (codecList.contains(Prefs.defaultVideoCodec)) {
-                Prefs.defaultVideoCodec
-            } else {
-                codecList.minByOrNull { it.ordinal }!!
-            }
+            updateAvailableCodec()
 
             dashData = responseData.dash!!
 
@@ -177,7 +167,25 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    suspend fun playQuality(qn: Int = 80, codec: VideoCodec = currentVideoCodec) {
+    fun updateAvailableCodec() {
+        val currentResolutionInfo =
+            playUrlResponse!!.supportFormats.find { it.quality == currentQuality }
+        val codecList = currentResolutionInfo!!.codecs!!
+            .mapNotNull { VideoCodec.fromCodecString(it) }
+        availableVideoCodec.swapList(codecList)
+        logger.fInfo { "Video available codec: ${availableVideoCodec.toList()}" }
+
+        logger.fInfo { "Default codec: $currentVideoCodec" }
+        currentVideoCodec = if (codecList.contains(Prefs.defaultVideoCodec)) {
+            Prefs.defaultVideoCodec
+        } else {
+            codecList.minByOrNull { it.ordinal }!!
+        }
+        logger.fInfo { "Select codec: $currentVideoCodec" }
+    }
+
+    suspend fun playQuality(qn: Int = currentQuality, codec: VideoCodec = currentVideoCodec) {
+        logger.fInfo { "Select resolution: $qn, codec: $codec" }
         showLogs = true
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
         val videoUrl = dashData!!.video
