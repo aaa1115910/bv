@@ -5,7 +5,7 @@ object AppConfiguration {
     const val targetSdk = 33
     private const val major = 0
     private const val minor = 0
-    private const val patch = 8
+    private const val patch = 9
     val versionName: String by lazy {
         "$major.$minor.$patch.r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
     }
