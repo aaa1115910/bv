@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,17 +16,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 
 @Composable
 fun InfoSetting(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxHeight: Dp,
+    maxWidth: Dp
 ) {
     val context = LocalContext.current
-    val displayMetrics = context.resources.displayMetrics
+    val density = LocalDensity.current
 
     val getMemoryInfo: () -> String = {
         val memoryInfo = ActivityManager.MemoryInfo()
@@ -37,46 +40,45 @@ fun InfoSetting(
     }
 
     val getStorageInfo: () -> String = {
-        val statFs = StatFs(Environment.getExternalStorageDirectory().absolutePath)
-        "${statFs.availableBytes / (1024 * 1024)}MB / ${statFs.totalBytes / (1024 * 1024)}MB"
+        runCatching {
+            val statFs = StatFs(Environment.getExternalStorageDirectory().absolutePath)
+            "${statFs.availableBytes / (1024 * 1024)}MB / ${statFs.totalBytes / (1024 * 1024)}MB"
+        }.getOrDefault("Unknown")
     }
 
-    Box(
-        modifier = modifier
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        Text(
+            text = SettingsMenuNavItem.Info.getDisplayName(context),
+            style = MaterialTheme.typography.displaySmall
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(text = stringResource(R.string.settings_info_manufacturer, Build.MANUFACTURER))
             Text(
-                text = SettingsMenuNavItem.Info.getDisplayName(context),
-                style = MaterialTheme.typography.displaySmall
+                text = stringResource(R.string.settings_info_model, Build.MODEL, Build.PRODUCT)
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(text = stringResource(R.string.settings_info_manufacturer, Build.MANUFACTURER))
-                Text(
-                    text = stringResource(R.string.settings_info_model, Build.MODEL, Build.PRODUCT)
+            Text(text = stringResource(R.string.settings_info_system, Build.VERSION.RELEASE))
+            Text(
+                text = stringResource(
+                    R.string.settings_info_resolution,
+                    with(density) { maxWidth.toPx() }.toInt(),
+                    with(density) { maxHeight.toPx() }.toInt()
                 )
-                Text(text = stringResource(R.string.settings_info_system, Build.VERSION.RELEASE))
+            )
+            if (Build.VERSION.SDK_INT >= 31)
                 Text(
                     text = stringResource(
-                        R.string.settings_info_resolution,
-                        displayMetrics.widthPixels, displayMetrics.heightPixels
+                        R.string.settings_info_soc, Build.SOC_MANUFACTURER, Build.SOC_MODEL
                     )
                 )
-                if (Build.VERSION.SDK_INT >= 31)
-                    Text(
-                        text = stringResource(
-                            R.string.settings_info_soc, Build.SOC_MANUFACTURER, Build.SOC_MODEL
-                        )
-                    )
-                Text(text = stringResource(R.string.settings_info_memory, getMemoryInfo()))
-                Text(text = stringResource(R.string.settings_info_storage, getStorageInfo()))
-            }
+            Text(text = stringResource(R.string.settings_info_memory, getMemoryInfo()))
+            Text(text = stringResource(R.string.settings_info_storage, getStorageInfo()))
         }
     }
 }

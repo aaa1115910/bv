@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -42,13 +43,14 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.screen.settings.content.AboutSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
-import dev.aaa1115910.bv.screen.settings.content.AboutSetting
 import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
@@ -63,50 +65,59 @@ fun SettingsScreen(
     var currentMenu by remember { mutableStateOf(SettingsMenuNavItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            Box(
-                modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
+    BoxWithConstraints {
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 48.dp,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                        end = 48.dp
+                    )
                 ) {
-                    Text(
-                        text = stringResource(R.string.title_activity_settings),
-                        fontSize = titleFontSize.sp
-                    )
-                    Text(
-                        text = "",
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.title_activity_settings),
+                            fontSize = titleFontSize.sp
+                        )
+                        Text(
+                            text = "",
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
-        }
-    ) { innerPadding ->
-        Row(
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            SettingsNav(
-                modifier = Modifier
-                    .onFocusChanged { focusInNav = it.hasFocus }
-                    .weight(3f)
-                    .fillMaxHeight(),
-                currentMenu = currentMenu,
-                onMenuChanged = { currentMenu = it },
-                isFocusing = focusInNav
-            )
-            SettingContent(
-                modifier = Modifier
-                    .weight(5f)
-                    .fillMaxSize(),
-                onBackNav = {
-                    focusInNav = true
-                },
-                currentMenu = currentMenu
-            )
+        ) { innerPadding ->
+            Row(
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                SettingsNav(
+                    modifier = Modifier
+                        .onFocusChanged { focusInNav = it.hasFocus }
+                        .weight(3f)
+                        .fillMaxHeight(),
+                    currentMenu = currentMenu,
+                    onMenuChanged = { currentMenu = it },
+                    isFocusing = focusInNav
+                )
+                SettingContent(
+                    modifier = Modifier
+                        .weight(5f)
+                        .fillMaxSize(),
+                    onBackNav = {
+                        focusInNav = true
+                    },
+                    currentMenu = currentMenu,
+                    maxWidth = this@BoxWithConstraints.maxWidth,
+                    maxHeight = this@BoxWithConstraints.maxHeight
+                )
+            }
         }
     }
 }
@@ -166,7 +177,9 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
 fun SettingContent(
     modifier: Modifier = Modifier,
     onBackNav: () -> Unit,
-    currentMenu: SettingsMenuNavItem
+    currentMenu: SettingsMenuNavItem,
+    maxWidth: Dp,
+    maxHeight: Dp
 ) {
     Box(
         modifier = modifier
@@ -180,7 +193,11 @@ fun SettingContent(
         ) {
             when (currentMenu) {
                 SettingsMenuNavItem.Resolution -> ResolutionSetting()
-                SettingsMenuNavItem.Info -> InfoSetting()
+                SettingsMenuNavItem.Info -> InfoSetting(
+                    maxWidth = maxWidth,
+                    maxHeight = maxHeight
+                )
+
                 SettingsMenuNavItem.About -> AboutSetting()
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
             }
