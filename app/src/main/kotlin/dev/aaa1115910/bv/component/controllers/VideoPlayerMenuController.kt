@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -34,11 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.BottomTip
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import mu.KotlinLogging
+import java.text.NumberFormat
 
 @Composable
 fun VideoPlayerMenuController(
@@ -46,15 +51,17 @@ fun VideoPlayerMenuController(
     resolutionMap: Map<Int, String> = emptyMap(),
     availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec=VideoCodec.AVC,
+    currentVideoCodec: VideoCodec = VideoCodec.AVC,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
-    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
+    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit
 ) {
     var currentMenu by remember { mutableStateOf(VideoPlayerMenuItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
@@ -88,11 +95,13 @@ fun VideoPlayerMenuController(
                 currentDanmakuEnabled = currentDanmakuEnabled,
                 currentDanmakuSize = currentDanmakuSize,
                 currentDanmakuTransparency = currentDanmakuTransparency,
+                currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
-                onDanmakuTransparencyChange = onDanmakuTransparencyChange
+                onDanmakuTransparencyChange = onDanmakuTransparencyChange,
+                onDanmakuAreaChange = onDanmakuAreaChange
             )
             VideoPlayerMenuControllerNav(
                 modifier = Modifier
@@ -151,7 +160,8 @@ private enum class VideoPlayerMenuItem(private val strRes: Int) {
     VideoCodec(R.string.player_controller_menu_item_video_codec),
     DanmakuSwitch(R.string.player_controller_menu_item_danmaku_switch),
     DanmakuSize(R.string.player_controller_menu_item_dankamu_size),
-    DanmakuTransparency(R.string.player_controller_menu_item_danmaku_transparency);
+    DanmakuTransparency(R.string.player_controller_menu_item_danmaku_transparency),
+    DanmakuArea(R.string.player_controller_menu_item_danmaku_area);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
@@ -165,15 +175,17 @@ private fun VideoPlayerMenuControllerContent(
     resolutionMap: Map<Int, String> = emptyMap(),
     availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec=VideoCodec.AVC,
+    currentVideoCodec: VideoCodec = VideoCodec.AVC,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
-    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
+    onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -210,6 +222,11 @@ private fun VideoPlayerMenuControllerContent(
                 availableVideoCodec = availableVideoCodec,
                 currentVideoCodec = currentVideoCodec,
                 onVideoCodecChange = onChooseVideoCodec
+            )
+
+            VideoPlayerMenuItem.DanmakuArea -> DanmakuAreaMenuContent(
+                currentDanmakuArea = currentDanmakuArea,
+                onDanmakuAreaChange = onDanmakuAreaChange
             )
         }
     }
@@ -334,6 +351,71 @@ private fun DanmakuTransparencyMenuContent(
                 selected = currentDanmakuTransparency == danmakuTransparency
             ) { onDanmakuTransparencyChange(danmakuTransparency) }
         }
+    }
+}
+
+@Composable
+private fun DanmakuAreaMenuContent(
+    modifier: Modifier = Modifier,
+    currentDanmakuArea: Float = 1f,
+    onDanmakuAreaChange: (Float) -> Unit
+) {
+    val logger = KotlinLogging.logger { }
+
+    val getAreaDisplayString: () -> String = {
+        val percentInstance: NumberFormat = NumberFormat.getPercentInstance()
+        percentInstance.maximumFractionDigits = 0
+        percentInstance.format(currentDanmakuArea)
+    }
+    var currentDanmakuAreaString by remember { mutableStateOf(getAreaDisplayString()) }
+
+    LaunchedEffect(currentDanmakuArea) {
+        currentDanmakuAreaString = getAreaDisplayString()
+    }
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        MenuListItem(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .onPreviewKeyEvent {
+                    if (BuildConfig.DEBUG) logger.info { "Native key event: ${it.nativeKeyEvent}" }
+
+                    when (it.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (currentDanmakuArea >= 0.99f) {
+                                onDanmakuAreaChange(1f)
+                            } else {
+                                onDanmakuAreaChange(currentDanmakuArea + 0.01f)
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (currentDanmakuArea <= 0.01f) {
+                                onDanmakuAreaChange(0f)
+                            } else {
+                                onDanmakuAreaChange(currentDanmakuArea - 0.01f)
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                    }
+                    false
+                },
+            text = currentDanmakuAreaString,
+            selected = false
+        ) { }
+
+        BottomTip(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 12.dp),
+            text = stringResource(R.string.video_controller_menu_danmaku_area_tip)
+        )
     }
 }
 

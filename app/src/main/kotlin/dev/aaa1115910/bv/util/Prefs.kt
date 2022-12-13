@@ -27,6 +27,7 @@ private val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
 private val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
 private val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
 private val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
+private val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
 
 val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
 val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -42,6 +43,7 @@ val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabl
 val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
 val prefDefaultVideoCodecRequest =
     PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
+val prefEnabledFirebaseCollectionRequest = PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
 
 object Prefs {
     val dsm = BVApp.dataStoreManager
@@ -99,7 +101,11 @@ object Prefs {
         get() = VideoCodec.fromCode(
             runBlocking { dsm.getPreferenceFlow(prefDefaultVideoCodecRequest).first() }
         )
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value.ordinal) }
+        set(value) = runBlocking { dsm.editPreference(prefDefaultVideoCodecKey, value.ordinal) }
+
+    var enableFirebaseCollection: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(prefEnabledFirebaseCollectionRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefEnabledFirebaseCollectionKey, value) }
 
     fun logout() {
         logger.fInfo { "Logout uid: $uid" }
