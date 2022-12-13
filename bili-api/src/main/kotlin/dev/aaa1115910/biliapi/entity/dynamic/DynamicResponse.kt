@@ -64,7 +64,7 @@ data class DynamicItem(
             val face: String,
             @SerialName("face_nft")
             val faceNft: Boolean,
-            val following: Boolean,
+            val following: Boolean = false,
             @SerialName("jump_url")
             val jumpUrl: String,
             val label: String,
