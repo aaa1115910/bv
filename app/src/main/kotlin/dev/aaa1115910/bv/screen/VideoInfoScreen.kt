@@ -60,7 +60,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
-import dev.aaa1115910.bv.VideoPlayerActivity
+import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow

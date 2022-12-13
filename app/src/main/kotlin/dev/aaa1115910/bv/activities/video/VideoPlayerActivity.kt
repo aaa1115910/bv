@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv
+package dev.aaa1115910.bv.activities.video
 
 import android.content.Context
 import android.content.Intent

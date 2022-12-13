@@ -56,8 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.bv.FavoriteActivity
-import dev.aaa1115910.bv.HistoryActivity
+import dev.aaa1115910.bv.activities.user.FavoriteActivity
+import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
