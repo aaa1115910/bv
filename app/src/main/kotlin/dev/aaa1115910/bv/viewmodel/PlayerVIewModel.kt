@@ -51,6 +51,7 @@ class PlayerViewModel : ViewModel() {
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
     var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
+    var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
 
     var danmakuData = mutableStateListOf<DanmakuItemData>()
 

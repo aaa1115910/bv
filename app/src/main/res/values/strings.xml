@@ -21,6 +21,7 @@
     <string name="player_controller_menu_danmaku_disabled">关闭</string>
     <string name="player_controller_menu_danmaku_enabled">开启</string>
     <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
+    <string name="player_controller_menu_item_danmaku_area">弹幕区域</string>
     <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
     <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
     <string name="player_controller_menu_item_resolution">分辨率</string>
@@ -91,4 +92,5 @@
     <string name="video_codec_avc">H.264</string>
     <string name="video_codec_dvh1">Dolby Vision</string>
     <string name="video_codec_hevc">H.265</string>
+    <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
 </resources>

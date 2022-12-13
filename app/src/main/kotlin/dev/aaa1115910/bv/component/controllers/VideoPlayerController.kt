@@ -59,6 +59,7 @@ fun VideoPlayerController(
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    currentDanmakuArea: Float = 1f,
     buffering: Boolean,
     isPlaying: Boolean,
     bufferSpeed: Any,
@@ -70,6 +71,7 @@ fun VideoPlayerController(
     onSwitchDanmaku: (enable: Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit,
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit,
     onPlay: () -> Unit,
@@ -334,11 +336,13 @@ fun VideoPlayerController(
                 currentDanmakuEnabled = currentDanmakuEnabled,
                 currentDanmakuSize = currentDanmakuSize,
                 currentDanmakuTransparency = currentDanmakuTransparency,
+                currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
-                onDanmakuTransparencyChange = onDanmakuTransparencyChange
+                onDanmakuTransparencyChange = onDanmakuTransparencyChange,
+                onDanmakuAreaChange = onDanmakuAreaChange
             )
         }
 

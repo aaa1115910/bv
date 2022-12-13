@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -193,6 +194,7 @@ fun VideoPlayerScreen(
         currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
         currentDanmakuSize = playerViewModel.currentDanmakuSize,
         currentDanmakuTransparency = playerViewModel.currentDanmakuTransparency,
+        currentDanmakuArea = playerViewModel.currentDanmakuArea,
 
         buffering = playerViewModel.showBuffering,
         isPlaying = playerViewModel.player?.isPlaying == true,
@@ -249,6 +251,10 @@ fun VideoPlayerScreen(
             danmakuConfig.alpha = transparency.transparency
             danmakuPlayer.updateConfig(danmakuConfig)
         },
+        onDanmakuAreaChange = { area ->
+            Prefs.defaultDanmakuArea = area
+            playerViewModel.currentDanmakuArea = area
+        },
         onSeekBack = {
             playerViewModel.player?.seekBack()
             playerViewModel.player?.play()
@@ -285,7 +291,9 @@ fun VideoPlayerScreen(
             )
 
             DanmakuPlayerCompose(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxHeight(playerViewModel.currentDanmakuArea),
                 danmakuPlayer = danmakuPlayer
             )
         }
