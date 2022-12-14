@@ -66,6 +66,7 @@ import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
@@ -102,6 +103,7 @@ fun VideoInfoScreen(
                     withContext(Dispatchers.Main) {
                         "${it.message}".toast(context)
                     }
+                    logger.fException(it) { "Get video info failed" }
                 }
             }
             //获取相关视频
@@ -123,6 +125,7 @@ fun VideoInfoScreen(
                     withContext(Dispatchers.Main) {
                         "获取相关视频失败：${it.localizedMessage}".toast(context)
                     }
+                    logger.fException(it) { "Get related videos failed" }
                 }
             }
         }
