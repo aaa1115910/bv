@@ -138,6 +138,7 @@ dependencies {
     implementation(libs.rememberPreference)
     implementation(libs.slf4j.android.mvysny)
     implementation(project(mapOf("path" to ":bili-api")))
+    implementation(files("libs/lib-decoder-av1-release.aar"))
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)
