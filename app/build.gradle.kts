@@ -117,6 +117,7 @@ dependencies {
     implementation(androidx.media3.exoplayer.dash)
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
+    implementation(androidx.webkit)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
     implementation(libs.firebase.analytics.ktx)

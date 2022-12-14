@@ -21,6 +21,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.settings.SpeedTestActivity"
+            android:exported="false"
+            android:label="@string/title_activity_speed_test"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.user.FavoriteActivity"
             android:exported="false"
             android:label="@string/title_activity_favorite"

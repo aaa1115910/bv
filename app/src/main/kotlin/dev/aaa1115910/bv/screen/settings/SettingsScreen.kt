@@ -50,6 +50,7 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.content.AboutSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
+import dev.aaa1115910.bv.screen.settings.content.NetworkSetting
 import dev.aaa1115910.bv.screen.settings.content.OtherSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
 import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
@@ -169,6 +170,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     Resolution(R.string.settings_item_resolution),
     VideoCodec(R.string.settings_item_codec),
     Other(R.string.settings_item_other),
+    Network(R.string.settings_item_network),
     Info(R.string.settings_item_info),
     About(R.string.settings_item_about);
 
@@ -202,7 +204,8 @@ fun SettingContent(
 
                 SettingsMenuNavItem.About -> AboutSetting()
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
-                SettingsMenuNavItem.Other-> OtherSetting()
+                SettingsMenuNavItem.Other -> OtherSetting()
+                SettingsMenuNavItem.Network -> NetworkSetting()
             }
         }
     }
@@ -213,6 +216,8 @@ fun SettingsMenuButton(
     modifier: Modifier = Modifier,
     text: String,
     onFocus: () -> Unit,
+    onLoseFocus: () -> Unit = {},
+    onClick: () -> Unit = {},
     selected: Boolean
 ) {
     var hasFocus by remember { mutableStateOf(false) }
@@ -226,9 +231,9 @@ fun SettingsMenuButton(
         modifier = modifier
             .onFocusChanged {
                 hasFocus = it.hasFocus
-                if (hasFocus) onFocus()
+                if (hasFocus) onFocus() else onLoseFocus()
             }
-            .clickable { },
+            .clickable { onClick() },
         color = buttonBackgroundColor,
         shape = MaterialTheme.shapes.small
     ) {
