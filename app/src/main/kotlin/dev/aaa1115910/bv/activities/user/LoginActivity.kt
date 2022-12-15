@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv
+package dev.aaa1115910.bv.activities.user
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

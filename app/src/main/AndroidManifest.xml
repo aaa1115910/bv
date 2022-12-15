@@ -21,47 +21,52 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
-            android:name=".FavoriteActivity"
+            android:name=".activities.settings.SpeedTestActivity"
+            android:exported="false"
+            android:label="@string/title_activity_speed_test"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".activities.user.FavoriteActivity"
             android:exported="false"
             android:label="@string/title_activity_favorite"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".VideoPlayerActivity"
+            android:name=".activities.video.VideoPlayerActivity"
             android:exported="false"
             android:label="@string/title_activity_video_player"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".UpInfoActivity"
+            android:name=".activities.video.UpInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_up_info"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.settings.SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".HistoryActivity"
+            android:name=".activities.user.HistoryActivity"
             android:exported="false"
             android:label="@string/title_activity_history"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".UserInfoActivity"
+            android:name=".activities.user.UserInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_user_info"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.user.LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".VideoInfoActivity"
+            android:name=".activities.video.VideoInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_video_info"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:banner="@drawable/app_icon_your_company"
             android:exported="true"
             android:icon="@drawable/app_icon_your_company"

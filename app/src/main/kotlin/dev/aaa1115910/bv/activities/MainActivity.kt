@@ -1,18 +1,22 @@
-package dev.aaa1115910.bv
+package dev.aaa1115910.bv.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import dev.aaa1115910.bv.screen.user.HistoryScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import dev.aaa1115910.bv.screen.HomeScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-class HistoryActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             BVTheme {
-                HistoryScreen()
+                HomeScreen()
             }
         }
     }
 }
+

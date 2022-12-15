@@ -57,6 +57,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            applicationIdSuffix = ".debug"
             configure<CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
@@ -117,6 +118,7 @@ dependencies {
     implementation(androidx.media3.exoplayer.dash)
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
+    implementation(androidx.webkit)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
     implementation(libs.firebase.analytics.ktx)
@@ -137,6 +139,7 @@ dependencies {
     implementation(libs.rememberPreference)
     implementation(libs.slf4j.android.mvysny)
     implementation(project(mapOf("path" to ":bili-api")))
+    implementation(files("libs/lib-decoder-av1-release.aar"))
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)

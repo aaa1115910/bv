@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Staff(
-    val mid: Int,
+    val mid: Long,
     val title: String,
     val name: String,
     val face: String,

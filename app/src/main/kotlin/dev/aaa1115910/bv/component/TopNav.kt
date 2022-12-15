@@ -50,10 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.LoginActivity
+import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.SettingsActivity
-import dev.aaa1115910.bv.UserInfoActivity
+import dev.aaa1115910.bv.activities.settings.SettingsActivity
+import dev.aaa1115910.bv.activities.user.UserInfoActivity
 
 @Composable
 fun TopNav(

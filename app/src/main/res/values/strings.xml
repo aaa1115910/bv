@@ -13,6 +13,8 @@
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
 
+    <string name="loading">加载中...</string>
+
     <string name="logout_dialog_confirm">gkd 别墨迹</string>
     <string name="logout_dialog_dismiss">不，我不想</string>
     <string name="logout_dialog_text">是否登出账号 %1$s</string>
@@ -62,8 +64,10 @@
     <string name="settings_item_about">关于</string>
     <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
+    <string name="settings_item_network">网络测试</string>
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_resolution">默认分辨率</string>
+    <string name="settings_network_start_button">开始测试</string>
     <string name="settings_other_firebase_text">这将帮助开发者更快地发现与解决大部分问题</string>
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
@@ -73,6 +77,7 @@
     <string name="title_activity_history">HistoryActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_settings">设置</string>
+    <string name="title_activity_speed_test">网络测速</string>
     <string name="title_activity_up_info">UpInfoActivity</string>
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="title_activity_video_info">VideoInfoActivity</string>
@@ -90,7 +95,8 @@
 
     <string name="video_codec_av1">AV1</string>
     <string name="video_codec_avc">H.264</string>
-    <string name="video_codec_dvh1">Dolby Vision</string>
+    <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>
     <string name="video_codec_hevc">H.265</string>
+    <string name="video_codec_hvc1">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
 </resources>
