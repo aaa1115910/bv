@@ -95,7 +95,8 @@
 
     <string name="video_codec_av1">AV1</string>
     <string name="video_codec_avc">H.264</string>
-    <string name="video_codec_dvh1">Dolby Vision</string>
+    <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>
     <string name="video_codec_hevc">H.265</string>
+    <string name="video_codec_hvc1">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
 </resources>
