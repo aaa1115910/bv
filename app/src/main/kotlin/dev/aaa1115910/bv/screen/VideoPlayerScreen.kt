@@ -123,15 +123,18 @@ fun VideoPlayerScreen(
     //播放记录上报
     DisposableEffect(Unit) {
         val timer = Timer()
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                sendHeartbeat()
-            }
-
-        }, 5000, 15000)
+        if (!Prefs.incognitoMode) {
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    sendHeartbeat()
+                }
+            }, 5000, 15000)
+        }
         onDispose {
-            sendHeartbeat()
-            timer.cancel()
+            if (!Prefs.incognitoMode) {
+                sendHeartbeat()
+                timer.cancel()
+            }
         }
     }
 
@@ -146,7 +149,7 @@ fun VideoPlayerScreen(
 
                     playerViewModel.showBuffering = false
                 } else if (playbackState == Player.STATE_ENDED) {
-                    sendHeartbeat()
+                    if (!Prefs.incognitoMode) sendHeartbeat()
                 } else {
                     danmakuPlayer.pause()
                     if (playbackState == Player.STATE_BUFFERING) {

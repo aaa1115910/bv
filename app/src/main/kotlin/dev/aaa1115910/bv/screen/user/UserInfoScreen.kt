@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.screen.user
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -93,6 +94,9 @@ fun UserInfoScreen(
     val animes = remember { mutableStateListOf<VideoCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
 
+    var focusOnUserInfo by remember { mutableStateOf(false) }
+    var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         userViewModel.updateUserInfo()
@@ -178,23 +182,38 @@ fun UserInfoScreen(
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
-                UserInfo(
-                    modifier = Modifier
-                        .focusRequester(focusRequester),
-                    face = userViewModel.face,
-                    username = userViewModel.username,
-                    uid = userViewModel.responseData?.mid ?: 0,
-                    level = userViewModel.responseData?.level ?: 0,
-                    currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
-                    nextLevelExp = userViewModel.responseData?.levelExp?.currentMin ?: 1,
-                    showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
-                    labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic ?: "",
-                    onFocusChange = { hasFocus ->
-                        //当焦点在此项时，显示大标题
-                        showLargeTitle = hasFocus
-                    },
-                    onClick = { showLogoutConfirmDialog = true }
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 50.dp, vertical = 28.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
+                ) {
+                    UserInfo(
+                        modifier = Modifier
+                            .focusRequester(focusRequester),
+                        face = userViewModel.face,
+                        username = userViewModel.username,
+                        uid = userViewModel.responseData?.mid ?: 0,
+                        level = userViewModel.responseData?.level ?: 0,
+                        currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
+                        nextLevelExp = userViewModel.responseData?.levelExp?.currentMin ?: 1,
+                        showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
+                        labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic
+                            ?: "",
+                        onFocusChange = { hasFocus ->
+                            focusOnUserInfo = hasFocus
+                            showLargeTitle = focusOnUserInfo || focusOnIncognitoModeCard
+                        },
+                        onClick = { showLogoutConfirmDialog = true }
+                    )
+                    IncognitoModeCard(
+                        onFocusChange = { hasFocus ->
+                            focusOnIncognitoModeCard = hasFocus
+                            showLargeTitle = focusOnUserInfo || focusOnIncognitoModeCard
+                        },
+                        onClick = {
+                            Prefs.incognitoMode = !Prefs.incognitoMode
+                        }
+                    )
+                }
             }
             item {
                 RecentVideosRow(
@@ -284,7 +303,6 @@ private fun UserInfo(
     onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
-    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
@@ -300,7 +318,6 @@ private fun UserInfo(
                 hasFocus = it.isFocused
                 onFocusChange(it.hasFocus)
             }
-            .padding(horizontal = 50.dp, vertical = 28.dp)
             .size(480.dp, 140.dp)
             .border(
                 width = 2.dp,
@@ -385,6 +402,54 @@ private fun UserInfo(
 }
 
 @Composable
+fun IncognitoModeCard(
+    modifier: Modifier = Modifier,
+    onFocusChange: (hasFocus: Boolean) -> Unit,
+    onClick: () -> Unit
+) {
+    var hasFocus by remember { mutableStateOf(false) }
+    var enabled by remember { mutableStateOf(Prefs.incognitoMode) }
+    val backgroundColor by animateColorAsState(
+        targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer
+    )
+
+    Surface(
+        modifier = modifier
+            .onFocusChanged {
+                hasFocus = it.isFocused
+                onFocusChange(it.hasFocus)
+            }
+            .height(140.dp)
+            .border(
+                width = 2.dp,
+                color = if (hasFocus) Color.White else Color.Transparent,
+                shape = MaterialTheme.shapes.large
+            )
+            .clickable {
+                enabled = !enabled
+                onClick()
+            },
+        color = backgroundColor,
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "隐身模式",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = if (enabled) "已开启" else "未开启",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+@Composable
 private fun RecentVideosRow(
     modifier: Modifier = Modifier,
     videos: List<VideoCardData>,
@@ -445,6 +510,17 @@ private fun UserInfoPreview() {
             nextLevelExp = 2345,
             showLabel = false,
             labelUrl = "",
+            onFocusChange = {},
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IncognitoModeCardPreview() {
+    BVTheme {
+        IncognitoModeCard(
             onFocusChange = {},
             onClick = {}
         )
