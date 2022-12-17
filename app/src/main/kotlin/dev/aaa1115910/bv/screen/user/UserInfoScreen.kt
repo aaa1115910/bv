@@ -110,7 +110,7 @@ fun UserInfoScreen(
                             title = historyItem.title,
                             cover = historyItem.cover,
                             upName = historyItem.authorName,
-                            time = historyItem.duration.toLong()
+                            time = historyItem.duration.toLong() * 1000
                         )
                     )
                 }
@@ -149,7 +149,7 @@ fun UserInfoScreen(
                             title = favoriteItem.title,
                             cover = favoriteItem.cover,
                             upName = favoriteItem.upper.name,
-                            time = favoriteItem.duration.toLong()
+                            time = favoriteItem.duration.toLong() * 1000
                         )
                     )
                 }
