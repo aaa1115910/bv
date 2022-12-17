@@ -41,6 +41,7 @@ import dev.aaa1115910.bv.component.BottomTip
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
+import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import mu.KotlinLogging
 import java.text.NumberFormat
@@ -52,12 +53,14 @@ fun VideoPlayerMenuController(
     availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
+    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
+    onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
@@ -92,12 +95,14 @@ fun VideoPlayerMenuController(
                 availableVideoCodec = availableVideoCodec,
                 currentResolution = currentResolution,
                 currentVideoCodec = currentVideoCodec,
+                currentVideoAspectRatio = currentVideoAspectRatio,
                 currentDanmakuEnabled = currentDanmakuEnabled,
                 currentDanmakuSize = currentDanmakuSize,
                 currentDanmakuTransparency = currentDanmakuTransparency,
                 currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
+                onChooseVideoAspectRatio = onChooseVideoAspectRatio,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange,
@@ -158,6 +163,7 @@ private fun VideoPlayerMenuControllerNav(
 private enum class VideoPlayerMenuItem(private val strRes: Int) {
     Resolution(R.string.player_controller_menu_item_resolution),
     VideoCodec(R.string.player_controller_menu_item_video_codec),
+    VideoAspectRatio(R.string.player_controller_menu_item_video_aspect_ratio),
     DanmakuSwitch(R.string.player_controller_menu_item_danmaku_switch),
     DanmakuSize(R.string.player_controller_menu_item_dankamu_size),
     DanmakuTransparency(R.string.player_controller_menu_item_danmaku_transparency),
@@ -176,12 +182,14 @@ private fun VideoPlayerMenuControllerContent(
     availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
+    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
+    onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
@@ -227,6 +235,11 @@ private fun VideoPlayerMenuControllerContent(
             VideoPlayerMenuItem.DanmakuArea -> DanmakuAreaMenuContent(
                 currentDanmakuArea = currentDanmakuArea,
                 onDanmakuAreaChange = onDanmakuAreaChange
+            )
+
+            VideoPlayerMenuItem.VideoAspectRatio -> VideoAspectRatioMenuContent(
+                currentVideoAspectRatio = currentVideoAspectRatio,
+                onVideoAspectRatioChange = onChooseVideoAspectRatio
             )
         }
     }
@@ -280,6 +293,29 @@ private fun VideoCodecMenuContent(
                 text = videoCodec.getDisplayName(context),
                 selected = currentVideoCodec == videoCodec
             ) { onVideoCodecChange(videoCodec) }
+        }
+    }
+}
+
+@Composable
+private fun VideoAspectRatioMenuContent(
+    modifier: Modifier = Modifier,
+    currentVideoAspectRatio: VideoAspectRatio,
+    onVideoAspectRatioChange: (VideoAspectRatio) -> Unit,
+) {
+    val context = LocalContext.current
+
+    TvLazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 120.dp)
+    ) {
+        items(items = VideoAspectRatio.values()) { aspectRatio ->
+            MenuListItem(
+                modifier = Modifier.fillMaxWidth(),
+                text = aspectRatio.getDisplayName(context),
+                selected = currentVideoAspectRatio == aspectRatio
+            ) { onVideoAspectRatioChange(aspectRatio) }
         }
     }
 }
