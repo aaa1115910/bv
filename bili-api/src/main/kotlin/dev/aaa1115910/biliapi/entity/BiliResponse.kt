@@ -20,3 +20,10 @@ data class BiliResponse<T>(
         return data
     }
 }
+
+@Serializable
+data class BiliResponseWithoutData(
+    val code: Int,
+    val message: String,
+    val ttl: Int
+)
