@@ -62,6 +62,9 @@ class PlayerViewModel : ViewModel() {
     var showLogs by mutableStateOf(false)
     var showBuffering by mutableStateOf(false)
 
+    private var currentAid = 0
+    private var currentCid = 0
+
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -90,6 +93,8 @@ class PlayerViewModel : ViewModel() {
         cid: Int
     ) {
         showLogs = true
+        currentAid = avid
+        currentCid = cid
         addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
             addLogs("av$avid，cid:$cid")
@@ -265,6 +270,23 @@ class PlayerViewModel : ViewModel() {
             newTip += if (newTip == "") it else "\n$it"
         }
         logs = newTip
+    }
+
+    suspend fun uploadHistory(time: Int) {
+        logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
+        runCatching {
+            BiliApi.sendHeartbeat(
+                avid = currentAid.toLong(),
+                cid = currentCid,
+                playedTime = time,
+                csrf = Prefs.biliJct,
+                sessData = Prefs.sessData
+            )
+        }.onSuccess {
+            logger.info { "Send heartbeat success" }
+        }.onFailure {
+            logger.warn { "Send heartbeat failed: ${it.stackTraceToString()}" }
+        }
     }
 }
 

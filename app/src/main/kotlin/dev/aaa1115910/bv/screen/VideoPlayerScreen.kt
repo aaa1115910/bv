@@ -91,6 +91,19 @@ fun VideoPlayerScreen(
         )
     }
 
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            val time = withContext(Dispatchers.Main) {
+                //exo 的总时长比 b 站客户端里看到的时间少 1 秒
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt() + 1
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
+    }
+
     //定时刷新进度条
     DisposableEffect(Unit) {
         val timer = Timer()
@@ -107,6 +120,21 @@ fun VideoPlayerScreen(
         }
     }
 
+    //播放记录上报
+    DisposableEffect(Unit) {
+        val timer = Timer()
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                sendHeartbeat()
+            }
+
+        }, 5000, 15000)
+        onDispose {
+            sendHeartbeat()
+            timer.cancel()
+        }
+    }
+
     DisposableEffect(Unit) {
         //exo player listener
         val listener = object : Player.Listener {
@@ -117,6 +145,8 @@ fun VideoPlayerScreen(
                     danmakuPlayer.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
+                } else if (playbackState == Player.STATE_ENDED) {
+                    sendHeartbeat()
                 } else {
                     danmakuPlayer.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
