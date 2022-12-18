@@ -42,11 +42,11 @@ import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
+import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import mu.KotlinLogging
-
 
 @Composable
 fun VideoPlayerController(
@@ -56,6 +56,7 @@ fun VideoPlayerController(
     availableVideoCodec: List<VideoCodec> = emptyList(),
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
+    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     currentDanmakuEnabled: Boolean = true,
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
@@ -68,6 +69,7 @@ fun VideoPlayerController(
     title: String,
     onChooseResolution: (qualityId: Int) -> Unit,
     onChooseVideoCodec: (videoCodec: VideoCodec) -> Unit,
+    onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
     onSwitchDanmaku: (enable: Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
@@ -333,12 +335,14 @@ fun VideoPlayerController(
                 availableVideoCodec = availableVideoCodec,
                 currentResolution = currentResolution,
                 currentVideoCodec = currentVideoCodec,
+                currentVideoAspectRatio = currentVideoAspectRatio,
                 currentDanmakuEnabled = currentDanmakuEnabled,
                 currentDanmakuSize = currentDanmakuSize,
                 currentDanmakuTransparency = currentDanmakuTransparency,
                 currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
+                onChooseVideoAspectRatio = onChooseVideoAspectRatio,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange,

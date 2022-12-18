@@ -27,6 +27,7 @@
     <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
     <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
     <string name="player_controller_menu_item_resolution">分辨率</string>
+    <string name="player_controller_menu_item_video_aspect_ratio">视频比例</string>
     <string name="player_controller_menu_item_video_codec">视频编码</string>
 
     <string name="resolution_1080p">1080P 高清</string>
@@ -93,6 +94,9 @@
     <string name="user_homepage_favorite">私人藏品</string>
     <string name="user_homepage_recent">最近播放记录</string>
 
+    <string name="video_aspect_ratio_default">默认</string>
+    <string name="video_aspect_ratio_four_to_three">4:3</string>
+    <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
     <string name="video_codec_av1">AV1</string>
     <string name="video_codec_avc">H.264</string>
     <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>

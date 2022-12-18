@@ -1,9 +1,10 @@
 package dev.aaa1115910.bv.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.analytics.AnalyticsListener
@@ -26,6 +28,7 @@ import com.kuaishou.akdanmaku.DanmakuConfig
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.VideoPlayerController
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
+import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
@@ -49,6 +52,12 @@ fun VideoPlayerScreen(
 
     val videoPlayer = playerViewModel.player!!
     val danmakuPlayer = playerViewModel.danmakuPlayer!!
+
+    var videoPlayerView: PlayerView? by remember { mutableStateOf(null) }
+    var videoPlayerHeight by remember { mutableStateOf(0.dp) }
+    var videoPlayerWidth by remember { mutableStateOf(0.dp) }
+    var usingDefaultAspectRatio by remember { mutableStateOf(true) }
+    var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -91,6 +100,19 @@ fun VideoPlayerScreen(
         )
     }
 
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            val time = withContext(Dispatchers.Main) {
+                //exo 的总时长比 b 站客户端里看到的时间少 1 秒
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt() + 1
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
+    }
+
     //定时刷新进度条
     DisposableEffect(Unit) {
         val timer = Timer()
@@ -107,6 +129,24 @@ fun VideoPlayerScreen(
         }
     }
 
+    //播放记录上报
+    DisposableEffect(Unit) {
+        val timer = Timer()
+        if (!Prefs.incognitoMode) {
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    sendHeartbeat()
+                }
+            }, 5000, 15000)
+        }
+        onDispose {
+            if (!Prefs.incognitoMode) {
+                sendHeartbeat()
+                timer.cancel()
+            }
+        }
+    }
+
     DisposableEffect(Unit) {
         //exo player listener
         val listener = object : Player.Listener {
@@ -117,6 +157,8 @@ fun VideoPlayerScreen(
                     danmakuPlayer.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
+                } else if (playbackState == Player.STATE_ENDED) {
+                    if (!Prefs.incognitoMode) sendHeartbeat()
                 } else {
                     danmakuPlayer.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
@@ -187,6 +229,7 @@ fun VideoPlayerScreen(
 
         resolutionMap = playerViewModel.availableQuality,
         availableVideoCodec = playerViewModel.availableVideoCodec,
+        currentVideoAspectRatio = currentVideoAspectRatio,
         currentResolution = playerViewModel.currentQuality,
         currentVideoCodec = playerViewModel.currentVideoCodec,
         currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
@@ -231,6 +274,27 @@ fun VideoPlayerScreen(
                 }
             }
         },
+        onChooseVideoAspectRatio = { aspectRadio ->
+            currentVideoAspectRatio = aspectRadio
+            when (aspectRadio) {
+                VideoAspectRatio.Default -> {
+                    videoPlayerView?.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    usingDefaultAspectRatio = true
+                }
+
+                VideoAspectRatio.FourToThree -> {
+                    videoPlayerView?.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                    usingDefaultAspectRatio = false
+                    videoPlayerWidth = videoPlayerHeight * (4 / 3f)
+                }
+
+                VideoAspectRatio.SixteenToNine -> {
+                    videoPlayerView?.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                    usingDefaultAspectRatio = false
+                    videoPlayerWidth = videoPlayerHeight * (16 / 9f)
+                }
+            }
+        },
         onSwitchDanmaku = { enable ->
             Prefs.defaultDanmakuEnabled = enable
             playerViewModel.currentDanmakuEnabled = enable
@@ -272,19 +336,29 @@ fun VideoPlayerScreen(
             focusRequester.requestFocus()
         }
     ) {
-        Box(
-            modifier = Modifier.background(Color.Black)
+        BoxWithConstraints(
+            modifier = Modifier.background(Color.Black),
+            contentAlignment = Alignment.Center
         ) {
+            videoPlayerHeight = this.maxHeight
+
+            val videoPlayerModifier = if (usingDefaultAspectRatio) {
+                Modifier.fillMaxSize()
+            } else {
+                Modifier
+                    .fillMaxHeight()
+                    .width(videoPlayerWidth)
+            }
+
             AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
+                modifier = videoPlayerModifier,
                 factory = { ctx ->
-                    PlayerView(ctx).apply {
+                    videoPlayerView = PlayerView(ctx).apply {
                         player = videoPlayer
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                         useController = false
                     }
+                    videoPlayerView!!
                 }
             )
 

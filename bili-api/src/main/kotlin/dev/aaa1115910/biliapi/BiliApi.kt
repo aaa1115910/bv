@@ -1,6 +1,7 @@
 package dev.aaa1115910.biliapi
 
 import dev.aaa1115910.biliapi.entity.BiliResponse
+import dev.aaa1115910.biliapi.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
@@ -12,10 +13,15 @@ import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteItemIdListResponse
 import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.entity.video.AddCoin
+import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
+import dev.aaa1115910.biliapi.entity.video.CheckVideoFavoured
+import dev.aaa1115910.biliapi.entity.video.CheckSentCoin
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -23,10 +29,15 @@ import io.ktor.client.plugins.BrowserUserAgent
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Parameters
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
@@ -244,7 +255,7 @@ object BiliApi {
         avid: Long? = null,
         bvid: String? = null
     ): RelatedVideosResponse = client.get("/x/web-interface/archive/related") {
-        check(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
         parameter("aid", avid)
         parameter("bvid", bvid)
     }.body()
@@ -323,4 +334,221 @@ object BiliApi {
         parameter("platform", platform)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    /**
+     * 上报视频播放心跳
+     *
+     * @param aid 稿件avid avid与bvid任选一个
+     * @param bvid 稿件bvid avid与bvid任选一个
+     * @param cid 视频cid 用于识别分P
+     * @param epid 番剧epid
+     * @param sid 番剧ssid
+     * @param mid 当前用户mid
+     * @param playedTime 视频播放进度 单位为秒 默认为0
+     * @param realtime 总计播放时间 单位为秒
+     * @param startTs 开始播放时刻 时间戳
+     * @param type 视频类型 3：投稿视频 4：剧集 10：课程
+     * @param subType 剧集副类型 当type=4时本参数有效 1：番剧 2：电影 3：纪录片 4：国创 5：电视剧 7：综艺
+     * @param dt 2
+     * @param playType 播放动作 0：播放中 1：开始播放 2：暂停 3：继续播放
+     * @param csrf bili_jct
+     * @param sessData SESSDATA
+     */
+    suspend fun sendHeartbeat(
+        avid: Long? = null,
+        bvid: String? = null,
+        cid: Int? = null,
+        epid: Int? = null,
+        sid: Int? = null,
+        mid: Long? = null,
+        playedTime: Int? = null,
+        realtime: Int? = null,
+        startTs: Long? = null,
+        type: Int? = null,
+        subType: Int? = null,
+        dt: Int? = null,
+        playType: Int? = null,
+        csrf: String? = null,
+        sessData: String
+    ): String = client.post("/x/click-interface/web/heartbeat") {
+        require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        setBody(FormDataContent(
+            Parameters.build {
+                avid?.let { append("aid", "$it") }
+                bvid?.let { append("bvid", it) }
+                cid?.let { append("cid", "$it") }
+                epid?.let { append("epid", "$it") }
+                sid?.let { append("sid", "$it") }
+                mid?.let { append("mid", "$it") }
+                playedTime?.let { append("played_time", "$it") }
+                realtime?.let { append("realtime", "$it") }
+                startTs?.let { append("start_ts", "$it") }
+                type?.let { append("type", "$it") }
+                subType?.let { append("sub_type", "$it") }
+                dt?.let { append("dt", "$it") }
+                playType?.let { append("play_type", "$it") }
+                csrf?.let { append("csrf", it) }
+            }
+        ))
+        header("Cookie", "SESSDATA=$sessData;")
+    }.bodyAsText()
+
+    /**
+     * 获取视频[avid]的[cid]视频更多信息，例如播放进度
+     */
+    suspend fun getVideoMoreInfo(
+        avid: Int,
+        cid: Int,
+        sessData: String
+    ): BiliResponse<VideoMoreInfo> = client.get("/x/player/v2") {
+        parameter("aid", avid)
+        parameter("cid", cid)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 为视频[avid]或[bvid]点赞或取消赞
+     *
+     * @param like 是否点赞
+     * @param csrf bili_jct
+     * @param sessData SESSDATA
+     */
+    suspend fun sendVideoLike(
+        avid: Int? = null,
+        bvid: String? = null,
+        like: Boolean = true,
+        csrf: String,
+        sessData: String
+    ): Pair<Boolean, String> {
+        val response = client.post("/x/web-interface/archive/like") {
+            require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+            setBody(FormDataContent(
+                Parameters.build {
+                    avid?.let { append("aid", "$it") }
+                    bvid?.let { append("bvid", it) }
+                    append("like", "${if (like) 1 else 2}")
+                    append("csrf", csrf)
+                }
+            ))
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponseWithoutData>()
+        return Pair(response.code == 0, response.message)
+    }
+
+    /**
+     * 检查视频[avid]或[bvid]是否已点赞
+     */
+    suspend fun checkVideoLiked(
+        avid: Int? = null,
+        bvid: String? = null,
+        sessData: String
+    ): Boolean {
+        val response = client.get("/x/web-interface/archive/has/like") {
+            require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+            avid?.let { parameter("aid", it) }
+            bvid?.let { parameter("bvid", it) }
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponse<Int>>()
+        return runCatching {
+            response.getResponseData() == 1
+        }.getOrDefault(false)
+    }
+
+    /**
+     * 为视频[avid]或[bvid]点赞或取消赞
+     *
+     * @param like 是否顺便点赞
+     * @param multiply 投币数量
+     * @param csrf bili_jct
+     * @param sessData SESSDATA
+     */
+    suspend fun sendVideoCoin(
+        avid: Int? = null,
+        bvid: String? = null,
+        multiply: Int = 1,
+        like: Boolean = false,
+        csrf: String,
+        sessData: String
+    ): Pair<Boolean, String> {
+        require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        val response = client.post("/x/web-interface/coin/add") {
+            setBody(FormDataContent(
+                Parameters.build {
+                    avid?.let { append("aid", "$it") }
+                    bvid?.let { append("bvid", it) }
+                    append("multiply", "$multiply")
+                    append("select_like", "${if (like) 1 else 0}")
+                    append("csrf", csrf)
+                }
+            ))
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponse<AddCoin>>()
+        return Pair(response.code == 0, response.message)
+    }
+
+    /**
+     * 检查视频[avid]或[bvid]是否已投币
+     */
+    suspend fun checkVideoSentCoin(
+        avid: Int? = null,
+        bvid: String? = null,
+        sessData: String
+    ): Boolean {
+        val response = client.get("/x/web-interface/archive/coins") {
+            require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+            avid?.let { parameter("aid", it) }
+            bvid?.let { parameter("bvid", it) }
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponse<CheckSentCoin>>()
+        return runCatching {
+            response.getResponseData().multiply != 0
+        }.getOrDefault(false)
+    }
+
+    /**
+     * 为视频[avid]添加到[addMediaIds]或从[delMediaIds]移除
+     */
+    suspend fun setVideoToFavorite(
+        avid: Int,
+        type: Int = 2,
+        addMediaIds: List<Long> = listOf(),
+        delMediaIds: List<Long> = listOf(),
+        csrf: String,
+        sessData: String
+    ): Pair<Boolean, String> {
+        val response = client.post("/x/v3/fav/resource/deal") {
+            require(addMediaIds.isNotEmpty() || delMediaIds.isNotEmpty()) {
+                "addMediaIds and delMediaIds cannot be empty at the same time"
+            }
+            setBody(FormDataContent(
+                Parameters.build {
+                    append("rid", "$avid")
+                    append("type", "$type")
+                    val regex = """ |\[|]""".toRegex()
+                    append("add_media_ids", "${addMediaIds.toString().replace(regex, "")}")
+                    append("del_media_ids", "${delMediaIds.toString().replace(regex, "")}")
+                    append("csrf", csrf)
+                }
+            ))
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponse<SetVideoFavorite>>()
+        return Pair(response.code == 0, response.message)
+    }
+
+    /**
+     * 检查视频[avid]是否已收藏
+     */
+    suspend fun checkVideoFavoured(
+        avid: Int,
+        sessData: String
+    ): Boolean {
+        val response = client.get("/x/v2/fav/video/favoured") {
+            parameter("aid", avid)
+            header("Cookie", "SESSDATA=$sessData;")
+        }.body<BiliResponse<CheckVideoFavoured>>()
+        return runCatching {
+            response.getResponseData().favoured
+        }.getOrDefault(false)
+    }
+
 }
