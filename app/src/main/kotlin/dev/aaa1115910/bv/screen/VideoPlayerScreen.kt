@@ -148,6 +148,14 @@ fun VideoPlayerScreen(
     }
 
     DisposableEffect(Unit) {
+
+        val hideLogs: () -> Unit = {
+            scope.launch(Dispatchers.Default) {
+                delay(3_000)
+                playerViewModel.showLogs = false
+            }
+        }
+
         //exo player listener
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -157,6 +165,7 @@ fun VideoPlayerScreen(
                     danmakuPlayer.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
+                    hideLogs()
                 } else if (playbackState == Player.STATE_ENDED) {
                     if (!Prefs.incognitoMode) sendHeartbeat()
                 } else {
@@ -164,12 +173,7 @@ fun VideoPlayerScreen(
                     if (playbackState == Player.STATE_BUFFERING) {
                         playerViewModel.showBuffering = true
                     }
-
-                    //隐藏左下角日志
-                    scope.launch(Dispatchers.Default) {
-                        delay(3_000)
-                        playerViewModel.showLogs = false
-                    }
+                    hideLogs()
                 }
             }
 
