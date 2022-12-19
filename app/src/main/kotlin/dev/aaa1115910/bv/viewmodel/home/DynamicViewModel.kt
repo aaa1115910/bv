@@ -51,7 +51,8 @@ class DynamicViewModel(
             val avList = responseData.items.map {
                 it.modules.moduleDynamic.major!!.archive!!.aid
             }
-            logger.fInfo { "Load dynamic list ${avList}}" }
+            logger.fInfo { "Load dynamic size: ${avList.size}" }
+            logger.info { "Load dynamic list ${avList}}" }
 
             hasMore = responseData.hasMore
         }.onFailure {
