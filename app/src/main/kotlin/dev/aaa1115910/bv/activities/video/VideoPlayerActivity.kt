@@ -79,7 +79,6 @@ class VideoPlayerActivity : ComponentActivity() {
             }
         }.apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-            forceEnableMediaCodecAsynchronousQueueing()
         }
 
         val player = ExoPlayer
