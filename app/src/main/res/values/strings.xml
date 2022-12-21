@@ -12,6 +12,7 @@
     <string name="disclaimer_dialog_title">注意了！</string>
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
+    <string name="load_data_no_more">就只有这么多了</string>
 
     <string name="loading">加载中...</string>
 

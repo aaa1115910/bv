@@ -60,6 +60,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
@@ -68,6 +69,7 @@ import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
@@ -177,6 +179,13 @@ fun VideoInfoScreen(
                                     title = videoInfo!!.title,
                                     partTitle = videoInfo!!.pages.first().part
                                 )
+                            },
+                            onClickUp = {
+                                UpInfoActivity.actionStart(
+                                    context,
+                                    mid = videoInfo!!.owner.mid,
+                                    name = videoInfo!!.owner.name
+                                )
                             }
                         )
                     }
@@ -217,7 +226,8 @@ fun VideoInfoScreen(
 fun VideoInfoData(
     modifier: Modifier = Modifier,
     videoInfo: VideoInfo,
-    onClickCover: () -> Unit
+    onClickCover: () -> Unit,
+    onClickUp: () -> Unit
 ) {
     val localDensity = LocalDensity.current
     val focusRequester = remember { FocusRequester() }
@@ -275,11 +285,17 @@ fun VideoInfoData(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    UpIcon(color = Color.White)
-                    Text(
-                        text = videoInfo.owner.name,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.small)
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .focusedBorder(MaterialTheme.shapes.small)
+                            .padding(4.dp)
+                            .clickable { onClickUp() }
+                    ) {
+                        UpIcon(color = Color.White)
+                        Text(text = videoInfo.owner.name, color = Color.White)
+                    }
                 }
                 Row(
                     modifier = Modifier.weight(1f)
