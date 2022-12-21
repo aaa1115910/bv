@@ -1,6 +1,5 @@
 package dev.aaa1115910.bv.component
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -14,16 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.bv.util.focusedBorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,17 +26,10 @@ fun FavoriteButton(
     isFavorite: Boolean,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
     Surface(
         modifier = modifier
             .height(46.dp)
-            .border(
-                width = 2.dp,
-                color = if (hasFocus) Color.White else Color.Transparent,
-                shape = MaterialTheme.shapes.medium
-            )
-            .onFocusChanged { hasFocus = it.hasFocus },
+            .focusedBorder(MaterialTheme.shapes.medium),
         onClick = { onClick() },
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.primary

@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -231,8 +230,6 @@ fun VideoInfoData(
 ) {
     val localDensity = LocalDensity.current
     val focusRequester = remember { FocusRequester() }
-    var hasFocus by remember { mutableStateOf(false) }
-    val borderAlpha by animateFloatAsState(if (hasFocus) 1f else 0f)
 
     var heightIs by remember { mutableStateOf(0.dp) }
 
@@ -246,7 +243,6 @@ fun VideoInfoData(
     ) {
         AsyncImage(
             modifier = Modifier
-                .onFocusChanged { hasFocus = it.hasFocus }
                 .focusRequester(focusRequester)
                 .weight(3f)
                 .aspectRatio(1.6f)
@@ -254,11 +250,7 @@ fun VideoInfoData(
                 .onGloballyPositioned { coordinates ->
                     heightIs = with(localDensity) { coordinates.size.height.toDp() }
                 }
-                .border(
-                    width = 2.dp,
-                    color = Color.White.copy(alpha = borderAlpha),
-                    shape = MaterialTheme.shapes.large
-                )
+                .focusedBorder(MaterialTheme.shapes.large)
                 .clickable { onClickCover() },
             model = videoInfo.pic,
             contentDescription = null,
@@ -374,11 +366,7 @@ fun VideoDescription(
                 .padding(top = 15.dp)
                 .onFocusChanged { hasFocus = it.hasFocus }
                 .clip(MaterialTheme.shapes.medium)
-                .border(
-                    width = 2.dp,
-                    color = if (hasFocus) Color.White else Color.Transparent,
-                    shape = MaterialTheme.shapes.medium
-                )
+                .focusedBorder(MaterialTheme.shapes.medium)
                 .padding(8.dp)
                 .clickable {
                     showDescriptionDialog = true
@@ -435,17 +423,10 @@ fun VideoPartButton(
     title: String,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
     Surface(
         modifier = modifier
             .widthIn(max = 200.dp)
-            .border(
-                width = 2.dp,
-                color = if (hasFocus) Color.White else Color.Transparent,
-                shape = MaterialTheme.shapes.medium
-            )
-            .onFocusChanged { hasFocus = it.hasFocus }
+            .focusedBorder(MaterialTheme.shapes.medium)
             .clickable { onClick() },
         color = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.medium,
