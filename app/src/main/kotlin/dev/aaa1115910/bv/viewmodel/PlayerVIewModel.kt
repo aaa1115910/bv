@@ -57,6 +57,7 @@ class PlayerViewModel : ViewModel() {
 
     var dashData: Dash? = null
     var title by mutableStateOf("")
+    var lastPlayed by mutableStateOf(0)
 
     var logs by mutableStateOf("")
     var showLogs by mutableStateOf(false)
@@ -126,7 +127,8 @@ class PlayerViewModel : ViewModel() {
                 sessData = Prefs.sessData
             ).getResponseData()
             playUrlResponse = responseData
-            logger.fInfo { "Load play url response: $responseData" }
+            logger.fInfo { "Load play url response success" }
+            logger.info { "Play url response: $responseData" }
 
             //读取清晰度
             val resolutionMap = mutableMapOf<Int, String>()
@@ -252,10 +254,10 @@ class PlayerViewModel : ViewModel() {
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
-            logger.fWarn { "Load danmaku filed: ${it.message}" }
+            logger.fWarn { "Load danmaku filed: ${it.stackTraceToString()}" }
         }.onSuccess {
             addLogs("已加载 ${danmakuData.size} 条弹幕")
-            logger.fInfo { "Load danmaku success: ${danmakuData.size}" }
+            logger.fInfo { "Load danmaku success, size=${danmakuData.size}" }
         }
     }
 

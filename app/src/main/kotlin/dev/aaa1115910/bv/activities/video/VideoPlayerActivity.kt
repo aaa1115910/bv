@@ -29,13 +29,21 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class VideoPlayerActivity : ComponentActivity() {
     companion object {
         private val logger = KotlinLogging.logger { }
-        fun actionStart(context: Context, avid: Int, cid: Int, title: String, partTitle: String) {
+        fun actionStart(
+            context: Context,
+            avid: Int,
+            cid: Int,
+            title: String,
+            partTitle: String,
+            played: Int
+        ) {
             context.startActivity(
                 Intent(context, VideoPlayerActivity::class.java).apply {
                     putExtra("avid", avid)
                     putExtra("cid", cid)
                     putExtra("title", title)
                     putExtra("partTitle", partTitle)
+                    putExtra("played", played)
                 }
             )
         }
@@ -79,7 +87,6 @@ class VideoPlayerActivity : ComponentActivity() {
             }
         }.apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-            forceEnableMediaCodecAsynchronousQueueing()
         }
 
         val player = ExoPlayer
@@ -97,9 +104,11 @@ class VideoPlayerActivity : ComponentActivity() {
             val cid = intent.getIntExtra("cid", 170001)
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
+            val played = intent.getIntExtra("played", 0)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.loadPlayUrl(aid, cid)
             playerViewModel.title = title
+            playerViewModel.lastPlayed = played
         } else {
             logger.fInfo { "Null launch parameter" }
         }

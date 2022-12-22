@@ -7,6 +7,7 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfo
@@ -156,7 +157,9 @@ object BiliApi {
         val maxLimit = doc.getElementsByTagName("maxlimit").item(0).textContent.toInt()
         val state = doc.getElementsByTagName("state").item(0).textContent.toInt()
         val realName = doc.getElementsByTagName("real_name").item(0).textContent.toInt()
-        val source = doc.getElementsByTagName("source").item(0).textContent
+        val source = runCatching {
+            doc.getElementsByTagName("source").item(0).textContent
+        }.getOrDefault("")
 
         val data = mutableListOf<DanmakuData>()
         val danmakuNodes = doc.getElementsByTagName("d")
@@ -551,4 +554,30 @@ object BiliApi {
         }.getOrDefault(false)
     }
 
+    /**
+     * 获取用户[mid]投稿视频
+     *
+     * @param order 排序方式 默认为pubdate 最新发布：pubdate 最多播放：click 最多收藏：stow
+     * @param tid 筛选目标分区 默认为0 0：不进行分区筛选 分区tid为所筛选的分区
+     * @param keyword 关键词筛选 用于使用关键词搜索该UP主视频稿件
+     * @param pageNumber 页码
+     * @param pageSize 每页项数 最小1，最大50
+     */
+    suspend fun getUserSpaceVideos(
+        mid: Long,
+        order: String = "pubdate",
+        tid: Int = 0,
+        keyword: String? = null,
+        pageNumber: Int = 1,
+        pageSize: Int = 30,
+        sessData: String
+    ): BiliResponse<SpaceVideoData> = client.get("/x/space/arc/search") {
+        parameter("mid", mid)
+        parameter("order", order)
+        parameter("tid", tid)
+        keyword?.let { parameter("keyword", it) }
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
 }

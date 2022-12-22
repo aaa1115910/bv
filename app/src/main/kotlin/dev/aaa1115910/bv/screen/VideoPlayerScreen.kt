@@ -120,6 +120,11 @@ fun VideoPlayerScreen(
             override fun run() {
                 scope.launch {
                     updateSeek()
+
+                    //播放一段时间后隐藏跳转历史记录
+                    if (playerViewModel.lastPlayed != 0 && infoData.currentTime > 3000) {
+                        playerViewModel.lastPlayed = 0
+                    }
                 }
             }
 
@@ -148,6 +153,14 @@ fun VideoPlayerScreen(
     }
 
     DisposableEffect(Unit) {
+
+        val hideLogs: () -> Unit = {
+            scope.launch(Dispatchers.Default) {
+                delay(3_000)
+                playerViewModel.showLogs = false
+            }
+        }
+
         //exo player listener
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -157,6 +170,7 @@ fun VideoPlayerScreen(
                     danmakuPlayer.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
+                    hideLogs()
                 } else if (playbackState == Player.STATE_ENDED) {
                     if (!Prefs.incognitoMode) sendHeartbeat()
                 } else {
@@ -164,12 +178,7 @@ fun VideoPlayerScreen(
                     if (playbackState == Player.STATE_BUFFERING) {
                         playerViewModel.showBuffering = true
                     }
-
-                    //隐藏左下角日志
-                    scope.launch(Dispatchers.Default) {
-                        delay(3_000)
-                        playerViewModel.showLogs = false
-                    }
+                    hideLogs()
                 }
             }
 
@@ -245,6 +254,7 @@ fun VideoPlayerScreen(
         logs = playerViewModel.logs,
 
         title = playerViewModel.title,
+        lastPlayed = if (videoPlayer.isPlaying) playerViewModel.lastPlayed else 0,
 
         onChooseResolution = { qualityId ->
             playerViewModel.currentQuality = qualityId
@@ -334,6 +344,10 @@ fun VideoPlayerScreen(
         },
         requestFocus = {
             focusRequester.requestFocus()
+        },
+        goBackHistory = {
+            videoPlayer.seekTo(playerViewModel.lastPlayed.toLong())
+            playerViewModel.lastPlayed = 0
         }
     ) {
         BoxWithConstraints(

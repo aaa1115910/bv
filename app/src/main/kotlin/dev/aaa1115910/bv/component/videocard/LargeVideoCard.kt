@@ -3,7 +3,6 @@ package dev.aaa1115910.bv.component.videocard
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.focusedBorder
 
 @Composable
 fun LargeVideoCard(
@@ -50,28 +50,22 @@ fun LargeVideoCard(
 ) {
     val view = LocalView.current
 
-    var isFocussed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (isFocussed) 1f else 0.95f)
-    val borderAlpha by animateFloatAsState(if (isFocussed) 1f else 0f)
+    var hasFocus by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(if (hasFocus) 1f else 0.95f)
 
     val height = 160.dp
     val reasonColor = Color.Red
 
-    LaunchedEffect(isFocussed) {
-        if (isFocussed) onFocus()
+    LaunchedEffect(hasFocus) {
+        if (hasFocus) onFocus()
     }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .scale(scale)
-            .onFocusChanged { focusState -> isFocussed = focusState.isFocused }
-            .focusable()
-            .border(
-                width = 2.dp,
-                color = Color.White.copy(alpha = borderAlpha),
-                shape = MaterialTheme.shapes.medium
-            )
+            .onFocusChanged {  hasFocus = it.isFocused }
+            .focusedBorder(MaterialTheme.shapes.medium)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.large
     ) {

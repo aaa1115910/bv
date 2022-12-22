@@ -6,7 +6,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +45,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,15 +55,16 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
-import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -303,7 +302,6 @@ private fun UserInfo(
     onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
         animationSpec = tween(
@@ -314,16 +312,9 @@ private fun UserInfo(
 
     Surface(
         modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.isFocused
-                onFocusChange(it.hasFocus)
-            }
+            .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(480.dp, 140.dp)
-            .border(
-                width = 2.dp,
-                color = if (hasFocus) Color.White else Color.Transparent,
-                shape = MaterialTheme.shapes.large
-            )
+            .focusedBorder(MaterialTheme.shapes.large)
             .clickable { onClick() },
         color = MaterialTheme.colorScheme.secondaryContainer,
         shape = MaterialTheme.shapes.large
@@ -407,7 +398,6 @@ fun IncognitoModeCard(
     onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(Prefs.incognitoMode) }
     val backgroundColor by animateColorAsState(
         targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer
@@ -415,16 +405,9 @@ fun IncognitoModeCard(
 
     Surface(
         modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.isFocused
-                onFocusChange(it.hasFocus)
-            }
+            .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp)
-            .border(
-                width = 2.dp,
-                color = if (hasFocus) Color.White else Color.Transparent,
-                shape = MaterialTheme.shapes.large
-            )
+            .focusedBorder(MaterialTheme.shapes.large)
             .clickable {
                 enabled = !enabled
                 onClick()

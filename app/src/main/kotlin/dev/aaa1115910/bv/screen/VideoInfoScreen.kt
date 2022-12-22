@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,12 +13,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -60,14 +60,17 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
@@ -86,10 +89,13 @@ fun VideoInfoScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val intent = (context as Activity).intent
+    val logger = KotlinLogging.logger { }
 
     var videoInfo: VideoInfo? by remember { mutableStateOf(null) }
     val relatedVideos = remember { mutableStateListOf<VideoCardData>() }
-    val logger = KotlinLogging.logger { }
+
+    var lastPlayedCid by remember { mutableStateOf(0) }
+    var lastPlayedTime by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
@@ -99,6 +105,11 @@ fun VideoInfoScreen(
                 runCatching {
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.data
+                    val moreInfoResponse = BiliApi.getVideoMoreInfo(
+                        avid = aid, cid = videoInfo!!.cid, sessData = Prefs.sessData
+                    ).getResponseData()
+                    lastPlayedCid = moreInfoResponse.lastPlayCid
+                    lastPlayedTime = moreInfoResponse.lastPlayTime
                 }.onFailure {
                     withContext(Dispatchers.Main) {
                         "${it.message}".toast(context)
@@ -175,7 +186,15 @@ fun VideoInfoScreen(
                                     avid = videoInfo!!.aid,
                                     cid = videoInfo!!.pages.first().cid,
                                     title = videoInfo!!.title,
-                                    partTitle = videoInfo!!.pages.first().part
+                                    partTitle = videoInfo!!.pages.first().part,
+                                    played = if (videoInfo!!.cid == lastPlayedCid) lastPlayedTime else 0
+                                )
+                            },
+                            onClickUp = {
+                                UpInfoActivity.actionStart(
+                                    context,
+                                    mid = videoInfo!!.owner.mid,
+                                    name = videoInfo!!.owner.name
                                 )
                             }
                         )
@@ -188,6 +207,8 @@ fun VideoInfoScreen(
                     item {
                         VideoPartRow(
                             pages = videoInfo?.pages ?: emptyList(),
+                            lastPlayedCid = lastPlayedCid,
+                            lastPlayedTime = lastPlayedTime,
                             onClick = { cid ->
                                 logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
                                 VideoPlayerActivity.actionStart(
@@ -195,7 +216,8 @@ fun VideoInfoScreen(
                                     avid = videoInfo!!.aid,
                                     cid = cid,
                                     title = videoInfo!!.title,
-                                    partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part
+                                    partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
+                                    played = if (cid == lastPlayedCid) lastPlayedTime else 0
                                 )
                             }
                         )
@@ -217,12 +239,11 @@ fun VideoInfoScreen(
 fun VideoInfoData(
     modifier: Modifier = Modifier,
     videoInfo: VideoInfo,
-    onClickCover: () -> Unit
+    onClickCover: () -> Unit,
+    onClickUp: () -> Unit
 ) {
     val localDensity = LocalDensity.current
     val focusRequester = remember { FocusRequester() }
-    var hasFocus by remember { mutableStateOf(false) }
-    val borderAlpha by animateFloatAsState(if (hasFocus) 1f else 0f)
 
     var heightIs by remember { mutableStateOf(0.dp) }
 
@@ -236,7 +257,6 @@ fun VideoInfoData(
     ) {
         AsyncImage(
             modifier = Modifier
-                .onFocusChanged { hasFocus = it.hasFocus }
                 .focusRequester(focusRequester)
                 .weight(3f)
                 .aspectRatio(1.6f)
@@ -244,11 +264,7 @@ fun VideoInfoData(
                 .onGloballyPositioned { coordinates ->
                     heightIs = with(localDensity) { coordinates.size.height.toDp() }
                 }
-                .border(
-                    width = 2.dp,
-                    color = Color.White.copy(alpha = borderAlpha),
-                    shape = MaterialTheme.shapes.large
-                )
+                .focusedBorder(MaterialTheme.shapes.large)
                 .clickable { onClickCover() },
             model = videoInfo.pic,
             contentDescription = null,
@@ -275,11 +291,17 @@ fun VideoInfoData(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    UpIcon(color = Color.White)
-                    Text(
-                        text = videoInfo.owner.name,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.small)
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .focusedBorder(MaterialTheme.shapes.small)
+                            .padding(4.dp)
+                            .clickable { onClickUp() }
+                    ) {
+                        UpIcon(color = Color.White)
+                        Text(text = videoInfo.owner.name, color = Color.White)
+                    }
                 }
                 Row(
                     modifier = Modifier.weight(1f)
@@ -358,11 +380,7 @@ fun VideoDescription(
                 .padding(top = 15.dp)
                 .onFocusChanged { hasFocus = it.hasFocus }
                 .clip(MaterialTheme.shapes.medium)
-                .border(
-                    width = 2.dp,
-                    color = if (hasFocus) Color.White else Color.Transparent,
-                    shape = MaterialTheme.shapes.medium
-                )
+                .focusedBorder(MaterialTheme.shapes.medium)
                 .padding(8.dp)
                 .clickable {
                     showDescriptionDialog = true
@@ -416,31 +434,37 @@ fun VideoDescriptionDialog(
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
+    index: Int,
     title: String,
+    duration: Int,
+    played: Int = 0,
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
     Surface(
         modifier = modifier
-            .widthIn(max = 200.dp)
-            .border(
-                width = 2.dp,
-                color = if (hasFocus) Color.White else Color.Transparent,
-                shape = MaterialTheme.shapes.medium
-            )
-            .onFocusChanged { hasFocus = it.hasFocus }
+            .focusedBorder(MaterialTheme.shapes.medium)
             .clickable { onClick() },
         color = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.medium,
     ) {
-        Text(
+        Box(
             modifier = Modifier
-                .padding(8.dp),
-            text = title,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
+                .size(200.dp, 64.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.2f))
+                    .fillMaxHeight()
+                    .fillMaxWidth(played / (duration * 1000f))
+            ) {}
+            Text(
+                modifier = Modifier
+                    .padding(8.dp),
+                text = "P$index $title",
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -448,6 +472,8 @@ fun VideoPartButton(
 fun VideoPartRow(
     modifier: Modifier = Modifier,
     pages: List<VideoPage>,
+    lastPlayedCid: Int = 0,
+    lastPlayedTime: Int = 0,
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
@@ -474,7 +500,10 @@ fun VideoPartRow(
         ) {
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
+                    index = index,
                     title = page.part,
+                    played = if (page.cid == lastPlayedCid) lastPlayedTime else 0,
+                    duration = page.duration,
                     onClick = { onClick(page.cid) }
                 )
             }
@@ -485,11 +514,29 @@ fun VideoPartRow(
 
 @Preview
 @Composable
-fun VideoPartButtonPreview() {
-    VideoPartButton(
-        title = "这可能是我这辈子距离梅西最近的一次",
-        onClick = {}
-    )
+fun VideoPartButtonShortTextPreview() {
+    BVTheme {
+        VideoPartButton(
+            index = 2,
+            title = "这是一段短文字",
+            duration = 100,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun VideoPartButtonLongTextPreview() {
+    BVTheme {
+        VideoPartButton(
+            index = 2,
+            title = "这可能是我这辈子距离梅西最近的一次",
+            played = 23333,
+            duration = 100,
+            onClick = {}
+        )
+    }
 }
 
 @Preview
@@ -499,28 +546,20 @@ fun VideoPartRowPreview() {
     for (i in 0..10) {
         pages.add(
             VideoPage(
-                1000 + i, 0, "", "这可能是我这辈子距离梅西最近的一次p$i", 0,
+                1000 + i, 0, "", "这可能是我这辈子距离梅西最近的一次", 10,
                 "", "", Dimension(0, 0, 0)
             )
         )
     }
-    MaterialTheme {
-        Surface(
-            color = Color(0xFFFF69B4)
-        ) {
-            VideoPartRow(pages = pages, onClick = {})
-        }
+    BVTheme {
+        VideoPartRow(pages = pages, onClick = {})
     }
 }
 
 @Preview
 @Composable
 fun VideoDescriptionPreview() {
-    MaterialTheme {
-        Surface(
-            color = Color(0xFFFF69B4)
-        ) {
-            VideoDescription(description = "12435678")
-        }
+    BVTheme {
+        VideoDescription(description = "12435678")
     }
 }
