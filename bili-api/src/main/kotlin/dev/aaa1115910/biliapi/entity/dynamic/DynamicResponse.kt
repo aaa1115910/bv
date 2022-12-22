@@ -143,7 +143,7 @@ data class DynamicItem(
         ) {
             @Serializable
             data class Additional(
-                val common: Common,
+                val common: Common? = null,
                 val reserve: Reserve? = null,
                 val type: String
             ) {
