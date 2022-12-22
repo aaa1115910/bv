@@ -1,10 +1,14 @@
 package dev.aaa1115910.bv.component.controllers
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,12 +26,23 @@ fun BufferingTip(
         color = Color.Black.copy(0.5f),
         shape = MaterialTheme.shapes.medium
     ) {
-        Text(
-            modifier = Modifier
-                .padding(16.dp, 8.dp),
-            text = "缓冲中...$speed",
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier.padding(16.dp, 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(36.dp)
+                    .padding(8.dp),
+                color = Color.White,
+                strokeWidth = 2.dp
+            )
+            Text(
+                modifier = Modifier,
+                text = "缓冲中...$speed",
+                fontSize = 24.sp
+            )
+        }
     }
 }
 
