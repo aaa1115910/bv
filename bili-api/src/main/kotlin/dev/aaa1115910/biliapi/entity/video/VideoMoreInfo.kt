@@ -93,7 +93,7 @@ data class VideoMoreInfo(
     val dmMask: DmMask? = null,
     val subtitle: Subtitle,
     @SerialName("player_icon")
-    val playerIcon: PlayerIcon,
+    val playerIcon: PlayerIcon? = null,
     @SerialName("view_points")
     val viewPoints: JsonArray,
     @SerialName("is_ugc_pay_preview")
