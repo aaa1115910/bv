@@ -157,7 +157,9 @@ object BiliApi {
         val maxLimit = doc.getElementsByTagName("maxlimit").item(0).textContent.toInt()
         val state = doc.getElementsByTagName("state").item(0).textContent.toInt()
         val realName = doc.getElementsByTagName("real_name").item(0).textContent.toInt()
-        val source = doc.getElementsByTagName("source").item(0).textContent
+        val source = runCatching {
+            doc.getElementsByTagName("source").item(0).textContent
+        }.getOrDefault("")
 
         val data = mutableListOf<DanmakuData>()
         val danmakuNodes = doc.getElementsByTagName("d")
