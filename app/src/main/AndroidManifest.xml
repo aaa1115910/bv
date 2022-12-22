@@ -67,10 +67,8 @@
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.MainActivity"
-            android:banner="@drawable/app_icon_your_company"
+            android:banner="@drawable/ic_banner"
             android:exported="true"
-            android:icon="@drawable/app_icon_your_company"
-            android:logo="@drawable/app_icon_your_company"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.BV.Splash">
             <intent-filter>
