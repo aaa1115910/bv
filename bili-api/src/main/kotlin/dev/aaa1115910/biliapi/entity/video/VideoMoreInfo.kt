@@ -90,7 +90,7 @@ data class VideoMoreInfo(
     @SerialName("online_count")
     val onlineCount: Int,
     @SerialName("dm_mask")
-    val dmMask: DmMask,
+    val dmMask: DmMask? = null,
     val subtitle: Subtitle,
     @SerialName("player_icon")
     val playerIcon: PlayerIcon,
@@ -205,7 +205,7 @@ data class VideoMoreInfo(
          */
         @Serializable
         data class PcdnLoaderItem(
-            val group: String,
+            val group: String? = null,
             val labels: Labels
         ) {
             /**

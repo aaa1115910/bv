@@ -120,6 +120,11 @@ fun VideoPlayerScreen(
             override fun run() {
                 scope.launch {
                     updateSeek()
+
+                    //播放一段时间后隐藏跳转历史记录
+                    if (playerViewModel.lastPlayed != 0 && infoData.currentTime > 3000) {
+                        playerViewModel.lastPlayed = 0
+                    }
                 }
             }
 
@@ -249,6 +254,7 @@ fun VideoPlayerScreen(
         logs = playerViewModel.logs,
 
         title = playerViewModel.title,
+        lastPlayed = if (videoPlayer.isPlaying) playerViewModel.lastPlayed else 0,
 
         onChooseResolution = { qualityId ->
             playerViewModel.currentQuality = qualityId
@@ -338,6 +344,10 @@ fun VideoPlayerScreen(
         },
         requestFocus = {
             focusRequester.requestFocus()
+        },
+        goBackHistory = {
+            videoPlayer.seekTo(playerViewModel.lastPlayed.toLong())
+            playerViewModel.lastPlayed = 0
         }
     ) {
         BoxWithConstraints(

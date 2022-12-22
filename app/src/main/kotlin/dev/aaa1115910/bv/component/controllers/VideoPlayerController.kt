@@ -67,6 +67,7 @@ fun VideoPlayerController(
     showLogs: Boolean,
     logs: String,
     title: String,
+    lastPlayed: Int,
     onChooseResolution: (qualityId: Int) -> Unit,
     onChooseVideoCodec: (videoCodec: VideoCodec) -> Unit,
     onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
@@ -81,6 +82,7 @@ fun VideoPlayerController(
     requestFocus: () -> Unit,
     freeFocus: () -> Unit = {},
     captureFocus: () -> Unit = {},
+    goBackHistory: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -215,6 +217,10 @@ fun VideoPlayerController(
 
                     KeyEvent.KEYCODE_DPAD_CENTER -> {
                         logger.fInfo { "Pressed dpad center" }
+                        if (lastPlayed != 0) {
+                            goBackHistory()
+                            return@onPreviewKeyEvent true
+                        }
                         if (showingRightController()) return@onPreviewKeyEvent false
                         if (it.nativeKeyEvent.isLongPress) {
                             logger.fInfo { "long pressing" }
@@ -361,6 +367,18 @@ fun VideoPlayerController(
             exit = fadeOut()
         ) {
             BufferingTip(speed = "")
+        }
+
+        //跳转历史记录提醒
+        AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = 32.dp),
+            visible = lastPlayed > 0,
+            enter = expandHorizontally(),
+            exit = shrinkHorizontally()
+        ) {
+            GoBackHistoryTip(played = lastPlayed)
         }
     }
 }
