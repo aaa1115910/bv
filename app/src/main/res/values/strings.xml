@@ -21,6 +21,9 @@
     <string name="logout_dialog_text">是否登出账号 %1$s</string>
     <string name="logout_dialog_title">登出确认</string>
 
+    <string name="play_time_finish">已看完</string>
+    <string name="play_time_history">%1$s / %2$s</string>
+
     <string name="player_controller_menu_danmaku_disabled">关闭</string>
     <string name="player_controller_menu_danmaku_enabled">开启</string>
     <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>

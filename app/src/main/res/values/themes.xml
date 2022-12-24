@@ -3,7 +3,7 @@
     <style name="Theme.BV.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@android:color/black</item>
         <item name="postSplashScreenTheme">@style/Theme.BV</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
     </style>
 
     <style name="Theme.BV" parent="Theme.Material3.DayNight.NoActionBar" />

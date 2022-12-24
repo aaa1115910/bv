@@ -65,7 +65,7 @@ fun Date.formatPubTimeString(context: Context = BVApp.context): String {
 }
 
 fun Long.formatMinSec(): String {
-    return if (this == 0L) {
+    return if (this < 0L) {
         "..."
     } else {
         String.format(

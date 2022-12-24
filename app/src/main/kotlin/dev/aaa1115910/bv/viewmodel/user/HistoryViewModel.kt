@@ -1,12 +1,16 @@
 package dev.aaa1115910.bv.viewmodel.user
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.formatMinSec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -29,7 +33,7 @@ class HistoryViewModel : ViewModel() {
         }
     }
 
-    private suspend fun updateHistories() {
+    private suspend fun updateHistories(context: Context = BVApp.context) {
         if (updating) return
         logger.fInfo { "Updating histories with params [max=$max, viewAt=$viewAt]" }
         updating = true
@@ -49,7 +53,12 @@ class HistoryViewModel : ViewModel() {
                         title = historyItem.title,
                         cover = historyItem.cover,
                         upName = historyItem.authorName,
-                        time = historyItem.duration * 1000L
+                        timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
+                        else context.getString(
+                            R.string.play_time_history,
+                            (historyItem.progress * 1000L).formatMinSec(),
+                            (historyItem.duration * 1000L).formatMinSec()
+                        )
                     )
                 )
             }

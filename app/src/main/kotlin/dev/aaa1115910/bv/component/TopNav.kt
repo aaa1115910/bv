@@ -91,7 +91,7 @@ fun TopNav(
                         .padding(horizontal = 30.dp)
                 )
 
-                for (topNavItem in TopNavItem.values()) {
+                for (topNavItem in listOf(TopNavItem.Popular, TopNavItem.Dynamics)) {
                     NavTabButton(
                         modifier = Modifier.focusRequester(focusRequester),
                         navItem = topNavItem,
