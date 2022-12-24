@@ -49,15 +49,6 @@ import java.text.NumberFormat
 @Composable
 fun VideoPlayerMenuController(
     modifier: Modifier = Modifier,
-    resolutionMap: Map<Int, String> = emptyMap(),
-    availableVideoCodec: List<VideoCodec> = emptyList(),
-    currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec = VideoCodec.AVC,
-    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
-    currentDanmakuEnabled: Boolean = true,
-    currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
-    currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
@@ -91,15 +82,6 @@ fun VideoPlayerMenuController(
                 modifier = Modifier.weight(1f),
                 onFocusBackMenuList = { focusInNav = true },
                 currentMenu = currentMenu,
-                resolutionMap = resolutionMap,
-                availableVideoCodec = availableVideoCodec,
-                currentResolution = currentResolution,
-                currentVideoCodec = currentVideoCodec,
-                currentVideoAspectRatio = currentVideoAspectRatio,
-                currentDanmakuEnabled = currentDanmakuEnabled,
-                currentDanmakuSize = currentDanmakuSize,
-                currentDanmakuTransparency = currentDanmakuTransparency,
-                currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
                 onChooseVideoAspectRatio = onChooseVideoAspectRatio,
@@ -178,15 +160,6 @@ private fun VideoPlayerMenuControllerContent(
     modifier: Modifier = Modifier,
     onFocusBackMenuList: () -> Unit,
     currentMenu: VideoPlayerMenuItem,
-    resolutionMap: Map<Int, String> = emptyMap(),
-    availableVideoCodec: List<VideoCodec> = emptyList(),
-    currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec = VideoCodec.AVC,
-    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
-    currentDanmakuEnabled: Boolean = true,
-    currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
-    currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
@@ -195,6 +168,7 @@ private fun VideoPlayerMenuControllerContent(
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit
 ) {
+    val videoPlayerControllerData= LocalVideoPlayerControllerData.current
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -206,39 +180,39 @@ private fun VideoPlayerMenuControllerContent(
     ) {
         when (currentMenu) {
             VideoPlayerMenuItem.Resolution -> ResolutionMenuContent(
-                resolutionMap = resolutionMap,
-                currentResolution = currentResolution,
+                resolutionMap = videoPlayerControllerData.resolutionMap,
+                currentResolution = videoPlayerControllerData.currentResolution,
                 onResolutionChange = onChooseResolution
             )
 
             VideoPlayerMenuItem.DanmakuSwitch -> DanmakuSwitchMenuContent(
-                currentDanmakuEnabled = currentDanmakuEnabled,
+                currentDanmakuEnabled = videoPlayerControllerData.currentDanmakuEnabled,
                 onSwitchDanmaku = onSwitchDanmaku
             )
 
             VideoPlayerMenuItem.DanmakuSize -> DanmakuSizeMenuContent(
-                currentDanmakuSize = currentDanmakuSize,
+                currentDanmakuSize = videoPlayerControllerData.currentDanmakuSize,
                 onDanmakuSizeChange = onDanmakuSizeChange
             )
 
             VideoPlayerMenuItem.DanmakuTransparency -> DanmakuTransparencyMenuContent(
-                currentDanmakuTransparency = currentDanmakuTransparency,
+                currentDanmakuTransparency = videoPlayerControllerData.currentDanmakuTransparency,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange
             )
 
             VideoPlayerMenuItem.VideoCodec -> VideoCodecMenuContent(
-                availableVideoCodec = availableVideoCodec,
-                currentVideoCodec = currentVideoCodec,
+                availableVideoCodec = videoPlayerControllerData.availableVideoCodec,
+                currentVideoCodec = videoPlayerControllerData.currentVideoCodec,
                 onVideoCodecChange = onChooseVideoCodec
             )
 
             VideoPlayerMenuItem.DanmakuArea -> DanmakuAreaMenuContent(
-                currentDanmakuArea = currentDanmakuArea,
+                currentDanmakuArea = videoPlayerControllerData.currentDanmakuArea,
                 onDanmakuAreaChange = onDanmakuAreaChange
             )
 
             VideoPlayerMenuItem.VideoAspectRatio -> VideoAspectRatioMenuContent(
-                currentVideoAspectRatio = currentVideoAspectRatio,
+                currentVideoAspectRatio = videoPlayerControllerData.currentVideoAspectRatio,
                 onVideoAspectRatioChange = onChooseVideoAspectRatio
             )
         }

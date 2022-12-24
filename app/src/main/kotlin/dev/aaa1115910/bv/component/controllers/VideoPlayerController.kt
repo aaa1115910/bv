@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -156,229 +158,252 @@ fun VideoPlayerController(
         setCloseSeekTimer()
     }
 
-    Box(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
-            //.focusRequester(focusRequester)
-            .focusable()
-            .fillMaxSize()
-            .onPreviewKeyEvent {
-                if (BuildConfig.DEBUG) logger.fInfo { "Native key event: ${it.nativeKeyEvent}" }
+    CompositionLocalProvider(
+        LocalVideoPlayerControllerData provides VideoPlayerControllerData(
+            infoData = infoData,
+            resolutionMap = resolutionMap,
+            availableVideoCodec = availableVideoCodec,
+            currentResolution = currentResolution,
+            currentVideoCodec = currentVideoCodec,
+            currentVideoAspectRatio = currentVideoAspectRatio,
+            currentDanmakuEnabled = currentDanmakuEnabled,
+            currentDanmakuSize = currentDanmakuSize,
+            currentDanmakuTransparency = currentDanmakuTransparency,
+            currentDanmakuArea = currentDanmakuArea
+        )
+    ) {
+        Box(
+            modifier = modifier
+                .onFocusChanged { hasFocus = it.hasFocus }
+                //.focusRequester(focusRequester)
+                .focusable()
+                .fillMaxSize()
+                .onPreviewKeyEvent {
+                    if (BuildConfig.DEBUG) logger.fInfo { "Native key event: ${it.nativeKeyEvent}" }
 
-                if (showingRightController()) {
-                    if (listOf(
-                            KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BOOKMARK, KeyEvent.KEYCODE_MENU
-                        ).contains(it.nativeKeyEvent.keyCode)
-                    ) {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
-                            showMenuController = false
-                            showPartController = false
+                    if (showingRightController()) {
+                        if (listOf(
+                                KeyEvent.KEYCODE_BACK,
+                                KeyEvent.KEYCODE_BOOKMARK,
+                                KeyEvent.KEYCODE_MENU
+                            ).contains(it.nativeKeyEvent.keyCode)
+                        ) {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                                showMenuController = false
+                                showPartController = false
+                                return@onPreviewKeyEvent true
+                            }
+                        }
+                        return@onPreviewKeyEvent false
+                    }
+
+                    when (it.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad up" }
+                            if (showingRightController()) return@onPreviewKeyEvent false
+
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad down" }
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            showSeekController = !showSeekController
                             return@onPreviewKeyEvent true
                         }
-                    }
-                    return@onPreviewKeyEvent false
-                }
 
-                when (it.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad up" }
-                        if (showingRightController()) return@onPreviewKeyEvent false
-
-                    }
-
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad down" }
-                        if (showingRightController()) return@onPreviewKeyEvent false
-                        showSeekController = !showSeekController
-                        return@onPreviewKeyEvent true
-                    }
-
-                    KeyEvent.KEYCODE_DPAD_LEFT -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad left" }
-                        if (showingRightController()) return@onPreviewKeyEvent false
-                        showSeekController = true
-                        lastChangedSeek = System.currentTimeMillis()
-                        onSeekBack()
-                        return@onPreviewKeyEvent true
-                    }
-
-                    KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad right" }
-                        if (showingRightController()) return@onPreviewKeyEvent false
-                        showSeekController = true
-                        lastChangedSeek = System.currentTimeMillis()
-                        onSeekForward()
-                        return@onPreviewKeyEvent true
-                    }
-
-                    KeyEvent.KEYCODE_DPAD_CENTER -> {
-                        logger.fInfo { "Pressed dpad center" }
-                        if (lastPlayed != 0) {
-                            goBackHistory()
+                        KeyEvent.KEYCODE_DPAD_LEFT -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad left" }
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            showSeekController = true
+                            lastChangedSeek = System.currentTimeMillis()
+                            onSeekBack()
                             return@onPreviewKeyEvent true
                         }
-                        if (showingRightController()) return@onPreviewKeyEvent false
-                        if (it.nativeKeyEvent.isLongPress) {
-                            logger.fInfo { "long pressing" }
+
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad right" }
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            showSeekController = true
+                            lastChangedSeek = System.currentTimeMillis()
+                            onSeekForward()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_CENTER -> {
+                            logger.fInfo { "Pressed dpad center" }
+                            if (lastPlayed != 0) {
+                                goBackHistory()
+                                return@onPreviewKeyEvent true
+                            }
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            if (it.nativeKeyEvent.isLongPress) {
+                                logger.fInfo { "long pressing" }
+                                showMenuController = true
+                                return@onPreviewKeyEvent true
+                            }
+                            logger.fInfo { "short pressing" }
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            if (isPlaying) onPause() else onPlay()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        //KEYCODE_CENTER_LONG
+                        763 -> {
+                            if (showingRightController()) return@onPreviewKeyEvent false
                             showMenuController = true
                             return@onPreviewKeyEvent true
                         }
-                        logger.fInfo { "short pressing" }
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        if (isPlaying) onPause() else onPlay()
-                        return@onPreviewKeyEvent true
-                    }
 
-                    //KEYCODE_CENTER_LONG
-                    763 -> {
-                        if (showingRightController()) return@onPreviewKeyEvent false
-                        showMenuController = true
-                        return@onPreviewKeyEvent true
-                    }
-
-                    KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_BOOKMARK -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad menu" }
-                        if (showingRightController()) {
-                            showMenuController = false
-                            showPartController = false
-                            return@onPreviewKeyEvent true
-                        }
-                        showMenuController = !showMenuController
-                        return@onPreviewKeyEvent true
-                    }
-
-                    KeyEvent.KEYCODE_BACK -> {
-                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
-                        logger.fInfo { "Pressed dpad back" }
-                        if (showingRightController()) {
-                            logger.fInfo { "Close menu and part controller" }
-                            showMenuController = false
-                            showPartController = false
-                            return@onPreviewKeyEvent true
-                        } else {
-                            val currentTime = System.currentTimeMillis()
-                            if (currentTime - lastPressBack < 1000 * 3) {
-                                logger.fInfo { "Exiting video player" }
-                                (context as Activity).finish()
-                            } else {
-                                lastPressBack = currentTime
-                                "再次按下返回键退出播放".toast(context)
+                        KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_BOOKMARK -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad menu" }
+                            if (showingRightController()) {
+                                showMenuController = false
+                                showPartController = false
+                                return@onPreviewKeyEvent true
                             }
+                            showMenuController = !showMenuController
+                            return@onPreviewKeyEvent true
                         }
-                        return@onPreviewKeyEvent true
+
+                        KeyEvent.KEYCODE_BACK -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            logger.fInfo { "Pressed dpad back" }
+                            if (showingRightController()) {
+                                logger.fInfo { "Close menu and part controller" }
+                                showMenuController = false
+                                showPartController = false
+                                return@onPreviewKeyEvent true
+                            } else {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastPressBack < 1000 * 3) {
+                                    logger.fInfo { "Exiting video player" }
+                                    (context as Activity).finish()
+                                } else {
+                                    lastPressBack = currentTime
+                                    "再次按下返回键退出播放".toast(context)
+                                }
+                            }
+                            return@onPreviewKeyEvent true
+                        }
                     }
+                    false
                 }
-                false
+        ) {
+            content()
+
+            if (BuildConfig.DEBUG) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .background(Color.Black),
+                    text = "焦点: $hasFocus"
+                )
             }
-    ) {
-        content()
 
-        if (BuildConfig.DEBUG) {
-            Text(
+            if (BuildConfig.DEBUG) {
+                VideoPlayerInfoTip(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    data = infoData
+                )
+            }
+
+            if (showLogs) {
+                Text(
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    text = "$logs"
+                )
+            }
+
+            if (!isPlaying && !buffering) {
+                PauseIcon(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(32.dp)
+                )
+            }
+
+            //底部进度条
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                visible = showSeekController,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                BottomControls(infoData = infoData)
+            }
+
+            //顶部标题
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.TopCenter),
+                visible = showSeekController,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                TopController(title = title)
+            }
+
+            //右侧菜单
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                visible = showMenuController,
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
+            ) {
+                VideoPlayerMenuController(
+                    onChooseResolution = onChooseResolution,
+                    onChooseVideoCodec = onChooseVideoCodec,
+                    onChooseVideoAspectRatio = onChooseVideoAspectRatio,
+                    onSwitchDanmaku = onSwitchDanmaku,
+                    onDanmakuSizeChange = onDanmakuSizeChange,
+                    onDanmakuTransparencyChange = onDanmakuTransparencyChange,
+                    onDanmakuAreaChange = onDanmakuAreaChange
+                )
+            }
+
+            //右侧分P
+
+
+            //正中间缓冲
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.Center),
+                visible = buffering,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                BufferingTip(speed = "")
+            }
+
+            //跳转历史记录提醒
+            AnimatedVisibility(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .background(Color.Black),
-                text = "焦点: $hasFocus"
-            )
-        }
-
-        if (BuildConfig.DEBUG) {
-            VideoPlayerInfoTip(
-                modifier = Modifier.align(Alignment.TopStart),
-                data = infoData
-            )
-        }
-
-        if (showLogs) {
-            Text(
-                modifier = Modifier.align(Alignment.BottomStart),
-                text = "$logs"
-            )
-        }
-
-        if (!isPlaying && !buffering) {
-            PauseIcon(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(32.dp)
-            )
-        }
-
-        //底部进度条
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            visible = showSeekController,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            BottomControls(infoData = infoData)
-        }
-
-        //顶部标题
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.TopCenter),
-            visible = showSeekController,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            TopController(title = title)
-        }
-
-        //右侧菜单
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.CenterEnd),
-            visible = showMenuController,
-            enter = expandHorizontally(),
-            exit = shrinkHorizontally()
-        ) {
-            VideoPlayerMenuController(
-                resolutionMap = resolutionMap,
-                availableVideoCodec = availableVideoCodec,
-                currentResolution = currentResolution,
-                currentVideoCodec = currentVideoCodec,
-                currentVideoAspectRatio = currentVideoAspectRatio,
-                currentDanmakuEnabled = currentDanmakuEnabled,
-                currentDanmakuSize = currentDanmakuSize,
-                currentDanmakuTransparency = currentDanmakuTransparency,
-                currentDanmakuArea = currentDanmakuArea,
-                onChooseResolution = onChooseResolution,
-                onChooseVideoCodec = onChooseVideoCodec,
-                onChooseVideoAspectRatio = onChooseVideoAspectRatio,
-                onSwitchDanmaku = onSwitchDanmaku,
-                onDanmakuSizeChange = onDanmakuSizeChange,
-                onDanmakuTransparencyChange = onDanmakuTransparencyChange,
-                onDanmakuAreaChange = onDanmakuAreaChange
-            )
-        }
-
-        //右侧分P
-
-
-        //正中间缓冲
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.Center),
-            visible = buffering,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            BufferingTip(speed = "")
-        }
-
-        //跳转历史记录提醒
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = 32.dp),
-            visible = lastPlayed > 0,
-            enter = expandHorizontally(),
-            exit = shrinkHorizontally()
-        ) {
-            GoBackHistoryTip(played = lastPlayed)
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 32.dp),
+                visible = lastPlayed > 0,
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
+            ) {
+                GoBackHistoryTip(played = lastPlayed)
+            }
         }
     }
 }
+
+data class VideoPlayerControllerData(
+    val infoData: VideoPlayerInfoData = VideoPlayerInfoData(0, 0, 0, 0, 0, ""),
+    val resolutionMap: Map<Int, String> = emptyMap(),
+    val availableVideoCodec: List<VideoCodec> = emptyList(),
+    val currentResolution: Int? = null,
+    val currentVideoCodec: VideoCodec = VideoCodec.AVC,
+    val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
+    val currentDanmakuEnabled: Boolean = true,
+    val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
+    val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    val currentDanmakuArea: Float = 1f
+)
+
+val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }
