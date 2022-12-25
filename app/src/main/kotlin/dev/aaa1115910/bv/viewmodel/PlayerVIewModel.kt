@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.viewmodel
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -19,6 +20,9 @@ import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.bilisubtitle.SubtitleParser
+import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
@@ -29,6 +33,10 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,12 +54,16 @@ class PlayerViewModel : ViewModel() {
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
+    var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
+    var availableSubtitleFile = mutableStateMapOf<Long, Uri>()
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
     var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
+    var currentSubtitleId by mutableStateOf(0L)
+    var currentSubtitleData = mutableStateListOf<SubtitleItem>()
 
     var danmakuData = mutableStateListOf<DanmakuItemData>()
 
@@ -99,6 +111,7 @@ class PlayerViewModel : ViewModel() {
         addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
             addLogs("av$avid，cid:$cid")
+            updateSubtitle()
             loadPlayUrl(avid, cid, 4048)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
@@ -261,6 +274,19 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    private suspend fun updateSubtitle() {
+        val responseData = runCatching {
+            BiliApi.getVideoMoreInfo(
+                avid = currentAid,
+                cid = currentCid,
+                sessData = Prefs.sessData
+            ).getResponseData()
+        }.getOrNull() ?: return
+        availableSubtitle.swapList(responseData.subtitle.subtitles)
+        addLogs("获取到 ${responseData.subtitle.subtitles.size} 条字幕: ${responseData.subtitle.subtitles.map { it.lanDoc }}")
+        logger.fInfo { "Update subtitle size: ${responseData.subtitle.subtitles.size}" }
+    }
+
     private fun addLogs(text: String) {
         val lines = logs.lines().toMutableList()
         lines.add(text)
@@ -288,6 +314,31 @@ class PlayerViewModel : ViewModel() {
             logger.info { "Send heartbeat success" }
         }.onFailure {
             logger.warn { "Send heartbeat failed: ${it.stackTraceToString()}" }
+        }
+    }
+
+    fun loadSubtitle(id: Long) {
+        viewModelScope.launch(Dispatchers.Default) {
+            if (id == 0L) {
+                currentSubtitleData.clear()
+                return@launch
+            }
+            var subtitleName = ""
+            runCatching {
+                val subtitle = availableSubtitle.find { it.id == id } ?: return@runCatching
+                subtitleName = subtitle.lanDoc
+                val client = HttpClient(OkHttp)
+                val responseText = client.get(subtitle.subtitleUrl).bodyAsText()
+                val subtitleData = SubtitleParser.fromBccString(responseText)
+                currentSubtitleId = id
+                currentSubtitleData.swapList(subtitleData)
+            }.onFailure {
+                logger.fInfo { "Load subtitle failed: ${it.stackTraceToString()}" }
+                addLogs("加载字幕 $subtitleName 失败: ${it.localizedMessage}")
+            }.onSuccess {
+                logger.fInfo { "Load subtitle $subtitleName success" }
+                addLogs("加载字幕 $subtitleName 成功，数量: ${currentSubtitleData.size}")
+            }
         }
     }
 }

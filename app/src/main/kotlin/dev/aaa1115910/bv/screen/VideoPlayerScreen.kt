@@ -58,6 +58,7 @@ fun VideoPlayerScreen(
     var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var usingDefaultAspectRatio by remember { mutableStateOf(true) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    var currentPosition by remember { mutableStateOf(0L) }
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -90,6 +91,7 @@ fun VideoPlayerScreen(
     }
 
     val updateSeek: () -> Unit = {
+        currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
         infoData = VideoPlayerInfoData(
             totalDuration = videoPlayer.duration.coerceAtLeast(0L),
             currentTime = videoPlayer.currentPosition.coerceAtLeast(0L),
@@ -128,7 +130,7 @@ fun VideoPlayerScreen(
                 }
             }
 
-        }, 500, 500)
+        }, 0, 100)
         onDispose {
             timer.cancel()
         }
@@ -238,6 +240,7 @@ fun VideoPlayerScreen(
 
         resolutionMap = playerViewModel.availableQuality,
         availableVideoCodec = playerViewModel.availableVideoCodec,
+        availableSubtitle = playerViewModel.availableSubtitle,
         currentVideoAspectRatio = currentVideoAspectRatio,
         currentResolution = playerViewModel.currentQuality,
         currentVideoCodec = playerViewModel.currentVideoCodec,
@@ -245,6 +248,10 @@ fun VideoPlayerScreen(
         currentDanmakuSize = playerViewModel.currentDanmakuSize,
         currentDanmakuTransparency = playerViewModel.currentDanmakuTransparency,
         currentDanmakuArea = playerViewModel.currentDanmakuArea,
+
+        currentSubtitleId = playerViewModel.currentSubtitleId,
+        currentSubtitleData = playerViewModel.currentSubtitleData,
+        currentPosition = currentPosition,
 
         buffering = playerViewModel.showBuffering,
         isPlaying = playerViewModel.player?.isPlaying == true,
@@ -326,6 +333,9 @@ fun VideoPlayerScreen(
         onDanmakuAreaChange = { area ->
             Prefs.defaultDanmakuArea = area
             playerViewModel.currentDanmakuArea = area
+        },
+        onSubtitleChange = { subtitleId ->
+            playerViewModel.loadSubtitle(subtitleId)
         },
         onSeekBack = {
             playerViewModel.player?.seekBack()

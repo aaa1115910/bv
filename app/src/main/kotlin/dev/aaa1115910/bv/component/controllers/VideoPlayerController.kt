@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
@@ -56,6 +58,7 @@ fun VideoPlayerController(
     infoData: VideoPlayerInfoData,
     resolutionMap: Map<Int, String> = emptyMap(),
     availableVideoCodec: List<VideoCodec> = emptyList(),
+    availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
     currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
@@ -63,6 +66,9 @@ fun VideoPlayerController(
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     currentDanmakuArea: Float = 1f,
+    currentSubtitleId: Long = 0,
+    currentSubtitleData: List<SubtitleItem>,
+    currentPosition: Long,
     buffering: Boolean,
     isPlaying: Boolean,
     bufferSpeed: Any,
@@ -77,6 +83,7 @@ fun VideoPlayerController(
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
+    onSubtitleChange: (Long) -> Unit,
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit,
     onPlay: () -> Unit,
@@ -163,13 +170,17 @@ fun VideoPlayerController(
             infoData = infoData,
             resolutionMap = resolutionMap,
             availableVideoCodec = availableVideoCodec,
+            availableSubtitle = availableSubtitle,
             currentResolution = currentResolution,
             currentVideoCodec = currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
             currentDanmakuEnabled = currentDanmakuEnabled,
             currentDanmakuSize = currentDanmakuSize,
             currentDanmakuTransparency = currentDanmakuTransparency,
-            currentDanmakuArea = currentDanmakuArea
+            currentDanmakuArea = currentDanmakuArea,
+            currentSubtitleId = currentSubtitleId,
+            currentSubtitleData = currentSubtitleData,
+            currentPosition = currentPosition
         )
     ) {
         Box(
@@ -315,7 +326,7 @@ fun VideoPlayerController(
             if (showLogs) {
                 Text(
                     modifier = Modifier.align(Alignment.BottomStart),
-                    text = "$logs"
+                    text = logs
                 )
             }
 
@@ -326,6 +337,11 @@ fun VideoPlayerController(
                         .padding(32.dp)
                 )
             }
+
+            //底部字幕
+            BottomSubtitle(
+                modifier = Modifier
+            )
 
             //底部进度条
             AnimatedVisibility(
@@ -361,7 +377,8 @@ fun VideoPlayerController(
                     onSwitchDanmaku = onSwitchDanmaku,
                     onDanmakuSizeChange = onDanmakuSizeChange,
                     onDanmakuTransparencyChange = onDanmakuTransparencyChange,
-                    onDanmakuAreaChange = onDanmakuAreaChange
+                    onDanmakuAreaChange = onDanmakuAreaChange,
+                    onSubtitleChange = onSubtitleChange
                 )
             }
 
@@ -397,13 +414,17 @@ data class VideoPlayerControllerData(
     val infoData: VideoPlayerInfoData = VideoPlayerInfoData(0, 0, 0, 0, 0, ""),
     val resolutionMap: Map<Int, String> = emptyMap(),
     val availableVideoCodec: List<VideoCodec> = emptyList(),
+    val availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     val currentResolution: Int? = null,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     val currentDanmakuEnabled: Boolean = true,
     val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    val currentDanmakuArea: Float = 1f
+    val currentDanmakuArea: Float = 1f,
+    val currentSubtitleId: Long = 0,
+    val currentSubtitleData: List<SubtitleItem> = emptyList(),
+    val currentPosition: Long = 0
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }
