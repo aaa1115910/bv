@@ -1,6 +1,5 @@
 package dev.aaa1115910.bv.viewmodel
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -55,7 +54,6 @@ class PlayerViewModel : ViewModel() {
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
     var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
-    var availableSubtitleFile = mutableStateMapOf<Long, Uri>()
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
@@ -321,6 +319,7 @@ class PlayerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Default) {
             if (id == 0L) {
                 currentSubtitleData.clear()
+                currentSubtitleId = 0
                 return@launch
             }
             var subtitleName = ""
