@@ -97,6 +97,8 @@ fun VideoInfoScreen(
     var lastPlayedCid by remember { mutableStateOf(0) }
     var lastPlayedTime by remember { mutableStateOf(0) }
 
+    var tip by remember { mutableStateOf("Loading") }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
@@ -104,17 +106,15 @@ fun VideoInfoScreen(
             scope.launch(Dispatchers.Default) {
                 runCatching {
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
-                    videoInfo = response.data
+                    videoInfo = response.getResponseData()
                     val moreInfoResponse = BiliApi.getVideoMoreInfo(
                         avid = aid, cid = videoInfo!!.cid, sessData = Prefs.sessData
                     ).getResponseData()
                     lastPlayedCid = moreInfoResponse.lastPlayCid
                     lastPlayedTime = moreInfoResponse.lastPlayTime
                 }.onFailure {
-                    withContext(Dispatchers.Main) {
-                        "${it.message}".toast(context)
-                    }
-                    logger.fException(it) { "Get video info failed" }
+                    tip = it.localizedMessage ?: "未知错误"
+                    logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
                 }
             }
             //获取相关视频
@@ -150,7 +150,7 @@ fun VideoInfoScreen(
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "Loading"
+                text = tip
             )
         }
     } else {
