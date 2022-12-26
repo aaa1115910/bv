@@ -62,6 +62,8 @@ class PlayerViewModel : ViewModel() {
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
     var currentSubtitleId by mutableStateOf(0L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
+    var currentSubtitleFontSize by mutableStateOf(Prefs.defaultSubtitleFontSize)
+    var currentSubtitleBottomPadding by mutableStateOf(Prefs.defaultSubtitleBottomPadding)
 
     var danmakuData = mutableStateListOf<DanmakuItemData>()
 

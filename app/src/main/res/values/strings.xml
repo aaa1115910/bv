@@ -32,6 +32,8 @@
     <string name="player_controller_menu_item_danmaku_transparency">弹幕透明</string>
     <string name="player_controller_menu_item_resolution">分辨率</string>
     <string name="player_controller_menu_item_subtitle">CC 字幕</string>
+    <string name="player_controller_menu_item_subtitle_font_size">字幕大小</string>
+    <string name="player_controller_menu_item_subtitle_padding">字幕底部间距</string>
     <string name="player_controller_menu_item_video_aspect_ratio">视频比例</string>
     <string name="player_controller_menu_item_video_codec">视频编码</string>
 

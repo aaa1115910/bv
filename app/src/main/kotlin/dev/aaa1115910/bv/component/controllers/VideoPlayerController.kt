@@ -4,12 +4,6 @@ import android.app.Activity
 import android.os.CountDownTimer
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +31,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
@@ -69,6 +65,8 @@ fun VideoPlayerController(
     currentSubtitleId: Long = 0,
     currentSubtitleData: List<SubtitleItem>,
     currentPosition: Long,
+    currentSubtitleFontSize: TextUnit = 24.sp,
+    currentSubtitleBottomPadding: Dp = 12.dp,
     buffering: Boolean,
     isPlaying: Boolean,
     bufferSpeed: Any,
@@ -84,6 +82,8 @@ fun VideoPlayerController(
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
     onSubtitleChange: (Long) -> Unit,
+    onSubtitleFontSizeChange: (TextUnit) -> Unit,
+    onSubtitleBottomPaddingChange: (Dp) -> Unit,
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit,
     onPlay: () -> Unit,
@@ -129,28 +129,9 @@ fun VideoPlayerController(
         }
     }
 
-    val infiniteTransition = rememberInfiniteTransition()
-
-    val iconRotate by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            tween(200, easing = LinearEasing), RepeatMode.Reverse
-        )
-    )
-
-    val tick by remember {
-        derivedStateOf { iconRotate > 0.5f }
-    }
-
     LaunchedEffect(Unit) {
         logger.fInfo { "Request focus on controller" }
         //focusRequester.captureFocus()
-    }
-
-    LaunchedEffect(tick) {
-        //logger.fInfo { "Request focus on controller2" }
-        //focusRequester.requestFocus()
     }
 
     LaunchedEffect(showMenuController) {
@@ -180,6 +161,8 @@ fun VideoPlayerController(
             currentDanmakuArea = currentDanmakuArea,
             currentSubtitleId = currentSubtitleId,
             currentSubtitleData = currentSubtitleData,
+            currentSubtitleFontSize = currentSubtitleFontSize,
+            currentSubtitleBottomPadding = currentSubtitleBottomPadding,
             currentPosition = currentPosition
         )
     ) {
@@ -378,7 +361,9 @@ fun VideoPlayerController(
                     onDanmakuSizeChange = onDanmakuSizeChange,
                     onDanmakuTransparencyChange = onDanmakuTransparencyChange,
                     onDanmakuAreaChange = onDanmakuAreaChange,
-                    onSubtitleChange = onSubtitleChange
+                    onSubtitleChange = onSubtitleChange,
+                    onSubtitleFontSizeChange = onSubtitleFontSizeChange,
+                    onSubtitleBottomPaddingChange = onSubtitleBottomPaddingChange
                 )
             }
 
@@ -424,7 +409,9 @@ data class VideoPlayerControllerData(
     val currentDanmakuArea: Float = 1f,
     val currentSubtitleId: Long = 0,
     val currentSubtitleData: List<SubtitleItem> = emptyList(),
-    val currentPosition: Long = 0
+    val currentPosition: Long = 0,
+    val currentSubtitleFontSize: TextUnit = 24.sp,
+    val currentSubtitleBottomPadding: Dp = 12.dp
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

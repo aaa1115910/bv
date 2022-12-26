@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.aaa1115910.bv.BuildConfig
 
 @Composable
@@ -48,12 +47,12 @@ fun BottomSubtitle(
             Text(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 12.dp)
+                    .padding(bottom = data.currentSubtitleBottomPadding)
                     .clip(MaterialTheme.shapes.small)
                     .background(Color.Black.copy(alpha = 0.4f))
                     .padding(vertical = 4.dp, horizontal = 12.dp),
                 text = currentText,
-                fontSize = 24.sp,
+                fontSize = data.currentSubtitleFontSize,
                 textAlign = TextAlign.Center
             )
         }

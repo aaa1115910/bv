@@ -251,6 +251,8 @@ fun VideoPlayerScreen(
 
         currentSubtitleId = playerViewModel.currentSubtitleId,
         currentSubtitleData = playerViewModel.currentSubtitleData,
+        currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
+        currentSubtitleBottomPadding = playerViewModel.currentSubtitleBottomPadding,
         currentPosition = currentPosition,
 
         buffering = playerViewModel.showBuffering,
@@ -336,6 +338,16 @@ fun VideoPlayerScreen(
         },
         onSubtitleChange = { subtitleId ->
             playerViewModel.loadSubtitle(subtitleId)
+        },
+        onSubtitleFontSizeChange = { subtitleFontSize ->
+            println(subtitleFontSize)
+            Prefs.defaultSubtitleFontSize = subtitleFontSize
+            playerViewModel.currentSubtitleFontSize = subtitleFontSize
+        },
+        onSubtitleBottomPaddingChange = { subtitleBottomPadding ->
+            println(subtitleBottomPadding)
+            Prefs.defaultSubtitleBottomPadding = subtitleBottomPadding
+            playerViewModel.currentSubtitleBottomPadding = subtitleBottomPadding
         },
         onSeekBack = {
             playerViewModel.player?.seekBack()
