@@ -62,6 +62,11 @@ body:
     attributes:
       label: 设备厂商及型号
       placeholder: Sony - BRAVIA XR MASTER SERIES Z9K
+  - type: input
+    id: video
+    attributes:
+      label: 遇到问题的视频 avid 或 bvid
+      placeholder: av170001
   - type: textarea
     id: additional-context
     attributes:
