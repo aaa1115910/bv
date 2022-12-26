@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.screen.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,6 +18,7 @@ import androidx.tv.foundation.lazy.grid.TvLazyGridState
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
@@ -79,10 +81,12 @@ fun DynamicsScreen(
                 item(
                     span = { TvGridItemSpan(4) }
                 ) {
-                    Text(
-                        text = "Loading",
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingTip()
+                    }
                 }
 
             if (!dynamicViewModel.hasMore)
@@ -97,7 +101,7 @@ fun DynamicsScreen(
         }
     } else {
         Box(
-            modifier = Modifier,
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text(text = "请先登录")

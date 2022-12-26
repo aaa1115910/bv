@@ -1,5 +1,9 @@
 package dev.aaa1115910.bv.util
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -13,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.util.Date
+import kotlin.math.roundToInt
 
 private val prefIsLoginKey = booleanPreferencesKey("il")
 private val prefUidKey = longPreferencesKey("uid")
@@ -29,6 +34,8 @@ private val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
 private val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
 private val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
 private val prefIncognitoModeKey = booleanPreferencesKey("im")
+private val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
+private val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
 
 val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
 val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -46,6 +53,9 @@ val prefDefaultVideoCodecRequest =
     PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
 val prefEnabledFirebaseCollectionRequest = PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
 val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
+val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
+val prefDefaultSubtitleBottomPaddingRequest =
+    PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
 
 object Prefs {
     val dsm = BVApp.dataStoreManager
@@ -112,6 +122,20 @@ object Prefs {
     var incognitoMode: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(prefIncognitoModeRequest).first() }
         set(value) = runBlocking { dsm.editPreference(prefIncognitoModeKey, value) }
+
+    var defaultSubtitleFontSize: TextUnit
+        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultSubtitleFontSizeRequest).first().sp }
+        set(value) = runBlocking {
+            dsm.editPreference(prefDefaultSubtitleFontSizeKey, value.value.roundToInt())
+        }
+
+    var defaultSubtitleBottomPadding: Dp
+        get() = runBlocking {
+            dsm.getPreferenceFlow(prefDefaultSubtitleBottomPaddingRequest).first().dp
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(prefDefaultSubtitleBottomPaddingKey, value.value.roundToInt())
+        }
 
     fun logout() {
         logger.fInfo { "Logout uid: $uid" }

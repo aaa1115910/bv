@@ -171,7 +171,39 @@ data class VideoMoreInfo(
         val lan: String,
         @SerialName("lan_doc")
         val lanDoc: String,
-        val subtitles: JsonArray
+        val subtitles: List<SubtitleItem> = emptyList()
+    )
+
+    /**
+     * 字幕信息
+     *
+     * @param id
+     * @param lan 字幕语言代号，例如zh-Hans
+     * @param lanDoc 字幕语言名称
+     * @param isLock
+     * @param subtitleUrl
+     * @param type
+     * @param idStr
+     * @param aiType
+     * @param aiStatus
+     */
+    @Serializable
+    data class SubtitleItem(
+        val id: Long,
+        val lan: String,
+        @SerialName("lan_doc")
+        val lanDoc: String,
+        @SerialName("is_lock")
+        val isLock: Boolean,
+        @SerialName("subtitle_url")
+        val subtitleUrl: String,
+        val type: Int,
+        @SerialName("id_str")
+        val idStr: String,
+        @SerialName("ai_type")
+        val aiType: Int,
+        @SerialName("ai_status")
+        val aiStatus: Int
     )
 
     /**

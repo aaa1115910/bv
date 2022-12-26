@@ -32,9 +32,13 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.BottomTip
@@ -49,22 +53,16 @@ import java.text.NumberFormat
 @Composable
 fun VideoPlayerMenuController(
     modifier: Modifier = Modifier,
-    resolutionMap: Map<Int, String> = emptyMap(),
-    availableVideoCodec: List<VideoCodec> = emptyList(),
-    currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec = VideoCodec.AVC,
-    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
-    currentDanmakuEnabled: Boolean = true,
-    currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
-    currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
-    onDanmakuAreaChange: (Float) -> Unit
+    onDanmakuAreaChange: (Float) -> Unit,
+    onSubtitleChange: (Long) -> Unit,
+    onSubtitleFontSizeChange: (TextUnit) -> Unit,
+    onSubtitleBottomPaddingChange: (Dp) -> Unit
 ) {
     var currentMenu by remember { mutableStateOf(VideoPlayerMenuItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
@@ -91,22 +89,16 @@ fun VideoPlayerMenuController(
                 modifier = Modifier.weight(1f),
                 onFocusBackMenuList = { focusInNav = true },
                 currentMenu = currentMenu,
-                resolutionMap = resolutionMap,
-                availableVideoCodec = availableVideoCodec,
-                currentResolution = currentResolution,
-                currentVideoCodec = currentVideoCodec,
-                currentVideoAspectRatio = currentVideoAspectRatio,
-                currentDanmakuEnabled = currentDanmakuEnabled,
-                currentDanmakuSize = currentDanmakuSize,
-                currentDanmakuTransparency = currentDanmakuTransparency,
-                currentDanmakuArea = currentDanmakuArea,
                 onChooseResolution = onChooseResolution,
                 onChooseVideoCodec = onChooseVideoCodec,
                 onChooseVideoAspectRatio = onChooseVideoAspectRatio,
                 onSwitchDanmaku = onSwitchDanmaku,
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange,
-                onDanmakuAreaChange = onDanmakuAreaChange
+                onDanmakuAreaChange = onDanmakuAreaChange,
+                onSubtitleChange = onSubtitleChange,
+                onSubtitleFontSizeChange = onSubtitleFontSizeChange,
+                onSubtitleBottomPaddingChange = onSubtitleBottomPaddingChange
             )
             VideoPlayerMenuControllerNav(
                 modifier = Modifier
@@ -140,9 +132,11 @@ private fun VideoPlayerMenuControllerNav(
     }
 
     TvLazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 120.dp)
     ) {
-        items(VideoPlayerMenuItem.values()) { item ->
+        items(items = VideoPlayerMenuItem.values(), key = { it.ordinal }) { item ->
             val buttonModifier = if (currentMenu == item) Modifier
                 .focusRequester(focusRequester)
                 .fillMaxWidth()
@@ -167,7 +161,10 @@ private enum class VideoPlayerMenuItem(private val strRes: Int) {
     DanmakuSwitch(R.string.player_controller_menu_item_danmaku_switch),
     DanmakuSize(R.string.player_controller_menu_item_dankamu_size),
     DanmakuTransparency(R.string.player_controller_menu_item_danmaku_transparency),
-    DanmakuArea(R.string.player_controller_menu_item_danmaku_area);
+    DanmakuArea(R.string.player_controller_menu_item_danmaku_area),
+    Subtitle(R.string.player_controller_menu_item_subtitle),
+    SubtitleSize(R.string.player_controller_menu_item_subtitle_font_size),
+    SubtitlePadding(R.string.player_controller_menu_item_subtitle_padding);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
@@ -178,23 +175,18 @@ private fun VideoPlayerMenuControllerContent(
     modifier: Modifier = Modifier,
     onFocusBackMenuList: () -> Unit,
     currentMenu: VideoPlayerMenuItem,
-    resolutionMap: Map<Int, String> = emptyMap(),
-    availableVideoCodec: List<VideoCodec> = emptyList(),
-    currentResolution: Int? = null,
-    currentVideoCodec: VideoCodec = VideoCodec.AVC,
-    currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
-    currentDanmakuEnabled: Boolean = true,
-    currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
-    currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    currentDanmakuArea: Float = 1f,
     onChooseResolution: (Int) -> Unit,
     onChooseVideoCodec: (VideoCodec) -> Unit,
     onChooseVideoAspectRatio: (VideoAspectRatio) -> Unit,
     onSwitchDanmaku: (Boolean) -> Unit,
     onDanmakuSizeChange: (DanmakuSize) -> Unit,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit,
-    onDanmakuAreaChange: (Float) -> Unit
+    onDanmakuAreaChange: (Float) -> Unit,
+    onSubtitleChange: (Long) -> Unit,
+    onSubtitleFontSizeChange: (TextUnit) -> Unit,
+    onSubtitleBottomPaddingChange: (Dp) -> Unit
 ) {
+    val videoPlayerControllerData = LocalVideoPlayerControllerData.current
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -206,40 +198,56 @@ private fun VideoPlayerMenuControllerContent(
     ) {
         when (currentMenu) {
             VideoPlayerMenuItem.Resolution -> ResolutionMenuContent(
-                resolutionMap = resolutionMap,
-                currentResolution = currentResolution,
+                resolutionMap = videoPlayerControllerData.resolutionMap,
+                currentResolution = videoPlayerControllerData.currentResolution,
                 onResolutionChange = onChooseResolution
             )
 
             VideoPlayerMenuItem.DanmakuSwitch -> DanmakuSwitchMenuContent(
-                currentDanmakuEnabled = currentDanmakuEnabled,
+                currentDanmakuEnabled = videoPlayerControllerData.currentDanmakuEnabled,
                 onSwitchDanmaku = onSwitchDanmaku
             )
 
             VideoPlayerMenuItem.DanmakuSize -> DanmakuSizeMenuContent(
-                currentDanmakuSize = currentDanmakuSize,
+                currentDanmakuSize = videoPlayerControllerData.currentDanmakuSize,
                 onDanmakuSizeChange = onDanmakuSizeChange
             )
 
             VideoPlayerMenuItem.DanmakuTransparency -> DanmakuTransparencyMenuContent(
-                currentDanmakuTransparency = currentDanmakuTransparency,
+                currentDanmakuTransparency = videoPlayerControllerData.currentDanmakuTransparency,
                 onDanmakuTransparencyChange = onDanmakuTransparencyChange
             )
 
             VideoPlayerMenuItem.VideoCodec -> VideoCodecMenuContent(
-                availableVideoCodec = availableVideoCodec,
-                currentVideoCodec = currentVideoCodec,
+                availableVideoCodec = videoPlayerControllerData.availableVideoCodec,
+                currentVideoCodec = videoPlayerControllerData.currentVideoCodec,
                 onVideoCodecChange = onChooseVideoCodec
             )
 
             VideoPlayerMenuItem.DanmakuArea -> DanmakuAreaMenuContent(
-                currentDanmakuArea = currentDanmakuArea,
+                currentDanmakuArea = videoPlayerControllerData.currentDanmakuArea,
                 onDanmakuAreaChange = onDanmakuAreaChange
             )
 
             VideoPlayerMenuItem.VideoAspectRatio -> VideoAspectRatioMenuContent(
-                currentVideoAspectRatio = currentVideoAspectRatio,
+                currentVideoAspectRatio = videoPlayerControllerData.currentVideoAspectRatio,
                 onVideoAspectRatioChange = onChooseVideoAspectRatio
+            )
+
+            VideoPlayerMenuItem.Subtitle -> SubtitleContent(
+                currentSubtitleId = videoPlayerControllerData.currentSubtitleId,
+                availableSubtitle = videoPlayerControllerData.availableSubtitle,
+                onSubtitleChange = onSubtitleChange
+            )
+
+            VideoPlayerMenuItem.SubtitleSize -> SubtitleFontSizeContent(
+                currentFontSize = videoPlayerControllerData.currentSubtitleFontSize,
+                onSubtitleFontSizeChange = onSubtitleFontSizeChange
+            )
+
+            VideoPlayerMenuItem.SubtitlePadding -> SubtitleBottomPaddingContent(
+                currentBottomPadding = videoPlayerControllerData.currentSubtitleBottomPadding,
+                onSubtitleBottomPaddingChange = onSubtitleBottomPaddingChange
             )
         }
     }
@@ -455,6 +463,134 @@ private fun DanmakuAreaMenuContent(
     }
 }
 
+@Composable
+fun SubtitleContent(
+    modifier: Modifier = Modifier,
+    currentSubtitleId: Long = 0,
+    availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
+    onSubtitleChange: (Long) -> Unit
+) {
+    TvLazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 120.dp)
+    ) {
+        item {
+            MenuListItem(
+                modifier = Modifier.fillMaxWidth(),
+                text = "关闭",
+                selected = currentSubtitleId == 0L
+            ) { onSubtitleChange(0) }
+        }
+        items(items = availableSubtitle, key = { it.id }) { subtitle ->
+            MenuListItem(
+                modifier = Modifier.fillMaxWidth(),
+                text = subtitle.lanDoc,
+                selected = subtitle.id == currentSubtitleId
+            ) { onSubtitleChange(subtitle.id) }
+        }
+    }
+}
+
+@Composable
+fun SubtitleFontSizeContent(
+    modifier: Modifier = Modifier,
+    currentFontSize: TextUnit = 24.sp,
+    onSubtitleFontSizeChange: (TextUnit) -> Unit
+) {
+    val logger = KotlinLogging.logger { }
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        MenuListItem(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .onPreviewKeyEvent {
+                    if (BuildConfig.DEBUG) logger.info { "Native key event: ${it.nativeKeyEvent}" }
+
+                    when (it.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            onSubtitleFontSizeChange((currentFontSize.value + 1).sp)
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (currentFontSize <= 2.sp) {
+                                onSubtitleFontSizeChange(1.sp)
+                            } else {
+                                onSubtitleFontSizeChange((currentFontSize.value - 1).sp)
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                    }
+                    false
+                },
+            text = "${currentFontSize.value} SP",
+            selected = false
+        ) { }
+
+        BottomTip(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 12.dp),
+            text = stringResource(R.string.video_controller_menu_danmaku_area_tip)
+        )
+    }
+}
+
+@Composable
+fun SubtitleBottomPaddingContent(
+    modifier: Modifier = Modifier,
+    currentBottomPadding: Dp = 12.dp,
+    onSubtitleBottomPaddingChange: (Dp) -> Unit
+) {
+    val logger = KotlinLogging.logger { }
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        MenuListItem(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .onPreviewKeyEvent {
+                    if (BuildConfig.DEBUG) logger.info { "Native key event: ${it.nativeKeyEvent}" }
+
+                    when (it.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            onSubtitleBottomPaddingChange((currentBottomPadding.value + 1).dp)
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (currentBottomPadding <= 1.dp) {
+                                onSubtitleBottomPaddingChange(0.dp)
+                            } else {
+                                onSubtitleBottomPaddingChange((currentBottomPadding.value - 1).dp)
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                    }
+                    false
+                },
+            text = "${currentBottomPadding.value} DP",
+            selected = false
+        ) { }
+
+        BottomTip(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 12.dp),
+            text = stringResource(R.string.video_controller_menu_danmaku_area_tip)
+        )
+    }
+}
 
 @Composable
 private fun MenuListItem(

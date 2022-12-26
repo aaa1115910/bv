@@ -65,6 +65,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedBorder
+import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +114,12 @@ fun UserInfoScreen(
                             title = historyItem.title,
                             cover = historyItem.cover,
                             upName = historyItem.authorName,
-                            time = historyItem.duration.toLong() * 1000
+                            timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
+                            else context.getString(
+                                R.string.play_time_history,
+                                (historyItem.progress * 1000L).formatMinSec(),
+                                (historyItem.duration * 1000L).formatMinSec()
+                            )
                         )
                     )
                 }
