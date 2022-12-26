@@ -6,15 +6,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BiliSubtitle(
     @SerialName("font_size")
-    val fontSize: Float,
+    val fontSize: Float?=null,
     @SerialName("font_color")
-    val fontColor: String,
+    val fontColor: String?=null,
     @SerialName("background_alpha")
-    val backgroundAlpha: Float,
+    val backgroundAlpha: Float?=null,
     @SerialName("background_color")
-    val backgroundColor: String,
+    val backgroundColor: String?=null,
     @SerialName("Stroke")
-    val stroke: String,
+    val stroke: String?=null,
     val body: List<BiliSubtitleItem> = emptyList()
 )
 
