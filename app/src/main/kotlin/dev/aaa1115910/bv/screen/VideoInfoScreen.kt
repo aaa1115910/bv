@@ -455,7 +455,7 @@ fun VideoPartButton(
                 modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.2f))
                     .fillMaxHeight()
-                    .fillMaxWidth(played / (duration * 1000f))
+                    .fillMaxWidth(if (played < 0) 1f else (played / (duration * 1000f)))
             ) {}
             Text(
                 modifier = Modifier
