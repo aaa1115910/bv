@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.viewmodel
 
+import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -10,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MergingMediaSource
@@ -205,6 +207,7 @@ class PlayerViewModel : ViewModel() {
         logger.fInfo { "Select codec: $currentVideoCodec" }
     }
 
+    @OptIn(UnstableApi::class)
     suspend fun playQuality(qn: Int = currentQuality, codec: VideoCodec = currentVideoCodec) {
         logger.fInfo { "Select resolution: $qn, codec: $codec" }
         showLogs = true
