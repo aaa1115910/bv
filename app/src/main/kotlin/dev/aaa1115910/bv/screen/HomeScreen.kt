@@ -1,7 +1,16 @@
 package dev.aaa1115910.bv.screen
 
+import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -12,16 +21,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
+import dev.aaa1115910.bv.activities.user.FavoriteActivity
+import dev.aaa1115910.bv.activities.user.HistoryActivity
+import dev.aaa1115910.bv.activities.user.UserInfoActivity
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.component.TopNavItem
+import dev.aaa1115910.bv.component.UserPanel
 import dev.aaa1115910.bv.screen.home.AnimeScreen
 import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
@@ -30,7 +48,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -38,6 +56,7 @@ fun HomeScreen(
     dynamicViewModel: DynamicViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger { }
 
@@ -45,6 +64,9 @@ fun HomeScreen(
     val dynamicState = rememberTvLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
+    var showUserPanel by remember { mutableStateOf(false) }
+
+    val settingsButtonFocusRequester = remember { FocusRequester() }
 
     //启动时刷新数据
     LaunchedEffect(Unit) {
@@ -70,90 +92,142 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopNav(
-                isLogin = userViewModel.isLogin,
-                username = userViewModel.username,
-                face = userViewModel.face,
-                onSelectedChange = { nav ->
-                    selectedTab = nav
-                    when (nav) {
-                        TopNavItem.Popular -> {
-                            //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
-                        }
+    Box(
+        modifier = modifier
+    ) {
+        Scaffold(
+            modifier = Modifier,
+            topBar = {
+                TopNav(
+                    isLogin = userViewModel.isLogin,
+                    username = userViewModel.username,
+                    face = userViewModel.face,
+                    settingsButtonFocusRequester = settingsButtonFocusRequester,
+                    onSelectedChange = { nav ->
+                        selectedTab = nav
+                        when (nav) {
+                            TopNavItem.Popular -> {
+                                //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
+                            }
 
-                        TopNavItem.Partition -> {
+                            TopNavItem.Partition -> {
 
-                        }
+                            }
 
-                        TopNavItem.Anime -> {
+                            TopNavItem.Anime -> {
 
-                        }
+                            }
 
-                        TopNavItem.Dynamics -> {
-                            //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
-                            if (!dynamicViewModel.loading && dynamicViewModel.isLogin && dynamicViewModel.dynamicList.isEmpty()) {
-                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                            TopNavItem.Dynamics -> {
+                                //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
+                                if (!dynamicViewModel.loading && dynamicViewModel.isLogin && dynamicViewModel.dynamicList.isEmpty()) {
+                                    scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                                }
+                            }
+
+                            TopNavItem.Search -> {
+
                             }
                         }
+                    },
+                    onClick = { nav ->
+                        when (nav) {
+                            TopNavItem.Popular -> {
+                                //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
+                                logger.fInfo { "clear popular data" }
+                                popularViewModel.clearData()
+                                logger.fInfo { "reload popular data" }
+                                scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+                            }
 
-                        TopNavItem.Search -> {
+                            TopNavItem.Partition -> {
 
+                            }
+
+                            TopNavItem.Anime -> {
+
+                            }
+
+                            TopNavItem.Dynamics -> {
+                                //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
+                                dynamicViewModel.clearData()
+                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                            }
+
+                            TopNavItem.Search -> {
+
+                            }
                         }
-                    }
-                },
-                onClick = { nav ->
-                    when (nav) {
-                        TopNavItem.Popular -> {
-                            //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
-                            logger.fInfo { "clear popular data" }
-                            popularViewModel.clearData()
-                            logger.fInfo { "reload popular data" }
-                            scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
-                        }
+                    },
+                    onShowUserPanel = { showUserPanel = true }
+                )
+            },
+            containerColor = Color.Black
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                Crossfade(targetState = selectedTab) { screen ->
+                    when (screen) {
+                        TopNavItem.Popular -> PopularScreen(
+                            tvLazyGridState = popularState
+                        )
 
-                        TopNavItem.Partition -> {
+                        TopNavItem.Partition -> PartitionScreen()
+                        TopNavItem.Anime -> AnimeScreen()
+                        TopNavItem.Dynamics -> DynamicsScreen(
+                            tvLazyGridState = dynamicState
+                        )
 
-                        }
-
-                        TopNavItem.Anime -> {
-
-                        }
-
-                        TopNavItem.Dynamics -> {
-                            //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
-                            dynamicViewModel.clearData()
-                            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
-                        }
-
-                        TopNavItem.Search -> {
-
-                        }
+                        else -> PopularScreen(
+                            tvLazyGridState = popularState
+                        )
                     }
                 }
-            )
-        },
-        containerColor = Color.Black
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier.padding(innerPadding)
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showUserPanel,
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            Crossfade(targetState = selectedTab) { screen ->
-                when (screen) {
-                    TopNavItem.Popular -> PopularScreen(
-                        tvLazyGridState = popularState
-                    )
-
-                    TopNavItem.Partition -> PartitionScreen()
-                    TopNavItem.Anime -> AnimeScreen()
-                    TopNavItem.Dynamics -> DynamicsScreen(
-                        tvLazyGridState = dynamicState
-                    )
-
-                    else -> PopularScreen(
-                        tvLazyGridState = popularState
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+            ) {
+                AnimatedVisibility(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd),
+                    visible = showUserPanel,
+                    enter = fadeIn() + scaleIn(),
+                    exit = shrinkHorizontally()
+                ) {
+                    UserPanel(
+                        modifier = Modifier
+                            .padding(12.dp),
+                        username = userViewModel.username,
+                        face = userViewModel.face,
+                        onHide = {
+                            showUserPanel = false
+                            settingsButtonFocusRequester.requestFocus()
+                        },
+                        onGoMy = {
+                            context.startActivity(Intent(context, UserInfoActivity::class.java))
+                        },
+                        onGoHistory = {
+                            context.startActivity(Intent(context, HistoryActivity::class.java))
+                        },
+                        onGoFavorite = {
+                            context.startActivity(Intent(context, FavoriteActivity::class.java))
+                        },
+                        onGoAnimate = {
+                            "按钮放在这只是拿来当摆设的！".toast(context)
+                        },
+                        onGoLater = {
+                            "按钮放在这只是拿来当摆设的！".toast(context)
+                        }
                     )
                 }
             }
