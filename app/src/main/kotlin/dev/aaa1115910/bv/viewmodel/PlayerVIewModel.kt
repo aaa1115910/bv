@@ -328,6 +328,7 @@ class PlayerViewModel : ViewModel() {
             runCatching {
                 val subtitle = availableSubtitle.find { it.id == id } ?: return@runCatching
                 subtitleName = subtitle.lanDoc
+                logger.info { "Subtitle url: ${subtitle.subtitleUrl}" }
                 val client = HttpClient(OkHttp)
                 val responseText = client.get(subtitle.subtitleUrl).bodyAsText()
                 val subtitleData = SubtitleParser.fromBccString(responseText)
