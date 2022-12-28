@@ -50,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
+import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
 
 @Composable
@@ -61,8 +61,10 @@ fun TopNav(
     isLogin: Boolean,
     username: String,
     face: String,
+    settingsButtonFocusRequester: FocusRequester,
     onSelectedChange: (TopNavItem) -> Unit = {},
-    onClick: (TopNavItem) -> Unit = {}
+    onClick: (TopNavItem) -> Unit = {},
+    onShowUserPanel: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -110,6 +112,7 @@ fun TopNav(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SettingsIcon(
+                    modifier = Modifier.focusRequester(settingsButtonFocusRequester),
                     onClick = {
                         context.startActivity(Intent(context, SettingsActivity::class.java))
                     }
@@ -123,6 +126,11 @@ fun TopNav(
                     },
                     onGotoInfo = {
                         context.startActivity(Intent(context, UserInfoActivity::class.java))
+                    },
+                    onFocused = {
+                        if (isLogin) {
+                            onShowUserPanel()
+                        }
                     }
                 )
             }
@@ -223,10 +231,16 @@ private fun UserIcon(
     username: String,
     face: String,
     onGotoLogin: () -> Unit,
-    onGotoInfo: () -> Unit
+    onGotoInfo: () -> Unit,
+    onFocused: () -> Unit
 ) {
+    var hasFocus by remember { mutableStateOf(false) }
     TextButton(
-        modifier = modifier,
+        modifier = modifier
+            .onFocusChanged {
+                hasFocus = it.hasFocus
+                if (it.hasFocus) onFocused()
+            },
         onClick = { if (isLogin) onGotoInfo() else onGotoLogin() }
     ) {
         Row(
