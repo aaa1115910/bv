@@ -108,6 +108,7 @@ class VideoPlayerActivity : ComponentActivity() {
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.loadPlayUrl(aid, cid)
             playerViewModel.title = title
+            playerViewModel.partTitle = partTitle
             playerViewModel.lastPlayed = played
         } else {
             logger.fInfo { "Null launch parameter" }
