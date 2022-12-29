@@ -500,7 +500,7 @@ fun VideoPartRow(
         ) {
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
-                    index = index,
+                    index = index + 1,
                     title = page.part,
                     played = if (page.cid == lastPlayedCid) lastPlayedTime else 0,
                     duration = page.duration,
