@@ -36,6 +36,7 @@ private val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
 private val prefIncognitoModeKey = booleanPreferencesKey("im")
 private val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
 private val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
+private val prefShowFpsKey = booleanPreferencesKey("sf")
 
 val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
 val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -56,6 +57,7 @@ val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
 val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
 val prefDefaultSubtitleBottomPaddingRequest =
     PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
+val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
 
 object Prefs {
     val dsm = BVApp.dataStoreManager
@@ -136,6 +138,10 @@ object Prefs {
         set(value) = runBlocking {
             dsm.editPreference(prefDefaultSubtitleBottomPaddingKey, value.value.roundToInt())
         }
+
+    var showFps: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(prefShowFpsRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(prefShowFpsKey, value) }
 
     fun logout() {
         logger.fInfo { "Logout uid: $uid" }

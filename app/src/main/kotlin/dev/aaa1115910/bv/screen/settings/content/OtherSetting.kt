@@ -36,6 +36,7 @@ fun OtherSetting(
     val context = LocalContext.current
 
     var showCookiesDialog by remember { mutableStateOf(false) }
+    var showFps by remember { mutableStateOf(Prefs.showFps) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -69,9 +70,20 @@ fun OtherSetting(
             }
             item {
                 SettingListItem(
-                    title = "Cookies 导入/导出",
-                    supportText = "该功能不适合使用遥控器操作",
+                    title = stringResource(R.string.settings_other_cookies_title),
+                    supportText = stringResource(R.string.settings_other_cookies_text),
                     onClick = { showCookiesDialog = true }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_other_fps_title),
+                    supportText = stringResource(R.string.settings_other_fps_text),
+                    checked = showFps,
+                    onCheckedChange = {
+                        showFps = it
+                        Prefs.showFps = it
+                    }
                 )
             }
         }
