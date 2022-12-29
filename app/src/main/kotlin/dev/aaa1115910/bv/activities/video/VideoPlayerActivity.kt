@@ -131,4 +131,10 @@ class VideoPlayerActivity : ComponentActivity() {
         super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
+
+    override fun onPause() {
+        super.onPause()
+        playerViewModel.player?.pause()
+        playerViewModel.danmakuPlayer?.pause()
+    }
 }
