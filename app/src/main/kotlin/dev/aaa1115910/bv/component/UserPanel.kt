@@ -182,9 +182,9 @@ private fun UserPanelMyItem(
 ) {
     Card(
         modifier = modifier
+            .padding(4.dp)
             .focusedScale(0.98f)
             .focusedBorder()
-            .padding(4.dp)
             .fillMaxWidth()
             .height(lineHeight)
             .clickable { onClick() },
@@ -230,9 +230,9 @@ private fun UserPanelSmallItem(
 ) {
     Card(
         modifier = modifier
+            .padding(4.dp)
             .focusedScale(0.95f)
             .focusedBorder()
-            .padding(4.dp)
             .height(lineHeight)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.large,
