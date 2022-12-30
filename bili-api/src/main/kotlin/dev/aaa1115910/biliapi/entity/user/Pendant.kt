@@ -18,9 +18,9 @@ data class Pendant(
     val pid: Int,
     val name: String,
     val image: String,
-    val expire: Int,
+    val expire: Int = 0,
     @SerialName("image_enhance")
-    val imageEnhance: String,
+    val imageEnhance: String? = null,
     @SerialName("image_enhance_frame")
-    val imageEnhanceFrame: String
+    val imageEnhanceFrame: String? = null
 )

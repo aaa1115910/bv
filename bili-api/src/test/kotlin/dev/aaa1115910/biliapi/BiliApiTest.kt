@@ -293,4 +293,15 @@ internal class BiliApiTest {
             )
         }
     }
+
+    @Test
+    fun `get season info data`() {
+        runBlocking {
+            println(
+                BiliApi.getSeasonInfo(
+                    epId = 234533
+                )
+            )
+        }
+    }
 }

@@ -26,7 +26,7 @@ data class Vip(
     @SerialName("due_date")
     val dueDate: Long,
     @SerialName("vip_pay_type")
-    val vipPayType: Int,
+    val vipPayType: Int = 0,
     @SerialName("theme_type")
     val themeType: Int,
     val label: Label,
@@ -34,13 +34,13 @@ data class Vip(
     val avatarSubscript: Int,
     @SerialName("nickname_color")
     val nicknameColor: String,
-    val role: Int,
+    val role: Int = 0,
     @SerialName("avatar_subscript_url")
     val avatarSubscriptUrl: String,
     @SerialName("tv_vip_status")
-    val tvVipStatus: Int,
+    val tvVipStatus: Int = 0,
     @SerialName("tv_vip_pay_type")
-    val tvVipPayType: Int
+    val tvVipPayType: Int = 0
 ) {
     /**
      * 大会员标签
@@ -60,10 +60,10 @@ data class Vip(
      */
     @Serializable
     data class Label(
-        val path: String,
+        val path: String = "",
         val text: String,
         @SerialName("label_theme")
-        val labelTheme: String,
+        val labelTheme: String = "",
         @SerialName("text_color")
         val textColor: String,
         @SerialName("bg_style")
@@ -73,14 +73,14 @@ data class Vip(
         @SerialName("border_color")
         val borderColor: String,
         @SerialName("use_img_label")
-        val useImgLabel: Boolean,
+        val useImgLabel: Boolean = false,
         @SerialName("img_label_uri_hans")
-        val imgLabelUriHans: String,
+        val imgLabelUriHans: String = "",
         @SerialName("img_label_uri_hant")
-        val imgLabelUriHant: String,
+        val imgLabelUriHant: String = "",
         @SerialName("img_label_uri_hans_static")
-        val imgLabelUriHansStatic: String,
+        val imgLabelUriHansStatic: String = "",
         @SerialName("img_label_uri_hant_static")
-        val imgLabelUriHantStatic: String
+        val imgLabelUriHantStatic: String = ""
     )
 }

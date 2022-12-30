@@ -7,8 +7,9 @@ import kotlin.jvm.Throws
 data class BiliResponse<T>(
     val code: Int,
     val message: String,
-    val ttl: Int,
-    val data: T? = null
+    val ttl: Int? = null,
+    val data: T? = null,
+    val result: T? = null
 ) {
     fun isError() = !isSuccess()
     fun isSuccess() = code == 0
@@ -16,8 +17,10 @@ data class BiliResponse<T>(
     @Throws()
     fun getResponseData(): T {
         check(isSuccess()) { message }
-        check(data != null) { "response data is null" }
-        return data
+        check(data != null || result != null) { "response data and result are both null" }
+        data?.let { return it }
+        result?.let { return it }
+        error("response data and result are both null, and code should not run here")
     }
 }
 
