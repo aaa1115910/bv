@@ -60,7 +60,7 @@ fun BVTheme(
         }
     }
 
-    val showFps by remember { mutableStateOf(Prefs.showFps) }
+    val showFps by remember { mutableStateOf(if (!view.isInEditMode) Prefs.showFps else false) }
 
     MaterialTheme(
         colorScheme = colorScheme,

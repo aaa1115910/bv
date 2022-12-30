@@ -299,7 +299,7 @@ internal class BiliApiTest {
         runBlocking {
             println(
                 BiliApi.getSeasonInfo(
-                    epId = 234533
+                    epId = 705917
                 )
             )
         }

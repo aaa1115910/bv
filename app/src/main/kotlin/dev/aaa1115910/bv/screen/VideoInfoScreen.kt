@@ -60,6 +60,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.FavoriteButton
@@ -70,6 +71,7 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.swapList
@@ -138,6 +140,24 @@ fun VideoInfoScreen(
                     }
                     logger.fException(it) { "Get related videos failed" }
                 }
+            }
+        }
+    }
+
+    LaunchedEffect(videoInfo) {
+        videoInfo?.let {
+            logger.fInfo { "Redirect url: ${videoInfo?.redirectUrl}" }
+            if (it.redirectUrl?.contains("ep") == true) {
+                runCatching {
+                    val epid = videoInfo!!.redirectUrl!!.split("ep")[1].toInt()
+                    logger.fInfo { "Redirect to season activity: ep${epid}" }
+                    SeasonInfoActivity.actionStart(context, epid)
+                    context.finish()
+                }.onFailure {
+                    logger.fWarn { "Redirect failed: ${it.stackTraceToString()}" }
+                }
+            } else {
+                logger.fInfo { "No redirection required" }
             }
         }
     }

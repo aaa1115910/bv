@@ -587,10 +587,14 @@ object BiliApi {
      */
     suspend fun getSeasonInfo(
         seasonId: Int? = null,
-        epId: Int? = null
+        epId: Int? = null,
+        sessData: String = ""
     ): BiliResponse<SeasonData> = client.get("/pgc/view/web/season") {
         require(seasonId != null || epId != null) { "seasonId and epId cannot be null at the same time" }
-        parameter("season_id", seasonId)
-        parameter("ep_id", epId)
+        seasonId?.let { parameter("season_id", it) }
+        epId?.let { parameter("ep_id", it) }
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
     }.body()
 }

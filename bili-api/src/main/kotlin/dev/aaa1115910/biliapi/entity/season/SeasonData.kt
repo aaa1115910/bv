@@ -435,10 +435,12 @@ data class SeasonData(
      * @param banAreaShow
      * @param follow
      * @param followStatus
-     * @param login
+     * @param login 是否已登录
      * @param pay
      * @param payPackPaid
+     * @param progress 上次播放进度，仅登录时存在
      * @param sponsor
+     * @param vipInfo 用户会员信息，仅登录时存在
      */
     @Serializable
     data class UserStatus(
@@ -453,6 +455,41 @@ data class SeasonData(
         val pay: Int,
         @SerialName("pay_pack_paid")
         val payPackPaid: Int,
+        val progress: Progress?=null,
         val sponsor: Int,
-    )
+        @SerialName("vip_info")
+        val vipInfo: VipInfo?=null
+    ) {
+        /**
+         * 上次播放进度
+         *
+         * @param lastEpId 上次播放剧集epid
+         * @param lastEpIndex 上次播放剧集标题 [Episode.title]
+         * @param lastTime 上次播放时间
+         */
+        @Serializable
+        data class Progress(
+            @SerialName("last_ep_id")
+            val lastEpId: Int,
+            @SerialName("last_ep_index")
+            val lastEpIndex: String,
+            @SerialName("last_time")
+            val lastTime: Int
+        )
+
+        /**
+         * 用户会员信息
+         *
+         * @param dueDate 会员到期时间
+         * @param status
+         * @param type
+         */
+        @Serializable
+        data class VipInfo(
+            @SerialName("due_date")
+            val dueDate: Long,
+            val status: Int,
+            val type: Int
+        )
+    }
 }

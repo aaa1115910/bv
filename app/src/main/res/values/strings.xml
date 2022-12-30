@@ -85,14 +85,16 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
-    <string name="title_activity_favorite">FavoriteActivity</string>
-    <string name="title_activity_history">HistoryActivity</string>
-    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="title_activity_favorite">个人收藏</string>
+    <string name="title_activity_history">历史记录</string>
+    <string name="title_activity_login">登录</string>
+    <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>
-    <string name="title_activity_up_info">UpInfoActivity</string>
-    <string name="title_activity_user_info">UserInfoActivity</string>
-    <string name="title_activity_video_info">VideoInfoActivity</string>
+    <string name="title_activity_up_info">UP 投稿</string>
+    <string name="title_activity_user_info">用户信息</string>
+    <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
