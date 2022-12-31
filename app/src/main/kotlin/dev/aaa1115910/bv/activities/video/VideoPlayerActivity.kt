@@ -108,6 +108,7 @@ class VideoPlayerActivity : ComponentActivity() {
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.loadPlayUrl(aid, cid)
             playerViewModel.title = title
+            playerViewModel.partTitle = partTitle
             playerViewModel.lastPlayed = played
         } else {
             logger.fInfo { "Null launch parameter" }
@@ -130,5 +131,11 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        playerViewModel.player?.pause()
+        playerViewModel.danmakuPlayer?.pause()
     }
 }

@@ -71,6 +71,7 @@ class PlayerViewModel : ViewModel() {
 
     var dashData: Dash? = null
     var title by mutableStateOf("")
+    var partTitle by mutableStateOf("")
     var lastPlayed by mutableStateOf(0)
 
     var logs by mutableStateOf("")

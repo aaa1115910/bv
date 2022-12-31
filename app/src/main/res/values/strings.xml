@@ -76,19 +76,25 @@
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_resolution">默认分辨率</string>
     <string name="settings_network_start_button">开始测试</string>
+    <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
+    <string name="settings_other_cookies_title">Cookies 导入/导出</string>
     <string name="settings_other_firebase_text">这将帮助开发者更快地发现与解决大部分问题</string>
     <string name="settings_other_firebase_title">发送错误日志</string>
+    <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
+    <string name="settings_other_fps_title">FPS 显示</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
-    <string name="title_activity_favorite">FavoriteActivity</string>
-    <string name="title_activity_history">HistoryActivity</string>
-    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="title_activity_favorite">个人收藏</string>
+    <string name="title_activity_history">历史记录</string>
+    <string name="title_activity_login">登录</string>
+    <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>
-    <string name="title_activity_up_info">UpInfoActivity</string>
-    <string name="title_activity_user_info">UserInfoActivity</string>
-    <string name="title_activity_video_info">VideoInfoActivity</string>
+    <string name="title_activity_up_info">UP 投稿</string>
+    <string name="title_activity_user_info">用户信息</string>
+    <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
@@ -105,7 +111,7 @@
     <string name="video_aspect_ratio_four_to_three">4:3</string>
     <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
     <string name="video_codec_av1">AV1</string>
-    <string name="video_codec_avc">H.264</string>
+    <string name="video_codec_avc">H.264</string>童稚和纯真
     <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>
     <string name="video_codec_hevc">H.265</string>
     <string name="video_codec_hvc1">Dolby Vision (HVC1)</string>

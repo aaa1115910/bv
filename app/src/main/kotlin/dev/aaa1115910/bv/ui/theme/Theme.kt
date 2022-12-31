@@ -14,12 +14,17 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import dev.aaa1115910.bv.component.Disclaimer
+import dev.aaa1115910.bv.component.FpsMonitor
+import dev.aaa1115910.bv.util.Prefs
 
 private val BiliColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
@@ -55,6 +60,8 @@ fun BVTheme(
         }
     }
 
+    val showFps by remember { mutableStateOf(if (!view.isInEditMode) Prefs.showFps else false) }
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = typography
@@ -63,7 +70,13 @@ fun BVTheme(
             LocalIndication provides NoRippleIndication,
         ) {
             Surface {
-                content()
+                if (showFps) {
+                    FpsMonitor {
+                        content()
+                    }
+                } else {
+                    content()
+                }
 
                 if (!view.isInEditMode) Disclaimer()
             }

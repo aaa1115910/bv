@@ -6,6 +6,7 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
+import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
@@ -579,5 +580,21 @@ object BiliApi {
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取剧集[seasonId]或[epId]的详细信息，例如 ss24439 ep234533，传参仅需数字
+     */
+    suspend fun getSeasonInfo(
+        seasonId: Int? = null,
+        epId: Int? = null,
+        sessData: String = ""
+    ): BiliResponse<SeasonData> = client.get("/pgc/view/web/season") {
+        require(seasonId != null || epId != null) { "seasonId and epId cannot be null at the same time" }
+        seasonId?.let { parameter("season_id", it) }
+        epId?.let { parameter("ep_id", it) }
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
     }.body()
 }

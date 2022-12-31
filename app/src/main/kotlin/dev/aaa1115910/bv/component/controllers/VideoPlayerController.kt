@@ -73,6 +73,7 @@ fun VideoPlayerController(
     showLogs: Boolean,
     logs: String,
     title: String,
+    partTitle: String,
     lastPlayed: Int,
     onChooseResolution: (qualityId: Int) -> Unit,
     onChooseVideoCodec: (videoCodec: VideoCodec) -> Unit,
@@ -333,7 +334,10 @@ fun VideoPlayerController(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                BottomControls(infoData = infoData)
+                BottomControls(
+                    partTitle = partTitle,
+                    infoData = infoData
+                )
             }
 
             //顶部标题

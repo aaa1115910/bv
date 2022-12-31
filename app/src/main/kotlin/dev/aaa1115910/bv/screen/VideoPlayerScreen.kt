@@ -263,6 +263,7 @@ fun VideoPlayerScreen(
         logs = playerViewModel.logs,
 
         title = playerViewModel.title,
+        partTitle = playerViewModel.partTitle,
         lastPlayed = if (videoPlayer.isPlaying) playerViewModel.lastPlayed else 0,
 
         onChooseResolution = { qualityId ->
