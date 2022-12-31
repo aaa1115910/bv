@@ -61,10 +61,10 @@ data class SeasonData(
     val mode: Int,
     @SerialName("new_ep")
     val newEp: NewEP,
-    val payment: Payment,
+    val payment: Payment? = null,
     val positive: Positive,
     val publish: Publish,
-    val rating: Rating,
+    val rating: Rating? = null,
     val record: String,
     val rights: SeasonRights,
     @SerialName("season_id")
