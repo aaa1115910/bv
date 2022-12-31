@@ -21,7 +21,7 @@ data class SeasonSection(
     @SerialName("episode_id")
     val episodeId: Int,
     @SerialName("episode_ids")
-    val episodeIds: JsonArray,
+    val episodeIds: JsonArray? = null,
     val episodes: List<Episode> = emptyList(),
     val id: Int,
     val title: String,

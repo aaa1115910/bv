@@ -90,7 +90,7 @@ data class SeasonData(
     val total: Int,
     val type: Int,
     @SerialName("up_info")
-    val upInfo: UpInfo,
+    val upInfo: UpInfo? = null,
     @SerialName("user_status")
     val userStatus: UserStatus
 
@@ -455,10 +455,10 @@ data class SeasonData(
         val pay: Int,
         @SerialName("pay_pack_paid")
         val payPackPaid: Int,
-        val progress: Progress?=null,
+        val progress: Progress? = null,
         val sponsor: Int,
         @SerialName("vip_info")
-        val vipInfo: VipInfo?=null
+        val vipInfo: VipInfo? = null
     ) {
         /**
          * 上次播放进度

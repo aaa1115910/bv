@@ -41,36 +41,36 @@ data class Episode(
     @SerialName("badge_info")
     val badgeInfo: BadgeInfo,
     @SerialName("badge_type")
-    val badgeType: Int,
-    val bvid: String,
+    val badgeType: Int = 0,
+    val bvid: String = "",
     val cid: Int,
     val cover: String,
-    val dimension: Dimension,
-    val duration: Int,
-    val from: String,
+    val dimension: Dimension? = null,
+    val duration: Int = 0,
+    val from: String = "",
     val id: Int,
     @SerialName("is_view_hide")
     val isViewHide: Boolean,
     val link: String,
     @SerialName("long_title")
-    val longTitle: String,
+    val longTitle: String = "",
     @SerialName("pub_time")
     val pubTime: Long,
     val pv: Int,
     @SerialName("release_date")
-    val releaseDate: String,
-    val rights: EpisodeRights,
+    val releaseDate: String = "",
+    val rights: EpisodeRights? = null,
     @SerialName("share_copy")
-    val shareCopy: String,
+    val shareCopy: String = "",
     @SerialName("share_url")
-    val shareUrl: String,
+    val shareUrl: String = "",
     @SerialName("short_link")
-    val shortLink: String,
-    val skip: Skip,
+    val shortLink: String = "",
+    val skip: Skip? = null,
     val status: Int,
-    val subtitle: String,
+    val subtitle: String = "",
     val title: String,
-    val vid: String
+    val vid: String = ""
 ) {
     /**
      * 标签
@@ -87,7 +87,6 @@ data class Episode(
         val bgColorNight: String,
         val text: String
     )
-
 
     /**
      * 剧集版权
