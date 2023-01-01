@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +43,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
+import dev.aaa1115910.bv.util.requestFocus
 
 private val lineHeight = 80.dp
 
@@ -57,10 +59,11 @@ fun UserPanel(
     onGoAnimate: () -> Unit,
     onGoLater: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     Card(

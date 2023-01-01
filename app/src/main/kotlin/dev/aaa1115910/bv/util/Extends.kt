@@ -4,10 +4,13 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.focus.FocusRequester
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -76,5 +79,19 @@ fun Long.formatMinSec(): String {
                         TimeUnit.MILLISECONDS.toMinutes(this)
                     )
         )
+    }
+}
+
+/**
+ * 改进的请求焦点的方法，失败后等待 100ms 后重试
+ */
+fun FocusRequester.requestFocus(scope: CoroutineScope) {
+    scope.launch(Dispatchers.Default) {
+        runCatching {
+            requestFocus()
+        }.onFailure {
+            delay(100)
+            requestFocus()
+        }
     }
 }

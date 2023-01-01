@@ -39,6 +39,7 @@ import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
@@ -211,7 +212,7 @@ fun HomeScreen(
                         face = userViewModel.face,
                         onHide = {
                             showUserPanel = false
-                            settingsButtonFocusRequester.requestFocus()
+                            settingsButtonFocusRequester.requestFocus(scope)
                         },
                         onGoMy = {
                             context.startActivity(Intent(context, UserInfoActivity::class.java))

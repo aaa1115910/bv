@@ -74,6 +74,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -262,13 +263,15 @@ fun VideoInfoData(
     onClickCover: () -> Unit,
     onClickUp: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     val localDensity = LocalDensity.current
     val focusRequester = remember { FocusRequester() }
 
     var heightIs by remember { mutableStateOf(0.dp) }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     Row(

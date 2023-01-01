@@ -66,6 +66,7 @@ import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -264,10 +265,11 @@ private fun LogoutConfirmDialog(
     onHideDialog: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(show) {
-        if (show) focusRequester.requestFocus()
+        if (show) focusRequester.requestFocus(scope)
     }
 
     if (show) {

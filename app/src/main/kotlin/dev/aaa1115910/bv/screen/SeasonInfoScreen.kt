@@ -72,6 +72,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,7 +118,7 @@ fun SeasonInfoScreen(
         seasonData?.let {
             lastPlayProgress = it.userStatus.progress
             //请求默认焦点到剧集封面上
-            defaultFocusRequester.requestFocus()
+            defaultFocusRequester.requestFocus(scope)
         }
     }
 
@@ -377,7 +378,7 @@ fun SeasonEpisodesDialog(
     }
 
     LaunchedEffect(show) {
-        if (show && tabCount > 1) tabRowFocusRequester.requestFocus()
+        if (show && tabCount > 1) tabRowFocusRequester.requestFocus(scope)
     }
 
     if (show) {

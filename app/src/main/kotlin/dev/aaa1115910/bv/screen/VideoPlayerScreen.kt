@@ -31,6 +31,7 @@ import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -63,7 +64,7 @@ fun VideoPlayerScreen(
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         logger.fInfo { "Request focus on controller" }
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
         //focusRequester.captureFocus()
     }
 
@@ -366,7 +367,7 @@ fun VideoPlayerScreen(
             playerViewModel.player?.pause()
         },
         requestFocus = {
-            focusRequester.requestFocus()
+            focusRequester.requestFocus(scope)
         },
         goBackHistory = {
             videoPlayer.seekTo(playerViewModel.lastPlayed.toLong())
