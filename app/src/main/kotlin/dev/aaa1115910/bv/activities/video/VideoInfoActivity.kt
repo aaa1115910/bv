@@ -10,10 +10,11 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 
 class VideoInfoActivity : ComponentActivity() {
     companion object {
-        fun actionStart(context: Context, aid: Int) {
+        fun actionStart(context: Context, aid: Int, fromSeason: Boolean = false) {
             context.startActivity(
                 Intent(context, VideoInfoActivity::class.java).apply {
                     putExtra("aid", aid)
+                    putExtra("fromSeason", fromSeason)
                 }
             )
         }

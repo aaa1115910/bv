@@ -66,6 +66,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
@@ -89,12 +90,31 @@ fun SeasonInfoScreen(
     val logger = KotlinLogging.logger { }
 
     var seasonData: SeasonData? by remember { mutableStateOf(null) }
-
     var lastPlayProgress: SeasonData.UserStatus.Progress? by remember { mutableStateOf(null) }
-
     var tip by remember { mutableStateOf("Loading") }
 
     val defaultFocusRequester = remember { FocusRequester() }
+
+    val onClickVideo: (avid: Int, cid: Int, episodeTitle: String, startTime: Int) -> Unit =
+        { avid, cid, episodeTitle, startTime ->
+            if (cid != 0) {
+                VideoPlayerActivity.actionStart(
+                    context = context,
+                    avid = avid,
+                    cid = cid,
+                    title = seasonData!!.title,
+                    partTitle = episodeTitle,
+                    played = startTime
+                )
+            } else {
+                //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
+                VideoInfoActivity.actionStart(
+                    context = context,
+                    aid = avid,
+                    fromSeason = true
+                )
+            }
+        }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("epid")) {
@@ -155,16 +175,7 @@ fun SeasonInfoScreen(
                     episodes = seasonData?.episodes ?: emptyList(),
                     lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                     lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                    onClick = { avid, cid, episodeTitle, startTime ->
-                        VideoPlayerActivity.actionStart(
-                            context = context,
-                            avid = avid,
-                            cid = cid,
-                            title = seasonData!!.title,
-                            partTitle = episodeTitle,
-                            played = startTime
-                        )
-                    }
+                    onClick = onClickVideo
                 )
             }
             seasonData?.section?.forEach { section ->
@@ -174,16 +185,7 @@ fun SeasonInfoScreen(
                         episodes = section.episodes,
                         lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                         lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                        onClick = { avid, cid, episodeTitle, startTime ->
-                            VideoPlayerActivity.actionStart(
-                                context = context,
-                                avid = avid,
-                                cid = cid,
-                                title = seasonData!!.title,
-                                partTitle = episodeTitle,
-                                played = startTime
-                            )
-                        }
+                        onClick = onClickVideo
                     )
                 }
             }
