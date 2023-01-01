@@ -3,6 +3,9 @@ package dev.aaa1115910.biliapi.entity
 import kotlinx.serialization.Serializable
 import kotlin.jvm.Throws
 
+/**
+ * @param code 0：成功 -101：账号未登录 -400：参数错误 -401：非法访问 -403：访问权限不足
+ */
 @Serializable
 data class BiliResponse<T>(
     val code: Int,
@@ -11,12 +14,13 @@ data class BiliResponse<T>(
     val data: T? = null,
     val result: T? = null
 ) {
-    fun isError() = !isSuccess()
-    fun isSuccess() = code == 0
-
     @Throws()
     fun getResponseData(): T {
-        check(isSuccess()) { message }
+        when (code) {
+            0 -> {}
+            -101 -> throw AuthFailureException(message)
+            else -> throw IllegalStateException(message)
+        }
         check(data != null || result != null) { "response data and result are both null" }
         data?.let { return it }
         result?.let { return it }
@@ -30,3 +34,10 @@ data class BiliResponseWithoutData(
     val message: String,
     val ttl: Int
 )
+
+class AuthFailureException : RuntimeException {
+    constructor()
+    constructor(message: String?)
+    constructor(message: String?, cause: Throwable?)
+    constructor(cause: Throwable?)
+}

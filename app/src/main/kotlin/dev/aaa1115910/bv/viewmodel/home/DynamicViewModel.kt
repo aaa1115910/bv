@@ -3,12 +3,15 @@ package dev.aaa1115910.bv.viewmodel.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.AuthFailureException
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicItem
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
-import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -56,9 +59,22 @@ class DynamicViewModel(
 
             hasMore = responseData.hasMore
         }.onFailure {
-            logger.fError { "Load dynamic list failed: ${it.stackTraceToString()}" }
-            withContext(Dispatchers.Main) {
-                "加载动态失败: ${it.localizedMessage}".toast(BVApp.context)
+            logger.fWarn { "Load dynamic list failed: ${it.stackTraceToString()}" }
+            when (it) {
+                is AuthFailureException -> {
+                    withContext(Dispatchers.Main) {
+                        BVApp.context.getString(R.string.exception_auth_failure)
+                            .toast(BVApp.context)
+                    }
+                    logger.fInfo { "User auth failure" }
+                    if (!BuildConfig.DEBUG) userRepository.logout()
+                }
+
+                else -> {
+                    withContext(Dispatchers.Main) {
+                        "加载动态失败: ${it.localizedMessage}".toast(BVApp.context)
+                    }
+                }
             }
         }
         loading = false

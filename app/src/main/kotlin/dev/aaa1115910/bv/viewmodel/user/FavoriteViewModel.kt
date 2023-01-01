@@ -11,6 +11,7 @@ import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.bv.entity.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,7 +52,8 @@ class FavoriteViewModel : ViewModel() {
                 currentFavoriteFolder = responseData.list.first()
                 logger.fInfo { "Update favorite folders success: ${favoriteFolders.map { it.id }}" }
             }.onFailure {
-                logger.fInfo { "Update favorite folders failed: ${it.stackTraceToString()}" }
+                logger.fWarn { "Update favorite folders failed: ${it.stackTraceToString()}" }
+                //这里返回的数据并不会有用户认证失败的错误返回，没必要做身份验证失败提示
             }.onSuccess {
                 updateFolderItems()
             }

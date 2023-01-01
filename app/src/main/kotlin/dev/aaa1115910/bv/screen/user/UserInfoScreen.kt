@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.AuthFailureException
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
@@ -64,6 +66,7 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.requestFocus
@@ -71,6 +74,7 @@ import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
@@ -125,7 +129,18 @@ fun UserInfoScreen(
                     )
                 }
             }.onFailure {
-                logger.fException(it) { "Load recent videos failed" }
+                logger.fWarn { "Load recent videos failed: ${it.stackTraceToString()}" }
+                when (it) {
+                    is AuthFailureException -> {
+                        withContext(Dispatchers.Main) {
+                            context.getString(R.string.exception_auth_failure).toast(context)
+                        }
+                        logger.fInfo { "User auth failure" }
+                        if (!BuildConfig.DEBUG) userViewModel.logout()
+                    }
+
+                    else -> {}
+                }
             }
         }
 
@@ -164,7 +179,18 @@ fun UserInfoScreen(
                     )
                 }
             }.onFailure {
-                logger.fException(it) { "Load favorite items failed" }
+                logger.fWarn { "Load favorite items failed: ${it.stackTraceToString()}" }
+                when (it) {
+                    is AuthFailureException -> {
+                        withContext(Dispatchers.Main) {
+                            context.getString(R.string.exception_auth_failure).toast(context)
+                        }
+                        logger.fInfo { "User auth failure" }
+                        if (!BuildConfig.DEBUG) userViewModel.logout()
+                    }
+
+                    else -> {}
+                }
             }
         }
     }
