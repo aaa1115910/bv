@@ -368,6 +368,7 @@ fun SeasonEpisodesDialog(
     val selectedEpisodes = remember { mutableStateListOf<Episode>() }
 
     val tabRowFocusRequester = remember { FocusRequester() }
+    val videoListFocusRequester = remember { FocusRequester() }
     val listState = rememberTvLazyGridState()
 
     LaunchedEffect(selectedTabIndex) {
@@ -381,6 +382,7 @@ fun SeasonEpisodesDialog(
 
     LaunchedEffect(show) {
         if (show && tabCount > 1) tabRowFocusRequester.requestFocus(scope)
+        if (show && tabCount == 1) videoListFocusRequester.requestFocus(scope)
     }
 
     if (show) {
@@ -443,8 +445,10 @@ fun SeasonEpisodesDialog(
                             key = { _, episode -> episode.aid + episode.cid }
                         ) { index, episode ->
                             val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
+                            val buttonModifier =
+                                if (index == 0) Modifier.focusRequester(videoListFocusRequester) else Modifier
                             SeasonEpisodeButton(
-                                modifier = Modifier
+                                modifier = buttonModifier
                                     .focusedScale(0.95f),
                                 partTitle = if (title == "正片") {
                                     //如果 title 是数字的话，就会返回 "第 x 集"
