@@ -64,7 +64,7 @@ fun SmallVideoCard(
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
                         .clip(MaterialTheme.shapes.large),
-                    model = data.cover,
+                    model = "${data.cover}@400h_640w_1c.webp",
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
                 )
