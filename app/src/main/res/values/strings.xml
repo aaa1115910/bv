@@ -11,6 +11,8 @@
     <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
     <string name="disclaimer_dialog_title">注意了！</string>
 
+    <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
+
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_no_more">就只有这么多了</string>
 

@@ -29,6 +29,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import dev.aaa1115910.bv.screen.settings.content.OtherSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
 import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.requestFocus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,14 +134,15 @@ fun SettingsNav(
     isFocusing: Boolean
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(isFocusing) {
-        if (isFocusing) focusRequester.requestFocus()
+        if (isFocusing) focusRequester.requestFocus(scope)
     }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     TvLazyColumn(

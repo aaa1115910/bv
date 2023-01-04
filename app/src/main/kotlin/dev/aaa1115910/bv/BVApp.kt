@@ -56,7 +56,7 @@ val appModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { PlayerViewModel() }
     viewModel { UserViewModel(get()) }
-    viewModel { HistoryViewModel() }
+    viewModel { HistoryViewModel(get()) }
     viewModel { FavoriteViewModel() }
     viewModel { UpInfoViewModel() }
 }

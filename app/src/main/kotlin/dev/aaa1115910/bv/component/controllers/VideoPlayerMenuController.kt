@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.util.requestFocus
 import mu.KotlinLogging
 import java.text.NumberFormat
 
@@ -64,13 +66,15 @@ fun VideoPlayerMenuController(
     onSubtitleFontSizeChange: (TextUnit) -> Unit,
     onSubtitleBottomPaddingChange: (Dp) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     var currentMenu by remember { mutableStateOf(VideoPlayerMenuItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     Surface(
@@ -121,14 +125,15 @@ private fun VideoPlayerMenuControllerNav(
     isFocusing: Boolean
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(isFocusing) {
-        if (isFocusing) focusRequester.requestFocus()
+        if (isFocusing) focusRequester.requestFocus(scope)
     }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     TvLazyColumn(

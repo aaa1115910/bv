@@ -259,9 +259,7 @@ data class Premiere(
  *
  * @param cid 分P cid
  * @param page 分P序号 从1开始
- * @param from 视频来源 vupload：普通上传（B站）
- * @param hunan：芒果TV
- * @param qq：腾讯
+ * @param from 视频来源 vupload：普通上传（B站） hunan：芒果TV qq：腾讯
  * @param part 分P标题
  * @param duration 分P持续时间 单位为秒
  * @param vid 站外视频vid	仅站外视频有效

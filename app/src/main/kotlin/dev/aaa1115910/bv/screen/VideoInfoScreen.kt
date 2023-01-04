@@ -74,6 +74,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -100,10 +101,12 @@ fun VideoInfoScreen(
     var lastPlayedTime by remember { mutableStateOf(0) }
 
     var tip by remember { mutableStateOf("Loading") }
+    var fromSeason by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
+            fromSeason = intent.getBooleanExtra("fromSeason", false)
             //获取视频信息
             scope.launch(Dispatchers.Default) {
                 runCatching {
@@ -114,37 +117,57 @@ fun VideoInfoScreen(
                     ).getResponseData()
                     lastPlayedCid = moreInfoResponse.lastPlayCid
                     lastPlayedTime = moreInfoResponse.lastPlayTime
+
+                    //如果是从剧集跳转过来的，就直接播放 P1
+                    if (fromSeason) {
+                        val playPart = videoInfo!!.pages.first()
+                        VideoPlayerActivity.actionStart(
+                            context = context,
+                            avid = videoInfo!!.aid,
+                            cid = playPart.cid,
+                            title = videoInfo!!.title,
+                            partTitle = videoInfo!!.pages.find { it.cid == playPart.cid }!!.part,
+                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0
+                        )
+                        context.finish()
+                    }
                 }.onFailure {
                     tip = it.localizedMessage ?: "未知错误"
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
                 }
             }
-            //获取相关视频
-            scope.launch(Dispatchers.Default) {
-                runCatching {
-                    val response = BiliApi.getRelatedVideos(avid = aid.toLong())
-                    relatedVideos.swapList(response.data.map {
-                        VideoCardData(
-                            avid = it.aid,
-                            title = it.title,
-                            cover = it.pic,
-                            upName = it.owner.name,
-                            time = it.duration * 1000L,
-                            play = it.stat.view,
-                            danmaku = it.stat.danmaku
-                        )
-                    })
-                }.onFailure {
-                    withContext(Dispatchers.Main) {
-                        "获取相关视频失败：${it.localizedMessage}".toast(context)
+            //如果是从剧集跳转过来的，就不需要获取相关视频，因为页面一直都是 Loading
+            if (!fromSeason) {
+                //获取相关视频
+                scope.launch(Dispatchers.Default) {
+                    runCatching {
+                        val response = BiliApi.getRelatedVideos(avid = aid.toLong())
+                        relatedVideos.swapList(response.data.map {
+                            VideoCardData(
+                                avid = it.aid,
+                                title = it.title,
+                                cover = it.pic,
+                                upName = it.owner.name,
+                                time = it.duration * 1000L,
+                                play = it.stat.view,
+                                danmaku = it.stat.danmaku
+                            )
+                        })
+                    }.onFailure {
+                        withContext(Dispatchers.Main) {
+                            "获取相关视频失败：${it.localizedMessage}".toast(context)
+                        }
+                        logger.fException(it) { "Get related videos failed" }
                     }
-                    logger.fException(it) { "Get related videos failed" }
                 }
             }
         }
     }
 
     LaunchedEffect(videoInfo) {
+        //如果是从剧集页跳转回来的，那就不需要再跳转到剧集页了
+        if (fromSeason) return@LaunchedEffect
+
         videoInfo?.let {
             logger.fInfo { "Redirect url: ${videoInfo?.redirectUrl}" }
             if (it.redirectUrl?.contains("ep") == true) {
@@ -162,7 +185,7 @@ fun VideoInfoScreen(
         }
     }
 
-    if (videoInfo == null) {
+    if (videoInfo == null || videoInfo?.redirectUrl?.contains("ep") == true || fromSeason) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -262,13 +285,15 @@ fun VideoInfoData(
     onClickCover: () -> Unit,
     onClickUp: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     val localDensity = LocalDensity.current
     val focusRequester = remember { FocusRequester() }
 
     var heightIs by remember { mutableStateOf(0.dp) }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     Row(

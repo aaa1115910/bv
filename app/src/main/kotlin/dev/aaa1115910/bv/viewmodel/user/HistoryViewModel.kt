@@ -5,17 +5,25 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.AuthFailureException
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-class HistoryViewModel : ViewModel() {
+class HistoryViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -68,7 +76,19 @@ class HistoryViewModel : ViewModel() {
             logger.fInfo { "Update history cursor: [max=$max, viewAt=$viewAt]" }
             logger.fInfo { "Update histories success" }
         }.onFailure {
-            logger.fInfo { "Update histories failed: ${it.stackTraceToString()}" }
+            logger.fWarn { "Update histories failed: ${it.stackTraceToString()}" }
+            when (it) {
+                is AuthFailureException -> {
+                    withContext(Dispatchers.Main) {
+                        BVApp.context.getString(R.string.exception_auth_failure)
+                            .toast(BVApp.context)
+                    }
+                    logger.fInfo { "User auth failure" }
+                    if (!BuildConfig.DEBUG) userRepository.logout()
+                }
+
+                else -> {}
+            }
         }
         updating = false
     }

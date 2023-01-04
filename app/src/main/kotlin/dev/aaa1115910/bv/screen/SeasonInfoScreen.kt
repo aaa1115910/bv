@@ -66,12 +66,14 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -88,12 +90,31 @@ fun SeasonInfoScreen(
     val logger = KotlinLogging.logger { }
 
     var seasonData: SeasonData? by remember { mutableStateOf(null) }
-
     var lastPlayProgress: SeasonData.UserStatus.Progress? by remember { mutableStateOf(null) }
-
     var tip by remember { mutableStateOf("Loading") }
 
     val defaultFocusRequester = remember { FocusRequester() }
+
+    val onClickVideo: (avid: Int, cid: Int, episodeTitle: String, startTime: Int) -> Unit =
+        { avid, cid, episodeTitle, startTime ->
+            if (cid != 0) {
+                VideoPlayerActivity.actionStart(
+                    context = context,
+                    avid = avid,
+                    cid = cid,
+                    title = seasonData!!.title,
+                    partTitle = episodeTitle,
+                    played = startTime
+                )
+            } else {
+                //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
+                VideoInfoActivity.actionStart(
+                    context = context,
+                    aid = avid,
+                    fromSeason = true
+                )
+            }
+        }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("epid")) {
@@ -117,7 +138,7 @@ fun SeasonInfoScreen(
         seasonData?.let {
             lastPlayProgress = it.userStatus.progress
             //请求默认焦点到剧集封面上
-            defaultFocusRequester.requestFocus()
+            defaultFocusRequester.requestFocus(scope)
         }
     }
 
@@ -154,16 +175,7 @@ fun SeasonInfoScreen(
                     episodes = seasonData?.episodes ?: emptyList(),
                     lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                     lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                    onClick = { avid, cid, episodeTitle, startTime ->
-                        VideoPlayerActivity.actionStart(
-                            context = context,
-                            avid = avid,
-                            cid = cid,
-                            title = seasonData!!.title,
-                            partTitle = episodeTitle,
-                            played = startTime
-                        )
-                    }
+                    onClick = onClickVideo
                 )
             }
             seasonData?.section?.forEach { section ->
@@ -173,16 +185,7 @@ fun SeasonInfoScreen(
                         episodes = section.episodes,
                         lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                         lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                        onClick = { avid, cid, episodeTitle, startTime ->
-                            VideoPlayerActivity.actionStart(
-                                context = context,
-                                avid = avid,
-                                cid = cid,
-                                title = seasonData!!.title,
-                                partTitle = episodeTitle,
-                                played = startTime
-                            )
-                        }
+                        onClick = onClickVideo
                     )
                 }
             }
@@ -365,6 +368,7 @@ fun SeasonEpisodesDialog(
     val selectedEpisodes = remember { mutableStateListOf<Episode>() }
 
     val tabRowFocusRequester = remember { FocusRequester() }
+    val videoListFocusRequester = remember { FocusRequester() }
     val listState = rememberTvLazyGridState()
 
     LaunchedEffect(selectedTabIndex) {
@@ -377,7 +381,8 @@ fun SeasonEpisodesDialog(
     }
 
     LaunchedEffect(show) {
-        if (show && tabCount > 1) tabRowFocusRequester.requestFocus()
+        if (show && tabCount > 1) tabRowFocusRequester.requestFocus(scope)
+        if (show && tabCount == 1) videoListFocusRequester.requestFocus(scope)
     }
 
     if (show) {
@@ -437,10 +442,13 @@ fun SeasonEpisodesDialog(
                     ) {
                         itemsIndexed(
                             items = selectedEpisodes,
-                            key = { _, episode -> episode.cid }) { index, episode ->
+                            key = { _, episode -> episode.aid + episode.cid }
+                        ) { index, episode ->
                             val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
+                            val buttonModifier =
+                                if (index == 0) Modifier.focusRequester(videoListFocusRequester) else Modifier
                             SeasonEpisodeButton(
-                                modifier = Modifier
+                                modifier = buttonModifier
                                     .focusedScale(0.95f),
                                 partTitle = if (title == "正片") {
                                     //如果 title 是数字的话，就会返回 "第 x 集"
@@ -528,7 +536,10 @@ fun SeasonEpisodeRow(
                     }
                 }
             }
-            itemsIndexed(items = episodes, key = { _, episode -> episode.cid }) { index, episode ->
+            itemsIndexed(
+                items = episodes,
+                key = { _, episode -> episode.aid + episode.cid }
+            ) { index, episode ->
                 val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
                 SeasonEpisodeButton(
                     modifier = Modifier

@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +55,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
+import dev.aaa1115910.bv.util.requestFocus
 
 @Composable
 fun TopNav(
@@ -67,11 +69,12 @@ fun TopNav(
     onShowUserPanel: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        focusRequester.requestFocus(scope)
     }
 
     Box(
