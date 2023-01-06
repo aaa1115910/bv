@@ -84,6 +84,7 @@
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
     <string name="settings_other_fps_title">FPS 显示</string>
+    <string name="settings_version_check_update_button">爷要更新</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 

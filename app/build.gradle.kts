@@ -148,3 +148,7 @@ dependencies {
     debugImplementation(androidx.compose.ui.test.manifest)
     debugImplementation(androidx.compose.ui.tooling)
 }
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
