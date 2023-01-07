@@ -137,12 +137,12 @@ data class SeasonData(
     /**
      * 会员&付费信息
      *
-     * @param discount
+     * @param discount 当前折扣 例如 100 代表 100% 不打折
      * @param payType
-     * @param price
+     * @param price 价格 例如 5.0
      * @param promotion
      * @param tip
-     * @param vipDiscount
+     * @param vipDiscount 会员折扣 例如 50 代表 50%
      * @param vipFirstPromotion
      * @param vipPromotion
      */
@@ -153,7 +153,7 @@ data class SeasonData(
         val payType: PayType,
         val price: String,
         val promotion: String,
-        val tip: String,
+        val tip: String? = "",
         @SerialName("vip_discount")
         val vipDiscount: Int,
         @SerialName("vip_first_promotion")
@@ -164,12 +164,12 @@ data class SeasonData(
         /**
          * 支付方式
          *
-         * @param allowDiscount
+         * @param allowDiscount 允许使用折扣
          * @param allowPack
          * @param allowTicket
          * @param allowTimeLimit
-         * @param allowVipDiscount
-         * @param forbidBb
+         * @param allowVipDiscount 允许使用会员折扣
+         * @param forbidBb 拒绝使用 B 币支付
          */
         @Serializable
         data class PayType(
