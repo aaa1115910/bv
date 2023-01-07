@@ -4,12 +4,27 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 
 import org.junit.jupiter.api.Test
+import java.io.File
+import java.nio.file.Paths
+import java.util.Properties
 
 internal class BiliApiTest {
 
     companion object {
-        const val SESSDATA = ""
-        const val BILI_JCT = ""
+        private val localProperties = Properties().apply {
+            val path = Paths.get("../local.properties").toAbsolutePath().toString()
+            load(File(path).bufferedReader())
+        }
+        val SESSDATA: String =
+            runCatching { localProperties.getProperty("test.sessdata") }.getOrNull() ?: ""
+        val BILI_JCT: String =
+            runCatching { localProperties.getProperty("test.bili_jct") }.getOrNull() ?: ""
+    }
+
+    @Test
+    fun `println sessdata and bili_jct`() {
+        println("SESSDATA: $SESSDATA")
+        println("BILI_JCT: $BILI_JCT")
     }
 
     @Test
@@ -45,6 +60,21 @@ internal class BiliApiTest {
                 )
                 println(response)
             }
+        }
+    }
+
+    @Test
+    fun `get pgc video play url`() {
+        runBlocking {
+            println(
+                BiliApi.getPgcVideoPlayUrl(
+                    av = 672676070,
+                    cid = 331748015,
+                    fnval = 4048,
+                    qn = 127,
+                    sessData = SESSDATA
+                )
+            )
         }
     }
 

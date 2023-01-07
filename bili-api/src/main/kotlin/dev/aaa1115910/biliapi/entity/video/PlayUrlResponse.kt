@@ -2,8 +2,22 @@ package dev.aaa1115910.biliapi.entity.video
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 /**
+ * @param code 作用尚不明确 pcg独有
+ * @param isPreview 作用尚不明确 pcg独有
+ * @param fnver 请求时提供的 fnver pcg独有
+ * @param fnval 请求时提供的 fnval pcg独有
+ * @param videoProject 作用尚不明确 pcg独有
+ * @param type 视频流类型（DASH、FLV、MP4） pcg独有
+ * @param bp 是否可以承包 pcg独有
+ * @param vipType 当前用户大会员类型 pcg独有
+ * @param vipStatus 当前用户大会员状态 pcg独有
+ * @param isDrm 作用尚不明确 pcg独有
+ * @param noRexcode 作用尚不明确 pcg独有
+ * @param hasPaid 是否已购买 免费影片始终为 true pcg独有
+ * @param status 作用尚不明确 pcg独有
  * @param from local 作用尚不明确
  * @param result suee 作用尚不明确
  * @param message 空 作用尚不明确
@@ -20,11 +34,33 @@ import kotlinx.serialization.Serializable
  * @param dash dash音视频流信息 注：仅dash存在此项
  * @param supportFormats 支持格式的详细信息
  * @param high_format null
- * @param lastPlayTime 上次播放进度	毫秒值
- * @param lastPlayCid 上次播放分p的cid
+ * @param lastPlayTime 上次播放进度 毫秒值 非pgc接口独有
+ * @param lastPlayCid 上次播放分p的cid 非pgc接口独有
+ * @param clipInfoList 作用尚不明确 pcg独有
+ * @param recordInfo 备案登记信息 pcg独有
  */
 @Serializable
 data class PlayUrlData(
+    val code: Int = 0,
+    @SerialName("is_preview")
+    val isPreview: Int = 0,
+    val fnver: Int = 0,
+    val fnval: Int = 0,
+    @SerialName("video_project")
+    val videoProject: Boolean = false,
+    val type: String = "",
+    val bp: Int = 0,
+    @SerialName("vip_type")
+    val vipType: Int = 0,
+    @SerialName("vip_status")
+    val vipStatus: Int = 0,
+    @SerialName("is_drm")
+    val isDrm: Boolean = false,
+    @SerialName("no_rexcode")
+    val noRexcode: Int = 0,
+    @SerialName("has_paid")
+    val hasPaid: Boolean = false,
+    val status: Int = 0,
     val from: String,
     val result: String,
     val message: String,
@@ -49,9 +85,13 @@ data class PlayUrlData(
     @SerialName("support_formats")
     val supportFormats: List<SupportFormat> = emptyList(),
     @SerialName("last_play_time")
-    val lastPlayTime: Int,
+    val lastPlayTime: Int = 0,
     @SerialName("last_play_cid")
-    val lastPlayCid: Int
+    val lastPlayCid: Int = 0,
+    @SerialName("clip_info_list")
+    val clipInfoList: List<JsonElement> = emptyList(),
+    @SerialName("record_info")
+    val recordInfo: RecordInfo? = null
 )
 
 /**
@@ -97,6 +137,7 @@ data class DashData(
     val height: Int,
     val frameRate: String,
     val sar: String,
+    @SerialName("start_with_sap")
     val startWithSap: Int,
     @SerialName("segment_base")
     val segmentBase: SegmentBase,
@@ -117,9 +158,12 @@ data class SegmentBase(
  * @param quality 视频清晰度代码
  * @param format 视频格式
  * @param newDescription 格式描述
+ * @param description 格式描述
  * @param displayDesc 格式描述
  * @param superScript (?)
  * @param codecs 可用编码格式列表
+ * @param needLogin 需要登录
+ * @param needVip 需要大会员
  */
 @Serializable
 data class SupportFormat(
@@ -127,11 +171,29 @@ data class SupportFormat(
     val format: String,
     @SerialName("new_description")
     val newDescription: String,
+    val description: String? = null,
     @SerialName("display_desc")
     val displayDesc: String,
     @SerialName("superscript")
     val superScript: String,
-    val codecs: List<String>? = emptyList()
+    val codecs: List<String>? = emptyList(),
+    @SerialName("need_login")
+    val needLogin: Boolean = false,
+    @SerialName("need_vip")
+    val needVip: Boolean = false
+)
+
+/**
+ * 备案登记信息
+ *
+ * @param recordIcon
+ * @param record 显示文案 登记号：10417060172092207
+ */
+@Serializable
+data class RecordInfo(
+    @SerialName("record_icon")
+    val recordIcon: String,
+    val record: String
 )
 
 @Serializable

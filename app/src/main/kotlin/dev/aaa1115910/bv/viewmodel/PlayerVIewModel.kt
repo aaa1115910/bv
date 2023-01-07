@@ -73,6 +73,8 @@ class PlayerViewModel : ViewModel() {
     var title by mutableStateOf("")
     var partTitle by mutableStateOf("")
     var lastPlayed by mutableStateOf(0)
+    var fromSeason by mutableStateOf(false)
+    var needPay by mutableStateOf(false)
 
     var logs by mutableStateOf("")
     var showLogs by mutableStateOf(false)
@@ -133,15 +135,29 @@ class PlayerViewModel : ViewModel() {
         loadState = RequestState.Ready
         logger.fInfo { "Set request state: ready" }
         runCatching {
-            val responseData = BiliApi.getVideoPlayUrl(
-                av = avid,
-                cid = cid,
-                fnval = fnval,
-                qn = qn,
-                fnver = fnver,
-                fourk = fourk,
-                sessData = Prefs.sessData
-            ).getResponseData()
+            val responseData = (
+                    if (!fromSeason) BiliApi.getVideoPlayUrl(
+                        av = avid,
+                        cid = cid,
+                        fnval = fnval,
+                        qn = qn,
+                        fnver = fnver,
+                        fourk = fourk,
+                        sessData = Prefs.sessData
+                    ) else BiliApi.getPgcVideoPlayUrl(
+                        av = avid,
+                        cid = cid,
+                        fnval = fnval,
+                        qn = qn,
+                        fnver = fnver,
+                        fourk = fourk,
+                        sessData = Prefs.sessData
+                    )).getResponseData()
+
+            //检查是否需要购买，如果未购买，则正片返回的dash为null，非正片例如可以免费观看的预告片等则会返回数据，此时不做提示
+            needPay = !responseData.hasPaid && fromSeason && responseData.dash == null
+            if (needPay) return@runCatching
+
             playUrlResponse = responseData
             logger.fInfo { "Load play url response success" }
             logger.info { "Play url response: $responseData" }

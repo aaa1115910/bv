@@ -127,7 +127,8 @@ fun VideoInfoScreen(
                             cid = playPart.cid,
                             title = videoInfo!!.title,
                             partTitle = videoInfo!!.pages.find { it.cid == playPart.cid }!!.part,
-                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0
+                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0,
+                            fromSeason = true
                         )
                         context.finish()
                     }
@@ -172,7 +173,8 @@ fun VideoInfoScreen(
             logger.fInfo { "Redirect url: ${videoInfo?.redirectUrl}" }
             if (it.redirectUrl?.contains("ep") == true) {
                 runCatching {
-                    val epid = videoInfo!!.redirectUrl!!.split("ep")[1].toInt()
+                    //redirectUrl example https://www.bilibili.com/bangumi/play/ep706549?theme=movie
+                    val epid = videoInfo!!.redirectUrl!!.split("ep", "?")[1].toInt()
                     logger.fInfo { "Redirect to season activity: ep${epid}" }
                     SeasonInfoActivity.actionStart(context, epid)
                     context.finish()
@@ -230,7 +232,8 @@ fun VideoInfoScreen(
                                     cid = videoInfo!!.pages.first().cid,
                                     title = videoInfo!!.title,
                                     partTitle = videoInfo!!.pages.first().part,
-                                    played = if (videoInfo!!.cid == lastPlayedCid) lastPlayedTime else 0
+                                    played = if (videoInfo!!.cid == lastPlayedCid) lastPlayedTime else 0,
+                                    fromSeason = false
                                 )
                             },
                             onClickUp = {
@@ -260,7 +263,8 @@ fun VideoInfoScreen(
                                     cid = cid,
                                     title = videoInfo!!.title,
                                     partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
-                                    played = if (cid == lastPlayedCid) lastPlayedTime else 0
+                                    played = if (cid == lastPlayedCid) lastPlayedTime else 0,
+                                    fromSeason = false
                                 )
                             }
                         )

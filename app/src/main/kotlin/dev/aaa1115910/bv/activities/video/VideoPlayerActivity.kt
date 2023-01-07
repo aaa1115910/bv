@@ -7,10 +7,13 @@ import android.os.Handler
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.media3.decoder.av1.Libgav1VideoRenderer
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -19,6 +22,7 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.VideoRendererEventListener
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.fInfo
@@ -35,7 +39,8 @@ class VideoPlayerActivity : ComponentActivity() {
             cid: Int,
             title: String,
             partTitle: String,
-            played: Int
+            played: Int,
+            fromSeason: Boolean
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerActivity::class.java).apply {
@@ -44,6 +49,7 @@ class VideoPlayerActivity : ComponentActivity() {
                     putExtra("title", title)
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
+                    putExtra("fromSeason", fromSeason)
                 }
             )
         }
@@ -105,24 +111,35 @@ class VideoPlayerActivity : ComponentActivity() {
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)
+            val fromSeason = intent.getBooleanExtra("fromSeason", false)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
-            playerViewModel.loadPlayUrl(aid, cid)
-            playerViewModel.title = title
-            playerViewModel.partTitle = partTitle
-            playerViewModel.lastPlayed = played
+            playerViewModel.apply {
+                loadPlayUrl(aid, cid)
+                this.title = title
+                this.partTitle = partTitle
+                this.lastPlayed = played
+                this.fromSeason = fromSeason
+            }
         } else {
             logger.fInfo { "Null launch parameter" }
         }
 
         setContent {
             BVTheme {
-                if (playerViewModel.show) {
+                if (playerViewModel.needPay) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.player_tip_need_pay),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else if (playerViewModel.show) {
                     VideoPlayerScreen()
                 } else {
-                    Text(
-                        modifier = Modifier.background(Color.White),
-                        text = playerViewModel.errorMessage
-                    )
+                    Text(text = playerViewModel.errorMessage)
                 }
             }
         }

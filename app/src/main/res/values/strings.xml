@@ -88,6 +88,7 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
+    <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
     <string name="title_activity_favorite">个人收藏</string>
     <string name="title_activity_history">历史记录</string>
@@ -114,7 +115,7 @@
     <string name="video_aspect_ratio_four_to_three">4:3</string>
     <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
     <string name="video_codec_av1">AV1</string>
-    <string name="video_codec_avc">H.264</string>童稚和纯真
+    <string name="video_codec_avc">H.264</string>
     <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>
     <string name="video_codec_hevc">H.265</string>
     <string name="video_codec_hvc1">Dolby Vision (HVC1)</string>
