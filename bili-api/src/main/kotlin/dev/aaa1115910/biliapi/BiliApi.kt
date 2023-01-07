@@ -120,6 +120,7 @@ object BiliApi {
         platform: String = "oc",
         sessData: String = ""
     ): BiliResponse<PlayUrlData> = client.get("/x/player/playurl") {
+        require(av != null || bv != null) { "av and bv cannot be null at the same time" }
         parameter("avid", av)
         parameter("bvid", bv)
         parameter("cid", cid)
@@ -132,6 +133,43 @@ object BiliApi {
         parameter("type", type)
         parameter("platform", platform)
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取剧集视频流
+     */
+    suspend fun getPgcVideoPlayUrl(
+        av: Int? = null,
+        bv: String? = null,
+        epid: Int? = null,
+        cid: Int? = null,
+        qn: Int? = null,
+        fnval: Int? = null,
+        fnver: Int? = null,
+        fourk: Int? = null,
+        session: String? = null,
+        supportMultiAudio: Boolean? = null,
+        drmTechType: Int? = null,
+        fromClient: String? = null,
+        sessData: String = ""
+    ): BiliResponse<PlayUrlData> = client.get("/pgc/player/web/playurl") {
+        require(av != null || bv != null) { "av and bv cannot be null at the same time" }
+        require(epid != null || cid != null) { "epid and cid cannot be null at the same time" }
+        av?.let { parameter("avid", it) }
+        bv?.let { parameter("bvid", it) }
+        epid?.let { parameter("ep_id", it) }
+        cid?.let { parameter("cid", it) }
+        qn?.let { parameter("qn", it) }
+        fnval?.let { parameter("fnval", it) }
+        fnver?.let { parameter("fnver", it) }
+        fourk?.let { parameter("fourk", it) }
+        session?.let { parameter("session", it) }
+        supportMultiAudio?.let { parameter("support_multi_audio", it) }
+        drmTechType?.let { parameter("drm_tech_type", it) }
+        fromClient?.let { parameter("from_client", it) }
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
     }.body()
 
     /**
