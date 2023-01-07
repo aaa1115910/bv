@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -23,6 +27,8 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.settings.UpdateDialog
+import dev.aaa1115910.bv.screen.settings.SettingsMenuButton
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
@@ -31,6 +37,8 @@ fun AboutSetting(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+
+    var showUpdateDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -65,7 +73,7 @@ fun AboutSetting(
                     AsyncImage(
                         modifier = Modifier
                             .height(20.dp)
-                            .widthIn(max=200.dp),
+                            .widthIn(max = 200.dp),
                         model = ImageRequest.Builder(context)
                             .data("https://img.shields.io/github/v/tag/aaa1115910/bv?label=Version")
                             .decoderFactory(SvgDecoder.Factory())
@@ -75,12 +83,26 @@ fun AboutSetting(
                     )
                 }
             }
+
+            var isUpdateButtonHasFocus by remember { mutableStateOf(false) }
+            SettingsMenuButton(
+                text = stringResource(R.string.settings_version_check_update_button),
+                selected = isUpdateButtonHasFocus,
+                onFocus = { isUpdateButtonHasFocus = true },
+                onLoseFocus = { isUpdateButtonHasFocus = false },
+                onClick = { showUpdateDialog = true }
+            )
         }
         Text(
             modifier = Modifier.align(Alignment.BottomCenter),
             text = "https://github.com/aaa1115910/bv"
         )
     }
+
+    UpdateDialog(
+        show = showUpdateDialog,
+        onHideDialog = { showUpdateDialog = false }
+    )
 }
 
 @Preview

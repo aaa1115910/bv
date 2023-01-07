@@ -7,7 +7,7 @@ core-splashscreen = "1.0.0"
 dataStore = "1.1.0-alpha01"
 lifecycle = "2.6.0-alpha03"
 media3 = "1.0.0-beta03"
-webkit = "1.6.0-alpha03"
+webkit = "1.6.0-beta01"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity
