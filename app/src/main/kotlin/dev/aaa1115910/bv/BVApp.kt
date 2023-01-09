@@ -11,6 +11,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.repository.UserRepository
+import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -51,10 +52,11 @@ class BVApp : Application() {
 
 val appModule = module {
     single { UserRepository() }
+    single { VideoInfoRepository() }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { LoginViewModel(get()) }
-    viewModel { PlayerViewModel() }
+    viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get()) }
     viewModel { FavoriteViewModel() }

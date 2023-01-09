@@ -44,6 +44,7 @@ import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import mu.KotlinLogging
@@ -55,6 +56,8 @@ fun VideoPlayerController(
     resolutionMap: Map<Int, String> = emptyMap(),
     availableVideoCodec: List<VideoCodec> = emptyList(),
     availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
+    availableVideoList: List<VideoListItem> = emptyList(),
+    currentVideoCid: Int = 0,
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
     currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
@@ -93,6 +96,7 @@ fun VideoPlayerController(
     freeFocus: () -> Unit = {},
     captureFocus: () -> Unit = {},
     goBackHistory: () -> Unit = {},
+    onVideoSwitch: (VideoListItem) -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -153,6 +157,8 @@ fun VideoPlayerController(
             resolutionMap = resolutionMap,
             availableVideoCodec = availableVideoCodec,
             availableSubtitle = availableSubtitle,
+            availableVideoList = availableVideoList,
+            currentVideoCid = currentVideoCid,
             currentResolution = currentResolution,
             currentVideoCodec = currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
@@ -197,7 +203,8 @@ fun VideoPlayerController(
                             if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                             logger.fInfo { "Pressed dpad up" }
                             if (showingRightController()) return@onPreviewKeyEvent false
-
+                            showPartController = true
+                            return@onPreviewKeyEvent true
                         }
 
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
@@ -371,8 +378,17 @@ fun VideoPlayerController(
                 )
             }
 
-            //右侧分P
-
+            //左侧分P
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.CenterStart),
+                visible = showPartController,
+                enter = expandHorizontally(),
+                exit = shrinkHorizontally()
+            ) {
+                VideoListController(
+                    onVideoSwitch = onVideoSwitch
+                )
+            }
 
             //正中间缓冲
             AnimatedVisibility(
@@ -404,6 +420,8 @@ data class VideoPlayerControllerData(
     val resolutionMap: Map<Int, String> = emptyMap(),
     val availableVideoCodec: List<VideoCodec> = emptyList(),
     val availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
+    val availableVideoList: List<VideoListItem> = emptyList(),
+    val currentVideoCid: Int = 0,
     val currentResolution: Int? = null,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,

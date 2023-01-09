@@ -68,6 +68,8 @@ import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.repository.VideoInfoRepository
+import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -78,11 +80,13 @@ import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import org.koin.androidx.compose.getKoin
 import kotlin.math.ceil
 
 @Composable
 fun SeasonInfoScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    videoInfoRepository: VideoInfoRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -176,7 +180,21 @@ fun SeasonInfoScreen(
                     episodes = seasonData?.episodes ?: emptyList(),
                     lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                     lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                    onClick = onClickVideo
+                    onClick = { avid, cid, episodeTitle, startTime ->
+                        onClickVideo(avid, cid, episodeTitle, startTime)
+
+                        val partVideoList = seasonData?.episodes?.mapIndexed { index, episode ->
+                            VideoListItem(
+                                aid = episode.aid.toInt(),
+                                cid = episode.cid,
+                                title = episodeTitle,
+                                index = index,
+                                isEpisode = true
+                            )
+                        } ?: emptyList()
+                        videoInfoRepository.videoList.clear()
+                        videoInfoRepository.videoList.addAll(partVideoList)
+                    }
                 )
             }
             seasonData?.section?.forEach { section ->
@@ -186,7 +204,21 @@ fun SeasonInfoScreen(
                         episodes = section.episodes,
                         lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                         lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                        onClick = onClickVideo
+                        onClick = { avid, cid, episodeTitle, startTime ->
+                            onClickVideo(avid, cid, episodeTitle, startTime)
+
+                            val partVideoList = section.episodes.mapIndexed { index, episode ->
+                                VideoListItem(
+                                    aid = episode.aid.toInt(),
+                                    cid = episode.cid,
+                                    title = episodeTitle,
+                                    index = index,
+                                    isEpisode = true
+                                )
+                            }
+                            videoInfoRepository.videoList.clear()
+                            videoInfoRepository.videoList.addAll(partVideoList)
+                        }
                     )
                 }
             }

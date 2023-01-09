@@ -242,6 +242,9 @@ fun VideoPlayerScreen(
         resolutionMap = playerViewModel.availableQuality,
         availableVideoCodec = playerViewModel.availableVideoCodec,
         availableSubtitle = playerViewModel.availableSubtitle,
+        availableVideoList = playerViewModel.availableVideoList,
+
+        currentVideoCid = playerViewModel.currentCid,
         currentVideoAspectRatio = currentVideoAspectRatio,
         currentResolution = playerViewModel.currentQuality,
         currentVideoCodec = playerViewModel.currentVideoCodec,
@@ -372,6 +375,14 @@ fun VideoPlayerScreen(
         goBackHistory = {
             videoPlayer.seekTo(playerViewModel.lastPlayed.toLong())
             playerViewModel.lastPlayed = 0
+        },
+        onVideoSwitch = { videoListItem ->
+            playerViewModel.fromSeason = videoListItem.isEpisode
+            playerViewModel.partTitle = videoListItem.title
+            playerViewModel.loadPlayUrl(
+                avid = videoListItem.aid,
+                cid = videoListItem.cid
+            )
         }
     ) {
         BoxWithConstraints(

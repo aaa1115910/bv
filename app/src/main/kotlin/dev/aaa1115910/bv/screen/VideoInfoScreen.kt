@@ -67,6 +67,8 @@ import dev.aaa1115910.bv.component.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.repository.VideoInfoRepository
+import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -81,13 +83,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import org.koin.androidx.compose.getKoin
 import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    videoInfoRepository: VideoInfoRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -131,6 +135,19 @@ fun VideoInfoScreen(
                             fromSeason = true
                         )
                         context.finish()
+                    } else {
+                        //如果不是剧集，则设置分p数据，以便播放器读取
+                        val partVideoList = videoInfo!!.pages.mapIndexed { index, videoPage ->
+                            VideoListItem(
+                                aid = aid,
+                                cid = videoPage.cid,
+                                title = videoPage.part,
+                                index = index,
+                                isEpisode = false
+                            )
+                        }
+                        videoInfoRepository.videoList.clear()
+                        videoInfoRepository.videoList.addAll(partVideoList)
                     }
                 }.onFailure {
                     tip = it.localizedMessage ?: "未知错误"

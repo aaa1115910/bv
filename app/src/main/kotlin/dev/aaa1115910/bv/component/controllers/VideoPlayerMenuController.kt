@@ -598,7 +598,7 @@ fun SubtitleBottomPaddingContent(
 }
 
 @Composable
-private fun MenuListItem(
+fun MenuListItem(
     modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,

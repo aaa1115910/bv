@@ -28,6 +28,7 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
@@ -43,7 +44,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val videoInfoRepository: VideoInfoRepository
+) : ViewModel() {
     var player: ExoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
     var show by mutableStateOf(false)
@@ -56,6 +59,8 @@ class PlayerViewModel : ViewModel() {
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
     var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
+    val availableVideoList get() = videoInfoRepository.videoList
+
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
@@ -81,7 +86,7 @@ class PlayerViewModel : ViewModel() {
     var showBuffering by mutableStateOf(false)
 
     private var currentAid = 0
-    private var currentCid = 0
+    var currentCid = 0
 
     companion object {
         private val logger = KotlinLogging.logger { }
