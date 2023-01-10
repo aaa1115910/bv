@@ -187,7 +187,7 @@ fun SeasonInfoScreen(
                             VideoListItem(
                                 aid = episode.aid.toInt(),
                                 cid = episode.cid,
-                                title = episodeTitle,
+                                title = episode.longTitle,
                                 index = index,
                                 isEpisode = true
                             )
@@ -211,7 +211,7 @@ fun SeasonInfoScreen(
                                 VideoListItem(
                                     aid = episode.aid.toInt(),
                                     cid = episode.cid,
-                                    title = episodeTitle,
+                                    title = episode.longTitle,
                                     index = index,
                                     isEpisode = true
                                 )

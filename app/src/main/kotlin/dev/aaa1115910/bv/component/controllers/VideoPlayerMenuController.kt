@@ -33,6 +33,7 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -602,6 +603,7 @@ fun MenuListItem(
     modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
+    textAlign: TextAlign = TextAlign.Center,
     onFocus: () -> Unit = {},
     onClick: () -> Unit
 ) {
@@ -625,13 +627,14 @@ fun MenuListItem(
         Box {
             Text(
                 modifier = Modifier
-                    .align(Alignment.Center)
+                    .fillMaxWidth()
                     .padding(
                         vertical = 6.dp,
                         horizontal = 24.dp
                     ),
                 text = text,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = textAlign
             )
         }
     }

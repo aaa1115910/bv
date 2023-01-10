@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.requestFocus
 
@@ -29,10 +31,15 @@ fun VideoListController(
     onVideoSwitch: (VideoListItem) -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val listState = rememberTvLazyListState()
     val videoPlayerControllerData = LocalVideoPlayerControllerData.current
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
+        val currentIndex = videoPlayerControllerData.availableVideoList.indexOfFirst {
+            it.cid == videoPlayerControllerData.currentVideoCid
+        }
+        listState.animateScrollToItem(currentIndex)
         focusRequester.requestFocus(scope)
     }
 
@@ -43,11 +50,12 @@ fun VideoListController(
         Box(
             modifier = Modifier
                 .padding(horizontal = 12.dp)
-                .width(200.dp)
+                .width(300.dp)
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
             TvLazyColumn(
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 120.dp)
             ) {
@@ -63,7 +71,8 @@ fun VideoListController(
                     MenuListItem(
                         modifier = itemModifier,
                         text = "P${video.index} ${video.title}",
-                        selected = isSelected
+                        selected = isSelected,
+                        textAlign = TextAlign.Start
                     ) { onVideoSwitch(video) }
                 }
             }
