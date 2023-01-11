@@ -6,6 +6,7 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
+import dev.aaa1115910.biliapi.entity.season.FollowData
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
@@ -631,6 +632,49 @@ object BiliApi {
         require(seasonId != null || epId != null) { "seasonId and epId cannot be null at the same time" }
         seasonId?.let { parameter("season_id", it) }
         epId?.let { parameter("ep_id", it) }
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 添加番剧[seasonId]的追番
+     */
+    suspend fun addSeasonFollow(
+        seasonId: Int,
+        csrf: String,
+        sessData: String
+    ): BiliResponse<FollowData> = client.post("/pgc/web/follow/add") {
+        parameter("season_id", seasonId)
+        parameter("csrf", csrf)
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 取消番剧[seasonId]的追番
+     */
+    suspend fun delSeasonFollow(
+        seasonId: Int,
+        csrf: String,
+        sessData: String
+    ): BiliResponse<FollowData> = client.post("/pgc/web/follow/del") {
+        parameter("season_id", seasonId)
+        parameter("csrf", csrf)
+        header("Cookie", "SESSDATA=$sessData;")
+        //必须得加上 referer 才能通过账号身份验证
+        header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 单独获取剧集[seasonId]的用户信息[SeasonData.UserStatus]
+     */
+    suspend fun getSeasonUserStatus(
+        seasonId: Int,
+        sessData: String
+    ): BiliResponse<SeasonData.UserStatus> = client.get("/pgc/view/web/season/user/status") {
+        parameter("season_id", seasonId)
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
