@@ -176,6 +176,19 @@ fun VideoPlayerScreen(
                     hideLogs()
                 } else if (playbackState == Player.STATE_ENDED) {
                     if (!Prefs.incognitoMode) sendHeartbeat()
+
+                    val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+                        it.cid == playerViewModel.currentCid
+                    }
+                    //播放下一集
+                    if (videoListIndex < playerViewModel.availableVideoList.size - 1) {
+                        val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+                        playerViewModel.partTitle = nextVideo.title
+                        playerViewModel.loadPlayUrl(
+                            avid = nextVideo.aid,
+                            cid = nextVideo.cid
+                        )
+                    }
                 } else {
                     danmakuPlayer.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
