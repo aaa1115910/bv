@@ -8,9 +8,6 @@
     <string name="date_format_just_now">刚刚</string>
     <string name="date_format_minutes_age">%1$d 分钟前</string>
 
-    <string name="disclaimer_dialog_text">依据国家现行相关政策规定\n请确认在非互联网电视端使用</string>
-    <string name="disclaimer_dialog_title">注意了！</string>
-
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
@@ -38,6 +35,13 @@
     <string name="player_controller_menu_item_subtitle_padding">字幕底部间距</string>
     <string name="player_controller_menu_item_video_aspect_ratio">视频比例</string>
     <string name="player_controller_menu_item_video_codec">视频编码</string>
+    <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
+
+    <string name="region_block_character_painting">:(</string>
+    <string name="region_block_solution_text">不要在中国大陆地区使用该应用</string>
+    <string name="region_block_solution_title">该问题的解决方法就是：</string>
+    <string name="region_block_subtitle">您无法在中国大陆区域使用 Bug Video</string>
+    <string name="region_block_title">不支持的使用地区</string>
 
     <string name="resolution_1080p">1080P 高清</string>
     <string name="resolution_1080p_60">1080P60 高帧率</string>
@@ -87,8 +91,6 @@
     <string name="settings_version_check_update_button">爷要更新</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
-
-    <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
     <string name="title_activity_favorite">个人收藏</string>
     <string name="title_activity_history">历史记录</string>

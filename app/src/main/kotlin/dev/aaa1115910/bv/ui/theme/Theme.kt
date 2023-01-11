@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import dev.aaa1115910.bv.component.Disclaimer
 import dev.aaa1115910.bv.component.FpsMonitor
 import dev.aaa1115910.bv.util.Prefs
 
@@ -77,8 +76,6 @@ fun BVTheme(
                 } else {
                     content()
                 }
-
-                if (!view.isInEditMode) Disclaimer()
             }
         }
     }
