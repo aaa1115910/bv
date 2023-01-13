@@ -433,7 +433,8 @@ data class SeasonData(
      *
      * @param areaLimit
      * @param banAreaShow
-     * @param follow
+     * @param dialog 开通大会员提示文案，一般只在单独获取用户状态时且用户非会员时出现
+     * @param follow 是否追剧
      * @param followStatus
      * @param login 是否已登录
      * @param pay
@@ -448,6 +449,7 @@ data class SeasonData(
         val areaLimit: Int,
         @SerialName("ban_area_show")
         val banAreaShow: Int,
+        val dialog: Dialog? = null,
         val follow: Int,
         @SerialName("follow_status")
         val followStatus: Int,
@@ -460,6 +462,24 @@ data class SeasonData(
         @SerialName("vip_info")
         val vipInfo: VipInfo? = null
     ) {
+
+        /**
+         * 开通大会员按钮文案
+         */
+        @Serializable
+        data class Dialog(
+            @SerialName("btn_right")
+            val btnRight: BtnRight,
+            val desc: String,
+            val title: String
+        ) {
+            @Serializable
+            data class BtnRight(
+                val title: String,
+                val type: String
+            )
+        }
+
         /**
          * 上次播放进度
          *

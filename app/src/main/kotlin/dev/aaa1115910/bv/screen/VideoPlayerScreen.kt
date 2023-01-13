@@ -143,7 +143,9 @@ fun VideoPlayerScreen(
         if (!Prefs.incognitoMode) {
             timer.schedule(object : TimerTask() {
                 override fun run() {
-                    sendHeartbeat()
+                    scope.launch(Dispatchers.Main) {
+                        if (videoPlayer.isPlaying) sendHeartbeat()
+                    }
                 }
             }, 5000, 15000)
         }
@@ -176,6 +178,19 @@ fun VideoPlayerScreen(
                     hideLogs()
                 } else if (playbackState == Player.STATE_ENDED) {
                     if (!Prefs.incognitoMode) sendHeartbeat()
+
+                    val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+                        it.cid == playerViewModel.currentCid
+                    }
+                    //播放下一集
+                    if (videoListIndex < playerViewModel.availableVideoList.size - 1) {
+                        val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+                        playerViewModel.partTitle = nextVideo.title
+                        playerViewModel.loadPlayUrl(
+                            avid = nextVideo.aid,
+                            cid = nextVideo.cid
+                        )
+                    }
                 } else {
                     danmakuPlayer.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
@@ -242,6 +257,9 @@ fun VideoPlayerScreen(
         resolutionMap = playerViewModel.availableQuality,
         availableVideoCodec = playerViewModel.availableVideoCodec,
         availableSubtitle = playerViewModel.availableSubtitle,
+        availableVideoList = playerViewModel.availableVideoList,
+
+        currentVideoCid = playerViewModel.currentCid,
         currentVideoAspectRatio = currentVideoAspectRatio,
         currentResolution = playerViewModel.currentQuality,
         currentVideoCodec = playerViewModel.currentVideoCodec,
@@ -365,6 +383,7 @@ fun VideoPlayerScreen(
         },
         onPause = {
             playerViewModel.player?.pause()
+            sendHeartbeat()
         },
         requestFocus = {
             focusRequester.requestFocus(scope)
@@ -372,6 +391,14 @@ fun VideoPlayerScreen(
         goBackHistory = {
             videoPlayer.seekTo(playerViewModel.lastPlayed.toLong())
             playerViewModel.lastPlayed = 0
+        },
+        onVideoSwitch = { videoListItem ->
+            playerViewModel.fromSeason = videoListItem.isEpisode
+            playerViewModel.partTitle = videoListItem.title
+            playerViewModel.loadPlayUrl(
+                avid = videoListItem.aid,
+                cid = videoListItem.cid
+            )
         }
     ) {
         BoxWithConstraints(

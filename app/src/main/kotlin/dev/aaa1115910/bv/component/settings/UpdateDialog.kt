@@ -71,7 +71,7 @@ fun UpdateDialog(
                     distributionGroupName = GROUP_NAME
                 )
                 val latestPackage = availablePackageList.first()
-                if (latestPackage.version.toInt() <= BuildConfig.VERSION_CODE - 99) {
+                if (latestPackage.version.toInt() <= BuildConfig.VERSION_CODE) {
                     updateStatus = UpdateStatus.NoAvailableUpdate
                     return@launch
                 } else {

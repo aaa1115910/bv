@@ -68,6 +68,9 @@ import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
+import dev.aaa1115910.bv.repository.VideoInfoRepository
+import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -75,14 +78,18 @@ import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import org.koin.androidx.compose.getKoin
 import kotlin.math.ceil
 
 @Composable
 fun SeasonInfoScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    videoInfoRepository: VideoInfoRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -91,6 +98,7 @@ fun SeasonInfoScreen(
 
     var seasonData: SeasonData? by remember { mutableStateOf(null) }
     var lastPlayProgress: SeasonData.UserStatus.Progress? by remember { mutableStateOf(null) }
+    var isFollowing by remember { mutableStateOf(false) }
     var tip by remember { mutableStateOf("Loading") }
 
     val defaultFocusRequester = remember { FocusRequester() }
@@ -122,11 +130,19 @@ fun SeasonInfoScreen(
             val epid = intent.getIntExtra("epid", 0)
             scope.launch(Dispatchers.Default) {
                 runCatching {
-                    val response = BiliApi.getSeasonInfo(
+                    val seasonResponse = BiliApi.getSeasonInfo(
                         epId = epid,
                         sessData = Prefs.sessData
                     )
-                    seasonData = response.getResponseData()
+                    seasonData = seasonResponse.getResponseData()
+                    runCatching {
+                        val userStatus = BiliApi.getSeasonUserStatus(
+                            seasonId = seasonResponse.getResponseData().seasonId,
+                            sessData = Prefs.sessData
+                        ).getResponseData()
+                        logger.info { "User status: $userStatus" }
+                        isFollowing = userStatus.follow != 0
+                    }
                 }.onFailure {
                     tip = it.localizedMessage ?: "未知错误"
                     logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
@@ -167,7 +183,119 @@ fun SeasonInfoScreen(
                     title = seasonData!!.title,
                     cover = seasonData!!.cover,
                     newEpDesc = seasonData!!.newEp.desc,
-                    evaluate = seasonData!!.evaluate
+                    evaluate = seasonData!!.evaluate,
+                    lastPlayedIndex = lastPlayProgress?.lastEpId ?: -1,
+                    lastPlayedTitle = lastPlayProgress?.lastEpIndex ?: "Unknown",
+                    following = isFollowing,
+                    onPlay = {
+                        logger.fInfo { "Click play button" }
+                        var playAid = -1
+                        var playCid = -1
+                        var episodeList: List<Episode> = emptyList()
+                        if (lastPlayProgress == null) {
+                            logger.fInfo { "Didn't find any play record" }
+                            //未登录或无播放记录，此时lastPlayProgress==null，默认播放第一集正片
+                            playAid = seasonData?.episodes?.get(0)?.aid?.toInt() ?: -1
+                            playCid = seasonData?.episodes?.get(0)?.cid ?: -1
+                            if (playCid == -1) {
+                                "还没有正片".toast(context)
+                            } else {
+                                episodeList = seasonData?.episodes ?: emptyList()
+                            }
+                        } else {
+                            //已登录且有播放记录
+                            logger.fInfo { "Find play record: $lastPlayProgress" }
+
+                            //懒得去改播放器那边来支持epid，就直接在这边查找cid了
+                            val epid = lastPlayProgress!!.lastEpId
+                            seasonData?.episodes?.forEach {
+                                if (it.id == epid) {
+                                    playAid = it.aid.toInt()
+                                    playCid = it.cid
+                                    episodeList = seasonData?.episodes ?: emptyList()
+                                }
+                            }
+                            if (playCid == -1) {
+                                seasonData?.section?.forEach { section ->
+                                    section.episodes.forEach {
+                                        if (it.id == epid) {
+                                            playAid = it.aid.toInt()
+                                            playCid = it.cid
+                                            episodeList = section.episodes
+                                        }
+                                    }
+                                }
+                            }
+                            if (playCid == -1) {
+                                logger.fInfo { "Can't find cid" }
+                                "无法判断最后播放的剧集".toast(context)
+                            }
+                        }
+
+                        logger.fInfo { "Play aid: $playAid, cid: $playCid" }
+
+                        if (playCid != -1) {
+                            onClickVideo(
+                                playAid,
+                                playCid,
+                                lastPlayProgress?.lastEpIndex ?: "",
+                                lastPlayProgress?.lastTime ?: 0
+                            )
+
+                            val partVideoList = episodeList.mapIndexed { index, episode ->
+                                VideoListItem(
+                                    aid = episode.aid.toInt(),
+                                    cid = episode.cid,
+                                    title = episode.longTitle,
+                                    index = index,
+                                    isEpisode = true
+                                )
+                            }
+                            videoInfoRepository.videoList.clear()
+                            videoInfoRepository.videoList.addAll(partVideoList)
+                        }
+                    },
+                    onClickFollow = {
+                        if (isFollowing) {
+                            scope.launch(Dispatchers.Default) {
+                                runCatching {
+                                    val resultToast = BiliApi.delSeasonFollow(
+                                        seasonId = seasonData?.seasonId ?: return@launch,
+                                        csrf = Prefs.biliJct,
+                                        sessData = Prefs.sessData
+                                    ).getResponseData().toast
+                                    isFollowing = false
+                                    withContext(Dispatchers.Main) {
+                                        resultToast.toast(context)
+                                    }
+                                }.onFailure {
+                                    logger.fInfo { "Del season follow failed: ${it.stackTraceToString()}" }
+                                    withContext(Dispatchers.Main) {
+                                        "取消追番失败".toast(context)
+                                    }
+                                }
+                            }
+                        } else {
+                            scope.launch(Dispatchers.Default) {
+                                runCatching {
+                                    val resultToast = BiliApi.addSeasonFollow(
+                                        seasonId = seasonData?.seasonId ?: return@launch,
+                                        csrf = Prefs.biliJct,
+                                        sessData = Prefs.sessData
+                                    ).getResponseData().toast
+                                    isFollowing = true
+                                    withContext(Dispatchers.Main) {
+                                        resultToast.toast(context)
+                                    }
+                                }.onFailure {
+                                    logger.fInfo { "Add season follow failed: ${it.stackTraceToString()}" }
+                                    withContext(Dispatchers.Main) {
+                                        "追番失败".toast(context)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 )
             }
             item {
@@ -176,7 +304,21 @@ fun SeasonInfoScreen(
                     episodes = seasonData?.episodes ?: emptyList(),
                     lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                     lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                    onClick = onClickVideo
+                    onClick = { avid, cid, episodeTitle, startTime ->
+                        onClickVideo(avid, cid, episodeTitle, startTime)
+
+                        val partVideoList = seasonData?.episodes?.mapIndexed { index, episode ->
+                            VideoListItem(
+                                aid = episode.aid.toInt(),
+                                cid = episode.cid,
+                                title = episode.longTitle,
+                                index = index,
+                                isEpisode = true
+                            )
+                        } ?: emptyList()
+                        videoInfoRepository.videoList.clear()
+                        videoInfoRepository.videoList.addAll(partVideoList)
+                    }
                 )
             }
             seasonData?.section?.forEach { section ->
@@ -186,7 +328,21 @@ fun SeasonInfoScreen(
                         episodes = section.episodes,
                         lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                         lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                        onClick = onClickVideo
+                        onClick = { avid, cid, episodeTitle, startTime ->
+                            onClickVideo(avid, cid, episodeTitle, startTime)
+
+                            val partVideoList = section.episodes.mapIndexed { index, episode ->
+                                VideoListItem(
+                                    aid = episode.aid.toInt(),
+                                    cid = episode.cid,
+                                    title = episode.longTitle,
+                                    index = index,
+                                    isEpisode = true
+                                )
+                            }
+                            videoInfoRepository.videoList.clear()
+                            videoInfoRepository.videoList.addAll(partVideoList)
+                        }
                     )
                 }
             }
@@ -224,7 +380,12 @@ fun SeasonBaseInfo(
     modifier: Modifier = Modifier,
     title: String,
     newEpDesc: String,
-    evaluate: String
+    evaluate: String,
+    lastPlayedIndex: Int,
+    lastPlayedTitle: String = "",
+    following: Boolean,
+    onPlay: () -> Unit,
+    onClickFollow: (follow: Boolean) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -245,7 +406,13 @@ fun SeasonBaseInfo(
             Text(text = evaluate)
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "假装我是个追剧按钮")
+        SeasonInfoButtons(
+            lastPlayedIndex = lastPlayedIndex,
+            lastPlayedTitle = lastPlayedTitle,
+            following = following,
+            onPlay = onPlay,
+            onClickFollow = onClickFollow
+        )
     }
 }
 
@@ -255,7 +422,12 @@ fun SeasonInfoPart(
     title: String,
     cover: String,
     newEpDesc: String,
-    evaluate: String
+    evaluate: String,
+    lastPlayedIndex: Int,
+    lastPlayedTitle: String = "",
+    following: Boolean,
+    onPlay: () -> Unit,
+    onClickFollow: (follow: Boolean) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -270,7 +442,12 @@ fun SeasonInfoPart(
         SeasonBaseInfo(
             title = title,
             newEpDesc = newEpDesc,
-            evaluate = evaluate
+            evaluate = evaluate,
+            lastPlayedIndex = lastPlayedIndex,
+            lastPlayedTitle = lastPlayedTitle,
+            following = following,
+            onPlay = onPlay,
+            onClickFollow = onClickFollow
         )
     }
 }
@@ -590,7 +767,12 @@ fun SeasonInfoPartPreview() {
             title = "人生一串",
             cover = "http://i0.hdslb.com/bfs/bangumi/7a790c64ff70f12c11888be0532b6981a923afd5.jpg",
             newEpDesc = "已完结, 全8集",
-            evaluate = "由bilibili和旗帜传媒联合出品的《人生一串》是国内首档汇聚民间烧烤美食，呈现国人烧烤情结的深夜美食纪录片，本片将镜头伸向街头巷尾，讲述平民美食和市井传奇，以最独特的视角真实展现烧烤美食背后的独特情感。作为一档接地气的美食节目，《串》旨在展现每一串烧烤的魅力往事，和最真实的美味体验。"
+            evaluate = "由bilibili和旗帜传媒联合出品的《人生一串》是国内首档汇聚民间烧烤美食，呈现国人烧烤情结的深夜美食纪录片，本片将镜头伸向街头巷尾，讲述平民美食和市井传奇，以最独特的视角真实展现烧烤美食背后的独特情感。作为一档接地气的美食节目，《串》旨在展现每一串烧烤的魅力往事，和最真实的美味体验。",
+            lastPlayedIndex = 3,
+            lastPlayedTitle = "拯救灵依计划",
+            following = false,
+            onPlay = {},
+            onClickFollow = {}
         )
     }
 }
