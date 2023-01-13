@@ -123,7 +123,7 @@ data class Dash(
     val duration: Int,
     val minBufferTime: Float,
     val video: List<DashData> = emptyList(),
-    val audio: List<DashData> = emptyList()
+    val audio: List<DashData>? = null
 )
 
 @Serializable

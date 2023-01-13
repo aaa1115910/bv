@@ -234,16 +234,16 @@ class PlayerViewModel(
         logger.fInfo { "Select resolution: $qn, codec: $codec" }
         showLogs = true
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
+
         val videoUrl = dashData!!.video
-            .find { it.id == qn && it.codecs.startsWith(codec.prefix) }
-            ?.baseUrl
+            .find { it.id == qn && it.codecs.startsWith(codec.prefix) }?.baseUrl
             ?: dashData!!.video[0].baseUrl
-        val audioUrl = dashData!!.audio
-            .find { it.id == qn }
-            ?.baseUrl
-            ?: dashData!!.audio[0].baseUrl
+
+        //有的视频并没有音频数据
+        val audioUrl = dashData?.audio?.first()?.baseUrl
+
         val videoMediaItem = MediaItem.fromUri(videoUrl)
-        val audioMediaItem = MediaItem.fromUri(audioUrl)
+        val audioMediaItem = audioUrl?.let { MediaItem.fromUri(it) }
 
         val userAgent =
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
@@ -258,11 +258,16 @@ class PlayerViewModel(
         val videoMediaSource =
             ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
                 .createMediaSource(videoMediaItem)
-        val audioMediaSource =
-            ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory)
-                .createMediaSource(audioMediaItem)
+        val audioMediaSource = audioMediaItem?.let {
+            ProgressiveMediaSource.Factory(defaultHttpDataSourceFactory).createMediaSource(it)
+        }
+
         //set data
-        val mms = MergingMediaSource(videoMediaSource, audioMediaSource)
+        val mms = if (audioMediaItem != null) {
+            MergingMediaSource(videoMediaSource, audioMediaSource!!)
+        } else {
+            MergingMediaSource(videoMediaSource)
+        }
 
         withContext(Dispatchers.Main) {
             player!!.setMediaSource(mms)
