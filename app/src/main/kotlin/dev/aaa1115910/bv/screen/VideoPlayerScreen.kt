@@ -143,7 +143,9 @@ fun VideoPlayerScreen(
         if (!Prefs.incognitoMode) {
             timer.schedule(object : TimerTask() {
                 override fun run() {
-                    sendHeartbeat()
+                    scope.launch(Dispatchers.Main) {
+                        if (videoPlayer.isPlaying) sendHeartbeat()
+                    }
                 }
             }, 5000, 15000)
         }
@@ -381,6 +383,7 @@ fun VideoPlayerScreen(
         },
         onPause = {
             playerViewModel.player?.pause()
+            sendHeartbeat()
         },
         requestFocus = {
             focusRequester.requestFocus(scope)
