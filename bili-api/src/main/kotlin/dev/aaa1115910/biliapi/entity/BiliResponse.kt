@@ -35,6 +35,7 @@ data class BiliResponseWithoutData(
     val ttl: Int
 )
 
+@Suppress("UNUSED_PARAMETER", "unused")
 class AuthFailureException : RuntimeException {
     constructor()
     constructor(message: String?)

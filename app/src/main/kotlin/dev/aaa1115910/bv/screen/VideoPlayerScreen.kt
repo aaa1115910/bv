@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.Player
-import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.kuaishou.akdanmaku.DanmakuConfig
@@ -65,7 +64,6 @@ fun VideoPlayerScreen(
     LaunchedEffect(Unit) {
         logger.fInfo { "Request focus on controller" }
         focusRequester.requestFocus(scope)
-        //focusRequester.captureFocus()
     }
 
     var infoData by remember {
@@ -221,19 +219,7 @@ fun VideoPlayerScreen(
             }
         }
 
-        val analyticsListener = object : AnalyticsListener {
-            override fun onBandwidthEstimate(
-                eventTime: AnalyticsListener.EventTime,
-                totalLoadTimeMs: Int,
-                totalBytesLoaded: Long,
-                bitrateEstimate: Long
-            ) {
-                println("----$totalLoadTimeMs----$totalBytesLoaded----${bitrateEstimate / 1024}KB/s----")
-            }
-        }
-
         videoPlayer.addListener(listener)
-        videoPlayer.addAnalyticsListener(analyticsListener)
 
         //release exo video player
         onDispose {
@@ -249,7 +235,6 @@ fun VideoPlayerScreen(
 
     VideoPlayerController(
         modifier = modifier
-            //.focusable()
             .focusRequester(focusRequester)
             .fillMaxSize(),
         infoData = infoData,
@@ -276,7 +261,7 @@ fun VideoPlayerScreen(
 
         buffering = playerViewModel.showBuffering,
         isPlaying = playerViewModel.player?.isPlaying == true,
-        bufferSpeed = "playerViewModel.player?.",
+        bufferSpeed = "",
 
         showLogs = playerViewModel.showLogs,
         logs = playerViewModel.logs,

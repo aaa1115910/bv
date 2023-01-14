@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import dev.aaa1115910.bv.component.FpsMonitor
@@ -45,7 +44,6 @@ fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
     val colorScheme = BiliColorScheme
     val typography =
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypography else Typography()

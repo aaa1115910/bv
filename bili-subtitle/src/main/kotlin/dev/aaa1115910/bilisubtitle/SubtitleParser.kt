@@ -29,6 +29,7 @@ object SubtitleParser {
         val lines = srt.lines()
         var position = 0
         while (position < lines.size) {
+            @Suppress("UNUSED_VARIABLE")
             val index = lines[position++]
             val timeLines = lines[position++]
             val content = lines[position++]

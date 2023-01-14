@@ -19,155 +19,157 @@ import mu.KotlinLogging
 import java.util.Date
 import kotlin.math.roundToInt
 
-private val prefIsLoginKey = booleanPreferencesKey("il")
-private val prefUidKey = longPreferencesKey("uid")
-private val prefSidKey = stringPreferencesKey("sid")
-private val prefSessDataKey = stringPreferencesKey("sd")
-private val prefBiliJctKey = stringPreferencesKey("bj")
-private val prefUidCkMd5Key = stringPreferencesKey("ucm")
-private val prefTokenExpiredDateKey = longPreferencesKey("ted")
-private val prefDefaultQualityKey = intPreferencesKey("dq")
-private val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
-private val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
-private val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
-private val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
-private val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
-private val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
-private val prefIncognitoModeKey = booleanPreferencesKey("im")
-private val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
-private val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
-private val prefShowFpsKey = booleanPreferencesKey("sf")
-
-val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
-val prefUidRequest = PreferenceRequest(prefUidKey, 0)
-val prefSidRequest = PreferenceRequest(prefSidKey, "")
-val prefSessDataRequest = PreferenceRequest(prefSessDataKey, "")
-val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
-val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
-val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
-val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
-val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
-val prefDefaultDanmakuTransparencyRequest = PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
-val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
-val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
-val prefDefaultVideoCodecRequest =
-    PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
-val prefEnabledFirebaseCollectionRequest = PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
-val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
-val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
-val prefDefaultSubtitleBottomPaddingRequest =
-    PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
-val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
-
 object Prefs {
-    val dsm = BVApp.dataStoreManager
+    private val dsm = BVApp.dataStoreManager
     val logger = KotlinLogging.logger { }
 
     var isLogin: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(prefIsLoginRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefIsLoginKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefIsLoginRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefIsLoginKey, value) }
 
     var uid: Long
-        get() = runBlocking { dsm.getPreferenceFlow(prefUidRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefUidKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefUidRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefUidKey, value) }
 
     var sid: String
-        get() = runBlocking { dsm.getPreferenceFlow(prefSidRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefSidKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSidRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefSidKey, value) }
 
     var sessData: String
-        get() = runBlocking { dsm.getPreferenceFlow(prefSessDataRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefSessDataKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSessDataRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefSessDataKey, value) }
 
     var biliJct: String
-        get() = runBlocking { dsm.getPreferenceFlow(prefBiliJctRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefBiliJctKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefBiliJctRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBiliJctKey, value) }
 
     var uidCkMd5: String
-        get() = runBlocking { dsm.getPreferenceFlow(prefUidCkMd5Request).first() }
-        set(value) = runBlocking { dsm.editPreference(prefUidCkMd5Key, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefUidCkMd5Request).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefUidCkMd5Key, value) }
 
     var tokenExpiredData: Date
-        get() = Date(runBlocking { dsm.getPreferenceFlow(prefTokenExpiredDateRequest).first() })
-        set(value) = runBlocking { dsm.editPreference(prefTokenExpiredDateKey, value.time) }
+        get() = Date(runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefTokenExpiredDateRequest).first()
+        })
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefTokenExpiredDateKey, value.time)
+        }
 
     var defaultQuality: Int
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultQualityRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefDefaultQualityKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDefaultQualityRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultQualityKey, value) }
 
     var defaultDanmakuSize: Int
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuSizeRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuSizeKey, value) }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuSizeRequest).first()
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuSizeKey, value) }
 
     var defaultDanmakuTransparency: Int
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuTransparencyRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuTransparencyKey, value) }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTransparencyRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyKey, value)
+        }
 
     var defaultDanmakuEnabled: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuEnabledRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuEnabledKey, value) }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuEnabledRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultDanmakuEnabledKey, value)
+        }
 
     var defaultDanmakuArea: Float
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultDanmakuAreaRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefDefaultDanmakuAreaKey, value) }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuAreaRequest).first()
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuAreaKey, value) }
 
     var defaultVideoCodec: VideoCodec
         get() = VideoCodec.fromCode(
-            runBlocking { dsm.getPreferenceFlow(prefDefaultVideoCodecRequest).first() }
+            runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDefaultVideoCodecRequest).first() }
         )
-        set(value) = runBlocking { dsm.editPreference(prefDefaultVideoCodecKey, value.ordinal) }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultVideoCodecKey, value.ordinal)
+        }
 
     var enableFirebaseCollection: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(prefEnabledFirebaseCollectionRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefEnabledFirebaseCollectionKey, value) }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefEnabledFirebaseCollectionRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefEnabledFirebaseCollectionKey, value)
+        }
 
     var incognitoMode: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(prefIncognitoModeRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefIncognitoModeKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefIncognitoModeRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefIncognitoModeKey, value) }
 
     var defaultSubtitleFontSize: TextUnit
-        get() = runBlocking { dsm.getPreferenceFlow(prefDefaultSubtitleFontSizeRequest).first().sp }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleFontSizeRequest).first().sp
+        }
         set(value) = runBlocking {
-            dsm.editPreference(prefDefaultSubtitleFontSizeKey, value.value.roundToInt())
+            dsm.editPreference(PrefKeys.prefDefaultSubtitleFontSizeKey, value.value.roundToInt())
         }
 
     var defaultSubtitleBottomPadding: Dp
         get() = runBlocking {
-            dsm.getPreferenceFlow(prefDefaultSubtitleBottomPaddingRequest).first().dp
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleBottomPaddingRequest).first().dp
         }
         set(value) = runBlocking {
-            dsm.editPreference(prefDefaultSubtitleBottomPaddingKey, value.value.roundToInt())
+            dsm.editPreference(
+                PrefKeys.prefDefaultSubtitleBottomPaddingKey, value.value.roundToInt()
+            )
         }
 
     var showFps: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(prefShowFpsRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(prefShowFpsKey, value) }
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowFpsRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowFpsKey, value) }
+}
 
-    fun logout() {
-        logger.fInfo { "Logout uid: $uid" }
-        isLogin = false
-        uid = 0
-        sid = ""
-        sessData = ""
-        biliJct = ""
-        uidCkMd5 = ""
-        tokenExpiredData = Date(0)
-    }
+private object PrefKeys {
+    val prefIsLoginKey = booleanPreferencesKey("il")
+    val prefUidKey = longPreferencesKey("uid")
+    val prefSidKey = stringPreferencesKey("sid")
+    val prefSessDataKey = stringPreferencesKey("sd")
+    val prefBiliJctKey = stringPreferencesKey("bj")
+    val prefUidCkMd5Key = stringPreferencesKey("ucm")
+    val prefTokenExpiredDateKey = longPreferencesKey("ted")
+    val prefDefaultQualityKey = intPreferencesKey("dq")
+    val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
+    val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
+    val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
+    val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
+    val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
+    val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
+    val prefIncognitoModeKey = booleanPreferencesKey("im")
+    val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
+    val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
+    val prefShowFpsKey = booleanPreferencesKey("sf")
 
-    fun setLoginData(
-        uid: Long,
-        uidCkMd5: String,
-        sid: String,
-        sessData: String,
-        biliJct: String,
-        expiredDate: Date
-    ) {
-        this.uid = uid
-        this.uidCkMd5 = uidCkMd5
-        this.sid = sid
-        this.sessData = sessData
-        this.biliJct = biliJct
-        this.isLogin = true
-        this.tokenExpiredData = expiredDate
-    }
+    val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
+    val prefUidRequest = PreferenceRequest(prefUidKey, 0)
+    val prefSidRequest = PreferenceRequest(prefSidKey, "")
+    val prefSessDataRequest = PreferenceRequest(prefSessDataKey, "")
+    val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
+    val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
+    val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
+    val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
+    val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
+    val prefDefaultDanmakuTransparencyRequest =
+        PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
+    val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
+    val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
+    val prefDefaultVideoCodecRequest =
+        PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
+    val prefEnabledFirebaseCollectionRequest =
+        PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
+    val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
+    val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
+    val prefDefaultSubtitleBottomPaddingRequest =
+        PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
+    val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
 }
