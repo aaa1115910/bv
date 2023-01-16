@@ -80,6 +80,10 @@ class PlayerViewModel(
     var partTitle by mutableStateOf("")
     var lastPlayed by mutableStateOf(0)
     var fromSeason by mutableStateOf(false)
+    var subType by mutableStateOf(0)
+    var epid by mutableStateOf(0)
+    var seasonId by mutableStateOf(0)
+
     var needPay by mutableStateOf(false)
 
     var logs by mutableStateOf("")
@@ -339,15 +343,30 @@ class PlayerViewModel(
     }
 
     suspend fun uploadHistory(time: Int) {
-        logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
         runCatching {
-            BiliApi.sendHeartbeat(
-                avid = currentAid.toLong(),
-                cid = currentCid,
-                playedTime = time,
-                csrf = Prefs.biliJct,
-                sessData = Prefs.sessData
-            )
+            if (!fromSeason) {
+                logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
+                BiliApi.sendHeartbeat(
+                    avid = currentAid.toLong(),
+                    cid = currentCid,
+                    playedTime = time,
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            } else {
+                logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
+                BiliApi.sendHeartbeat(
+                    avid = currentAid.toLong(),
+                    cid = currentCid,
+                    playedTime = time,
+                    type = 4,
+                    subType = subType,
+                    epid = epid,
+                    sid = seasonId,
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            }
         }.onSuccess {
             logger.info { "Send heartbeat success" }
         }.onFailure {

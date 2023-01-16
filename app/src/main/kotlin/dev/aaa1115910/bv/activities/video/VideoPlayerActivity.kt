@@ -38,7 +38,10 @@ class VideoPlayerActivity : ComponentActivity() {
             title: String,
             partTitle: String,
             played: Int,
-            fromSeason: Boolean
+            fromSeason: Boolean,
+            subType: Int? = null,
+            epid: Int? = null,
+            seasonId: Int? = null
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerActivity::class.java).apply {
@@ -48,6 +51,9 @@ class VideoPlayerActivity : ComponentActivity() {
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
                     putExtra("fromSeason", fromSeason)
+                    putExtra("subType", subType)
+                    putExtra("epid", epid)
+                    putExtra("seasonId", seasonId)
                 }
             )
         }
@@ -108,6 +114,9 @@ class VideoPlayerActivity : ComponentActivity() {
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)
             val fromSeason = intent.getBooleanExtra("fromSeason", false)
+            val subType = intent.getIntExtra("subType", 0)
+            val epid = intent.getIntExtra("epid", 0)
+            val seasonId = intent.getIntExtra("seasonId", 0)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(aid, cid)
@@ -115,6 +124,9 @@ class VideoPlayerActivity : ComponentActivity() {
                 this.partTitle = partTitle
                 this.lastPlayed = played
                 this.fromSeason = fromSeason
+                this.subType = subType
+                this.epid = epid
+                this.seasonId = seasonId
             }
         } else {
             logger.fInfo { "Null launch parameter" }
