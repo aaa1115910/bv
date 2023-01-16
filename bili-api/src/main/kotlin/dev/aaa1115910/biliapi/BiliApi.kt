@@ -29,6 +29,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.BrowserUserAgent
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -71,6 +72,9 @@ object BiliApi {
             install(ContentEncoding) {
                 deflate(1.0F)
                 gzip(0.9F)
+            }
+            install(HttpRequestRetry) {
+                retryOnException(maxRetries = 2)
             }
             defaultRequest {
                 host = "api.bilibili.com"
