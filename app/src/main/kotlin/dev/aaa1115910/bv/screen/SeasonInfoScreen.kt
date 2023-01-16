@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -46,11 +47,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -89,6 +94,7 @@ import kotlin.math.ceil
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     videoInfoRepository: VideoInfoRepository = getKoin().get()
 ) {
     val context = LocalContext.current
@@ -100,6 +106,7 @@ fun SeasonInfoScreen(
     var lastPlayProgress: SeasonData.UserStatus.Progress? by remember { mutableStateOf(null) }
     var isFollowing by remember { mutableStateOf(false) }
     var tip by remember { mutableStateOf("Loading") }
+    var paused by remember { mutableStateOf(false) }
 
     val defaultFocusRequester = remember { FocusRequester() }
 
@@ -124,6 +131,22 @@ fun SeasonInfoScreen(
             }
         }
 
+    val updateUserStatus: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                val userStatus = BiliApi.getSeasonUserStatus(
+                    seasonId = seasonData!!.seasonId,
+                    sessData = Prefs.sessData
+                ).getResponseData()
+                logger.info { "User status: $userStatus" }
+                isFollowing = userStatus.follow != 0
+                lastPlayProgress = userStatus.progress
+            }.onFailure {
+                logger.fInfo { "Get season user status failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("epid")) {
             val epid = intent.getIntExtra("epid", 0)
@@ -134,14 +157,7 @@ fun SeasonInfoScreen(
                         sessData = Prefs.sessData
                     )
                     seasonData = seasonResponse.getResponseData()
-                    runCatching {
-                        val userStatus = BiliApi.getSeasonUserStatus(
-                            seasonId = seasonResponse.getResponseData().seasonId,
-                            sessData = Prefs.sessData
-                        ).getResponseData()
-                        logger.info { "User status: $userStatus" }
-                        isFollowing = userStatus.follow != 0
-                    }
+                    updateUserStatus()
                 }.onFailure {
                     tip = it.localizedMessage ?: "未知错误"
                     logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
@@ -155,6 +171,23 @@ fun SeasonInfoScreen(
             lastPlayProgress = it.userStatus.progress
             //请求默认焦点到剧集封面上
             defaultFocusRequester.requestFocus(scope)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                paused = true
+            } else if (event == Lifecycle.Event.ON_RESUME) {
+                // 如果 pause==true 那可能是从播放页返回回来的，此时更新历史记录
+                if (paused) updateUserStatus()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 

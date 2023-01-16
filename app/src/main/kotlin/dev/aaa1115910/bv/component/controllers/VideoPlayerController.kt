@@ -91,6 +91,7 @@ fun VideoPlayerController(
     onSeekForward: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onExit: () -> Unit,
     requestFocus: () -> Unit,
     goBackHistory: () -> Unit = {},
     onVideoSwitch: (VideoListItem) -> Unit = {},
@@ -280,6 +281,7 @@ fun VideoPlayerController(
                                 val currentTime = System.currentTimeMillis()
                                 if (currentTime - lastPressBack < 1000 * 3) {
                                     logger.fInfo { "Exiting video player" }
+                                    onExit()
                                     (context as Activity).finish()
                                 } else {
                                     lastPressBack = currentTime

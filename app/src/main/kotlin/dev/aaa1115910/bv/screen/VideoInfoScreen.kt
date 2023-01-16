@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -45,10 +46,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
@@ -91,6 +96,7 @@ import java.util.Date
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     videoInfoRepository: VideoInfoRepository = getKoin().get()
 ) {
     val context = LocalContext.current
@@ -107,6 +113,23 @@ fun VideoInfoScreen(
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
 
+    var paused by remember { mutableStateOf(false) }
+
+    val updateV2Data: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                logger.fInfo { "Get video more info" }
+                val moreInfoResponse = BiliApi.getVideoMoreInfo(
+                    avid = videoInfo!!.aid, cid = videoInfo!!.cid, sessData = Prefs.sessData
+                ).getResponseData()
+                lastPlayedCid = moreInfoResponse.lastPlayCid
+                lastPlayedTime = moreInfoResponse.lastPlayTime
+            }.onFailure {
+                logger.fInfo { "Get video more info failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
@@ -116,11 +139,7 @@ fun VideoInfoScreen(
                 runCatching {
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.getResponseData()
-                    val moreInfoResponse = BiliApi.getVideoMoreInfo(
-                        avid = aid, cid = videoInfo!!.cid, sessData = Prefs.sessData
-                    ).getResponseData()
-                    lastPlayedCid = moreInfoResponse.lastPlayCid
-                    lastPlayedTime = moreInfoResponse.lastPlayTime
+                    updateV2Data()
 
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
@@ -201,6 +220,23 @@ fun VideoInfoScreen(
             } else {
                 logger.fInfo { "No redirection required" }
             }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                paused = true
+            } else if (event == Lifecycle.Event.ON_RESUME) {
+                // 如果 pause==true 那可能是从播放页返回回来的，此时更新历史记录
+                if (paused) updateV2Data()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 

@@ -103,8 +103,7 @@ fun VideoPlayerScreen(
     val sendHeartbeat: () -> Unit = {
         scope.launch(Dispatchers.Default) {
             val time = withContext(Dispatchers.Main) {
-                //exo 的总时长比 b 站客户端里看到的时间少 1 秒
-                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt() + 1
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
                 val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
                 //播放完后上报的时间应为 -1
                 if (currentTime >= totalTime) -1 else currentTime
@@ -367,6 +366,9 @@ fun VideoPlayerScreen(
         },
         onPause = {
             playerViewModel.player?.pause()
+            sendHeartbeat()
+        },
+        onExit = {
             sendHeartbeat()
         },
         requestFocus = {
