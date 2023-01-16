@@ -51,7 +51,6 @@ fun VideoPlayerScreen(
     val logger = KotlinLogging.logger { }
 
     val videoPlayer = playerViewModel.player!!
-    val danmakuPlayer = playerViewModel.danmakuPlayer!!
 
     var videoPlayerView: PlayerView? by remember { mutableStateOf(null) }
     var videoPlayerHeight by remember { mutableStateOf(0.dp) }
@@ -169,8 +168,8 @@ fun VideoPlayerScreen(
             override fun onPlaybackStateChanged(playbackState: Int) {
                 //缓冲完成，并非播放/暂停
                 if (playbackState == Player.STATE_READY) {
-                    danmakuPlayer.start(danmakuConfig)
-                    danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                    playerViewModel.danmakuPlayer?.start(danmakuConfig)
+                    playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
                     hideLogs()
@@ -190,7 +189,7 @@ fun VideoPlayerScreen(
                         )
                     }
                 } else {
-                    danmakuPlayer.pause()
+                    playerViewModel.danmakuPlayer?.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
                         playerViewModel.showBuffering = true
                     }
@@ -201,21 +200,21 @@ fun VideoPlayerScreen(
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 if (playWhenReady) {
                     logger.fInfo { "Start danmaku" }
-                    danmakuPlayer.updateConfig(danmakuConfig)
+                    playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
                 } else {
                     logger.fInfo { "Pause danmaku" }
-                    danmakuPlayer.pause()
+                    playerViewModel.danmakuPlayer?.pause()
                 }
             }
 
             //进度条回退
             override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) {
-                danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
             }
 
             //进度条快进
             override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) {
-                danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
             }
         }
 
@@ -230,7 +229,7 @@ fun VideoPlayerScreen(
 
     LaunchedEffect(playerViewModel.danmakuData) {
         logger.fInfo { "Update danmaku data" }
-        danmakuPlayer.updateData(playerViewModel.danmakuData)
+        playerViewModel.danmakuPlayer?.updateData(playerViewModel.danmakuData)
     }
 
     VideoPlayerController(
@@ -323,19 +322,19 @@ fun VideoPlayerScreen(
             Prefs.defaultDanmakuEnabled = enable
             playerViewModel.currentDanmakuEnabled = enable
             danmakuConfig.visibility = enable
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuSizeChange = { size ->
             Prefs.defaultDanmakuSize = size.ordinal
             playerViewModel.currentDanmakuSize = size
             danmakuConfig.textSizeScale = size.scale * 2
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuTransparencyChange = { transparency ->
             Prefs.defaultDanmakuTransparency = transparency.ordinal
             playerViewModel.currentDanmakuTransparency = transparency
             danmakuConfig.alpha = transparency.transparency
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuAreaChange = { area ->
             Prefs.defaultDanmakuArea = area
@@ -416,7 +415,7 @@ fun VideoPlayerScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxHeight(playerViewModel.currentDanmakuArea),
-                danmakuPlayer = danmakuPlayer
+                danmakuPlayer = playerViewModel.danmakuPlayer
             )
         }
     }

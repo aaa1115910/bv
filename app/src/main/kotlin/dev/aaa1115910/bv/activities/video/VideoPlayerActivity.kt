@@ -20,8 +20,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.VideoRendererEventListener
-import com.kuaishou.akdanmaku.render.SimpleRenderer
-import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -101,9 +99,7 @@ class VideoPlayerActivity : ComponentActivity() {
             .setSeekForwardIncrementMs(1000 * 10)
             .setSeekBackIncrementMs(1000 * 5)
             .build()
-        val danmakuPlayer = DanmakuPlayer(SimpleRenderer())
         playerViewModel.preparePlayer(player)
-        playerViewModel.prepareDanmakuPlayer(danmakuPlayer)
 
         if (intent.hasExtra("avid")) {
             val aid = intent.getIntExtra("avid", 170001)
