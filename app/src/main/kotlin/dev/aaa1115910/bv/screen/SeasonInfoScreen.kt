@@ -112,8 +112,7 @@ fun SeasonInfoScreen(
                     cid = cid,
                     title = seasonData!!.title,
                     partTitle = episodeTitle,
-                    played = startTime,
-                    fromSeason = true
+                    played = startTime * 100
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
