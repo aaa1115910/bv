@@ -310,6 +310,9 @@ class PlayerViewModel(
     }
 
     private suspend fun updateSubtitle() {
+        currentSubtitleId = 0
+        currentSubtitleData.clear()
+
         val responseData = runCatching {
             BiliApi.getVideoMoreInfo(
                 avid = currentAid,
