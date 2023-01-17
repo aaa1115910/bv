@@ -17,6 +17,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.kuaishou.akdanmaku.data.DanmakuItemData
+import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dash
@@ -79,6 +80,10 @@ class PlayerViewModel(
     var partTitle by mutableStateOf("")
     var lastPlayed by mutableStateOf(0)
     var fromSeason by mutableStateOf(false)
+    var subType by mutableStateOf(0)
+    var epid by mutableStateOf(0)
+    var seasonId by mutableStateOf(0)
+
     var needPay by mutableStateOf(false)
 
     var logs by mutableStateOf("")
@@ -98,17 +103,16 @@ class PlayerViewModel(
         show = true
     }
 
-    fun prepareDanmakuPlayer(danmakuPlayer: DanmakuPlayer) {
-        logger.fInfo { "Set danmaku plauer" }
-        this.danmakuPlayer = danmakuPlayer
+    private suspend fun releaseDanmakuPlayer() {
+        withContext(Dispatchers.Main) {
+            danmakuPlayer?.release()
+        }
     }
 
-    init {
-        initData()
-    }
-
-    fun initData() {
-
+    private suspend fun initDanmakuPlayer() {
+        withContext(Dispatchers.Main) {
+            danmakuPlayer = DanmakuPlayer(SimpleRenderer())
+        }
     }
 
     fun loadPlayUrl(
@@ -120,6 +124,9 @@ class PlayerViewModel(
         currentCid = cid
         addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
+            releaseDanmakuPlayer()
+            initDanmakuPlayer()
+            addLogs("初始化弹幕引擎")
             addLogs("av$avid，cid:$cid")
             updateSubtitle()
             loadPlayUrl(avid, cid, 4048)
@@ -165,7 +172,7 @@ class PlayerViewModel(
 
             playUrlResponse = responseData
             logger.fInfo { "Load play url response success" }
-            logger.info { "Play url response: $responseData" }
+            //logger.info { "Play url response: $responseData" }
 
             //读取清晰度
             val resolutionMap = mutableMapOf<Int, String>()
@@ -280,6 +287,8 @@ class PlayerViewModel(
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
             val danmakuXmlData = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+
+            danmakuData.clear()
             danmakuData.addAll(danmakuXmlData.data.map {
                 DanmakuItemData(
                     danmakuId = it.dmid,
@@ -305,6 +314,9 @@ class PlayerViewModel(
     }
 
     private suspend fun updateSubtitle() {
+        currentSubtitleId = 0
+        currentSubtitleData.clear()
+
         val responseData = runCatching {
             BiliApi.getVideoMoreInfo(
                 avid = currentAid,
@@ -331,15 +343,30 @@ class PlayerViewModel(
     }
 
     suspend fun uploadHistory(time: Int) {
-        logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
         runCatching {
-            BiliApi.sendHeartbeat(
-                avid = currentAid.toLong(),
-                cid = currentCid,
-                playedTime = time,
-                csrf = Prefs.biliJct,
-                sessData = Prefs.sessData
-            )
+            if (!fromSeason) {
+                logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
+                BiliApi.sendHeartbeat(
+                    avid = currentAid.toLong(),
+                    cid = currentCid,
+                    playedTime = time,
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            } else {
+                logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
+                BiliApi.sendHeartbeat(
+                    avid = currentAid.toLong(),
+                    cid = currentCid,
+                    playedTime = time,
+                    type = 4,
+                    subType = subType,
+                    epid = epid,
+                    sid = seasonId,
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            }
         }.onSuccess {
             logger.info { "Send heartbeat success" }
         }.onFailure {

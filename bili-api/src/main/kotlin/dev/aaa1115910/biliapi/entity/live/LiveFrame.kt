@@ -1,3 +1,5 @@
+@file:Suppress("unused", "UNUSED_VARIABLE")
+
 package dev.aaa1115910.biliapi.entity.live
 
 import io.ktor.utils.io.core.ByteReadPacket

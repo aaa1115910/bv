@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.util
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import mu.KotlinLogging
@@ -17,7 +18,11 @@ object NetworkUtil {
     }
 
     private fun createClient() {
-        client = HttpClient(OkHttp)
+        client = HttpClient(OkHttp) {
+            install(HttpRequestRetry) {
+                retryOnException(maxRetries = 3)
+            }
+        }
     }
 
     suspend fun isMainlandChina(): Boolean {
@@ -27,7 +32,7 @@ object NetworkUtil {
 
             networkCheckResult = result
                 .lines()
-                .filter { it!="" }
+                .filter { it != "" }
                 .associate {
                     val splits = it.split("=")
                     splits[0] to splits[1]

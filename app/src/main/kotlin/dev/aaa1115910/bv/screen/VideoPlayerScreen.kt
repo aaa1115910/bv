@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.Player
-import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.kuaishou.akdanmaku.DanmakuConfig
@@ -52,7 +51,6 @@ fun VideoPlayerScreen(
     val logger = KotlinLogging.logger { }
 
     val videoPlayer = playerViewModel.player!!
-    val danmakuPlayer = playerViewModel.danmakuPlayer!!
 
     var videoPlayerView: PlayerView? by remember { mutableStateOf(null) }
     var videoPlayerHeight by remember { mutableStateOf(0.dp) }
@@ -65,7 +63,6 @@ fun VideoPlayerScreen(
     LaunchedEffect(Unit) {
         logger.fInfo { "Request focus on controller" }
         focusRequester.requestFocus(scope)
-        //focusRequester.captureFocus()
     }
 
     var infoData by remember {
@@ -106,8 +103,7 @@ fun VideoPlayerScreen(
     val sendHeartbeat: () -> Unit = {
         scope.launch(Dispatchers.Default) {
             val time = withContext(Dispatchers.Main) {
-                //exo 的总时长比 b 站客户端里看到的时间少 1 秒
-                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt() + 1
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
                 val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
                 //播放完后上报的时间应为 -1
                 if (currentTime >= totalTime) -1 else currentTime
@@ -171,8 +167,8 @@ fun VideoPlayerScreen(
             override fun onPlaybackStateChanged(playbackState: Int) {
                 //缓冲完成，并非播放/暂停
                 if (playbackState == Player.STATE_READY) {
-                    danmakuPlayer.start(danmakuConfig)
-                    danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                    playerViewModel.danmakuPlayer?.start(danmakuConfig)
+                    playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
 
                     playerViewModel.showBuffering = false
                     hideLogs()
@@ -192,7 +188,7 @@ fun VideoPlayerScreen(
                         )
                     }
                 } else {
-                    danmakuPlayer.pause()
+                    playerViewModel.danmakuPlayer?.pause()
                     if (playbackState == Player.STATE_BUFFERING) {
                         playerViewModel.showBuffering = true
                     }
@@ -203,37 +199,25 @@ fun VideoPlayerScreen(
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 if (playWhenReady) {
                     logger.fInfo { "Start danmaku" }
-                    danmakuPlayer.updateConfig(danmakuConfig)
+                    playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
                 } else {
                     logger.fInfo { "Pause danmaku" }
-                    danmakuPlayer.pause()
+                    playerViewModel.danmakuPlayer?.pause()
                 }
             }
 
             //进度条回退
             override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) {
-                danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
             }
 
             //进度条快进
             override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) {
-                danmakuPlayer.seekTo(videoPlayer.currentPosition)
-            }
-        }
-
-        val analyticsListener = object : AnalyticsListener {
-            override fun onBandwidthEstimate(
-                eventTime: AnalyticsListener.EventTime,
-                totalLoadTimeMs: Int,
-                totalBytesLoaded: Long,
-                bitrateEstimate: Long
-            ) {
-                println("----$totalLoadTimeMs----$totalBytesLoaded----${bitrateEstimate / 1024}KB/s----")
+                playerViewModel.danmakuPlayer?.seekTo(videoPlayer.currentPosition)
             }
         }
 
         videoPlayer.addListener(listener)
-        videoPlayer.addAnalyticsListener(analyticsListener)
 
         //release exo video player
         onDispose {
@@ -244,12 +228,11 @@ fun VideoPlayerScreen(
 
     LaunchedEffect(playerViewModel.danmakuData) {
         logger.fInfo { "Update danmaku data" }
-        danmakuPlayer.updateData(playerViewModel.danmakuData)
+        playerViewModel.danmakuPlayer?.updateData(playerViewModel.danmakuData)
     }
 
     VideoPlayerController(
         modifier = modifier
-            //.focusable()
             .focusRequester(focusRequester)
             .fillMaxSize(),
         infoData = infoData,
@@ -276,7 +259,7 @@ fun VideoPlayerScreen(
 
         buffering = playerViewModel.showBuffering,
         isPlaying = playerViewModel.player?.isPlaying == true,
-        bufferSpeed = "playerViewModel.player?.",
+        bufferSpeed = "",
 
         showLogs = playerViewModel.showLogs,
         logs = playerViewModel.logs,
@@ -338,19 +321,19 @@ fun VideoPlayerScreen(
             Prefs.defaultDanmakuEnabled = enable
             playerViewModel.currentDanmakuEnabled = enable
             danmakuConfig.visibility = enable
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuSizeChange = { size ->
             Prefs.defaultDanmakuSize = size.ordinal
             playerViewModel.currentDanmakuSize = size
             danmakuConfig.textSizeScale = size.scale * 2
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuTransparencyChange = { transparency ->
             Prefs.defaultDanmakuTransparency = transparency.ordinal
             playerViewModel.currentDanmakuTransparency = transparency
             danmakuConfig.alpha = transparency.transparency
-            danmakuPlayer.updateConfig(danmakuConfig)
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         },
         onDanmakuAreaChange = { area ->
             Prefs.defaultDanmakuArea = area
@@ -383,6 +366,9 @@ fun VideoPlayerScreen(
         },
         onPause = {
             playerViewModel.player?.pause()
+            sendHeartbeat()
+        },
+        onExit = {
             sendHeartbeat()
         },
         requestFocus = {
@@ -431,7 +417,7 @@ fun VideoPlayerScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxHeight(playerViewModel.currentDanmakuArea),
-                danmakuPlayer = danmakuPlayer
+                danmakuPlayer = playerViewModel.danmakuPlayer
             )
         }
     }

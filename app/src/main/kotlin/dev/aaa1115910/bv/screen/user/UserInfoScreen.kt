@@ -408,10 +408,14 @@ private fun UserInfo(
                     }
                 }
 
-                Text(
+                Row(
                     modifier = Modifier.padding(start = startPaddingValue),
-                    text = "UID: $uid"
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = "Lv$level")
+                    Text(text = "UID: $uid")
+                }
+
                 Slider(
                     enabled = false,
                     value = levelSlider,

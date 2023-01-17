@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -72,7 +71,7 @@ fun VideoPlayerController(
     currentSubtitleBottomPadding: Dp = 12.dp,
     buffering: Boolean,
     isPlaying: Boolean,
-    bufferSpeed: Any,
+    @Suppress("UNUSED_PARAMETER") bufferSpeed: String,
     showLogs: Boolean,
     logs: String,
     title: String,
@@ -92,15 +91,13 @@ fun VideoPlayerController(
     onSeekForward: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onExit: () -> Unit,
     requestFocus: () -> Unit,
-    freeFocus: () -> Unit = {},
-    captureFocus: () -> Unit = {},
     goBackHistory: () -> Unit = {},
     onVideoSwitch: (VideoListItem) -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
     val logger = KotlinLogging.logger { }
 
     var showSeekController by remember { mutableStateOf(false) }
@@ -284,6 +281,7 @@ fun VideoPlayerController(
                                 val currentTime = System.currentTimeMillis()
                                 if (currentTime - lastPressBack < 1000 * 3) {
                                     logger.fInfo { "Exiting video player" }
+                                    onExit()
                                     (context as Activity).finish()
                                 } else {
                                     lastPressBack = currentTime

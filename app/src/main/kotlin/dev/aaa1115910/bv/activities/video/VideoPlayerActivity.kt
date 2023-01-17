@@ -20,8 +20,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.VideoRendererEventListener
-import com.kuaishou.akdanmaku.render.SimpleRenderer
-import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -40,7 +38,10 @@ class VideoPlayerActivity : ComponentActivity() {
             title: String,
             partTitle: String,
             played: Int,
-            fromSeason: Boolean
+            fromSeason: Boolean,
+            subType: Int? = null,
+            epid: Int? = null,
+            seasonId: Int? = null
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerActivity::class.java).apply {
@@ -50,6 +51,9 @@ class VideoPlayerActivity : ComponentActivity() {
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
                     putExtra("fromSeason", fromSeason)
+                    putExtra("subType", subType)
+                    putExtra("epid", epid)
+                    putExtra("seasonId", seasonId)
                 }
             )
         }
@@ -101,9 +105,7 @@ class VideoPlayerActivity : ComponentActivity() {
             .setSeekForwardIncrementMs(1000 * 10)
             .setSeekBackIncrementMs(1000 * 5)
             .build()
-        val danmakuPlayer = DanmakuPlayer(SimpleRenderer())
         playerViewModel.preparePlayer(player)
-        playerViewModel.prepareDanmakuPlayer(danmakuPlayer)
 
         if (intent.hasExtra("avid")) {
             val aid = intent.getIntExtra("avid", 170001)
@@ -112,6 +114,9 @@ class VideoPlayerActivity : ComponentActivity() {
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)
             val fromSeason = intent.getBooleanExtra("fromSeason", false)
+            val subType = intent.getIntExtra("subType", 0)
+            val epid = intent.getIntExtra("epid", 0)
+            val seasonId = intent.getIntExtra("seasonId", 0)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(aid, cid)
@@ -119,6 +124,9 @@ class VideoPlayerActivity : ComponentActivity() {
                 this.partTitle = partTitle
                 this.lastPlayed = played
                 this.fromSeason = fromSeason
+                this.subType = subType
+                this.epid = epid
+                this.seasonId = seasonId
             }
         } else {
             logger.fInfo { "Null launch parameter" }
