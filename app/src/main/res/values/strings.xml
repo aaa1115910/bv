@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">BV</string>
 
     <string name="confirm">确认</string>
@@ -10,10 +10,21 @@
 
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
+    <string name="follow_bangumi_disable_fail">取消追番失败</string>
+    <string name="follow_bangumi_enable_fail">追番失败</string>
+
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_no_more">就只有这么多了</string>
 
-    <string name="loading">加载中...</string>
+    <string name="loading" tools:ignore="TypographyEllipsis">加载中...</string>
+
+    <string name="login_error">出现错误</string>
+    <string name="login_expired">二维码已过期</string>
+    <string name="login_requesting">请求二维码中</string>
+    <string name="login_retry">按下 确认键 重试</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_wait_for_confirm">请确认登录</string>
+    <string name="login_wait_for_scan">请扫描二维码</string>
 
     <string name="logout_dialog_confirm">gkd 别墨迹</string>
     <string name="logout_dialog_dismiss">不，我不想</string>
@@ -38,6 +49,7 @@
     <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
     <string name="region_block_character_painting">:(</string>
+    <string name="region_block_qr_content">扫码也没有用的！</string>
     <string name="region_block_solution_text">不要在中国大陆地区使用该应用</string>
     <string name="region_block_solution_title">该问题的解决方法就是：</string>
     <string name="region_block_subtitle">您无法在中国大陆区域使用 Bug Video</string>
@@ -67,6 +79,9 @@
     <string name="resolution_dolby_vision">杜比视界</string>
     <string name="resolution_hdr">HDR 真彩色</string>
     <string name="resolution_hdr_short">HDR</string>
+
+    <string name="season_feature_film">正片</string>
+    <string name="season_no_feature_film">还没有正片</string>
 
     <string name="settings_info_manufacturer">厂商: %1$s</string>
     <string name="settings_info_memory">内存: %1$s</string>
@@ -106,7 +121,7 @@
     <string name="top_nav_item_anime">番剧</string>
     <string name="top_nav_item_dynamics">动态</string>
     <string name="top_nav_item_partition">分区</string>
-    <string name="top_nav_item_popular">热门推荐</string>
+    <string name="top_nav_item_popular">热门</string>
     <string name="top_nav_item_search">搜索</string>
 
     <string name="user_homepage_anime">我追的番</string>
@@ -116,10 +131,15 @@
     <string name="video_aspect_ratio_default">默认</string>
     <string name="video_aspect_ratio_four_to_three">4:3</string>
     <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
-    <string name="video_codec_av1">AV1</string>
+    <string name="video_codec_av1" tools:ignore="Typos">AV1</string>
     <string name="video_codec_avc">H.264</string>
-    <string name="video_codec_dvh1">Dolby Vision (DVH1)</string>
+    <string name="video_codec_dvh1" tools:ignore="Typos">Dolby Vision (DVH1)</string>
     <string name="video_codec_hevc">H.265</string>
-    <string name="video_codec_hvc1">Dolby Vision (HVC1)</string>
+    <string name="video_codec_hvc1" tools:ignore="Typos">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
+    <string name="video_info_description">视频简介</string>
+    <string name="video_info_related_video">视频推荐</string>
+    <string name="video_info_tags">标签</string>
+    <string name="video_info_time">投稿时间: %1$s</string>
+    <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
 </resources>

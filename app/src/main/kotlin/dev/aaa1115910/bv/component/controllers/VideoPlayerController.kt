@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
 import dev.aaa1115910.bv.entity.DanmakuSize
@@ -285,7 +286,7 @@ fun VideoPlayerController(
                                     (context as Activity).finish()
                                 } else {
                                     lastPressBack = currentTime
-                                    "再次按下返回键退出播放".toast(context)
+                                    R.string.video_player_press_back_again_to_exit.toast(context)
                                 }
                             }
                             return@onPreviewKeyEvent true

@@ -89,7 +89,7 @@ fun TopNav(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "BV",
+                    text = "Bug Video",
                     fontSize = 13.sp,
                     modifier = Modifier
                         .alpha(0.5f)

@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
@@ -324,7 +326,7 @@ fun VideoInfoScreen(
                     }
                     item {
                         VideosRow(
-                            header = "视频推荐",
+                            header = stringResource(R.string.video_info_related_video),
                             videos = relatedVideos,
                             showMore = {}
                         )
@@ -387,7 +389,8 @@ fun VideoInfoData(
                 color = Color.White
             )
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     modifier = Modifier.weight(1f),
@@ -405,19 +408,16 @@ fun VideoInfoData(
                         Text(text = videoInfo.owner.name, color = Color.White)
                     }
                 }
-                Row(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "投稿时间：",
-                        color = Color.White
-                    )
-                    Text(
-                        text = Date(videoInfo.ctime.toLong() * 1000).formatPubTimeString(),
-                        maxLines = 1,
-                        color = Color.White
-                    )
-                }
+
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(
+                        R.string.video_info_time,
+                        Date(videoInfo.ctime.toLong() * 1000).formatPubTimeString()
+                    ),
+                    maxLines = 1,
+                    color = Color.White
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -447,7 +447,7 @@ fun VideoInfoData(
             }
             Row {
                 Text(
-                    text = "标签",
+                    text = stringResource(R.string.video_info_tags),
                     color = Color.White
                 )
                 TvLazyRow {
@@ -473,7 +473,7 @@ fun VideoDescription(
             .padding(horizontal = 50.dp),
     ) {
         Text(
-            text = "视频简介",
+            text = stringResource(R.string.video_info_description),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -517,7 +517,7 @@ fun VideoDescriptionDialog(
             onDismissRequest = { onHideDialog() },
             title = {
                 Text(
-                    text = "视频简介",
+                    text = stringResource(R.string.video_info_description),
                     color = Color.White
                 )
             },
