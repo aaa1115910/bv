@@ -12,6 +12,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
@@ -704,6 +705,9 @@ object BiliApi {
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
+    /**
+     * 获取剧集更新时间表
+     */
     suspend fun getTimeline(
         type: TimelineType,
         before: Int,
@@ -733,6 +737,9 @@ object BiliApi {
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
+    /**
+     * 更改与用户[mid]之间的相互关系[action]
+     */
     suspend fun modifyFollow(
         mid: Long,
         action: FollowAction,
@@ -748,6 +755,21 @@ object BiliApi {
                 append("csrf", csrf)
             }
         ))
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取与用户[mid]的相互关系[RelationData]
+     *
+     * 有两个api，响应相同
+     * - https://api.bilibili.com/x/space/acc/relation
+     * - https://api.bilibili.com/x/web-interface/relation
+     */
+    suspend fun getRelations(
+        mid: Long,
+        sessData: String = ""
+    ): BiliResponse<RelationData> = client.get("/x/space/acc/relation") {
+        parameter("mid", mid)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }

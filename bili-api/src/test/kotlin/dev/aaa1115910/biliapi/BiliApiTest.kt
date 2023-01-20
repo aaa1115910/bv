@@ -405,4 +405,16 @@ internal class BiliApiTest {
             )
         }
     }
+
+    @Test
+    fun `get relations`(){
+        runBlocking {
+            println(
+                BiliApi.getRelations(
+                    mid=11336264,
+                    sessData = SESSDATA
+                )
+            )
+        }
+    }
 }
