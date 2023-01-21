@@ -51,3 +51,12 @@ private object RelationTypeSerializer : CommonEnumIntSerializer<RelationType>(
 enum class RelationType(override val serialNumber: Int) : SerialEnum {
     None(0), FollowedQuietly(1), Followed(2), BothFollowed(6), BlackList(128)
 }
+
+@Serializable
+data class RelationStat(
+    val black: Int,
+    val follower: Int,
+    val following: Int,
+    val mid: Long,
+    val whisper: Int
+)

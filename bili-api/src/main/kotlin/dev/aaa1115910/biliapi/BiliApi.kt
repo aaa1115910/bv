@@ -13,6 +13,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.RelationData
+import dev.aaa1115910.biliapi.entity.user.RelationStat
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
@@ -771,5 +772,14 @@ object BiliApi {
     ): BiliResponse<RelationData> = client.get("/x/space/acc/relation") {
         parameter("mid", mid)
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取用户[mid]的关系统计（关注数，粉丝数，黑名单数）
+     */
+    suspend fun getRelationStat(
+        mid: Long
+    ): BiliResponse<RelationStat> = client.get("x/relation/stat") {
+        parameter("vmid", mid)
     }.body()
 }
