@@ -6,9 +6,13 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
-import dev.aaa1115910.biliapi.entity.season.FollowData
+import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.season.SeasonData
+import dev.aaa1115910.biliapi.entity.user.FollowAction
+import dev.aaa1115910.biliapi.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
@@ -23,6 +27,9 @@ import dev.aaa1115910.biliapi.entity.video.CheckSentCoin
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
+import dev.aaa1115910.biliapi.entity.video.Tag
+import dev.aaa1115910.biliapi.entity.video.Timeline
+import dev.aaa1115910.biliapi.entity.video.TimelineType
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import io.ktor.client.HttpClient
@@ -648,7 +655,7 @@ object BiliApi {
         seasonId: Int,
         csrf: String,
         sessData: String
-    ): BiliResponse<FollowData> = client.post("/pgc/web/follow/add") {
+    ): BiliResponse<SeasonFollowData> = client.post("/pgc/web/follow/add") {
         parameter("season_id", seasonId)
         parameter("csrf", csrf)
         header("Cookie", "SESSDATA=$sessData;")
@@ -663,7 +670,7 @@ object BiliApi {
         seasonId: Int,
         csrf: String,
         sessData: String
-    ): BiliResponse<FollowData> = client.post("/pgc/web/follow/del") {
+    ): BiliResponse<SeasonFollowData> = client.post("/pgc/web/follow/del") {
         parameter("season_id", seasonId)
         parameter("csrf", csrf)
         header("Cookie", "SESSDATA=$sessData;")
@@ -682,5 +689,87 @@ object BiliApi {
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 获取视频[avid]/[bvid]的视频标签[Tag]
+     */
+    suspend fun getVideoTags(
+        avid: Int? = null,
+        bvid: String? = null,
+        sessData: String = ""
+    ): BiliResponse<List<Tag>> = client.get("/x/tag/archive/tags") {
+        require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        avid?.let { parameter("aid", it) }
+        bvid?.let { parameter("bvid", it) }
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取剧集更新时间表
+     */
+    suspend fun getTimeline(
+        type: TimelineType,
+        before: Int,
+        after: Int
+    ): BiliResponse<List<Timeline>> = client.get("/pgc/web/timeline") {
+        require(before in 0..7) { "before must in [0,7]" }
+        require(after in 0..7) { "after must in [0,7]" }
+        parameter("types", type.id)
+        parameter("before", before)
+        parameter("after", after)
+    }.body()
+
+    /**
+     * 获取用户[mid]的关注列表，对于其他用户只能访问前5页
+     */
+    suspend fun getUserFollow(
+        mid: Long,
+        orderType: String? = null,
+        pageSize: Int = 50,
+        pageNumber: Int = 1,
+        sessData: String = ""
+    ): BiliResponse<UserFollowData> = client.get("/x/relation/followings") {
+        parameter("vmid", mid)
+        orderType?.let { parameter("order_type", orderType) }
+        parameter("ps", pageSize)
+        parameter("pn", pageNumber)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 更改与用户[mid]之间的相互关系[action]
+     */
+    suspend fun modifyFollow(
+        mid: Long,
+        action: FollowAction,
+        actionSource: FollowActionSource,
+        csrf: String,
+        sessData: String = ""
+    ): BiliResponseWithoutData = client.post("/x/relation/modify") {
+        setBody(FormDataContent(
+            Parameters.build {
+                append("fid", "$mid")
+                append("act", "${action.id}")
+                append("re_src", "${actionSource.id}")
+                append("csrf", csrf)
+            }
+        ))
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取与用户[mid]的相互关系[RelationData]
+     *
+     * 有两个api，响应相同
+     * - https://api.bilibili.com/x/space/acc/relation
+     * - https://api.bilibili.com/x/web-interface/relation
+     */
+    suspend fun getRelations(
+        mid: Long,
+        sessData: String = ""
+    ): BiliResponse<RelationData> = client.get("/x/space/acc/relation") {
+        parameter("mid", mid)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }

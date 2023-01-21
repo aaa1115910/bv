@@ -1,6 +1,8 @@
 package dev.aaa1115910.bv.screen
 
+import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
@@ -66,6 +69,7 @@ fun HomeScreen(
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
+    var lastPressBack: Long by remember { mutableStateOf(0) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
 
@@ -90,6 +94,17 @@ fun HomeScreen(
         } else {
             //logout
             userViewModel.clearUserInfo()
+        }
+    }
+
+    BackHandler(!showUserPanel) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPressBack < 1000 * 3) {
+            logger.fInfo { "Exiting bug video" }
+            (context as Activity).finish()
+        } else {
+            lastPressBack = currentTime
+            R.string.home_press_back_again_to_exit.toast(context)
         }
     }
 

@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,17 +72,20 @@ import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.requestFocus
+import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -236,7 +240,7 @@ fun SeasonInfoScreen(
                             playCid = seasonData?.episodes?.first()?.cid ?: -1
                             playEpid = seasonData?.episodes?.first()?.id ?: -1
                             if (playCid == -1) {
-                                "还没有正片".toast(context)
+                                R.string.season_no_feature_film.toast(context)
                             } else {
                                 episodeList = seasonData?.episodes ?: emptyList()
                             }
@@ -310,7 +314,7 @@ fun SeasonInfoScreen(
                                 }.onFailure {
                                     logger.fInfo { "Del season follow failed: ${it.stackTraceToString()}" }
                                     withContext(Dispatchers.Main) {
-                                        "取消追番失败".toast(context)
+                                        R.string.follow_bangumi_disable_fail.toast(context)
                                     }
                                 }
                             }
@@ -329,7 +333,7 @@ fun SeasonInfoScreen(
                                 }.onFailure {
                                     logger.fInfo { "Add season follow failed: ${it.stackTraceToString()}" }
                                     withContext(Dispatchers.Main) {
-                                        "追番失败".toast(context)
+                                        R.string.follow_bangumi_enable_fail.toast(context)
                                     }
                                 }
                             }
@@ -339,7 +343,7 @@ fun SeasonInfoScreen(
             }
             item {
                 SeasonEpisodeRow(
-                    title = "正片",
+                    title = stringResource(R.string.season_feature_film),
                     episodes = seasonData?.episodes ?: emptyList(),
                     lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
                     lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
@@ -522,7 +526,7 @@ fun SeasonEpisodeButton(
                         .aspectRatio(1.6f)
                         .clip(MaterialTheme.shapes.medium)
                         .background(if (isPreview) Color.White else Color.Transparent),
-                    model = "$cover@180h_288w_1c.webp",
+                    model = cover.resizedImageUrl(ImageSize.Cover),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
                 )

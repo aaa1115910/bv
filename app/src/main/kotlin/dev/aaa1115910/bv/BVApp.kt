@@ -18,6 +18,7 @@ import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
+import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
 import org.koin.android.ext.koin.androidContext
@@ -61,6 +62,7 @@ val appModule = module {
     viewModel { HistoryViewModel(get()) }
     viewModel { FavoriteViewModel() }
     viewModel { UpInfoViewModel() }
+    viewModel { FollowViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

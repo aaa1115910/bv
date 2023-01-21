@@ -1,6 +1,8 @@
 package dev.aaa1115910.bv.screen
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,8 +22,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -47,6 +53,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,9 +69,14 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.user.FollowAction
+import dev.aaa1115910.biliapi.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.entity.user.RelationData
+import dev.aaa1115910.biliapi.entity.user.RelationType
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
@@ -91,7 +103,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import java.util.Date
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
@@ -106,6 +117,7 @@ fun VideoInfoScreen(
 
     var videoInfo: VideoInfo? by remember { mutableStateOf(null) }
     val relatedVideos = remember { mutableStateListOf<VideoCardData>() }
+    var relations: RelationData? by remember { mutableStateOf(null) }
 
     var lastPlayedCid by remember { mutableStateOf(0) }
     var lastPlayedTime by remember { mutableStateOf(0) }
@@ -129,6 +141,62 @@ fun VideoInfoScreen(
             }
         }
     }
+
+    val updateRelationVideos: (avid: Long) -> Unit = { avid ->
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                val response = BiliApi.getRelatedVideos(avid = avid)
+                relatedVideos.swapList(response.data.map {
+                    VideoCardData(
+                        avid = it.aid,
+                        title = it.title,
+                        cover = it.pic,
+                        upName = it.owner.name,
+                        time = it.duration * 1000L,
+                        play = it.stat.view,
+                        danmaku = it.stat.danmaku
+                    )
+                })
+            }.onFailure {
+                withContext(Dispatchers.Main) {
+                    "获取相关视频失败：${it.localizedMessage}".toast(context)
+                }
+                logger.fException(it) { "Get related videos failed" }
+            }
+        }
+    }
+
+    val updateRelationData: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                logger.fInfo { "Get relation data with user ${videoInfo?.owner?.mid}" }
+                relations = BiliApi.getRelations(
+                    mid = videoInfo?.owner?.mid ?: -1, sessData = Prefs.sessData
+                ).getResponseData()
+            }.onFailure {
+                logger.fInfo { "Get relation data failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
+
+    val modifyRelation: (action: FollowAction, afterModify: () -> Unit) -> Unit =
+        { action, afterModify ->
+            scope.launch(Dispatchers.Default) {
+                runCatching {
+                    logger.fInfo { "Modify relation: $action" }
+                    BiliApi.modifyFollow(
+                        mid = videoInfo?.owner?.mid ?: -1,
+                        action = action,
+                        actionSource = FollowActionSource.Video,
+                        csrf = Prefs.biliJct,
+                        sessData = Prefs.sessData
+                    )
+                    afterModify()
+                }.onFailure {
+                    logger.fInfo { "Modify relation failed: ${it.stackTraceToString()}" }
+                }
+            }
+        }
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
@@ -175,28 +243,7 @@ fun VideoInfoScreen(
             }
             //如果是从剧集跳转过来的，就不需要获取相关视频，因为页面一直都是 Loading
             if (!fromSeason) {
-                //获取相关视频
-                scope.launch(Dispatchers.Default) {
-                    runCatching {
-                        val response = BiliApi.getRelatedVideos(avid = aid.toLong())
-                        relatedVideos.swapList(response.data.map {
-                            VideoCardData(
-                                avid = it.aid,
-                                title = it.title,
-                                cover = it.pic,
-                                upName = it.owner.name,
-                                time = it.duration * 1000L,
-                                play = it.stat.view,
-                                danmaku = it.stat.danmaku
-                            )
-                        })
-                    }.onFailure {
-                        withContext(Dispatchers.Main) {
-                            "获取相关视频失败：${it.localizedMessage}".toast(context)
-                        }
-                        logger.fException(it) { "Get related videos failed" }
-                    }
-                }
+                updateRelationVideos(aid.toLong())
             }
         }
     }
@@ -220,6 +267,8 @@ fun VideoInfoScreen(
             } else {
                 logger.fInfo { "No redirection required" }
             }
+
+            if (!fromSeason) updateRelationData()
         }
     }
 
@@ -277,6 +326,7 @@ fun VideoInfoScreen(
                     item {
                         VideoInfoData(
                             videoInfo = videoInfo!!,
+                            relations = relations,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
                                 VideoPlayerActivity.actionStart(
@@ -295,6 +345,16 @@ fun VideoInfoScreen(
                                     mid = videoInfo!!.owner.mid,
                                     name = videoInfo!!.owner.name
                                 )
+                            },
+                            onAddFollow = {
+                                modifyRelation(FollowAction.AddFollow) {
+                                    updateRelationData()
+                                }
+                            },
+                            onDelFollow = {
+                                modifyRelation(FollowAction.DelFollow) {
+                                    updateRelationData()
+                                }
                             }
                         )
                     }
@@ -324,7 +384,7 @@ fun VideoInfoScreen(
                     }
                     item {
                         VideosRow(
-                            header = "视频推荐",
+                            header = stringResource(R.string.video_info_related_video),
                             videos = relatedVideos,
                             showMore = {}
                         )
@@ -339,8 +399,11 @@ fun VideoInfoScreen(
 fun VideoInfoData(
     modifier: Modifier = Modifier,
     videoInfo: VideoInfo,
+    relations: RelationData?,
     onClickCover: () -> Unit,
-    onClickUp: () -> Unit
+    onClickUp: () -> Unit,
+    onAddFollow: () -> Unit,
+    onDelFollow: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -387,37 +450,36 @@ fun VideoInfoData(
                 color = Color.White
             )
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.small)
-                            .background(Color.White.copy(alpha = 0.2f))
-                            .focusedBorder(MaterialTheme.shapes.small)
-                            .padding(4.dp)
-                            .clickable { onClickUp() }
-                    ) {
-                        UpIcon(color = Color.White)
-                        Text(text = videoInfo.owner.name, color = Color.White)
-                    }
-                }
-                Row(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "投稿时间：",
-                        color = Color.White
-                    )
-                    Text(
-                        text = Date(videoInfo.ctime.toLong() * 1000).formatPubTimeString(),
-                        maxLines = 1,
-                        color = Color.White
+                    UpButton(
+                        name = videoInfo.owner.name,
+                        followed = listOf(
+                            RelationType.Followed,
+                            RelationType.FollowedQuietly,
+                            RelationType.BothFollowed
+                        ).contains(relations?.relation?.attribute),
+                        showFollowButton = relations != null,
+                        onClickUp = onClickUp,
+                        onAddFollow = onAddFollow,
+                        onDelFollow = onDelFollow
                     )
                 }
+
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(
+                        R.string.video_info_time,
+                        Date(videoInfo.ctime.toLong() * 1000).formatPubTimeString()
+                    ),
+                    maxLines = 1,
+                    color = Color.White
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -447,11 +509,61 @@ fun VideoInfoData(
             }
             Row {
                 Text(
-                    text = "标签",
+                    text = stringResource(R.string.video_info_tags),
                     color = Color.White
                 )
                 TvLazyRow {
 
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UpButton(
+    modifier: Modifier = Modifier,
+    name: String,
+    followed: Boolean,
+    showFollowButton: Boolean = false,
+    onClickUp: () -> Unit,
+    onAddFollow: () -> Unit,
+    onDelFollow: () -> Unit
+) {
+    val isLogin by remember { mutableStateOf(Prefs.isLogin) }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .background(Color.White.copy(alpha = 0.2f))
+                .focusedBorder(MaterialTheme.shapes.small)
+                .padding(4.dp)
+                .clickable { onClickUp() }
+        ) {
+            UpIcon(color = Color.White)
+            Text(text = name, color = Color.White)
+        }
+        AnimatedVisibility(visible = isLogin && showFollowButton) {
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.small)
+                    .background(Color.White.copy(alpha = 0.2f))
+                    .focusedBorder(MaterialTheme.shapes.small)
+                    .padding(horizontal = 4.dp, vertical = 3.dp)
+                    .clickable { if (followed) onDelFollow() else onAddFollow() }
+                    .animateContentSize()
+            ) {
+                if (followed) {
+                    Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
+                    Text(text = "已关注", color = Color.White)
+                } else {
+                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                    Text(text = "关注", color = Color.White)
                 }
             }
         }
@@ -473,7 +585,7 @@ fun VideoDescription(
             .padding(horizontal = 50.dp),
     ) {
         Text(
-            text = "视频简介",
+            text = stringResource(R.string.video_info_description),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -517,7 +629,7 @@ fun VideoDescriptionDialog(
             onDismissRequest = { onHideDialog() },
             title = {
                 Text(
-                    text = "视频简介",
+                    text = stringResource(R.string.video_info_description),
                     color = Color.White
                 )
             },
@@ -663,5 +775,20 @@ fun VideoPartRowPreview() {
 fun VideoDescriptionPreview() {
     BVTheme {
         VideoDescription(description = "12435678")
+    }
+}
+
+@Preview
+@Composable
+private fun UpButtonPreview() {
+    var followed by remember { mutableStateOf(false) }
+    BVTheme {
+        UpButton(
+            name = "12435678",
+            followed = followed,
+            onClickUp = { followed = !followed },
+            onAddFollow = {},
+            onDelFollow = {}
+        )
     }
 }

@@ -23,8 +23,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.LoginState
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
@@ -42,7 +44,7 @@ fun QRLoginScreen(
 
     LaunchedEffect(loginViewModel.state) {
         if (loginViewModel.state == LoginState.LoginSuccess) {
-            "登录成功".toast(context)
+            R.string.login_success.toast(context)
             (context as Activity).finish()
         }
     }
@@ -92,12 +94,12 @@ fun QRLoginScreen(
             ) {
                 Text(
                     text = when (loginViewModel.state) {
-                        LoginState.Ready, LoginState.RequestingQRCode -> "请求二维码中"
-                        LoginState.WaitToScan -> "请扫描二维码"
-                        LoginState.WaitToConfirm -> "请确认登录"
-                        LoginState.QRExpired -> "二维码已过期"
-                        LoginState.LoginSuccess -> "登录成功"
-                        LoginState.Error -> "出现错误"
+                        LoginState.Ready, LoginState.RequestingQRCode -> stringResource(R.string.login_requesting)
+                        LoginState.WaitToScan -> stringResource(R.string.login_wait_for_scan)
+                        LoginState.WaitToConfirm -> stringResource(R.string.login_wait_for_confirm)
+                        LoginState.QRExpired -> stringResource(R.string.login_expired)
+                        LoginState.LoginSuccess -> stringResource(R.string.login_success)
+                        LoginState.Error -> stringResource(R.string.login_error)
                     },
                     style = MaterialTheme.typography.displaySmall,
                     color = Color.White
@@ -107,7 +109,7 @@ fun QRLoginScreen(
                         .contains(loginViewModel.state)
                 ) {
                     Text(
-                        text = "按下 确认键 重试",
+                        text = stringResource(R.string.login_retry),
                         style = MaterialTheme.typography.displaySmall,
                         color = Color.White,
                         fontSize = 26.sp

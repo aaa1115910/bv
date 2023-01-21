@@ -54,7 +54,7 @@ fun RegionBlockScreen(
     LaunchedEffect(Unit) {
         println(primaryColorHex)
         val output = ByteArrayOutputStream()
-        QRCode("扫码也没有用的！")
+        QRCode(context.getString(R.string.region_block_qr_content))
             .render(darkColor = Colors.css(primaryColorHex))
             .writeImage(output)
         val input = ByteArrayInputStream(output.toByteArray())

@@ -1,5 +1,8 @@
 package dev.aaa1115910.biliapi
 
+import dev.aaa1115910.biliapi.entity.user.FollowAction
+import dev.aaa1115910.biliapi.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.entity.video.TimelineType
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 
@@ -330,6 +333,86 @@ internal class BiliApiTest {
             println(
                 BiliApi.getSeasonInfo(
                     epId = 705917
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get video tags`() {
+        runBlocking {
+            println(
+                BiliApi.getVideoTags(
+                    avid = 170001
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get timeline`() {
+        runBlocking {
+            TimelineType.values().forEach { timelineType ->
+                println(
+                    BiliApi.getTimeline(
+                        type = timelineType,
+                        before = 7,
+                        after = 7
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `get follow list`() {
+        runBlocking {
+            println(
+                BiliApi.getUserFollow(
+                    mid = 3066511,
+                    sessData = SESSDATA
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `add follow`() {
+        runBlocking {
+            println(
+                BiliApi.modifyFollow(
+                    mid = 3066511,
+                    action = FollowAction.AddFollow,
+                    actionSource = FollowActionSource.Space,
+                    csrf = BILI_JCT,
+                    sessData = SESSDATA
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `delete follow`() {
+        runBlocking {
+            println(
+                BiliApi.modifyFollow(
+                    mid = 3066511,
+                    action = FollowAction.DelFollow,
+                    actionSource = FollowActionSource.Space,
+                    csrf = BILI_JCT,
+                    sessData = SESSDATA
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get relations`(){
+        runBlocking {
+            println(
+                BiliApi.getRelations(
+                    mid=11336264,
+                    sessData = SESSDATA
                 )
             )
         }
