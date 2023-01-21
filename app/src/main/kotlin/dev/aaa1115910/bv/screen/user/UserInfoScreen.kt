@@ -59,6 +59,7 @@ import dev.aaa1115910.biliapi.entity.AuthFailureException
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
+import dev.aaa1115910.bv.activities.user.FollowActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.VideoCardData
@@ -101,6 +102,7 @@ fun UserInfoScreen(
 
     var focusOnUserInfo by remember { mutableStateOf(false) }
     var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
+    var focusOnFollowedUserCard by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -232,17 +234,30 @@ fun UserInfoScreen(
                             ?: "",
                         onFocusChange = { hasFocus ->
                             focusOnUserInfo = hasFocus
-                            showLargeTitle = focusOnUserInfo || focusOnIncognitoModeCard
+                            showLargeTitle =
+                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
                         },
                         onClick = { showLogoutConfirmDialog = true }
                     )
                     IncognitoModeCard(
                         onFocusChange = { hasFocus ->
                             focusOnIncognitoModeCard = hasFocus
-                            showLargeTitle = focusOnUserInfo || focusOnIncognitoModeCard
+                            showLargeTitle =
+                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
                         },
                         onClick = {
                             Prefs.incognitoMode = !Prefs.incognitoMode
+                        }
+                    )
+                    FollowedUserCard(
+                        onFocusChange = { hasFocus ->
+                            focusOnFollowedUserCard = hasFocus
+                            showLargeTitle =
+                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
+                        },
+                        size = 9999,
+                        onClick = {
+                            context.startActivity(Intent(context, FollowActivity::class.java))
                         }
                     )
                 }
@@ -464,6 +479,39 @@ fun IncognitoModeCard(
             )
             Text(
                 text = if (enabled) "已开启" else "未开启",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+@Composable
+fun FollowedUserCard(
+    modifier: Modifier = Modifier,
+    size: Int,
+    onFocusChange: (hasFocus: Boolean) -> Unit,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .onFocusChanged { onFocusChange(it.hasFocus) }
+            .height(140.dp)
+            .focusedBorder(MaterialTheme.shapes.large)
+            .clickable { onClick() },
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.user_homepage_follow),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = "$size",
                 style = MaterialTheme.typography.titleMedium
             )
         }

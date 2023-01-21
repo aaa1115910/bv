@@ -110,6 +110,7 @@
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
     <string name="title_activity_favorite">个人收藏</string>
+    <string name="title_activity_follow">已关注</string>
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
     <string name="title_activity_season_info">剧集信息</string>
@@ -128,6 +129,7 @@
 
     <string name="user_homepage_anime">我追的番</string>
     <string name="user_homepage_favorite">私人藏品</string>
+    <string name="user_homepage_follow">已关注</string>
     <string name="user_homepage_recent">最近播放记录</string>
 
     <string name="video_aspect_ratio_default">默认</string>
