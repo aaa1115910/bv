@@ -124,7 +124,6 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
-    implementation(libs.icu4j.localespi)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.kotlinx.serialization)
