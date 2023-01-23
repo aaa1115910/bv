@@ -1,2 +1,5 @@
 /build
 /google-services.json
+/release
+/r8Test
+/debug
