@@ -1,13 +1,13 @@
 [versions]
-activity = "1.7.0-alpha02"
-compose-bom = "2022.12.00"
+activity = "1.7.0-alpha03"
+compose-bom = "2023.01.00"
 compose-tv = "1.0.0-alpha03"
 core = "1.9.0"
 core-splashscreen = "1.0.0"
 dataStore = "1.1.0-alpha01"
-lifecycle = "2.6.0-alpha03"
+lifecycle = "2.6.0-alpha04"
 media3 = "1.0.0-beta03"
-webkit = "1.6.0-beta01"
+webkit = "1.7.0-alpha01"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity

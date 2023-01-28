@@ -1,15 +1,15 @@
 [versions]
 akdanmaku = "1.0.3"
 coil = "2.2.2"
-firebase-bom = "31.1.1"
-material = "1.8.0-beta01"
+firebase-bom = "31.2.0"
+material = "1.9.0-alpha01"
 koin = "3.2.2"
 kotlinx-serialization = "1.4.1"
 ktor = "2.2.2"
 logging = "3.0.4"
 qrcode = "3.3.0"
 rememberPreference = "1.0.0"
-slf4j-android-mvysny = "2.0.0"
+slf4j-android-mvysny = "2.0.4"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku
