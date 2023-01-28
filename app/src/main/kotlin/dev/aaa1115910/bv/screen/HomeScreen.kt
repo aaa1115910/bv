@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -70,8 +72,15 @@ fun HomeScreen(
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
     var lastPressBack: Long by remember { mutableStateOf(0) }
+    var focusInNav by remember { mutableStateOf(false) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
+    val navFocusRequester = remember { FocusRequester() }
+
+    val onFocusBackToNav: () -> Unit = {
+        println("onFocusBackToNav")
+        focusInNav = true
+    }
 
     //启动时刷新数据
     LaunchedEffect(Unit) {
@@ -115,9 +124,11 @@ fun HomeScreen(
             modifier = Modifier,
             topBar = {
                 TopNav(
+                    modifier = Modifier.focusRequester(navFocusRequester),
                     isLogin = userViewModel.isLogin,
                     username = userViewModel.username,
                     face = userViewModel.face,
+                    focusInNav = focusInNav,
                     settingsButtonFocusRequester = settingsButtonFocusRequester,
                     onSelectedChange = { nav ->
                         selectedTab = nav
@@ -181,22 +192,29 @@ fun HomeScreen(
             containerColor = Color.Black
         ) { innerPadding ->
             Box(
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .onFocusChanged {
+                        focusInNav = !it.hasFocus
+                    }
             ) {
                 Crossfade(targetState = selectedTab) { screen ->
                     when (screen) {
                         TopNavItem.Popular -> PopularScreen(
-                            tvLazyGridState = popularState
+                            tvLazyGridState = popularState,
+                            onBackNav = onFocusBackToNav
                         )
 
                         TopNavItem.Partition -> PartitionScreen()
                         TopNavItem.Anime -> AnimeScreen()
                         TopNavItem.Dynamics -> DynamicsScreen(
-                            tvLazyGridState = dynamicState
+                            tvLazyGridState = dynamicState,
+                            onBackNav = onFocusBackToNav
                         )
 
                         else -> PopularScreen(
-                            tvLazyGridState = popularState
+                            tvLazyGridState = popularState,
+                            onBackNav = onFocusBackToNav
                         )
                     }
                 }
