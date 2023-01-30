@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.activities.search.SearchInputActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
@@ -182,7 +183,9 @@ fun HomeScreen(
                             }
 
                             TopNavItem.Search -> {
-
+                                context.startActivity(
+                                    Intent(context, SearchInputActivity::class.java)
+                                )
                             }
                         }
                     },

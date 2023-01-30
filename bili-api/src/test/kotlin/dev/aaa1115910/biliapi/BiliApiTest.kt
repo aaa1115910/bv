@@ -407,12 +407,41 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun `get relations`(){
+    fun `get user relations`() {
         runBlocking {
             println(
                 BiliApi.getRelations(
-                    mid=11336264,
+                    mid = 11336264,
                     sessData = SESSDATA
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get user relation stat`() {
+        runBlocking {
+            println(
+                BiliApi.getRelationStat(
+                    mid = 11336264
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get search hot words`() {
+        runBlocking {
+            println(BiliApi.getHotwords())
+        }
+    }
+
+    @Test
+    fun `get search keyword suggests`(){
+        runBlocking {
+            println(
+                BiliApi.getKeywordSuggest(
+                    term = "和奥托一起泡温泉"
                 )
             )
         }

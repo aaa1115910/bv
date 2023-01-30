@@ -113,6 +113,8 @@
     <string name="title_activity_follow">已关注</string>
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
+    <string name="title_activity_search_input">搜索输入</string>
+    <string name="title_activity_search_result">搜索结果</string>
     <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>

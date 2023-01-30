@@ -6,6 +6,8 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
+import dev.aaa1115910.biliapi.entity.search.HotwordResponse
+import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
@@ -55,6 +57,7 @@ import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import mu.KotlinLogging
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -62,6 +65,12 @@ object BiliApi {
     private var endPoint: String = ""
     private lateinit var client: HttpClient
     private val logger = KotlinLogging.logger { }
+
+    private val json = Json {
+        coerceInputValues = true
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
 
     init {
         createClient()
@@ -71,11 +80,7 @@ object BiliApi {
         client = HttpClient(OkHttp) {
             BrowserUserAgent()
             install(ContentNegotiation) {
-                json(Json {
-                    coerceInputValues = true
-                    ignoreUnknownKeys = true
-                    prettyPrint = true
-                })
+                json(json)
             }
             install(ContentEncoding) {
                 deflate(1.0F)
@@ -782,4 +787,36 @@ object BiliApi {
     ): BiliResponse<RelationStat> = client.get("x/relation/stat") {
         parameter("vmid", mid)
     }.body()
+
+    /**
+     * 获取搜索热词
+     */
+    suspend fun getHotwords(): HotwordResponse =
+        client.get("https://s.search.bilibili.com/main/hotword").body()
+
+    /**
+     * 获取搜索关键词建议
+     *
+     * 如果请求不带 [mainVer]，那返回的响应将只会包含 result，但不便于数据处理
+     *
+     * 如果请求中包含了 [highlight]，在返回的结果中 [KeywordSuggest.Result.tag] 的 name 会包含高亮的 html 标签
+     */
+    suspend fun getKeywordSuggest(
+        term: String,
+        mainVer: String = "v1",
+        highlight: String? = null
+    ): KeywordSuggest {
+        val response: KeywordSuggest = client.get("https://s.search.bilibili.com/main/suggest") {
+            parameter("term", term)
+            parameter("main_ver", mainVer)
+            highlight?.let { parameter("highlight", it) }
+        }.body()
+        if (response.code == 0) {
+            runCatching {
+                val result = json.decodeFromJsonElement<KeywordSuggest.Result>(response.result!!)
+                response.suggests.addAll(result.tag)
+            }
+        }
+        return response
+    }
 }
