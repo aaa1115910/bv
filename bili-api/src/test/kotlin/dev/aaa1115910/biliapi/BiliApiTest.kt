@@ -437,13 +437,40 @@ internal class BiliApiTest {
     }
 
     @Test
-    fun `get search keyword suggests`(){
+    fun `get search keyword suggests`() {
         runBlocking {
             println(
                 BiliApi.getKeywordSuggest(
                     term = "和奥托一起泡温泉"
                 )
             )
+        }
+    }
+
+    @Test
+    fun `search all`() {
+        runBlocking {
+            println(
+                BiliApi.searchAll(
+                    keyword = "007"
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `search type`() {
+        val types =
+            listOf("video", "media_bangumi", "media_ft", "article", "topic", "bili_user")
+        runBlocking {
+            types.forEach { type ->
+                println(
+                    BiliApi.searchType(
+                        keyword = "007",
+                        type = type
+                    )
+                )
+            }
         }
     }
 }

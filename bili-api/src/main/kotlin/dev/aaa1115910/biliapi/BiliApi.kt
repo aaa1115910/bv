@@ -8,6 +8,7 @@ import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.search.HotwordResponse
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
+import dev.aaa1115910.biliapi.entity.search.SearchResultData
 import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
@@ -819,4 +820,28 @@ object BiliApi {
         }
         return response
     }
+
+    /**
+     * 综合搜索与[keyword]相关的结果
+     */
+    suspend fun searchAll(
+        keyword: String,
+        page: Int = 1
+    ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/all/v2") {
+        parameter("keyword", keyword)
+        parameter("page", page)
+    }.body()
+
+    /**
+     * 分类搜索与[keyword]相关的[type]类型的相关结果
+     */
+    suspend fun searchType(
+        keyword: String,
+        type: String,
+        page: Int = 1
+    ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
+        parameter("keyword", keyword)
+        parameter("search_type", type)
+        parameter("page", page)
+    }.body()
 }

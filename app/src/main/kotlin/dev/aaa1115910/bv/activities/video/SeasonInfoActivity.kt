@@ -10,10 +10,11 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 
 class SeasonInfoActivity : ComponentActivity() {
     companion object {
-        fun actionStart(context: Context, epid: Int) {
+        fun actionStart(context: Context, epId: Int? = null, seasonId: Int? = null) {
             context.startActivity(
                 Intent(context, SeasonInfoActivity::class.java).apply {
-                    putExtra("epid", epid)
+                    epId?.let { putExtra("epid", epId) }
+                    seasonId?.let { putExtra("seasonid", seasonId) }
                 }
             )
         }

@@ -156,12 +156,15 @@ fun SeasonInfoScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (intent.hasExtra("epid")) {
-            val epid = intent.getIntExtra("epid", 0)
+        val epId = intent.getIntExtra("epid", 0)
+        val seasonId = intent.getIntExtra("seasonid", 0)
+        logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId]" }
+        if (epId > 0 || seasonId > 0) {
             scope.launch(Dispatchers.Default) {
                 runCatching {
                     val seasonResponse = BiliApi.getSeasonInfo(
-                        epId = epid,
+                        seasonId = if (seasonId > 0) seasonId else null,
+                        epId = if (epId > 0) epId else null,
                         sessData = Prefs.sessData
                     )
                     seasonData = seasonResponse.getResponseData()
@@ -171,6 +174,8 @@ fun SeasonInfoScreen(
                     logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
                 }
             }
+        } else {
+            context.finish()
         }
     }
 
