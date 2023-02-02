@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,13 +57,14 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.AuthFailureException
+import dev.aaa1115910.biliapi.entity.user.RelationStat
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.FollowActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.component.videocard.VideosRow
-import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -96,6 +98,9 @@ fun UserInfoScreen(
     val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
+    var relationStat: RelationStat? by remember { mutableStateOf(null) }
+    val followingNumber by animateIntAsState(targetValue = relationStat?.following ?: 0)
+
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<VideoCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
@@ -103,6 +108,17 @@ fun UserInfoScreen(
     var focusOnUserInfo by remember { mutableStateOf(false) }
     var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
     var focusOnFollowedUserCard by remember { mutableStateOf(false) }
+
+    val updateRelationStat: () -> Unit = {
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                logger.fInfo { "Get relation stat with user ${Prefs.uid}" }
+                relationStat = BiliApi.getRelationStat(mid = Prefs.uid).getResponseData()
+            }.onFailure {
+                logger.fInfo { "Get relation stat failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -195,6 +211,8 @@ fun UserInfoScreen(
                 }
             }
         }
+
+        updateRelationStat()
     }
 
     Scaffold(
@@ -255,7 +273,7 @@ fun UserInfoScreen(
                             showLargeTitle =
                                 focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
                         },
-                        size = 9999,
+                        size = followingNumber,
                         onClick = {
                             context.startActivity(Intent(context, FollowActivity::class.java))
                         }

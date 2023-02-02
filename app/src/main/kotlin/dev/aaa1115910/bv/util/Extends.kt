@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusRequester
+import androidx.core.text.HtmlCompat
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
 import kotlinx.coroutines.CoroutineScope
@@ -95,3 +96,7 @@ fun FocusRequester.requestFocus(scope: CoroutineScope) {
         }
     }
 }
+
+fun String.removeHtmlTags(): String = HtmlCompat.fromHtml(
+    this, HtmlCompat.FROM_HTML_MODE_LEGACY
+).toString()

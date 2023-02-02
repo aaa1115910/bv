@@ -235,6 +235,7 @@ fun VideoPlayerScreen(
         modifier = modifier
             .focusRequester(focusRequester)
             .fillMaxSize(),
+        playbackState=videoPlayer.playbackState,
         infoData = infoData,
 
         resolutionMap = playerViewModel.availableQuality,

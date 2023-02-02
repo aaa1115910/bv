@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.Player
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
@@ -52,6 +53,7 @@ import mu.KotlinLogging
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
+    playbackState: Int? = -1,
     infoData: VideoPlayerInfoData,
     resolutionMap: Map<Int, String> = emptyMap(),
     availableVideoCodec: List<VideoCodec> = emptyList(),
@@ -279,6 +281,11 @@ fun VideoPlayerController(
                                 showPartController = false
                                 return@onPreviewKeyEvent true
                             } else {
+                                //播放停止时按返回键直接退出
+                                if (playbackState == Player.STATE_ENDED) {
+                                    (context as Activity).finish()
+                                    return@onPreviewKeyEvent true
+                                }
                                 val currentTime = System.currentTimeMillis()
                                 if (currentTime - lastPressBack < 1000 * 3) {
                                     logger.fInfo { "Exiting video player" }

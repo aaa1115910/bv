@@ -1,20 +1,19 @@
-package dev.aaa1115910.bv.activities.video
+package dev.aaa1115910.bv.activities.search
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import dev.aaa1115910.bv.screen.SeasonInfoScreen
+import dev.aaa1115910.bv.screen.search.SearchResultScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-class SeasonInfoActivity : ComponentActivity() {
+class SearchResultActivity : ComponentActivity() {
     companion object {
-        fun actionStart(context: Context, epId: Int? = null, seasonId: Int? = null) {
+        fun actionStart(context: Context, keyword: String) {
             context.startActivity(
-                Intent(context, SeasonInfoActivity::class.java).apply {
-                    epId?.let { putExtra("epid", epId) }
-                    seasonId?.let { putExtra("seasonid", seasonId) }
+                Intent(context, SearchResultActivity::class.java).apply {
+                    putExtra("keyword", keyword)
                 }
             )
         }
@@ -24,7 +23,7 @@ class SeasonInfoActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BVTheme {
-                SeasonInfoScreen()
+                SearchResultScreen()
             }
         }
     }

@@ -151,7 +151,7 @@ fun FollowScreen(
 }
 
 @Composable
-private fun UpCard(
+fun UpCard(
     modifier: Modifier = Modifier,
     face: String,
     sign: String,

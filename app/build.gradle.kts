@@ -62,6 +62,18 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
+        create("r8Test"){
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            applicationIdSuffix = ".r8test"
+            if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -124,7 +136,6 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
-    implementation(libs.icu4j.localespi)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.kotlinx.serialization)

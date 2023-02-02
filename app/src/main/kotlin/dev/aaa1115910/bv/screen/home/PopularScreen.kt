@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.screen.home
 
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
@@ -18,7 +20,7 @@ import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
-import dev.aaa1115910.bv.entity.VideoCardData
+import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,13 +30,28 @@ import org.koin.androidx.compose.koinViewModel
 fun PopularScreen(
     modifier: Modifier = Modifier,
     tvLazyGridState: TvLazyGridState,
+    onBackNav: () -> Unit,
     popularViewModel: PopularViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     TvLazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier
+            .onPreviewKeyEvent {
+                when (it.nativeKeyEvent.keyCode) {
+                    KeyEvent.KEYCODE_BACK -> {
+                        if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                            scope.launch(Dispatchers.Main) {
+                                tvLazyGridState.animateScrollToItem(0)
+                            }
+                            onBackNav()
+                        }
+                        return@onPreviewKeyEvent true
+                    }
+                }
+                return@onPreviewKeyEvent false
+            },
         state = tvLazyGridState,
         columns = TvGridCells.Fixed(4),
         contentPadding = PaddingValues(12.dp),
@@ -66,7 +83,6 @@ fun PopularScreen(
                     onFocus = {
                         if (index + 12 > popularViewModel.popularVideoList.size) {
                             scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
-
                         }
                     }
                 )

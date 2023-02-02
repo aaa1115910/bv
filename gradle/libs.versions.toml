@@ -1,16 +1,15 @@
 [versions]
 akdanmaku = "1.0.3"
 coil = "2.2.2"
-firebase-bom = "31.1.1"
-material = "1.8.0-beta01"
-icu4j = "72.1"
+firebase-bom = "31.2.0"
+material = "1.9.0-alpha01"
 koin = "3.2.2"
 kotlinx-serialization = "1.4.1"
 ktor = "2.2.2"
 logging = "3.0.4"
 qrcode = "3.3.0"
 rememberPreference = "1.0.0"
-slf4j-android-mvysny = "2.0.0"
+slf4j-android-mvysny = "2.0.4"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku
@@ -27,9 +26,6 @@ firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-
 
 # https://github.com/material-components/material-components-android
 material = { module = "com.google.android.material:material", version.ref = "material" }
-
-# https://mvnrepository.com/artifact/com.ibm.icu/icu4j-localespi
-icu4j-localespi = { module = "com.ibm.icu:icu4j-localespi", version.ref = "icu4j" }
 
 # https://insert-koin.io
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

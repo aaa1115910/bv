@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ibm.icu.text.Collator
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.bv.util.Prefs
@@ -15,6 +14,7 @@ import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import java.text.Collator
 import java.util.Locale
 import kotlin.math.ceil
 

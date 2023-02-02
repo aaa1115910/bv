@@ -1,7 +1,7 @@
 [versions]
-agp = "7.3.1"
+agp = "7.4.0"
 firebase-crashlytics = "2.9.2"
-gms = "4.3.14"
+gms = "4.3.15"
 kotlin = "1.7.20"
 versions = "0.44.0"
 

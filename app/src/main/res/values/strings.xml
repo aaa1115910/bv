@@ -82,6 +82,26 @@
     <string name="resolution_hdr">HDR 真彩色</string>
     <string name="resolution_hdr_short">HDR</string>
 
+    <string name="search_input_history">历史记录</string>
+    <string name="search_input_hotword">bilibili 热搜</string>
+    <string name="search_input_suggest">你可能要找的是</string>
+    <string name="search_input_title">搜索</string>
+    <string name="search_result_filter_duration_10_to_30">10–30 分钟</string>
+    <string name="search_result_filter_duration_30_to_60">30–60 分钟</string>
+    <string name="search_result_filter_duration_all">全部时长</string>
+    <string name="search_result_filter_duration_less_than_10">10 分钟以下</string>
+    <string name="search_result_filter_duration_more_than_60">60 分钟以上</string>
+    <string name="search_result_filter_order_type_comprehensive_sort">综合排序</string>
+    <string name="search_result_filter_order_type_latest_publish">最新发布</string>
+    <string name="search_result_filter_order_type_most_clicks">最多点击</string>
+    <string name="search_result_filter_order_type_most_danmaku">最多弹幕</string>
+    <string name="search_result_filter_order_type_most_favorites">最多收藏</string>
+    <string name="search_result_type_name_bili_user">用户</string>
+    <string name="search_result_type_name_media_bangumi">番剧</string>
+    <string name="search_result_type_name_media_ft">影视</string>
+    <string name="search_result_type_name_video">视频</string>
+    <string name="search_result_video_filter_title">筛选</string>
+
     <string name="season_feature_film">正片</string>
     <string name="season_no_feature_film">还没有正片</string>
 
@@ -113,6 +133,8 @@
     <string name="title_activity_follow">已关注</string>
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
+    <string name="title_activity_search_input">搜索输入</string>
+    <string name="title_activity_search_result">搜索结果</string>
     <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>

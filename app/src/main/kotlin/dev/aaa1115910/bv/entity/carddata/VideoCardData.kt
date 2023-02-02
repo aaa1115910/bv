@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.entity
+package dev.aaa1115910.bv.entity.carddata
 
 import dev.aaa1115910.bv.util.formatMinSec
 

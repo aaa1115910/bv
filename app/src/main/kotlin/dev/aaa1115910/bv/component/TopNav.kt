@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.component
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -13,15 +14,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -49,6 +48,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material.LocalContentColor
+import androidx.tv.material.Tab
+import androidx.tv.material.TabRow
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
@@ -63,6 +65,7 @@ fun TopNav(
     isLogin: Boolean,
     username: String,
     face: String,
+    focusInNav: Boolean,
     settingsButtonFocusRequester: FocusRequester,
     onSelectedChange: (TopNavItem) -> Unit = {},
     onClick: (TopNavItem) -> Unit = {},
@@ -70,11 +73,20 @@ fun TopNav(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
+    val navList = listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Dynamics)
+
+    val navItemFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus(scope)
+        navItemFocusRequester.requestFocus(scope)
+    }
+
+
+    LaunchedEffect(focusInNav) {
+        if (focusInNav) {
+            navItemFocusRequester.requestFocus(scope)
+        }
     }
 
     Box(
@@ -96,19 +108,27 @@ fun TopNav(
                         .padding(horizontal = 30.dp)
                 )
 
-                for (topNavItem in listOf(TopNavItem.Popular, TopNavItem.Dynamics)) {
-                    NavTabButton(
-                        modifier = Modifier.focusRequester(focusRequester),
-                        navItem = topNavItem,
-                        selected = selectedNav == topNavItem,
-                        onFocused = {
-                            if (topNavItem != TopNavItem.Search) {
-                                onSelectedChange(topNavItem)
-                                selectedNav = topNavItem
-                            }
-                        },
-                        onClick = onClick
-                    )
+                var selectedTabIndex by remember { mutableStateOf(1) }
+
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                ) {
+                    navList.forEachIndexed { index, tab ->
+                        NavItemTab(
+                            topNavItem = tab,
+                            navItemFocusRequester = navItemFocusRequester,
+                            selected = index == selectedTabIndex,
+                            onFocus = {
+                                if (tab != TopNavItem.Search) {
+                                    onSelectedChange(tab)
+                                    selectedNav = tab
+                                }
+                                selectedTabIndex = index
+                            },
+                            onClick = { onClick(tab) }
+                        )
+                    }
                 }
             }
             Row(
@@ -121,6 +141,7 @@ fun TopNav(
                     }
                 )
                 UserIcon(
+                    modifier = Modifier.padding(end = 12.dp),
                     isLogin = isLogin,
                     username = username,
                     face = face,
@@ -142,57 +163,60 @@ fun TopNav(
 }
 
 @Composable
-private fun NavTabButton(
+fun NavItemTab(
     modifier: Modifier = Modifier,
-    navItem: TopNavItem,
+    topNavItem: TopNavItem,
+    navItemFocusRequester: FocusRequester,
     selected: Boolean,
-    onFocused: () -> Unit = {},
-    onClick: (TopNavItem) -> Unit
+    onClick: () -> Unit,
+    onFocus: () -> Unit
 ) {
     val context = LocalContext.current
-    val primary = MaterialTheme.colorScheme.primary
-    val onPrimary = MaterialTheme.colorScheme.onPrimary
-    var backgroundColor by remember { mutableStateOf(Color.Transparent) }
-    var contentColor by remember { mutableStateOf(primary) }
-    var isFocused by remember { mutableStateOf(false) }
+    val tabModifier =
+        if (topNavItem == TopNavItem.Popular || selected)
+            modifier.focusRequester(navItemFocusRequester)
+        else modifier
 
-    Box {
-        TextButton(
-            onClick = { onClick(navItem) },
-            modifier = modifier
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        backgroundColor = primary
-                        contentColor = onPrimary
-                        onFocused()
-                    } else {
-                        backgroundColor = Color.Transparent
-                        contentColor = primary
-                    }
-                    isFocused = it.isFocused
+    Tab(
+        modifier = tabModifier,
+        selected = selected,
+        onFocus = onFocus,
+        onClick = onClick
+    ) {
+        if (topNavItem == TopNavItem.Search) {
+            Row(
+                modifier = Modifier
+                    .height(32.dp)
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 6.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = null,
+                    tint = LocalContentColor.current,
+                )
+                AnimatedVisibility(visible = selected) {
+                    Text(
+                        text = topNavItem.getDisplayName(context),
+                        color = LocalContentColor.current,
+                        style = MaterialTheme.typography.labelLarge
+
+                    )
                 }
-                .shadow(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = backgroundColor,
-                contentColor = contentColor,
+            }
+        } else {
+            Text(
+                modifier = Modifier
+                    .height(32.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                text = topNavItem.getDisplayName(context),
+                color = LocalContentColor.current,
+                style = MaterialTheme.typography.labelLarge
             )
-        ) {
-            if (navItem == TopNavItem.Search) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
-            }
-            Box {
-                Text(text = navItem.getDisplayName(context))
-            }
         }
-        Divider(
-            modifier = modifier
-                .width(20.dp)
-                .padding(bottom = 10.dp)
-                .align(Alignment.BottomCenter),
-            thickness = 3.dp,
-            color = if (isFocused) Color.White else if (selected) primary else Color.Transparent
-        )
     }
 }
 

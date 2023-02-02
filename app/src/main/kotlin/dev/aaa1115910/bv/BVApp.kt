@@ -14,6 +14,7 @@ import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import dev.aaa1115910.bv.viewmodel.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
@@ -63,6 +64,7 @@ val appModule = module {
     viewModel { FavoriteViewModel() }
     viewModel { UpInfoViewModel() }
     viewModel { FollowViewModel() }
+    viewModel { SearchResultViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

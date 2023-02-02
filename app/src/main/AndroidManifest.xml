@@ -22,6 +22,16 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.search.SearchResultActivity"
+            android:exported="false"
+            android:label="@string/title_activity_search_result"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".activities.search.SearchInputActivity"
+            android:exported="false"
+            android:label="@string/title_activity_search_input"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.user.FollowActivity"
             android:exported="false"
             android:label="@string/title_activity_follow"
