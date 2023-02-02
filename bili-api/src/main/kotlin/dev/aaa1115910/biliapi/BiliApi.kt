@@ -826,10 +826,16 @@ object BiliApi {
      */
     suspend fun searchAll(
         keyword: String,
-        page: Int = 1
+        page: Int = 1,
+        tid: Int? = null,
+        order: String? = null,
+        duration: Int? = null,
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/all/v2") {
         parameter("keyword", keyword)
         parameter("page", page)
+        tid?.let { parameter("tids", it) }
+        order?.let { parameter("order", it) }
+        duration?.let { parameter("duration", it) }
     }.body()
 
     /**
@@ -838,10 +844,16 @@ object BiliApi {
     suspend fun searchType(
         keyword: String,
         type: String,
-        page: Int = 1
+        page: Int = 1,
+        tid: Int? = null,
+        order: String? = null,
+        duration: Int? = null,
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
         parameter("keyword", keyword)
         parameter("search_type", type)
         parameter("page", page)
+        tid?.let { parameter("tids", it) }
+        order?.let { parameter("order", it) }
+        duration?.let { parameter("duration", it) }
     }.body()
 }

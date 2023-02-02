@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -30,6 +31,7 @@ import androidx.tv.foundation.lazy.list.items
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.search.HotwordResponse
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchResultActivity
 import dev.aaa1115910.bv.component.TvOutlinedTextFiled
 import dev.aaa1115910.bv.component.search.SearchKeyword
@@ -85,7 +87,7 @@ fun SearchInputScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "搜索",
+                        text = stringResource(R.string.search_input_title),
                         fontSize = 48.sp
                     )
                 }
@@ -139,7 +141,7 @@ fun SearchInputScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        text = "bilibili 热搜",
+                        text = stringResource(R.string.search_input_hotword),
                         style = MaterialTheme.typography.titleLarge
                     )
                     TvLazyColumn {
@@ -163,7 +165,7 @@ fun SearchInputScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        text = "你可能要找的是",
+                        text = stringResource(R.string.search_input_suggest),
                         style = MaterialTheme.typography.titleLarge
                     )
                     TvLazyColumn {
@@ -188,7 +190,7 @@ fun SearchInputScreen(
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    text = "历史记录",
+                    text = stringResource(R.string.search_input_history),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(text = "待会写")
