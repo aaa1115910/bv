@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,45 +26,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
 import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.HotwordResponse
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchResultActivity
 import dev.aaa1115910.bv.component.TvOutlinedTextFiled
 import dev.aaa1115910.bv.component.search.SearchKeyword
 import dev.aaa1115910.bv.component.search.SoftKeyboard
+import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchInputScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    searchInputViewModel: SearchInputViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var searchKeyword by remember { mutableStateOf("") }
-    val hotwords = remember { mutableStateListOf<HotwordResponse.Hotword>() }
+    val hotwords = searchInputViewModel.hotwords
+    val searchHistories = searchInputViewModel.searchHistories
     val suggests = remember { mutableStateListOf<KeywordSuggest.Result.Tag>() }
 
     val onSearch: (String) -> Unit = { keyword ->
         SearchResultActivity.actionStart(context, keyword)
-    }
-
-    LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                val hotwordResponse = BiliApi.getHotwords()
-                hotwords.clear()
-                hotwords.addAll(hotwordResponse.list)
-            }
-        }
+        searchKeyword = keyword
+        searchInputViewModel.addSearchHistory(keyword)
     }
 
     LaunchedEffect(searchKeyword) {
@@ -107,14 +105,16 @@ fun SearchInputScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 Column(
-                    modifier = Modifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     TvOutlinedTextFiled(
                         modifier = Modifier.width(258.dp),
                         value = searchKeyword,
-                        onValueChange = { searchKeyword = it }
+                        onValueChange = { searchKeyword = it },
+                        onPressEnter = { onSearch(searchKeyword) },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) })
                     )
                     SoftKeyboard(
                         onClick = {
@@ -149,10 +149,7 @@ fun SearchInputScreen(
                             SearchKeyword(
                                 keyword = hotword.showName,
                                 icon = hotword.icon,
-                                onClick = {
-                                    searchKeyword = hotword.showName
-                                    onSearch(hotword.showName)
-                                }
+                                onClick = { onSearch(hotword.showName) }
                             )
                         }
                     }
@@ -173,10 +170,7 @@ fun SearchInputScreen(
                             SearchKeyword(
                                 keyword = suggest.value,
                                 icon = "",
-                                onClick = {
-                                    searchKeyword = suggest.value
-                                    onSearch(suggest.value)
-                                }
+                                onClick = { onSearch(suggest.value) }
                             )
                         }
                     }
@@ -193,7 +187,15 @@ fun SearchInputScreen(
                     text = stringResource(R.string.search_input_history),
                     style = MaterialTheme.typography.titleLarge
                 )
-                Text(text = "待会写")
+                TvLazyColumn {
+                    items(searchHistories) { searchHistory ->
+                        SearchKeyword(
+                            keyword = searchHistory.keyword,
+                            icon = "",
+                            onClick = { onSearch(searchHistory.keyword) }
+                        )
+                    }
+                }
             }
         }
     }
