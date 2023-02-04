@@ -56,8 +56,8 @@ import dev.aaa1115910.bv.screen.user.UpCard
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.removeHtmlTags
 import dev.aaa1115910.bv.util.requestFocus
-import dev.aaa1115910.bv.viewmodel.SearchResultType
-import dev.aaa1115910.bv.viewmodel.SearchResultViewModel
+import dev.aaa1115910.bv.viewmodel.search.SearchResultType
+import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

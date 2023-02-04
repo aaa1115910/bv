@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.viewmodel
+package dev.aaa1115910.bv.viewmodel.search
 
 import android.content.Context
 import androidx.compose.runtime.getValue
