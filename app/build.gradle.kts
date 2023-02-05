@@ -164,6 +164,7 @@ dependencies {
     implementation(libs.slf4j.android.mvysny)
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
+    implementation(project(mapOf("path" to ":bv-player")))
     implementation(files("libs/lib-decoder-av1-release.aar"))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)

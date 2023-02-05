@@ -29,3 +29,4 @@ rootProject.name = "BV"
 include(":app")
 include(":bili-api")
 include(":bili-subtitle")
+include(":bv-player")

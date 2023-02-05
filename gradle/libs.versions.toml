@@ -10,6 +10,7 @@ logging = "3.0.4"
 qrcode = "3.3.0"
 rememberPreference = "1.0.0"
 slf4j-android-mvysny = "2.0.4"
+vlc = "3.5.1"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku
@@ -58,3 +59,6 @@ rememberPreference = { module = "dev.burnoo:compose-remember-preference", versio
 
 # https://gitlab.com/mvysny/slf4j-handroid
 slf4j-android-mvysny = { module = "com.gitlab.mvysny.slf4j:slf4j-handroid", version.ref = "slf4j-android-mvysny" }
+
+# https://code.videolan.org/videolan/vlc-android
+vlc-android-all = { module = "org.videolan.android:libvlc-all", version.ref = "vlc" }
