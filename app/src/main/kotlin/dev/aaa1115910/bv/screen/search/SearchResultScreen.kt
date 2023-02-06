@@ -53,11 +53,13 @@ import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.screen.user.UpCard
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.removeHtmlTags
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.search.SearchResultType
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
+import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +70,7 @@ fun SearchResultScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger { }
     val tabRowFocusRequester = remember { FocusRequester() }
 
     var rowSize by remember { mutableStateOf(4) }
@@ -76,6 +79,13 @@ fun SearchResultScreen(
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
 
     var searchKeyword by remember { mutableStateOf("") }
+
+    val searchResult = when (searchResultViewModel.searchType) {
+        SearchResultType.Video -> searchResultViewModel.videoSearchResult
+        SearchResultType.MediaBangumi -> searchResultViewModel.mediaBangumiSearchResult
+        SearchResultType.MediaFt -> searchResultViewModel.mediaFtSearchResult
+        SearchResultType.BiliUser -> searchResultViewModel.biliUserSearchResult
+    }
 
     var showFilter by remember { mutableStateOf(false) }
 
@@ -123,14 +133,15 @@ fun SearchResultScreen(
             searchKeyword = intent.getStringExtra("keyword") ?: ""
             if (searchKeyword == "") context.finish()
             searchResultViewModel.keyword = searchKeyword
-            searchResultViewModel.update()
+            // 筛选变更监听在启动时会误触发一次 update()，所以这里不再触发
+            //logger.fInfo { "Start update search result because init" }
+            //searchResultViewModel.update()
         } else {
             context.finish()
         }
     }
 
     LaunchedEffect(searchResultViewModel.searchType) {
-        searchResultViewModel.update()
         rowSize = when (searchResultViewModel.searchType) {
             SearchResultType.Video -> 4
             SearchResultType.MediaBangumi, SearchResultType.MediaFt -> 6
@@ -138,12 +149,11 @@ fun SearchResultScreen(
         }
     }
 
+    // 未知原因，在进入该页面时会触发一次
     LaunchedEffect(
-        searchResultViewModel.selectedOrder,
-        searchResultViewModel.selectedDuration,
-        searchResultViewModel.selectedPartition,
-        searchResultViewModel.selectedChildPartition
+        selectedOrder, selectedDuration, selectedPartition, selectedChildPartition
     ) {
+        logger.fInfo { "Start update search result because filter updated" }
         searchResultViewModel.update()
     }
 
@@ -166,10 +176,7 @@ fun SearchResultScreen(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            searchResultViewModel.searchResult.size
-                        ),
+                        text = stringResource(R.string.load_data_count, searchResult.results.size),
                         color = Color.White.copy(alpha = 0.6f)
                     )
                 }
@@ -236,14 +243,14 @@ fun SearchResultScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                itemsIndexed(items = searchResultViewModel.searchResult) { index, searchResult ->
+                itemsIndexed(items = searchResult.results) { index, searchResultItem ->
                     SearchResultListItem(
-                        searchResult = searchResult,
-                        onClick = { onClickResult(searchResult) },
+                        searchResult = searchResultItem,
+                        onClick = { onClickResult(searchResultItem) },
                         onFocus = {
                             currentIndex = index
-                            if (index + 20 > searchResultViewModel.searchResult.size) {
-                                searchResultViewModel.loadMore()
+                            if (index + 20 > searchResult.results.size) {
+                                searchResultViewModel.loadMore(searchResult.type)
                             }
                         }
                     )
