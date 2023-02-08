@@ -144,6 +144,7 @@ dependencies {
     implementation(androidx.webkit)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     implementation(libs.coil.svg)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
