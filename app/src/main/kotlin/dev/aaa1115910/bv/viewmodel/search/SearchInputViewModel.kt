@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.HotwordResponse
+import dev.aaa1115910.biliapi.entity.search.Hotword
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.dao.AppDatabase
@@ -26,7 +26,7 @@ class SearchInputViewModel(
     private val logger = KotlinLogging.logger { }
 
     var keyword by mutableStateOf("")
-    val hotwords = mutableStateListOf<HotwordResponse.Hotword>()
+    val hotwords = mutableStateListOf<Hotword>()
     val suggests = mutableStateListOf<KeywordSuggest.Result.Tag>()
     val searchHistories = mutableStateListOf<SearchHistoryDB>()
 
@@ -39,9 +39,11 @@ class SearchInputViewModel(
         logger.fInfo { "Update hotwords" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
-                val hotwordResponse = BiliApi.getHotwords()
-                logger.debug { "Find hotwords: ${hotwordResponse.list}" }
-                hotwords.addAll(hotwordResponse.list)
+                val hotwordData = BiliApi.getHotwords(
+                    limit = 50
+                ).getResponseData()
+                logger.debug { "Find hotwords: ${hotwordData.trending.list}" }
+                hotwords.addAll(hotwordData.trending.list)
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     "bilibili 热搜加载失败".toast(BVApp.context)
