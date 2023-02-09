@@ -79,23 +79,19 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
     }
     packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-        resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
     }
 
     applicationVariants.configureEach {
@@ -115,10 +111,15 @@ android {
     }
 }
 
+java{
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 dependencies {
     annotationProcessor(androidx.room.compiler)
     ksp(androidx.room.compiler)
-    implementation(platform("${androidx.compose.bom.get()}"))
     implementation(platform("${libs.firebase.bom.get()}"))
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
@@ -168,7 +169,6 @@ dependencies {
     implementation(files("libs/lib-decoder-av1-release.aar"))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
-    androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)
     debugImplementation(androidx.compose.ui.tooling)
