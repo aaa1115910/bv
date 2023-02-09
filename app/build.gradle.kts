@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
@@ -6,6 +8,7 @@ import java.util.*
 plugins {
     alias(gradleLibs.plugins.android.application)
     alias(gradleLibs.plugins.firebase.crashlytics)
+    alias(gradleLibs.plugins.google.ksp)
     alias(gradleLibs.plugins.google.services)
     alias(gradleLibs.plugins.kotlin.android)
     alias(gradleLibs.plugins.kotlin.serialization)
@@ -62,7 +65,7 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
-        create("r8Test"){
+        create("r8Test") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -106,9 +109,15 @@ android {
             }
         }
     }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 dependencies {
+    annotationProcessor(androidx.room.compiler)
+    ksp(androidx.room.compiler)
     implementation(platform("${androidx.compose.bom.get()}"))
     implementation(platform("${libs.firebase.bom.get()}"))
     implementation(androidx.activity.compose)
@@ -130,9 +139,12 @@ dependencies {
     implementation(androidx.media3.exoplayer.dash)
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
+    implementation(androidx.room.ktx)
+    implementation(androidx.room.runtime)
     implementation(androidx.webkit)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     implementation(libs.coil.svg)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
@@ -154,6 +166,7 @@ dependencies {
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
     implementation(files("libs/lib-decoder-av1-release.aar"))
+    testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)

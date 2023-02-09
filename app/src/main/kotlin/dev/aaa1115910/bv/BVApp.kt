@@ -10,14 +10,16 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
+import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
-import dev.aaa1115910.bv.viewmodel.SearchResultViewModel
+import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
+import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
@@ -37,6 +39,8 @@ class BVApp : Application() {
         lateinit var dataStoreManager: DataStoreManager
         lateinit var koinApplication: KoinApplication
         lateinit var firebaseAnalytics: FirebaseAnalytics
+
+        fun getAppDatabase(context: Context = this.context) = AppDatabase.getDatabase(context)
     }
 
     override fun onCreate() {
@@ -64,6 +68,7 @@ val appModule = module {
     viewModel { FavoriteViewModel() }
     viewModel { UpInfoViewModel() }
     viewModel { FollowViewModel() }
+    viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
 }
 

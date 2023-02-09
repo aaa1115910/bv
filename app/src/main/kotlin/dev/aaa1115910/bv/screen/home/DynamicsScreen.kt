@@ -46,7 +46,7 @@ fun DynamicsScreen(
                     when (it.nativeKeyEvent.keyCode) {
                         KeyEvent.KEYCODE_BACK -> {
                             if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
-                                scope.launch(Dispatchers.Default) {
+                                scope.launch(Dispatchers.Main) {
                                     tvLazyGridState.animateScrollToItem(0)
                                 }
                                 onBackNav()

@@ -6,31 +6,31 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
-import dev.aaa1115910.biliapi.entity.search.HotwordResponse
+import dev.aaa1115910.biliapi.entity.search.HotwordData
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.entity.search.SearchResultData
-import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.season.SeasonData
+import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
-import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationStat
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
+import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteItemIdListResponse
 import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.biliapi.entity.video.AddCoin
-import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
-import dev.aaa1115910.biliapi.entity.video.CheckVideoFavoured
 import dev.aaa1115910.biliapi.entity.video.CheckSentCoin
+import dev.aaa1115910.biliapi.entity.video.CheckVideoFavoured
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
+import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
 import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
@@ -59,13 +59,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
-import mu.KotlinLogging
 import javax.xml.parsers.DocumentBuilderFactory
 
+@Suppress("SpellCheckingInspection")
 object BiliApi {
-    private var endPoint: String = ""
+    private var endPoint: String = "api.bilibili.com"
     private lateinit var client: HttpClient
-    private val logger = KotlinLogging.logger { }
 
     private val json = Json {
         coerceInputValues = true
@@ -91,7 +90,7 @@ object BiliApi {
                 retryOnException(maxRetries = 2)
             }
             defaultRequest {
-                host = "api.bilibili.com"
+                host = endPoint
             }
         }
     }
@@ -399,7 +398,7 @@ object BiliApi {
     /**
      * 上报视频播放心跳
      *
-     * @param aid 稿件avid avid与bvid任选一个
+     * @param avid 稿件avid avid与bvid任选一个
      * @param bvid 稿件bvid avid与bvid任选一个
      * @param cid 视频cid 用于识别分P
      * @param epid 番剧epid
@@ -585,9 +584,8 @@ object BiliApi {
                 Parameters.build {
                     append("rid", "$avid")
                     append("type", "$type")
-                    val regex = """ |\[|]""".toRegex()
-                    append("add_media_ids", "${addMediaIds.toString().replace(regex, "")}")
-                    append("del_media_ids", "${delMediaIds.toString().replace(regex, "")}")
+                    append("add_media_ids", addMediaIds.joinToString(separator = ","))
+                    append("del_media_ids", delMediaIds.joinToString(separator = ","))
                     append("csrf", csrf)
                 }
             ))
@@ -792,8 +790,14 @@ object BiliApi {
     /**
      * 获取搜索热词
      */
-    suspend fun getHotwords(): HotwordResponse =
-        client.get("https://s.search.bilibili.com/main/hotword").body()
+    suspend fun getHotwords(
+        limit: Int = 10,
+        platform: String? = null
+    ): BiliResponse<HotwordData> =
+        client.get("/x/web-interface/search/square") {
+            parameter("limit", limit)
+            platform?.let { parameter("platform", platform) }
+        }.body()
 
     /**
      * 获取搜索关键词建议

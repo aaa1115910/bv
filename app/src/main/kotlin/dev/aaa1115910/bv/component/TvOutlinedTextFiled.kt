@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +29,10 @@ import dev.aaa1115910.bv.util.focusedBorder
 fun TvOutlinedTextFiled(
     modifier: Modifier = Modifier,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onPressEnter: () -> Unit = {},
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
 
@@ -46,6 +52,9 @@ fun TvOutlinedTextFiled(
                         }
 
                         KeyEvent.KEYCODE_ENTER -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                                onPressEnter()
+                            }
                             return@onPreviewKeyEvent true
                         }
                     }
@@ -54,7 +63,9 @@ fun TvOutlinedTextFiled(
             value = value,
             onValueChange = onValueChange,
             maxLines = 1,
-            shape = MaterialTheme.shapes.large
+            shape = MaterialTheme.shapes.large,
+            keyboardActions = keyboardActions,
+            keyboardOptions = keyboardOptions
         )
     }
 }

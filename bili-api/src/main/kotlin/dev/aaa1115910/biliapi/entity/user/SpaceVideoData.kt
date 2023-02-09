@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.entity.user
 
+import dev.aaa1115910.biliapi.entity.video.VideoStat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -19,7 +20,7 @@ data class SpaceVideoData(
     val list: SpaceVideoListItem,
     val page: Page,
     @SerialName("episodic_button")
-    val episodicButton: EpisodicButton?=null,
+    val episodicButton: EpisodicButton? = null,
     @SerialName("is_risk")
     val isRisk: Boolean,
     @SerialName("gaia_res_type")
@@ -70,6 +71,7 @@ data class SpaceVideoData(
          * @param videoReview 视频弹幕数
          * @param isSteinsGate
          * @param isLivePlayback
+         * @param meta 合集信息
          * @param isAvoided
          * @param attribute
          */
@@ -102,11 +104,35 @@ data class SpaceVideoData(
             val isSteinsGate: Int,
             @SerialName("is_live_playback")
             val isLivePlayback: Int,
+            val meta: Meta? = null,
             @SerialName("is_avoided")
             val isAvoided: Int,
             @SerialName("attribute")
             val attribute: Int
-        )
+        ) {
+            /**
+             * 合集信息
+             */
+            @Serializable
+            data class Meta(
+                val id: Int,
+                val title: String,
+                val cover: String,
+                val mid: Long,
+                val intro: String,
+                @SerialName("sign_state")
+                val signState: Int,
+                val attribute: Int,
+                val stat: VideoStat,
+                @SerialName("ep_count")
+                val epCount: Int,
+                @SerialName("first_aid")
+                val firstAid: Int,
+                val ptime: Int,
+                @SerialName("ep_num")
+                val epNum: Int
+            )
+        }
     }
 
     /**

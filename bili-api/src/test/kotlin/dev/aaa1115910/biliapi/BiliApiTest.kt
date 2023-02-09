@@ -51,6 +51,16 @@ internal class BiliApiTest {
     }
 
     @Test
+    fun `get video info which is ugc season`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getVideoInfo(av = 433139956)
+                println(response)
+            }
+        }
+    }
+
+    @Test
     fun `get video play url`() {
         assertDoesNotThrow {
             runBlocking {

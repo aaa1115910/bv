@@ -39,7 +39,8 @@ import kotlinx.serialization.Serializable
  * @param pages 视频分P列表
  * @param subtitle 视频CC字幕信息
  * @param staff 合作成员列表 非合作视频无此项
- * @param isSeasonDisplay
+ * @param ugcSeason 合集信息
+ * @param isSeasonDisplay 是否为合集
  * @param userGarb 用户装扮信息
  * @param honorReply
  * @param likeIcon
@@ -90,6 +91,8 @@ data class VideoInfo(
     val pages: List<VideoPage> = emptyList(),
     val subtitle: Subtitle? = null,
     val staff: List<Staff> = emptyList(),
+    @SerialName("ugc_season")
+    val ugcSeason: UgcSeason? = null,
     @SerialName("is_season_display")
     val isSeasonDisplay: Boolean = false,
     @SerialName("user_garb")
@@ -163,7 +166,7 @@ data class VideoRights(
     @SerialName("ugc_pay_preview")
     val ugcPayPreview: Int,
     @SerialName("no_background")
-    val noBackground: Int,
+    val noBackground: Int? = null,
     @SerialName("clean_mode")
     val cleanMode: Int? = null,
     @SerialName("is_stein_gate")
@@ -213,19 +216,19 @@ data class VideoOwner(
  */
 @Serializable
 data class VideoStat(
-    val aid: Int,
+    val aid: Int = 0,
     val view: Int,
     val danmaku: Int,
     val reply: Int,
-    val favorite: Int,
+    val favorite: Int = 0,
     val coin: Int,
     val share: Int,
     @SerialName("now_rank")
-    val nowRank: Int,
+    val nowRank: Int = 0,
     @SerialName("his_rank")
-    val hisRank: Int,
+    val hisRank: Int = 0,
     val like: Int,
-    val dislike: Int,
+    val dislike: Int = 0,
     val evaluation: String = "",
     @SerialName("argue_msg")
     val argueMsg: String = ""

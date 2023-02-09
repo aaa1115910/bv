@@ -53,7 +53,7 @@ class UpInfoViewModel : ViewModel() {
                     VideoCardData(
                         avid = spaceVideoItem.aid.toInt(),
                         title = spaceVideoItem.title,
-                        cover = spaceVideoItem.pic,
+                        cover = spaceVideoItem.meta?.cover ?: spaceVideoItem.pic,
                         upName = spaceVideoItem.author,
                         timeString = spaceVideoItem.length
                     )
