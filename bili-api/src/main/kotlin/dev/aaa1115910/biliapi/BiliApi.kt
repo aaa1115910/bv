@@ -1,7 +1,12 @@
 package dev.aaa1115910.biliapi
 
+import com.tfowl.ktor.client.features.JsoupPlugin
 import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.BiliResponseWithoutData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV1
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV2
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
@@ -57,8 +62,10 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
+import org.jsoup.nodes.Document
 import javax.xml.parsers.DocumentBuilderFactory
 
 @Suppress("SpellCheckingInspection")
@@ -89,6 +96,7 @@ object BiliApi {
             install(HttpRequestRetry) {
                 retryOnException(maxRetries = 2)
             }
+            install(JsoupPlugin)
             defaultRequest {
                 host = endPoint
             }
@@ -860,4 +868,36 @@ object BiliApi {
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
     }.body()
+
+    /** 获取番剧首页数据 */
+    suspend fun getAnimeHomepageData(
+        dataType: AnimeHomepageDataType = AnimeHomepageDataType.V1
+    ): AnimeHomepageData? {
+        val htmlDocuments = client.get("https://www.bilibili.com/anime") {
+            when (dataType) {
+                AnimeHomepageDataType.V1 -> header("Cookie", "ogv_channel_version=v1")
+                AnimeHomepageDataType.V2 -> header("Cookie", "ogv_channel_version=v2")
+            }
+        }.body<Document>()
+
+        val dataScriptTagContent = htmlDocuments.body().select("script").find {
+            it.html().contains("__INITIAL_STATE__")
+        }?.html() ?: return null
+        val dataJson =
+            dataScriptTagContent.split("__INITIAL_STATE__=", ";(function()")[1]
+
+        return when (dataType) {
+            AnimeHomepageDataType.V1 -> {
+                val dataV1 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV1>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV1 = dataV1)
+            }
+
+            AnimeHomepageDataType.V2 -> {
+                val dataV2 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV2>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV2 = dataV2)
+            }
+        }
+    }
 }

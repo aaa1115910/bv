@@ -76,7 +76,8 @@ fun TopNav(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
-    val navList = listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Dynamics)
+    val navList =
+        listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Anime, TopNavItem.Dynamics)
 
     val navItemFocusRequester = remember { FocusRequester() }
 

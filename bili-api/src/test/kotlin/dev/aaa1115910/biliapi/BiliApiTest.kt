@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi
 
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.video.TimelineType
@@ -480,6 +481,15 @@ internal class BiliApiTest {
                         type = type
                     )
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `get anime homepage data`() {
+        runBlocking {
+            AnimeHomepageDataType.values().forEach {
+                println(BiliApi.getAnimeHomepageData(dataType = it))
             }
         }
     }
