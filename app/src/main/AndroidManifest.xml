@@ -22,6 +22,21 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.anime.AnimeIndexActivity"
+            android:exported="false"
+            android:label="@string/title_activity_anime_index"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".activities.anime.AnimeFollowingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_anime_following"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".activities.anime.AnimeTimelineActivity"
+            android:exported="false"
+            android:label="@string/title_activity_anime_timeline"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.search.SearchResultActivity"
             android:exported="false"
             android:label="@string/title_activity_search_result"

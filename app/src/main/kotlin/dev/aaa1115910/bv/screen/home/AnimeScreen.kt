@@ -1,11 +1,15 @@
 package dev.aaa1115910.bv.screen.home
 
+import android.content.Intent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -24,6 +28,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.entity.anime.CarouselItem
+import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.toast
@@ -61,6 +66,24 @@ fun AnimeScreen() {
                 modifier = Modifier.padding(48.dp, 0.dp),
                 data = carouselItems
             )
+        }
+        item {
+            Row {
+                FilledTonalButton(onClick = {
+                    context.startActivity(Intent(context, AnimeTimelineActivity::class.java))
+                }) {
+                    Text("Timeline")
+                }
+                FilledTonalButton(onClick = { /*TODO*/ }) {
+                    Text("Following")
+                }
+                FilledTonalButton(onClick = { /*TODO*/ }) {
+                    Text("Index")
+                }
+                FilledTonalButton(onClick = { /*TODO*/ }) {
+                    Text("Unknown")
+                }
+            }
         }
     }
 }

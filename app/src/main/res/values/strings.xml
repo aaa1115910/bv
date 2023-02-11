@@ -129,6 +129,9 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
+    <string name="title_activity_anime_following">我的追番</string>
+    <string name="title_activity_anime_index">番剧索引</string>
+    <string name="title_activity_anime_timeline">番剧放送时间表</string>
     <string name="title_activity_favorite">个人收藏</string>
     <string name="title_activity_follow">已关注</string>
     <string name="title_activity_history">历史记录</string>
