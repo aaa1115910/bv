@@ -77,6 +77,14 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
+        create("alpha"){
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
