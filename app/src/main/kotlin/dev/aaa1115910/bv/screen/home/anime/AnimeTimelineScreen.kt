@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
@@ -51,7 +50,6 @@ fun AnimeTimelineScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val state = rememberTvLazyListState()
 
     var currentTimelineIndex by remember { mutableStateOf(0) }
     var currentEpisodeIndex by remember { mutableStateOf(0) }
@@ -71,12 +69,11 @@ fun AnimeTimelineScreen(
                 timelines.addAll(
                     BiliApi.getTimeline(
                         type = TimelineType.Anime,
-                        before = 7,
+                        before = 0,
                         after = 7
                     ).getResponseData()
                 )
                 delay(200)
-                state.animateScrollToItem(7)
                 defaultFocusRequester.requestFocus()
             }.onFailure {
                 withContext(Dispatchers.Main) {
@@ -101,7 +98,6 @@ fun AnimeTimelineScreen(
     ) { innerPadding ->
         TvLazyColumn(
             modifier = Modifier.padding(innerPadding),
-            state = state,
             contentPadding = PaddingValues(bottom = 48.dp, start = 48.dp, end = 48.dp)
         ) {
             itemsIndexed(items = timelines) { index, timeline ->
