@@ -5,9 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.entity.anime.CarouselItem
+import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 class AnimeViewModel : ViewModel() {
@@ -15,6 +20,7 @@ class AnimeViewModel : ViewModel() {
         private val logger = KotlinLogging.logger { }
     }
 
+    val carouselItems = mutableStateListOf<CarouselItem>()
     val feedItems = mutableStateListOf<List<AnimeFeedData.FeedItem.FeedSubItem>>()
     private val restSubItems = mutableListOf<AnimeFeedData.FeedItem.FeedSubItem>()
 
@@ -24,6 +30,9 @@ class AnimeViewModel : ViewModel() {
 
     init {
         loadMore()
+        viewModelScope.launch(Dispatchers.Default) {
+            updateCarousel()
+        }
     }
 
     fun loadMore() {
@@ -34,9 +43,43 @@ class AnimeViewModel : ViewModel() {
         }
     }
 
+    private fun clearAll() {
+        logger.fInfo { "Clear all data" }
+        carouselItems.clear()
+        feedItems.clear()
+        restSubItems.clear()
+        cursor = 0
+        hasNext = true
+    }
+
+    fun reloadAll() {
+        logger.fInfo { "Reload all" }
+        clearAll()
+        viewModelScope.launch(Dispatchers.Default) {
+            updateCarousel()
+            updateFeed()
+        }
+    }
+
+    private suspend fun updateCarousel() {
+        logger.fInfo { "Update anime carousel" }
+        runCatching {
+            val items = BiliApi.getAnimeHomepageData(dataType = AnimeHomepageDataType.V2)
+                ?.getCarouselItems() ?: emptyList()
+            logger.fInfo { "Find anime carousels, size: ${items.size}" }
+            carouselItems.addAll(items)
+        }.onFailure {
+            logger.fInfo { "Update anime carousel failed: ${it.stackTraceToString()}" }
+            withContext(Dispatchers.Main) {
+                "加载轮播图失败: ${it.message}".toast(BVApp.context)
+            }
+        }
+    }
+
     private suspend fun updateFeed() {
         if (updating) return
         updating = true
+        logger.fInfo { "Update anime feed" }
         runCatching {
             val responseData = BiliApi.getAnimeFeed(cursor = cursor).getResponseData()
             cursor = responseData.coursor

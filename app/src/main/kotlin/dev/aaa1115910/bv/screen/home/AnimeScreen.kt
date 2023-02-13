@@ -18,14 +18,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.List
+import androidx.compose.material.icons.rounded.QuestionMark
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,9 +37,11 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -46,11 +50,12 @@ import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
-import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.entity.anime.CarouselItem
 import dev.aaa1115910.biliapi.entity.web.Hover
+import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.activities.anime.AnimeFollowingActivity
+import dev.aaa1115910.bv.activities.anime.AnimeIndexActivity
 import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
@@ -60,11 +65,7 @@ import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.resizedImageUrl
-import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -73,27 +74,9 @@ fun AnimeScreen(
     animeViewModel: AnimeViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
-    val carouselItems = remember { mutableStateListOf<CarouselItem>() }
+    val carouselItems = animeViewModel.carouselItems
     val animeFeeds = animeViewModel.feedItems
-
-    LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                carouselItems.clear()
-                carouselItems.addAll(
-                    BiliApi.getAnimeHomepageData(
-                        dataType = AnimeHomepageDataType.V2
-                    )?.getCarouselItems() ?: emptyList()
-                )
-            }.onFailure {
-                withContext(Dispatchers.Main) {
-                    it.stackTraceToString().toast(context)
-                }
-            }
-        }
-    }
 
     TvLazyColumn(
         modifier = modifier
@@ -105,13 +88,17 @@ fun AnimeScreen(
             )
         }
         item {
-            Buttons(
+            AnimeFeatureButtons(
                 modifier = Modifier.padding(48.dp, 24.dp),
                 onOpenTimeline = {
                     context.startActivity(Intent(context, AnimeTimelineActivity::class.java))
                 },
-                onOpenFollowing = {},
-                onOpenIndex = {}
+                onOpenFollowing = {
+                    context.startActivity(Intent(context, AnimeFollowingActivity::class.java))
+                },
+                onOpenIndex = {
+                    context.startActivity(Intent(context, AnimeIndexActivity::class.java))
+                }
             )
         }
         itemsIndexed(items = animeFeeds) { index, feedItems ->
@@ -157,7 +144,7 @@ fun AnimeCarousel(
             .fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
-            .focusedBorder(),
+            .focusedBorder()
     ) { itemIndex ->
         CarouselItem(
             modifier = Modifier
@@ -182,7 +169,9 @@ fun AnimeCarouselCard(
     data: CarouselItem
 ) {
     AsyncImage(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large),
         model = data.cover,
         contentDescription = null,
         contentScale = ContentScale.FillWidth,
@@ -191,74 +180,77 @@ fun AnimeCarouselCard(
 }
 
 @Composable
-private fun Buttons(
+private fun AnimeFeatureButtons(
     modifier: Modifier = Modifier,
     onOpenTimeline: () -> Unit,
     onOpenFollowing: () -> Unit,
-    onOpenIndex: () -> Unit
+    onOpenIndex: () -> Unit,
+    onOpenUnknown: () -> Unit = {}
 ) {
+    val buttons = listOf(
+        Triple(
+            stringResource(R.string.anime_home_button_timeline),
+            Icons.Rounded.Alarm,
+            onOpenTimeline
+        ),
+        Triple(
+            stringResource(R.string.anime_home_button_following),
+            Icons.Rounded.Favorite,
+            onOpenFollowing
+        ),
+        Triple(
+            stringResource(R.string.anime_home_button_index),
+            Icons.Rounded.List,
+            onOpenIndex
+        ),
+        Triple(
+            stringResource(R.string.anime_home_button_unknown),
+            Icons.Rounded.QuestionMark,
+            onOpenUnknown
+        )
+    )
+
     Row(
-        modifier = modifier
-            .height(100.dp)
+        modifier = modifier.height(80.dp)
     ) {
-        Surface(
-            modifier = Modifier
-                .focusedBorder()
-                .focusedScale()
-                .weight(1f)
-                .clickable { onOpenTimeline() },
-            shape = MaterialTheme.shapes.large
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Timeline")
-            }
+        buttons.forEach { (title, icon, onClick) ->
+            AnimeFeatureButton(
+                modifier = Modifier.weight(1f),
+                title = title,
+                icon = icon,
+                onClick = onClick
+            )
         }
-        Surface(
-            modifier = Modifier
-                .focusedBorder()
-                .focusedScale()
-                .weight(1f)
-                .clickable { onOpenFollowing() },
-            shape = MaterialTheme.shapes.large
+    }
+}
+
+@Composable
+fun AnimeFeatureButton(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .focusedBorder()
+            .focusedScale()
+            .clickable { onClick() },
+        shape = MaterialTheme.shapes.large
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Following")
-            }
-        }
-        Surface(
-            modifier = Modifier
-                .focusedBorder()
-                .focusedScale()
-                .weight(1f)
-                .clickable { onOpenIndex() },
-            shape = MaterialTheme.shapes.large
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Index")
-            }
-        }
-        Surface(
-            modifier = Modifier
-                .focusedBorder()
-                .focusedScale()
-                .weight(1f)
-                .clickable { },
-            shape = MaterialTheme.shapes.large
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Unknown")
+                Icon(imageVector = icon, contentDescription = null)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
         }
     }
@@ -292,7 +284,7 @@ fun AnimeFeedVideoRow(
                     data = SeasonCardData(
                         seasonId = feedItem.seasonId ?: 0,
                         title = feedItem.title,
-                        cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumb)
+                        cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail)
                     )
                 )
             }
@@ -316,8 +308,8 @@ fun AnimeFeedRankRow(
                     Brush.verticalGradient(
                         colors = listOf(
                             // light theme color: Color(250, 222, 214)
-                            Color(20, 18, 17, 255),
-                            Color(20, 18, 17, 255).copy(alpha = 0.298f)
+                            Color(20, 18, 17),
+                            Color(20, 18, 17).copy(alpha = 0.298f)
                         )
                     )
                 )
@@ -397,7 +389,7 @@ fun AnimeFeedRankRow(
                             data = SeasonCardData(
                                 seasonId = feedItem.seasonId ?: 0,
                                 title = feedItem.title,
-                                cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumb)
+                                cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail)
                             )
                         )
                     }

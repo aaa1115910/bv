@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="anime_home_button_following">正在追</string>
+    <string name="anime_home_button_index">索引</string>
+    <string name="anime_home_button_timeline">时间表</string>
+    <string name="anime_home_button_unknown">待定</string>
+
     <string name="app_name">BV</string>
 
     <string name="confirm">确认</string>

@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -34,9 +35,12 @@ import androidx.tv.foundation.lazy.list.itemsIndexed
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.util.ImageSize
+import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -90,7 +94,7 @@ fun AnimeTimelineScreen(
                 modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)
             ) {
                 Text(
-                    text = "放送时间表",
+                    text = stringResource(id = R.string.title_activity_anime_timeline),
                     fontSize = titleFontSize.sp,
                 )
             }
@@ -173,7 +177,7 @@ fun TimelinePerDay(
                         modifier = Modifier.weight(1f),
                         data = SeasonCardData(
                             title = episode.title,
-                            cover = episode.cover,
+                            cover = episode.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
                             seasonId = episode.seasonId
                         ),
                         onFocus = { onFocusChange(index) },
