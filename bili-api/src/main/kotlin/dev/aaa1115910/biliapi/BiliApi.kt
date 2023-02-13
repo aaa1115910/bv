@@ -3,6 +3,7 @@ package dev.aaa1115910.biliapi
 import com.tfowl.ktor.client.features.JsoupPlugin
 import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.BiliResponseWithoutData
+import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
 import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageData
 import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV1
@@ -900,4 +901,17 @@ object BiliApi {
             }
         }
     }
+
+    /**
+     * 获取猜你喜欢
+     *
+     * 返回数据的前几条内包含每小时更新的分类排行榜
+     */
+    suspend fun getAnimeFeed(
+        name: String = "anime",
+        cursor: Int = 0
+    ): BiliResponse<AnimeFeedData> = client.get("/pgc/page/web/v3/feed") {
+        parameter("name", name)
+        parameter("coursor", cursor)
+    }.body()
 }

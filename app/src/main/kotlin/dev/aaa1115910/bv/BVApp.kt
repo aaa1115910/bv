@@ -17,6 +17,7 @@ import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
+import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
@@ -70,6 +71,7 @@ val appModule = module {
     viewModel { FollowViewModel() }
     viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
+    viewModel { AnimeViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

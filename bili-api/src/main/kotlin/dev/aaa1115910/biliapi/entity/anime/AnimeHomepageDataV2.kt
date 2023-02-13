@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.entity.anime
 
+import dev.aaa1115910.biliapi.entity.web.Hover
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -81,11 +82,6 @@ data class AnimeHomepageDataV2(
                 @SerialName("webpbigcover")
                 val webpBigCover: String
             ) {
-                @Serializable
-                data class Hover(
-                    val text: List<String>,
-                    val img: String
-                )
 
                 @Serializable
                 data class Stat(

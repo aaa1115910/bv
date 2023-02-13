@@ -493,4 +493,11 @@ internal class BiliApiTest {
             }
         }
     }
+
+    @Test
+    fun `get anime feed data`() {
+        runBlocking {
+            println(BiliApi.getAnimeFeed())
+        }
+    }
 }
