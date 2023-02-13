@@ -39,33 +39,33 @@ data class AnimeHomepageDataV2(
         ) {
             @Serializable
             data class BannerItem(
-                val rating: String,
+                val rating: String? = null,
                 val title: String,
                 val cover: String,
                 val link: String,
-                val evaluate: String,
+                val evaluate: String? = null,
                 val report: JsonElement,
-                val hover: Hover,
-                val stat: Stat,
+                val hover: Hover? = null,
+                val stat: Stat? = null,
                 val values: JsonArray,
                 @SerialName("season_id")
-                val seasonId: Int,
+                val seasonId: Int? = null,
                 @SerialName("season_type")
-                val seasonType: Int,
+                val seasonType: Int? = null,
                 @SerialName("rating_count")
-                val ratingCount: Int,
+                val ratingCount: Int? = null,
                 @SerialName("episode_id")
-                val episodeId: Int,
+                val episodeId: Int? = null,
                 @SerialName("big_cover")
                 val bigCover: String,
                 @SerialName("play_btn")
-                val playBtn: Int,
+                val playBtn: Int? = null,
                 @SerialName("play_title")
                 val playTitle: String,
                 @SerialName("rank_id")
                 val rankId: Int,
                 @SerialName("user_status")
-                val userStatus: UserStatus,
+                val userStatus: UserStatus? = null,
                 @SerialName("date_ts")
                 val dateTs: Int,
                 @SerialName("day_of_week")
@@ -100,9 +100,9 @@ data class AnimeHomepageDataV2(
                     @SerialName("module_id")
                     val moduleId: Int,
                     @SerialName("ep_id")
-                    val epId: Int,
+                    val epId: Int? = null,
                     @SerialName("season_id")
-                    val seasonId: Int
+                    val seasonId: Int? = null
                 )
             }
         }
