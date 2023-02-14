@@ -15,12 +15,22 @@
 
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
+    <string name="filter_dialog_title">筛选</string>
+
     <string name="follow_bangumi_disable_fail">取消追番失败</string>
     <string name="follow_bangumi_enable_fail">追番失败</string>
+
+    <string name="following_season_status_all">全部</string>
+    <string name="following_season_status_want">想看</string>
+    <string name="following_season_status_watched">看过</string>
+    <string name="following_season_status_watching">在看</string>
+    <string name="following_season_type_bangumi">番剧</string>
+    <string name="following_season_type_film_and_television">影视</string>
 
     <string name="home_press_back_again_to_exit">再次按下返回键退出 Bug Video</string>
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
+    <string name="load_data_count_no_more">已加载全部共 %1$d 条数据</string>
     <string name="load_data_no_more">就只有这么多了</string>
 
     <string name="loading" tools:ignore="TypographyEllipsis">加载中...</string>
@@ -105,7 +115,6 @@
     <string name="search_result_type_name_media_bangumi">番剧</string>
     <string name="search_result_type_name_media_ft">影视</string>
     <string name="search_result_type_name_video">视频</string>
-    <string name="search_result_video_filter_title">筛选</string>
 
     <string name="season_feature_film">正片</string>
     <string name="season_no_feature_film">还没有正片</string>
@@ -134,11 +143,11 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
-    <string name="title_activity_anime_following">我的追番</string>
     <string name="title_activity_anime_index">番剧索引</string>
     <string name="title_activity_anime_timeline">番剧放送时间表</string>
     <string name="title_activity_favorite">个人收藏</string>
     <string name="title_activity_follow">已关注</string>
+    <string name="title_activity_following_season">正在追</string>
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
     <string name="title_activity_search_input">搜索输入</string>
@@ -176,4 +185,7 @@
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
+    <string name="filter_dialog_open_tip">长按确认键更改筛选</string>
+    <string name="no_data">无可用数据</string>
+    <string name="filter_dialog_open_tip_click">点击打开筛选</string>
 </resources>

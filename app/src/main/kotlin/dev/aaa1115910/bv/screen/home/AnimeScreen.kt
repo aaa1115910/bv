@@ -54,7 +54,7 @@ import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
 import dev.aaa1115910.biliapi.entity.anime.CarouselItem
 import dev.aaa1115910.biliapi.entity.web.Hover
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.activities.anime.AnimeFollowingActivity
+import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.anime.AnimeIndexActivity
 import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
@@ -94,7 +94,7 @@ fun AnimeScreen(
                     context.startActivity(Intent(context, AnimeTimelineActivity::class.java))
                 },
                 onOpenFollowing = {
-                    context.startActivity(Intent(context, AnimeFollowingActivity::class.java))
+                    context.startActivity(Intent(context, FollowingSeasonActivity::class.java))
                 },
                 onOpenIndex = {
                     context.startActivity(Intent(context, AnimeIndexActivity::class.java))

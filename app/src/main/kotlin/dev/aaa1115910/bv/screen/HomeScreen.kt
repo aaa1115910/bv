@@ -35,6 +35,7 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchInputActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
+import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
 import dev.aaa1115910.bv.component.TopNav
@@ -259,8 +260,8 @@ fun HomeScreen(
                         onGoFavorite = {
                             context.startActivity(Intent(context, FavoriteActivity::class.java))
                         },
-                        onGoAnimate = {
-                            "按钮放在这只是拿来当摆设的！".toast(context)
+                        onGoFollowing = {
+                            context.startActivity(Intent(context, FollowingSeasonActivity::class.java))
                         },
                         onGoLater = {
                             "按钮放在这只是拿来当摆设的！".toast(context)

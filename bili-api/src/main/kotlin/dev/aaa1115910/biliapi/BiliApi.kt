@@ -15,6 +15,9 @@ import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.search.HotwordData
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.entity.search.SearchResultData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
@@ -913,5 +916,30 @@ object BiliApi {
     ): BiliResponse<AnimeFeedData> = client.get("/pgc/page/web/v3/feed") {
         parameter("name", name)
         parameter("coursor", cursor)
+    }.body()
+
+    /**
+     * 获取用户[mid]的追剧列表
+     *
+     * @param type 追剧类型
+     * @param status 追剧状态
+     * @param pageNumber 页码
+     * @param pageSize 每页数量 [1, 30]
+     * @param mid 用户id
+     */
+    suspend fun getFollowingSeasons(
+        type: FollowingSeasonType,
+        status: FollowingSeasonStatus,
+        pageNumber: Int = 1,
+        pageSize: Int = 15,
+        mid: Long,
+        sessData: String? = ""
+    ): BiliResponse<FollowingSeasonData> = client.get("/x/space/bangumi/follow/list") {
+        parameter("type", type.id)
+        parameter("follow_status", status.id)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+        parameter("vmid", mid)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }

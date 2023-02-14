@@ -150,7 +150,6 @@ fun SearchResultScreen(
         }
     }
 
-    // 未知原因，在进入该页面时会触发一次
     LaunchedEffect(
         selectedOrder, selectedDuration, selectedPartition, selectedChildPartition
     ) {
