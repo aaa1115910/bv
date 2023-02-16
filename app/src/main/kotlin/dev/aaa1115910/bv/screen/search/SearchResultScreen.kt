@@ -175,10 +175,21 @@ fun SearchResultScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = stringResource(R.string.load_data_count, searchResult.results.size),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.filter_dialog_open_tip),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                searchResult.results.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }

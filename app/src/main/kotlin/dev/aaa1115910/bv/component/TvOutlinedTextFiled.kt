@@ -31,6 +31,8 @@ fun TvOutlinedTextFiled(
     value: String,
     onValueChange: (String) -> Unit,
     onPressEnter: () -> Unit = {},
+    onMoveFocusToDown: () -> Unit = {},
+    onMoveFocusToUp: () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
@@ -54,6 +56,20 @@ fun TvOutlinedTextFiled(
                         KeyEvent.KEYCODE_ENTER -> {
                             if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                                 onPressEnter()
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                                onMoveFocusToDown()
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                                onMoveFocusToUp()
                             }
                             return@onPreviewKeyEvent true
                         }
