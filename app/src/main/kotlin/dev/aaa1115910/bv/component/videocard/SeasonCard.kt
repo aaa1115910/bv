@@ -2,11 +2,12 @@ package dev.aaa1115910.bv.component.videocard
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
@@ -35,6 +37,7 @@ import dev.aaa1115910.bv.util.focusedBorder
 fun SeasonCard(
     modifier: Modifier = Modifier,
     data: SeasonCardData,
+    coverHeight: Dp? = null,
     onClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
@@ -54,19 +57,27 @@ fun SeasonCard(
         shape = MaterialTheme.shapes.large
     ) {
         Column {
-            Box {
-                AsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(0.75f)
-                        .clip(MaterialTheme.shapes.large),
-                    model = data.cover,
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds
-                )
+            val coverModifier = if (coverHeight != null) {
+                Modifier.height(coverHeight)
+            } else {
+                Modifier.fillMaxWidth()
             }
+            val textBoxModifier = if (coverHeight != null) {
+                Modifier.width((0.75 * coverHeight.value).dp)
+            } else {
+                Modifier
+            }
+
+            AsyncImage(
+                modifier = coverModifier
+                    .aspectRatio(0.75f)
+                    .clip(MaterialTheme.shapes.large),
+                model = data.cover,
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds
+            )
             Column(
-                modifier = Modifier.padding(8.dp)
+                modifier = textBoxModifier.padding(8.dp)
             ) {
                 Text(
                     text = data.title,

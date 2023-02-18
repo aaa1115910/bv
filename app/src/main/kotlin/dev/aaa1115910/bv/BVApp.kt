@@ -17,11 +17,13 @@ import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
+import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
+import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
 import org.koin.android.ext.koin.androidContext
@@ -70,6 +72,8 @@ val appModule = module {
     viewModel { FollowViewModel() }
     viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
+    viewModel { AnimeViewModel() }
+    viewModel { FollowingSeasonViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

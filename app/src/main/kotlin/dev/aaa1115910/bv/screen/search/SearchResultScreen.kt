@@ -37,9 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.material.LocalContentColor
-import androidx.tv.material.Tab
-import androidx.tv.material.TabRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabRow
 import dev.aaa1115910.biliapi.entity.search.SearchBiliUserResult
 import dev.aaa1115910.biliapi.entity.search.SearchMediaResult
 import dev.aaa1115910.biliapi.entity.search.SearchResultItem
@@ -62,7 +63,7 @@ import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchResultScreen(
     modifier: Modifier = Modifier,
@@ -149,7 +150,6 @@ fun SearchResultScreen(
         }
     }
 
-    // 未知原因，在进入该页面时会触发一次
     LaunchedEffect(
         selectedOrder, selectedDuration, selectedPartition, selectedChildPartition
     ) {
@@ -175,10 +175,21 @@ fun SearchResultScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = stringResource(R.string.load_data_count, searchResult.results.size),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.filter_dialog_open_tip),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                searchResult.results.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }

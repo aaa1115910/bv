@@ -16,8 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -40,6 +42,7 @@ fun SearchInputScreen(
     searchInputViewModel: SearchInputViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val softKeyboardFirstButtonFocusRequester = remember { FocusRequester() }
 
     val searchKeyword = searchInputViewModel.keyword
     val hotwords = searchInputViewModel.hotwords
@@ -96,10 +99,12 @@ fun SearchInputScreen(
                         value = searchKeyword,
                         onValueChange = { searchInputViewModel.keyword = it },
                         onPressEnter = { onSearch(searchKeyword) },
+                        onMoveFocusToDown = { softKeyboardFirstButtonFocusRequester.requestFocus() },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) })
                     )
                     SoftKeyboard(
+                        firstButtonFocusRequester = softKeyboardFirstButtonFocusRequester,
                         onClick = {
                             searchInputViewModel.keyword += it
                         },

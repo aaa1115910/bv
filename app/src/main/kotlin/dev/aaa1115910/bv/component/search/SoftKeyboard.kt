@@ -11,8 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +26,7 @@ import dev.aaa1115910.bv.util.focusedBorder
 @Composable
 fun SoftKeyboard(
     modifier: Modifier = Modifier,
+    firstButtonFocusRequester: FocusRequester,
     onClick: (String) -> Unit,
     onClear: () -> Unit,
     onDelete: () -> Unit,
@@ -41,12 +45,18 @@ fun SoftKeyboard(
         modifier = modifier.width(258.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        keys.forEach { rowKeys ->
+        keys.forEachIndexed { rowIndex, rowKeys ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                rowKeys.forEach { key ->
+                rowKeys.forEachIndexed { index, key ->
+                    val keyModifier = if (rowIndex == 0 && index == 0) {
+                        Modifier.focusRequester(firstButtonFocusRequester)
+                    } else {
+                        Modifier
+                    }
                     SoftKeyboardKey(
+                        modifier = keyModifier,
                         key = key,
                         onClick = { onClick(key) }
                     )
@@ -116,8 +126,10 @@ private fun SoftKeyboardKeyPreview() {
 @Preview
 @Composable
 private fun SoftKeyboardPreview() {
+    val firstButtonFocusRequester = remember { FocusRequester() }
     BVTheme {
         SoftKeyboard(
+            firstButtonFocusRequester = firstButtonFocusRequester,
             onClick = {},
             onClear = {},
             onDelete = {},

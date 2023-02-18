@@ -1,7 +1,13 @@
 package dev.aaa1115910.biliapi
 
+import com.tfowl.ktor.client.features.JsoupPlugin
 import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.BiliResponseWithoutData
+import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV1
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV2
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
@@ -9,6 +15,9 @@ import dev.aaa1115910.biliapi.entity.history.HistoryData
 import dev.aaa1115910.biliapi.entity.search.HotwordData
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.entity.search.SearchResultData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
@@ -57,8 +66,10 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
+import org.jsoup.nodes.Document
 import javax.xml.parsers.DocumentBuilderFactory
 
 @Suppress("SpellCheckingInspection")
@@ -89,6 +100,7 @@ object BiliApi {
             install(HttpRequestRetry) {
                 retryOnException(maxRetries = 2)
             }
+            install(JsoupPlugin)
             defaultRequest {
                 host = endPoint
             }
@@ -859,5 +871,75 @@ object BiliApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
+    }.body()
+
+    /** 获取番剧首页数据 */
+    suspend fun getAnimeHomepageData(
+        dataType: AnimeHomepageDataType = AnimeHomepageDataType.V1
+    ): AnimeHomepageData? {
+        val htmlDocuments = client.get("https://www.bilibili.com/anime") {
+            when (dataType) {
+                AnimeHomepageDataType.V1 -> header("Cookie", "ogv_channel_version=v1")
+                AnimeHomepageDataType.V2 -> header("Cookie", "ogv_channel_version=v2")
+            }
+        }.body<Document>()
+
+        val dataScriptTagContent = htmlDocuments.body().select("script").find {
+            it.html().contains("__INITIAL_STATE__")
+        }?.html() ?: return null
+        val dataJson =
+            dataScriptTagContent.split("__INITIAL_STATE__=", ";(function()")[1]
+
+        return when (dataType) {
+            AnimeHomepageDataType.V1 -> {
+                val dataV1 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV1>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV1 = dataV1)
+            }
+
+            AnimeHomepageDataType.V2 -> {
+                val dataV2 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV2>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV2 = dataV2)
+            }
+        }
+    }
+
+    /**
+     * 获取猜你喜欢
+     *
+     * 返回数据的前几条内包含每小时更新的分类排行榜
+     */
+    suspend fun getAnimeFeed(
+        name: String = "anime",
+        cursor: Int = 0
+    ): BiliResponse<AnimeFeedData> = client.get("/pgc/page/web/v3/feed") {
+        parameter("name", name)
+        parameter("coursor", cursor)
+    }.body()
+
+    /**
+     * 获取用户[mid]的追剧列表
+     *
+     * @param type 追剧类型
+     * @param status 追剧状态
+     * @param pageNumber 页码
+     * @param pageSize 每页数量 [1, 30]
+     * @param mid 用户id
+     */
+    suspend fun getFollowingSeasons(
+        type: FollowingSeasonType,
+        status: FollowingSeasonStatus,
+        pageNumber: Int = 1,
+        pageSize: Int = 15,
+        mid: Long,
+        sessData: String? = ""
+    ): BiliResponse<FollowingSeasonData> = client.get("/x/space/bangumi/follow/list") {
+        parameter("type", type.id)
+        parameter("follow_status", status.id)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+        parameter("vmid", mid)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }
