@@ -8,7 +8,7 @@ core = "1.10.0-alpha02"
 core-splashscreen = "1.0.0"
 dataStore = "1.1.0-alpha01"
 lifecycle = "2.6.0-beta01"
-media3 = "1.0.0-beta03"
+media3 = "1.0.0-rc01"
 room = "2.5.0"
 webkit = "1.7.0-alpha02"
 
