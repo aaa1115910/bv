@@ -284,7 +284,9 @@ fun AnimeFeedVideoRow(
                     data = SeasonCardData(
                         seasonId = feedItem.seasonId ?: 0,
                         title = feedItem.title,
-                        cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail)
+                        subTitle = feedItem.subTitle,
+                        cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
+                        rating = feedItem.rating ?: ""
                     )
                 )
             }
@@ -389,7 +391,9 @@ fun AnimeFeedRankRow(
                             data = SeasonCardData(
                                 seasonId = feedItem.seasonId ?: 0,
                                 title = feedItem.title,
-                                cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail)
+                                subTitle = feedItem.subTitle,
+                                cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
+                                rating = feedItem.rating ?: ""
                             )
                         )
                     }

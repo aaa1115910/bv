@@ -187,7 +187,8 @@ fun UserInfoScreen(
                         SeasonCardData(
                             seasonId = followedSeason.seasonId,
                             title = followedSeason.title,
-                            cover = followedSeason.cover
+                            cover = followedSeason.cover,
+                            rating = null
                         )
                     )
                 }

@@ -170,6 +170,7 @@ fun FollowingSeasonScreen(
                             seasonId = followingSeason.seasonId,
                             title = followingSeason.title,
                             cover = followingSeason.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
+                            rating = null
                         ),
                         onFocus = {
                             currentIndex = index

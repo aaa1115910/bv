@@ -178,7 +178,8 @@ fun TimelinePerDay(
                         data = SeasonCardData(
                             title = episode.title,
                             cover = episode.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
-                            seasonId = episode.seasonId
+                            seasonId = episode.seasonId,
+                            rating = null
                         ),
                         onFocus = { onFocusChange(index) },
                         onClick = { onClick(episode.seasonId) }

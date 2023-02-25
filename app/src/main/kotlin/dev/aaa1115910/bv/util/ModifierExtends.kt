@@ -1,6 +1,12 @@
 package dev.aaa1115910.bv.util
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.runtime.getValue
@@ -19,15 +25,28 @@ import androidx.compose.ui.unit.dp
  * 获取到焦点时显示白色边框
  */
 fun Modifier.focusedBorder(
-    shape: Shape = ShapeDefaults.Large
+    shape: Shape = ShapeDefaults.Large,
+    animate: Boolean = false
 ): Modifier = composed {
+    val infiniteTransition = rememberInfiniteTransition()
     var hasFocus by remember { mutableStateOf(false) }
-    val borderAlpha by animateFloatAsState(if (hasFocus) 1f else 0f)
+
+    val animateColor by infiniteTransition.animateColor(
+        initialValue = Color.White.copy(alpha = 1f),
+        targetValue = Color.White.copy(alpha = 0.1f),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val borderColor = if (hasFocus) {
+        if (animate) animateColor else Color.White
+    } else Color.Transparent
 
     onFocusChanged { hasFocus = it.hasFocus }
         .border(
-            width = 2.dp,
-            color = Color.White.copy(alpha = borderAlpha),
+            width = 3.dp,
+            color = borderColor,
             shape = shape
         )
 }
