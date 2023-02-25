@@ -864,6 +864,7 @@ object BiliApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        buvid3: String? = null
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
         parameter("keyword", keyword)
         parameter("search_type", type)
@@ -871,6 +872,7 @@ object BiliApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
+        header("Cookie", "buvid3=$buvid3;")
     }.body()
 
     /** 获取番剧首页数据 */

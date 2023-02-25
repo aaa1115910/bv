@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.util.Date
+import java.util.UUID
 import kotlin.math.roundToInt
 
 object Prefs {
@@ -128,6 +129,20 @@ object Prefs {
     var showFps: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowFpsRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowFpsKey, value) }
+
+    var buvid3: String
+        get() = runBlocking {
+            val id = dsm.getPreferenceFlow(PrefKeys.prefBuvid3Request).first()
+            if (id != "") {
+                id
+            } else {
+                //random buvid3
+                val randomBuvid3 = "${UUID.randomUUID()}${(0..9).random()}infoc"
+                buvid3 = randomBuvid3
+                randomBuvid3
+            }
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBuvid3Key, value) }
 }
 
 private object PrefKeys {
@@ -149,6 +164,7 @@ private object PrefKeys {
     val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
+    val prefBuvid3Key = stringPreferencesKey("random_buvid3")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -172,4 +188,5 @@ private object PrefKeys {
     val prefDefaultSubtitleBottomPaddingRequest =
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
+    val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
 }
