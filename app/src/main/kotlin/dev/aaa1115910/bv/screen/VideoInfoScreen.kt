@@ -422,7 +422,7 @@ fun VideoInfoScreen(
                     }
                     item {
                         VideosRow(
-                            header = stringResource(R.string.video_info_related_video),
+                            header = stringResource(R.string.video_info_related_video_title),
                             videos = relatedVideos,
                             showMore = {}
                         )
@@ -598,10 +598,10 @@ private fun UpButton(
             ) {
                 if (followed) {
                     Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
-                    Text(text = "已关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_followed), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-                    Text(text = "关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_follow), color = Color.White)
                 }
             }
         }
@@ -614,7 +614,7 @@ fun VideoDescription(
     description: String
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
@@ -623,7 +623,7 @@ fun VideoDescription(
             .padding(horizontal = 50.dp),
     ) {
         Text(
-            text = stringResource(R.string.video_info_description),
+            text = stringResource(R.string.video_info_description_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -667,7 +667,7 @@ fun VideoDescriptionDialog(
             onDismissRequest = { onHideDialog() },
             title = {
                 Text(
-                    text = stringResource(R.string.video_info_description),
+                    text = stringResource(R.string.video_info_description_title),
                     color = Color.White
                 )
             },
@@ -729,7 +729,7 @@ fun VideoPartRow(
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
@@ -739,7 +739,7 @@ fun VideoPartRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "视频分 P",
+            text = stringResource(R.string.video_info_part_row_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -772,7 +772,7 @@ fun VideoUgcSeasonRow(
     onClick: (avid:Int,cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
@@ -782,7 +782,7 @@ fun VideoUgcSeasonRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "视频合集",
+            text = stringResource(R.string.video_info_ugc_season_row_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )

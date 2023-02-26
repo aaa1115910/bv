@@ -15,6 +15,8 @@
 
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
+    <string name="filter_dialog_open_tip">长按确认键更改筛选</string>
+    <string name="filter_dialog_open_tip_click">点击打开筛选</string>
     <string name="filter_dialog_title">筛选</string>
 
     <string name="follow_bangumi_disable_fail">取消追番失败</string>
@@ -47,6 +49,8 @@
     <string name="logout_dialog_dismiss">不，我不想</string>
     <string name="logout_dialog_text">是否登出账号 %1$s</string>
     <string name="logout_dialog_title">登出确认</string>
+
+    <string name="no_data">无可用数据</string>
 
     <string name="play_time_finish">已看完</string>
     <string name="play_time_history">%1$s / %2$s</string>
@@ -180,12 +184,13 @@
     <string name="video_codec_hevc">H.265</string>
     <string name="video_codec_hvc1" tools:ignore="Typos">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
-    <string name="video_info_description">视频简介</string>
-    <string name="video_info_related_video">视频推荐</string>
+    <string name="video_info_description_title">视频简介</string>
+    <string name="video_info_follow">关注</string>
+    <string name="video_info_followed">已关注</string>
+    <string name="video_info_part_row_title">视频分 P</string>
+    <string name="video_info_related_video_title">视频推荐</string>
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
+    <string name="video_info_ugc_season_row_title">视频合集</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
-    <string name="filter_dialog_open_tip">长按确认键更改筛选</string>
-    <string name="no_data">无可用数据</string>
-    <string name="filter_dialog_open_tip_click">点击打开筛选</string>
 </resources>
