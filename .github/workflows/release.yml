@@ -66,7 +66,7 @@ jobs:
           echo "debug_info_version_name=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
           echo "debug_info_apk_filename=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
 
-      - name: Get Current Time
+      - name: Get current time
         id: date
         run: echo "current_time=$(date +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_ENV
 
@@ -99,6 +99,12 @@ jobs:
         with:
           name: Release build artifact
           path: app/build/outputs/apk/release/${{ env.release_info_apk_filename }}
+
+      - name: Archive release build mappings
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release build mappings
+          path: app/build/outputs/mapping/release
 
       - name: Archive debug build artifacts
         uses: actions/upload-artifact@v3
