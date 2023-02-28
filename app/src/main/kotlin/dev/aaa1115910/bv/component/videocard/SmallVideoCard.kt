@@ -107,37 +107,40 @@ fun SmallVideoCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier,
-                                painter = painterResource(id = R.drawable.ic_play_count),
-                                contentDescription = null
-                            )
-                            Text(
-                                text = data.playString,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White
-                            )
+                        if (data.playString != "") {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Icon(
+                                    modifier = Modifier,
+                                    painter = painterResource(id = R.drawable.ic_play_count),
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = data.playString,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White
+                                )
+                            }
                         }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier,
-                                painter = painterResource(id = R.drawable.ic_danmaku_count),
-                                contentDescription = null
-                            )
-                            Text(
-                                text = data.danmakuString,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White
-                            )
+                        if (data.danmakuString != "") {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Icon(
+                                    modifier = Modifier,
+                                    painter = painterResource(id = R.drawable.ic_danmaku_count),
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = data.danmakuString,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White
+                                )
+                            }
                         }
-
                     }
                     Text(
                         text = data.timeString,
