@@ -9,13 +9,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
+import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
 import dev.aaa1115910.bv.player.impl.vlc.VlcPlayerFactory
 
 private const val videoUrl = ""
 private const val audioUrl = ""
+
+private val options = VideoPlayerOptions(
+    userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
+    referer = "https://www.bilibili.com"
+)
 
 private val videoPlayerListener = object : VideoPlayerListener {
     override fun onError(error: String) {
@@ -61,40 +68,33 @@ private val videoPlayerListener = object : VideoPlayerListener {
 @Composable
 fun BvVideoPlayerExoPreview() {
     val context = LocalContext.current
-    val exoPlayer by remember { mutableStateOf(ExoPlayerFactory().create(context)) }
+    val exoPlayer by remember { mutableStateOf(ExoPlayerFactory().create(context, options)) }
 
-    LaunchedEffect(Unit) {
-        //exoPlayer.initPlayer()
-        exoPlayer.setOptions()
-        exoPlayer.setHeader(mapOf("referer" to "https://www.bilibili.com"))
-        exoPlayer.playUrl(videoUrl, audioUrl)
-        exoPlayer.prepare()
-    }
-
-    BvVideoPlayer(
-        modifier = Modifier.fillMaxSize(),
-        videoPlayer = exoPlayer,
-        playerListener = videoPlayerListener
-    )
+    BvVideoPlayerPreview(exoPlayer)
 }
 
 @Preview
 @Composable
 fun BvVideoPlayerVlcPreview() {
     val context = LocalContext.current
-    val vldPlayer by remember { mutableStateOf(VlcPlayerFactory().create(context)) }
+    val vldPlayer by remember { mutableStateOf(VlcPlayerFactory().create(context, options)) }
 
+    BvVideoPlayerPreview(vldPlayer)
+}
+
+@Composable
+fun BvVideoPlayerPreview(
+    player: AbstractVideoPlayer
+) {
     LaunchedEffect(Unit) {
-        //vldPlayer.initPlayer()
-        vldPlayer.setOptions()
-        vldPlayer.setHeader(mapOf("referer" to "https://www.bilibili.com"))
-        vldPlayer.playUrl(videoUrl, audioUrl)
-        vldPlayer.prepare()
+        player.setOptions()
+        player.playUrl(videoUrl, audioUrl)
+        player.prepare()
     }
 
     BvVideoPlayer(
         modifier = Modifier.fillMaxSize(),
-        videoPlayer = vldPlayer,
+        videoPlayer = player,
         playerListener = videoPlayerListener
     )
 }

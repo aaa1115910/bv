@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.player.impl.vlc
 import android.content.Context
 import android.net.Uri
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
+import dev.aaa1115910.bv.player.VideoPlayerOptions
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
@@ -10,7 +11,8 @@ import org.videolan.libvlc.MediaPlayer.Event
 import org.videolan.libvlc.interfaces.IMedia
 
 class VlcMediaPlayer(
-    private val context: Context
+    private val context: Context,
+    private val options: VideoPlayerOptions
 ) : AbstractVideoPlayer(), MediaPlayer.EventListener {
     var mPlayer: MediaPlayer? = null
     private var mLibVLC: LibVLC? = null
@@ -20,14 +22,10 @@ class VlcMediaPlayer(
     }
 
     override fun initPlayer() {
-        val args = ArrayList<String>()
-        //args.add("-vvv")
-        args.add("--http-referrer=https://www.bilibili.com")
-        mLibVLC = LibVLC(context, args)
-        mLibVLC?.setUserAgent(
-            "Chrome",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
-        )
+        val libVLCArgs = mutableListOf<String>()
+        options.referer?.let{libVLCArgs.add("--http-referrer=$it")}
+        mLibVLC = LibVLC(context, libVLCArgs)
+        options.userAgent?.let { mLibVLC?.setUserAgent("BV", it) }
         mPlayer = MediaPlayer(mLibVLC)
 
         initListener()
@@ -38,23 +36,18 @@ class VlcMediaPlayer(
     }
 
     override fun setHeader(headers: Map<String, String>) {
-        //TODO("Not yet implemented")
+
     }
 
     override fun playUrl(videoUrl: String?, audioUrl: String?) {
         val videoMedia = videoUrl?.let {
             Media(mLibVLC, Uri.parse(videoUrl)).apply {
-                addOption(":http-referrer=https://www.bilibili.com")
                 audioUrl?.let { addSlave(IMedia.Slave(IMedia.Slave.Type.Audio, 4, it)) }
+                //setHWDecoderEnabled(true, true);
             }
         }
 
-        videoMedia?.let { media ->
-            mPlayer?.media = media
-            //audioUrl?.let {
-            //    mPlayer?.addSlave(IMedia.Slave.Type.Audio, Uri.parse(it), true)
-            //}
-        }
+        videoMedia?.let { media -> mPlayer?.media = media }
     }
 
     override fun prepare() {

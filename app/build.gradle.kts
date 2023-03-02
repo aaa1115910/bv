@@ -96,6 +96,13 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
         resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+
+        jniLibs {
+            // exclude vlc native libs
+            val vlcLibs = listOf("libvlc", "libc++_shared", "libvlcjni")
+            val abis = listOf("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
+            vlcLibs.forEach { vlcLibName -> abis.forEach { abi -> excludes.add("lib/$abi/$vlcLibName.so") } }
+        }
     }
 
     applicationVariants.configureEach {
@@ -165,7 +172,7 @@ dependencies {
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
     implementation(project(mapOf("path" to ":bv-player")))
-    implementation(files("libs/lib-decoder-av1-release.aar"))
+    implementation(project(":libs:av1Decoder"))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))

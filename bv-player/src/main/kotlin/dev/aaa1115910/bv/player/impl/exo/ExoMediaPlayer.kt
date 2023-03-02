@@ -11,18 +11,20 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
+import dev.aaa1115910.bv.player.VideoPlayerOptions
 
 class ExoMediaPlayer(
-    private val context: Context
+    private val context: Context,
+    private val options: VideoPlayerOptions
 ) : AbstractVideoPlayer(), Player.Listener {
     var mPlayer: ExoPlayer? = null
     protected var mMediaSource: MediaSource? = null
-    val userAgent =
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
 
     @OptIn(UnstableApi::class)
-    private val dataSourceFactory = DefaultHttpDataSource.Factory()
-        .setUserAgent(userAgent)
+    private val dataSourceFactory = DefaultHttpDataSource.Factory().apply {
+        options.userAgent?.let { setUserAgent(it) }
+        options.referer?.let { setDefaultRequestProperties(mapOf("referer" to it)) }
+    }
 
     init {
         initPlayer()
@@ -45,7 +47,7 @@ class ExoMediaPlayer(
 
     @OptIn(UnstableApi::class)
     override fun setHeader(headers: Map<String, String>) {
-        dataSourceFactory.setDefaultRequestProperties(headers)
+
     }
 
     @OptIn(UnstableApi::class)

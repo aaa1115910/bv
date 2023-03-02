@@ -18,7 +18,14 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        create("r8Test") {
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -57,7 +64,7 @@ dependencies {
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
     implementation(libs.material)
-    api(libs.vlc.android.all)
+    api(project(":libs:libVLC"))
     testImplementation(libs.kotlin.test)
     androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
