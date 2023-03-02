@@ -77,19 +77,24 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
+        create("alpha"){
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
+        }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
     }
     packagingOptions {
         resources {
@@ -122,10 +127,15 @@ android {
     }
 }
 
+java{
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 dependencies {
     annotationProcessor(androidx.room.compiler)
     ksp(androidx.room.compiler)
-    implementation(platform("${androidx.compose.bom.get()}"))
     implementation(platform("${libs.firebase.bom.get()}"))
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
@@ -143,14 +153,13 @@ dependencies {
     implementation(androidx.media3.common)
     implementation(androidx.media3.decoder)
     implementation(androidx.media3.exoplayer)
-    implementation(androidx.media3.exoplayer.dash)
-    implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
     implementation(androidx.room.ktx)
     implementation(androidx.room.runtime)
     implementation(androidx.webkit)
     implementation(libs.akdanmaku)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     implementation(libs.coil.svg)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
@@ -175,7 +184,6 @@ dependencies {
     implementation(project(":libs:av1Decoder"))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
-    androidTestImplementation(platform("${androidx.compose.bom.get()}"))
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)
     debugImplementation(androidx.compose.ui.tooling)

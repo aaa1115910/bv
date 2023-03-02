@@ -56,7 +56,7 @@ fun UserPanel(
     onGoMy: () -> Unit,
     onGoHistory: () -> Unit,
     onGoFavorite: () -> Unit,
-    onGoAnimate: () -> Unit,
+    onGoFollowing: () -> Unit,
     onGoLater: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -157,7 +157,7 @@ fun UserPanel(
                     title = "我追的番",
                     icon = Icons.Rounded.CrueltyFree,
                     onClick = {
-                        onGoAnimate()
+                        onGoFollowing()
                         onHide()
                     }
                 )
@@ -276,7 +276,7 @@ private fun UserPanelPreview() {
             onHide = {},
             onGoMy = {},
             onGoHistory = {},
-            onGoAnimate = {},
+            onGoFollowing = {},
             onGoFavorite = {},
             onGoLater = {}
         )

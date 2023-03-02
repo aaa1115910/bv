@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.component
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -21,12 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.carousel.Carousel
-import androidx.tv.material.carousel.CarouselItem
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Carousel
 
-
-@OptIn(ExperimentalTvMaterialApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeCarousel(
     modifier: Modifier = Modifier
@@ -44,7 +43,6 @@ fun HomeCarousel(
             .fillMaxWidth(),
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier

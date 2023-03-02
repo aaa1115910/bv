@@ -16,14 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -31,16 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchResultActivity
 import dev.aaa1115910.bv.component.TvOutlinedTextFiled
 import dev.aaa1115910.bv.component.search.SearchKeyword
 import dev.aaa1115910.bv.component.search.SoftKeyboard
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,27 +42,21 @@ fun SearchInputScreen(
     searchInputViewModel: SearchInputViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val softKeyboardFirstButtonFocusRequester = remember { FocusRequester() }
 
-    var searchKeyword by remember { mutableStateOf("") }
+    val searchKeyword = searchInputViewModel.keyword
     val hotwords = searchInputViewModel.hotwords
     val searchHistories = searchInputViewModel.searchHistories
-    val suggests = remember { mutableStateListOf<KeywordSuggest.Result.Tag>() }
+    val suggests = searchInputViewModel.suggests
 
     val onSearch: (String) -> Unit = { keyword ->
         SearchResultActivity.actionStart(context, keyword)
-        searchKeyword = keyword
+        searchInputViewModel.keyword = keyword
         searchInputViewModel.addSearchHistory(keyword)
     }
 
     LaunchedEffect(searchKeyword) {
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                val suggestResponse = BiliApi.getKeywordSuggest(term = searchKeyword)
-                suggests.clear()
-                suggests.addAll(suggestResponse.suggests)
-            }
-        }
+        searchInputViewModel.updateSuggests()
     }
 
     Scaffold(
@@ -111,21 +97,23 @@ fun SearchInputScreen(
                     TvOutlinedTextFiled(
                         modifier = Modifier.width(258.dp),
                         value = searchKeyword,
-                        onValueChange = { searchKeyword = it },
+                        onValueChange = { searchInputViewModel.keyword = it },
                         onPressEnter = { onSearch(searchKeyword) },
+                        onMoveFocusToDown = { softKeyboardFirstButtonFocusRequester.requestFocus() },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) })
                     )
                     SoftKeyboard(
+                        firstButtonFocusRequester = softKeyboardFirstButtonFocusRequester,
                         onClick = {
-                            searchKeyword += it
+                            searchInputViewModel.keyword += it
                         },
                         onClear = {
-                            searchKeyword = ""
+                            searchInputViewModel.keyword = ""
                         },
                         onDelete = {
                             if (searchKeyword.isNotEmpty()) {
-                                searchKeyword = searchKeyword.dropLast(1)
+                                searchInputViewModel.keyword = searchKeyword.dropLast(1)
                             }
                         },
                         onSearch = { onSearch(searchKeyword) }

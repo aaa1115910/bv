@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
@@ -54,16 +55,24 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.foundation.lazy.list.items
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.AuthFailureException
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.entity.user.RelationStat
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.FollowActivity
+import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
+import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
+import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.component.videocard.VideosRow
+import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
@@ -102,7 +111,7 @@ fun UserInfoScreen(
     val followingNumber by animateIntAsState(targetValue = relationStat?.following ?: 0)
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
-    val animes = remember { mutableStateListOf<VideoCardData>() }
+    val animes = remember { mutableStateListOf<SeasonCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
 
     var focusOnUserInfo by remember { mutableStateOf(false) }
@@ -148,6 +157,43 @@ fun UserInfoScreen(
                 }
             }.onFailure {
                 logger.fWarn { "Load recent videos failed: ${it.stackTraceToString()}" }
+                when (it) {
+                    is AuthFailureException -> {
+                        withContext(Dispatchers.Main) {
+                            context.getString(R.string.exception_auth_failure).toast(context)
+                        }
+                        logger.fInfo { "User auth failure" }
+                        if (!BuildConfig.DEBUG) userViewModel.logout()
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+        //update followed animes
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                val followedSeasons = BiliApi.getFollowingSeasons(
+                    type = FollowingSeasonType.Bangumi,
+                    status = FollowingSeasonStatus.All,
+                    pageNumber = 1,
+                    pageSize = 15,
+                    mid = Prefs.uid,
+                    sessData = Prefs.sessData
+                ).getResponseData()
+                followedSeasons.list.forEach { followedSeason ->
+                    animes.add(
+                        SeasonCardData(
+                            seasonId = followedSeason.seasonId,
+                            title = followedSeason.title,
+                            cover = followedSeason.cover,
+                            rating = null
+                        )
+                    )
+                }
+            }.onFailure {
+                logger.fWarn { "Load followed animes failed: ${it.stackTraceToString()}" }
                 when (it) {
                     is AuthFailureException -> {
                         withContext(Dispatchers.Main) {
@@ -289,10 +335,10 @@ fun UserInfoScreen(
                 )
             }
             item {
-                AnimeVideosRow(
+                FollowingAnimeVideosRow(
                     videos = animes,
                     showMore = {
-                        "还没写呢！！！".toast(context)
+                        context.startActivity(Intent(context, FollowingSeasonActivity::class.java))
                     }
                 )
             }
@@ -553,19 +599,55 @@ private fun RecentVideosRow(
 }
 
 @Composable
-private fun AnimeVideosRow(
+private fun FollowingAnimeVideosRow(
     modifier: Modifier = Modifier,
-    videos: List<VideoCardData>,
+    videos: List<SeasonCardData>,
     showMore: () -> Unit
 ) {
-    VideosRow(
+    val context = LocalContext.current
+    var hasFocus by remember { mutableStateOf(false) }
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
+    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+
+    Column(
         modifier = modifier
-            .padding(vertical = 8.dp),
-        header = stringResource(R.string.user_homepage_anime),
-        hideShowMore = false,
-        showMore = showMore,
-        videos = videos
-    )
+            .padding(vertical = 8.dp)
+            .padding(start = 50.dp)
+            .onFocusChanged { hasFocus = it.hasFocus }
+    ) {
+        Text(
+            text = stringResource(R.string.user_homepage_anime),
+            fontSize = titleFontSize.sp,
+            color = titleColor
+        )
+        TvLazyRow(
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            contentPadding = PaddingValues(end = 50.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+        ) {
+            items(items = videos) { seasonCardData ->
+                SeasonCard(
+                    modifier = Modifier.width(150.dp),
+                    data = seasonCardData,
+                    onClick = {
+                        SeasonInfoActivity.actionStart(
+                            context = context,
+                            seasonId = seasonCardData.seasonId
+                        )
+                    }
+                )
+            }
+            item {
+                TextButton(onClick = {
+                    showMore()
+                }) {
+                    Text(text = "显示更多")
+                }
+            }
+        }
+    }
 }
 
 @Composable

@@ -2,17 +2,18 @@ package dev.aaa1115910.bv.viewmodel.search
 
 import android.content.Context
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.entity.search.SearchResultData
 import dev.aaa1115910.biliapi.entity.search.SearchResultItem
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.search.SearchResultFilterDuration
 import dev.aaa1115910.bv.screen.search.SearchResultFilterOrderType
 import dev.aaa1115910.bv.util.Partition
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,51 +26,107 @@ class SearchResultViewModel : ViewModel() {
 
     var keyword by mutableStateOf("")
     var searchType by mutableStateOf(SearchResultType.Video)
-    var searchResult = mutableStateListOf<SearchResultItem>()
+
+    var videoSearchResult by mutableStateOf(SearchResult(SearchResultType.Video))
+    var mediaBangumiSearchResult by mutableStateOf(SearchResult(SearchResultType.MediaBangumi))
+    var mediaFtSearchResult by mutableStateOf(SearchResult(SearchResultType.MediaFt))
+    var biliUserSearchResult by mutableStateOf(SearchResult(SearchResultType.BiliUser))
 
     var selectedOrder by mutableStateOf(SearchResultFilterOrderType.ComprehensiveSort)
     var selectedDuration by mutableStateOf(SearchResultFilterDuration.All)
     var selectedPartition: Partition? by mutableStateOf(null)
     var selectedChildPartition: Partition? by mutableStateOf(null)
 
-    private var pageNumber = 1
-    private var maxPages = 50
-
     private var updating = false
-    var noMore = false
 
     fun update() {
-        pageNumber = 1
-        maxPages = 50
-        searchResult.clear()
-        loadMore()
+        resetPages()
+        clearResults()
+        SearchResultType.values().forEach { loadMore(it, true) }
     }
 
-    fun loadMore() {
-        if (pageNumber > maxPages) {
-            noMore = true
-            return
+    private fun resetPages() {
+        videoSearchResult.page.reset()
+        mediaBangumiSearchResult.page.reset()
+        mediaFtSearchResult.page.reset()
+        biliUserSearchResult.page.reset()
+    }
+
+    private fun clearResults() {
+        videoSearchResult.results = listOf()
+        mediaBangumiSearchResult.results = listOf()
+        mediaFtSearchResult.results = listOf()
+        biliUserSearchResult.results = listOf()
+    }
+
+    fun loadMore(
+        searchType: SearchResultType,
+        ignoreUpdating: Boolean = false
+    ) {
+        val currentPage = when (searchType) {
+            SearchResultType.Video -> videoSearchResult.page
+            SearchResultType.MediaBangumi -> mediaBangumiSearchResult.page
+            SearchResultType.MediaFt -> mediaFtSearchResult.page
+            SearchResultType.BiliUser -> biliUserSearchResult.page
         }
-        if (updating) return
+        if (currentPage.pageNumber >= currentPage.maxPages) return
+        if (updating && !ignoreUpdating) return
+
         updating = true
         viewModelScope.launch(Dispatchers.Default) {
-            logger.fInfo { "Load search result: [keyword=$keyword, type=$searchType, pageNumber=$pageNumber]" }
+            logger.fInfo { "Load search result: [keyword=$keyword, type=$searchType, pageNumber=${currentPage.pageNumber}]" }
             runCatching {
                 val searchResultResponse =
                     BiliApi.searchType(
                         keyword = keyword,
                         type = searchType.type,
-                        page = pageNumber,
+                        page = currentPage.pageNumber,
                         tid = selectedChildPartition?.tid ?: selectedPartition?.tid,
                         order = selectedOrder.order,
-                        duration = selectedDuration.duration
+                        duration = selectedDuration.duration,
+                        buvid3 = Prefs.buvid3
                     ).getResponseData()
-                searchResult.addAll(searchResultResponse.searchTypeResults)
-                maxPages = searchResultResponse.numPages
-            }.onSuccess {
-                pageNumber++
+                when (searchType) {
+                    SearchResultType.Video -> videoSearchResult =
+                        videoSearchResult.appendSearchResultData(searchResultResponse)
+
+                    SearchResultType.MediaBangumi -> mediaBangumiSearchResult =
+                        mediaBangumiSearchResult.appendSearchResultData(searchResultResponse)
+
+                    SearchResultType.MediaFt -> mediaFtSearchResult =
+                        mediaFtSearchResult.appendSearchResultData(searchResultResponse)
+
+                    SearchResultType.BiliUser -> biliUserSearchResult =
+                        biliUserSearchResult.appendSearchResultData(searchResultResponse)
+                }
             }
             updating = false
+        }
+    }
+
+    data class SearchResult(
+        var type: SearchResultType,
+        var results: List<SearchResultItem> = ArrayList(),
+        var page: SearchResultPage = SearchResultPage()
+    ) {
+        data class SearchResultPage(
+            var pageNumber: Int = 1,
+            var maxPages: Int = 50
+        ) {
+            fun reset() {
+                pageNumber = 1
+                maxPages = 50
+            }
+        }
+
+        fun appendSearchResultData(searchResultData: SearchResultData): SearchResult {
+            val newSearchResult = SearchResult(type)
+            newSearchResult.results = results + searchResultData.searchTypeResults
+            newSearchResult.page = SearchResultPage(
+                pageNumber = page.pageNumber + 1,
+                maxPages = searchResultData.numPages
+            )
+            return newSearchResult
         }
     }
 }

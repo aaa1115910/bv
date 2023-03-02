@@ -1,5 +1,8 @@
 package dev.aaa1115910.biliapi
 
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.video.TimelineType
@@ -22,6 +25,8 @@ internal class BiliApiTest {
             runCatching { localProperties.getProperty("test.sessdata") }.getOrNull() ?: ""
         val BILI_JCT: String =
             runCatching { localProperties.getProperty("test.bili_jct") }.getOrNull() ?: ""
+        val UID: Long =
+            runCatching { localProperties.getProperty("test.uid") }.getOrNull()?.toLongOrNull() ?: 2
     }
 
     @Test
@@ -45,6 +50,16 @@ internal class BiliApiTest {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliApi.getVideoInfo(av = 170001)
+                println(response)
+            }
+        }
+    }
+
+    @Test
+    fun `get video info which is ugc season`() {
+        assertDoesNotThrow {
+            runBlocking {
+                val response = BiliApi.getVideoInfo(av = 433139956)
                 println(response)
             }
         }
@@ -470,6 +485,43 @@ internal class BiliApiTest {
                         type = type
                     )
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `get anime homepage data`() {
+        runBlocking {
+            AnimeHomepageDataType.values().forEach {
+                println(BiliApi.getAnimeHomepageData(dataType = it))
+            }
+        }
+    }
+
+    @Test
+    fun `get anime feed data`() {
+        runBlocking {
+            println(BiliApi.getAnimeFeed())
+        }
+    }
+
+    @Test
+    fun `get following season data`() {
+        runBlocking {
+            for (followingSeasonType in FollowingSeasonType.values()) {
+                for (followingSeasonStatus in FollowingSeasonStatus.values()) {
+                    println("type: $followingSeasonType, status: $followingSeasonStatus: ")
+                    println(
+                        BiliApi.getFollowingSeasons(
+                            type = followingSeasonType,
+                            status = followingSeasonStatus,
+                            pageNumber = 1,
+                            pageSize = 1,
+                            mid = UID,
+                            sessData = SESSDATA
+                        )
+                    )
+                }
             }
         }
     }

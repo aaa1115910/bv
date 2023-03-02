@@ -1,15 +1,19 @@
 [versions]
 akdanmaku = "1.0.3"
 coil = "2.2.2"
-firebase-bom = "31.2.0"
-material = "1.9.0-alpha01"
-koin = "3.2.2"
-kotlinx-serialization = "1.4.1"
-ktor = "2.2.2"
+firebase-bom = "31.2.2"
+jsoup = "1.15.4"
+koin = "3.3.3"
+koin-compose = "3.4.2"
+kotlinx-serialization = "1.5.0-RC"
+ktor = "2.2.3"
+ktor-jsoup = "2.0.0"
 logging = "3.0.4"
+material = "1.9.0-alpha01"
 qrcode = "3.3.0"
 rememberPreference = "1.0.0"
 slf4j-android-mvysny = "2.0.4"
+slf4j-simple = "2.0.6"
 vlc = "3.5.1"
 
 [libraries]
@@ -18,6 +22,7 @@ akdanmaku = { module = "com.kuaishou:akdanmaku", version.ref = "akdanmaku" }
 
 # https://coil-kt.github.io/coil
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
 
 # https://firebase.google.com/docs/android/setup
@@ -25,13 +30,13 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 
-# https://github.com/material-components/material-components-android
-material = { module = "com.google.android.material:material", version.ref = "material" }
+# https://jsoup.org/
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
 # https://insert-koin.io
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
 
 # https://kotlinlang.org/docs/jvm-test-using-junit.html
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
@@ -48,8 +53,14 @@ ktor-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-serialization-kotlinx = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 
+# https://github.com/T-Fowl/ktor-jsoup
+ktor-jsoup = { module = "com.tfowl.ktor:ktor-jsoup", version.ref = "ktor-jsoup" }
+
 # https://github.com/MicroUtils/kotlin-logging
 logging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "logging" }
+
+# https://github.com/material-components/material-components-android
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 # https://github.com/g0dkar/qrcode-kotlin
 qrcode = { module = "io.github.g0dkar:qrcode-kotlin-android", version.ref = "qrcode" }
@@ -59,6 +70,9 @@ rememberPreference = { module = "dev.burnoo:compose-remember-preference", versio
 
 # https://gitlab.com/mvysny/slf4j-handroid
 slf4j-android-mvysny = { module = "com.gitlab.mvysny.slf4j:slf4j-handroid", version.ref = "slf4j-android-mvysny" }
+
+# https://www.slf4j.org
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
 
 # https://code.videolan.org/videolan/vlc-android
 vlc-android-all = { module = "org.videolan.android:libvlc-all", version.ref = "vlc" }

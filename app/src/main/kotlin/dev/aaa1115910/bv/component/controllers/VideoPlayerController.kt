@@ -235,7 +235,7 @@ fun VideoPlayerController(
                             return@onPreviewKeyEvent true
                         }
 
-                        KeyEvent.KEYCODE_DPAD_CENTER -> {
+                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
                             logger.fInfo { "Pressed dpad center" }
                             if (lastPlayed != 0) {
                                 goBackHistory()
@@ -257,6 +257,24 @@ fun VideoPlayerController(
                         763 -> {
                             if (showingRightController()) return@onPreviewKeyEvent false
                             showMenuController = true
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            if (isPlaying) onPause() else onPlay()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            if (!isPlaying) onPlay()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
+                            if (isPlaying) onPause()
                             return@onPreviewKeyEvent true
                         }
 
@@ -296,6 +314,24 @@ fun VideoPlayerController(
                                     R.string.video_player_press_back_again_to_exit.toast(context)
                                 }
                             }
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            showSeekController = true
+                            lastChangedSeek = System.currentTimeMillis()
+                            onSeekForward()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) return@onPreviewKeyEvent true
+                            if (showingRightController()) return@onPreviewKeyEvent false
+                            showSeekController = true
+                            lastChangedSeek = System.currentTimeMillis()
+                            onSeekBack()
                             return@onPreviewKeyEvent true
                         }
                     }

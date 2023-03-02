@@ -74,6 +74,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationType
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.biliapi.entity.video.UgcSeason
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.R
@@ -222,8 +223,22 @@ fun VideoInfoScreen(
                             fromSeason = true
                         )
                         context.finish()
+                    } else if (videoInfo?.isSeasonDisplay == true) {
+                        //如果不是剧集，则设置分p数据，以便播放器读取（合集）
+                        val partVideoList =
+                            videoInfo!!.ugcSeason!!.sections[0].episodes.mapIndexed { index, episode ->
+                                VideoListItem(
+                                    aid = episode.aid,
+                                    cid = episode.cid,
+                                    title = episode.title,
+                                    index = index,
+                                    isEpisode = false
+                                )
+                            }
+                        videoInfoRepository.videoList.clear()
+                        videoInfoRepository.videoList.addAll(partVideoList)
                     } else {
-                        //如果不是剧集，则设置分p数据，以便播放器读取
+                        //如果不是剧集，则设置分p数据，以便播放器读取（分P）
                         val partVideoList = videoInfo!!.pages.mapIndexed { index, videoPage ->
                             VideoListItem(
                                 aid = aid,
@@ -311,7 +326,7 @@ fun VideoInfoScreen(
                     modifier = Modifier.fillMaxSize(),
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(videoInfo!!.pic)
+                            .data(videoInfo!!.ugcSeason?.cover ?: videoInfo!!.pic)
                             .transformations(BlurTransformation(LocalContext.current, 20f, 5f))
                             .build()
                     ),
@@ -363,28 +378,51 @@ fun VideoInfoScreen(
                             description = videoInfo?.desc ?: "no desc"
                         )
                     }
-                    item {
-                        VideoPartRow(
-                            pages = videoInfo?.pages ?: emptyList(),
-                            lastPlayedCid = lastPlayedCid,
-                            lastPlayedTime = lastPlayedTime,
-                            onClick = { cid ->
-                                logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                VideoPlayerActivity.actionStart(
-                                    context = context,
-                                    avid = videoInfo!!.aid,
-                                    cid = cid,
-                                    title = videoInfo!!.title,
-                                    partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
-                                    played = if (cid == lastPlayedCid) lastPlayedTime else 0,
-                                    fromSeason = false
-                                )
-                            }
-                        )
+                    if (videoInfo?.isSeasonDisplay != true) {
+                        item {
+                            VideoPartRow(
+                                pages = videoInfo?.pages ?: emptyList(),
+                                lastPlayedCid = lastPlayedCid,
+                                lastPlayedTime = lastPlayedTime,
+                                onClick = { cid ->
+                                    logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
+                                    VideoPlayerActivity.actionStart(
+                                        context = context,
+                                        avid = videoInfo!!.aid,
+                                        cid = cid,
+                                        title = videoInfo!!.title,
+                                        partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
+                                        played = if (cid == lastPlayedCid) lastPlayedTime else 0,
+                                        fromSeason = false
+                                    )
+                                }
+                            )
+                        }
+                    } else {
+                        item {
+                            VideoUgcSeasonRow(
+                                episodes = videoInfo?.ugcSeason?.sections?.get(0)?.episodes
+                                    ?: emptyList(),
+                                lastPlayedCid = lastPlayedCid,
+                                lastPlayedTime = lastPlayedTime,
+                                onClick = {aid, cid ->
+                                    logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
+                                    VideoPlayerActivity.actionStart(
+                                        context = context,
+                                        avid = aid,
+                                        cid = cid,
+                                        title = videoInfo!!.title,
+                                        partTitle = videoInfo!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
+                                        played = if (cid == lastPlayedCid) lastPlayedTime else 0,
+                                        fromSeason = false
+                                    )
+                                }
+                            )
+                        }
                     }
                     item {
                         VideosRow(
-                            header = stringResource(R.string.video_info_related_video),
+                            header = stringResource(R.string.video_info_related_video_title),
                             videos = relatedVideos,
                             showMore = {}
                         )
@@ -431,7 +469,7 @@ fun VideoInfoData(
                 }
                 .focusedBorder(MaterialTheme.shapes.large)
                 .clickable { onClickCover() },
-            model = videoInfo.pic,
+            model = videoInfo.ugcSeason?.cover ?: videoInfo.pic,
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
@@ -560,10 +598,10 @@ private fun UpButton(
             ) {
                 if (followed) {
                     Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
-                    Text(text = "已关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_followed), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-                    Text(text = "关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_follow), color = Color.White)
                 }
             }
         }
@@ -576,7 +614,7 @@ fun VideoDescription(
     description: String
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
@@ -585,7 +623,7 @@ fun VideoDescription(
             .padding(horizontal = 50.dp),
     ) {
         Text(
-            text = stringResource(R.string.video_info_description),
+            text = stringResource(R.string.video_info_description_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -629,7 +667,7 @@ fun VideoDescriptionDialog(
             onDismissRequest = { onHideDialog() },
             title = {
                 Text(
-                    text = stringResource(R.string.video_info_description),
+                    text = stringResource(R.string.video_info_description_title),
                     color = Color.White
                 )
             },
@@ -691,7 +729,7 @@ fun VideoPartRow(
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
@@ -701,7 +739,7 @@ fun VideoPartRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "视频分 P",
+            text = stringResource(R.string.video_info_part_row_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -719,6 +757,49 @@ fun VideoPartRow(
                     played = if (page.cid == lastPlayedCid) lastPlayedTime else 0,
                     duration = page.duration,
                     onClick = { onClick(page.cid) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun VideoUgcSeasonRow(
+    modifier: Modifier = Modifier,
+    episodes: List<UgcSeason.Section.Episode>,
+    lastPlayedCid: Int = 0,
+    lastPlayedTime: Int = 0,
+    onClick: (avid:Int,cid: Int) -> Unit
+) {
+    var hasFocus by remember { mutableStateOf(false) }
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
+    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+
+    Column(
+        modifier = modifier
+            .padding(start = 50.dp)
+            .onFocusChanged { hasFocus = it.hasFocus },
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(R.string.video_info_ugc_season_row_title),
+            fontSize = titleFontSize.sp,
+            color = titleColor
+        )
+
+        TvLazyRow(
+            modifier = Modifier
+                .padding(top = 15.dp),
+            contentPadding = PaddingValues(0.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(items = episodes) { index, episode ->
+                VideoPartButton(
+                    index = index + 1,
+                    title = episode.title,
+                    played = if (episode.cid == lastPlayedCid) lastPlayedTime else 0,
+                    duration = episode.arc.duration,
+                    onClick = { onClick(episode.aid,episode.cid) }
                 )
             }
         }

@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -64,9 +63,10 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material.LocalContentColor
-import androidx.tv.material.Tab
-import androidx.tv.material.TabRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabRow
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
@@ -575,7 +575,7 @@ fun SeasonEpisodeButton(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodesDialog(
     modifier: Modifier = Modifier,
@@ -717,7 +717,7 @@ fun SeasonEpisodeRow(
     onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     var showEpisodesDialog by remember { mutableStateOf(false) }

@@ -1,50 +1,52 @@
 [versions]
-activity = "1.7.0-alpha03"
-compose-bom = "2023.01.00"
-compose-tv = "1.0.0-alpha03"
-core = "1.9.0"
+activity = "1.7.0-beta01"
+compose = "1.4.0-beta01"
+compose-compiler = "1.4.2"
+compose-material3 = "1.1.0-alpha06"
+compose-tv = "1.0.0-alpha04"
+core = "1.10.0-alpha02"
 core-splashscreen = "1.0.0"
 dataStore = "1.1.0-alpha01"
-lifecycle = "2.6.0-alpha04"
-media3 = "1.0.0-beta03"
+lifecycle = "2.6.0-beta01"
+media3 = "1.0.0-rc01"
 room = "2.5.0"
-webkit = "1.7.0-alpha01"
+webkit = "1.7.0-alpha02"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 
-# https://developer.android.com/jetpack/androidx/releases/compose
-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+# https://developer.android.com/jetpack/androidx/releases/compose-compiler
+compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 
 # https://developer.android.com/jetpack/androidx/releases/tv
 compose-tv-foundation = { module = "androidx.tv:tv-foundation", version.ref = "compose-tv" }
 compose-tv-material = { module = "androidx.tv:tv-material", version.ref = "compose-tv" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-ui
-compose-ui = { module = "androidx.compose.ui:ui" }
-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-compose-ui-util = { module = "androidx.compose.ui:ui-util" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref="compose" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref="compose" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref="compose" }
+compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref="compose" }
 
 # https://developer.android.com/jetpack/androidx/releases/ui
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref="compose" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref="compose" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-material
-compose-material = { module = "androidx.compose.material:material" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
+compose-material = { module = "androidx.compose.material:material", version.ref="compose" }
+compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref="compose" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-material3
-compose-material3 = { module = "androidx.compose.material3:material3" }
-compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref="compose-material3" }
+compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class", version.ref="compose-material3" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-runtime
-compose-runtime = { module = "androidx.compose.runtime:runtime" }
-compose-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref="compose" }
+compose-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref="compose" }
 
 # https://developer.android.com/jetpack/compose/layout
-compose-constraint = { module = "androidx.constraintlayout:constraintlayout-compose" }
+compose-constraint = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref="compose" }
 
 # https://developer.android.com/jetpack/androidx/releases/core
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }

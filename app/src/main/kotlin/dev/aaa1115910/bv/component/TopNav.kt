@@ -48,9 +48,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material.LocalContentColor
-import androidx.tv.material.Tab
-import androidx.tv.material.TabRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabRow
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
@@ -59,6 +60,7 @@ import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
 import dev.aaa1115910.bv.util.requestFocus
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
@@ -74,7 +76,8 @@ fun TopNav(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
-    val navList = listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Dynamics)
+    val navList =
+        listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Anime, TopNavItem.Dynamics)
 
     val navItemFocusRequester = remember { FocusRequester() }
 
@@ -162,6 +165,7 @@ fun TopNav(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun NavItemTab(
     modifier: Modifier = Modifier,

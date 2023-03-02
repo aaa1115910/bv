@@ -37,9 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.material.LocalContentColor
-import androidx.tv.material.Tab
-import androidx.tv.material.TabRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabRow
 import dev.aaa1115910.biliapi.entity.search.SearchBiliUserResult
 import dev.aaa1115910.biliapi.entity.search.SearchMediaResult
 import dev.aaa1115910.biliapi.entity.search.SearchResultItem
@@ -53,14 +54,16 @@ import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.screen.user.UpCard
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.removeHtmlTags
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.search.SearchResultType
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
+import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchResultScreen(
     modifier: Modifier = Modifier,
@@ -68,6 +71,7 @@ fun SearchResultScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger { }
     val tabRowFocusRequester = remember { FocusRequester() }
 
     var rowSize by remember { mutableStateOf(4) }
@@ -76,6 +80,13 @@ fun SearchResultScreen(
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
 
     var searchKeyword by remember { mutableStateOf("") }
+
+    val searchResult = when (searchResultViewModel.searchType) {
+        SearchResultType.Video -> searchResultViewModel.videoSearchResult
+        SearchResultType.MediaBangumi -> searchResultViewModel.mediaBangumiSearchResult
+        SearchResultType.MediaFt -> searchResultViewModel.mediaFtSearchResult
+        SearchResultType.BiliUser -> searchResultViewModel.biliUserSearchResult
+    }
 
     var showFilter by remember { mutableStateOf(false) }
 
@@ -123,14 +134,15 @@ fun SearchResultScreen(
             searchKeyword = intent.getStringExtra("keyword") ?: ""
             if (searchKeyword == "") context.finish()
             searchResultViewModel.keyword = searchKeyword
-            searchResultViewModel.update()
+            // 筛选变更监听在启动时会误触发一次 update()，所以这里不再触发
+            //logger.fInfo { "Start update search result because init" }
+            //searchResultViewModel.update()
         } else {
             context.finish()
         }
     }
 
     LaunchedEffect(searchResultViewModel.searchType) {
-        searchResultViewModel.update()
         rowSize = when (searchResultViewModel.searchType) {
             SearchResultType.Video -> 4
             SearchResultType.MediaBangumi, SearchResultType.MediaFt -> 6
@@ -139,11 +151,9 @@ fun SearchResultScreen(
     }
 
     LaunchedEffect(
-        searchResultViewModel.selectedOrder,
-        searchResultViewModel.selectedDuration,
-        searchResultViewModel.selectedPartition,
-        searchResultViewModel.selectedChildPartition
+        selectedOrder, selectedDuration, selectedPartition, selectedChildPartition
     ) {
+        logger.fInfo { "Start update search result because filter updated" }
         searchResultViewModel.update()
     }
 
@@ -165,13 +175,21 @@ fun SearchResultScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            searchResultViewModel.searchResult.size
-                        ),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.filter_dialog_open_tip),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                searchResult.results.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }
@@ -236,14 +254,14 @@ fun SearchResultScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                itemsIndexed(items = searchResultViewModel.searchResult) { index, searchResult ->
+                itemsIndexed(items = searchResult.results) { index, searchResultItem ->
                     SearchResultListItem(
-                        searchResult = searchResult,
-                        onClick = { onClickResult(searchResult) },
+                        searchResult = searchResultItem,
+                        onClick = { onClickResult(searchResultItem) },
                         onFocus = {
                             currentIndex = index
-                            if (index + 20 > searchResultViewModel.searchResult.size) {
-                                searchResultViewModel.loadMore()
+                            if (index + 20 > searchResult.results.size) {
+                                searchResultViewModel.loadMore(searchResult.type)
                             }
                         }
                     )
@@ -295,7 +313,8 @@ private fun SearchResultListItem(
                 data = SeasonCardData(
                     seasonId = searchResult.seasonId,
                     title = searchResult.title.removeHtmlTags(),
-                    cover = searchResult.cover
+                    cover = searchResult.cover,
+                    rating = String.format("%.1f", searchResult.mediaScore.score)
                 ),
                 onClick = onClick,
                 onFocus = onFocus

@@ -1,0 +1,103 @@
+name: Alpha Build
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-alpha:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Write google-services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA > app/google-services.json
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Add signing properties
+        env:
+          SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
+        run: |
+          echo ${{ secrets.SIGNING_PROPERTIES }} > encoded_signing_properties
+          base64 -d encoded_signing_properties > signing.properties
+
+      - name: Add jks file
+        run: |
+          echo ${{ secrets.SIGN_KEY }} > ./encoded_key
+          base64 -d encoded_key > key.jks
+
+      - name: Build apk
+        run: ./gradlew assembleAlpha assembleDebug
+
+      - name: Read alpha apk output metadata
+        id: apk-meta-alpha
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: app/build/outputs/apk/alpha/output-metadata.json
+
+      - name: Read debug apk output metadata
+        id: apk-meta-debug
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: app/build/outputs/apk/debug/output-metadata.json
+
+      - name: Parse alpha info
+        id: alpha-info
+        run: |
+          echo "alpha_info_version_code=${{ fromJson(steps.apk-meta-alpha.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "alpha_info_version_name=${{ fromJson(steps.apk-meta-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+          echo "alpha_info_apk_filename=${{ fromJson(steps.apk-meta-alpha.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+
+      - name: Parse debug info
+        id: debug-info
+        run: |
+          echo "debug_info_version_code=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "debug_info_version_name=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+          echo "debug_info_apk_filename=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+
+      - name: Get current time
+        id: date
+        run: echo "current_time=$(date +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_ENV
+
+      - name: Zip alpha outputs
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: app/build/outputs
+          dest: BV_${{ env.alpha_info_version_code }}_${{ env.alpha_info_version_name }}_${{ env.current_time }}.zip
+
+      - name: Upload alpha outputs
+        uses: Difegue/action-megacmd@1.2.0
+        with:
+          args: put BV_${{ env.alpha_info_version_code }}_${{ env.alpha_info_version_name }}_${{ env.current_time }}.zip
+        env:
+          USERNAME: ${{ secrets.MEGA_USERNAME }}
+          PASSWORD: ${{ secrets.MEGA_PASSWORD }}
+
+      - name: Archive alpha build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Alpha build artifact
+          path: app/build/outputs/apk/alpha/${{ env.alpha_info_apk_filename }}
+
+      - name: Archive alpha build mappings
+        uses: actions/upload-artifact@v3
+        with:
+          name: Alpha build mappings
+          path: app/build/outputs/mapping/alpha
+
+      - name: Archive debug build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug build artifact
+          path: app/build/outputs/apk/debug/${{ env.debug_info_apk_filename }}

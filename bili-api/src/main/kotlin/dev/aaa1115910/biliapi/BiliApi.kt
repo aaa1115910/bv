@@ -1,36 +1,45 @@
 package dev.aaa1115910.biliapi
 
+import com.tfowl.ktor.client.features.JsoupPlugin
 import dev.aaa1115910.biliapi.entity.BiliResponse
 import dev.aaa1115910.biliapi.entity.BiliResponseWithoutData
+import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageData
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV1
+import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataV2
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.entity.history.HistoryData
-import dev.aaa1115910.biliapi.entity.search.HotwordResponse
+import dev.aaa1115910.biliapi.entity.search.HotwordData
 import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.entity.search.SearchResultData
-import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonData
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.entity.season.SeasonData
+import dev.aaa1115910.biliapi.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
-import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationStat
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.UserCardData
+import dev.aaa1115910.biliapi.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.entity.user.UserInfoData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.entity.user.favorite.FavoriteItemIdListResponse
 import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.biliapi.entity.video.AddCoin
-import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
-import dev.aaa1115910.biliapi.entity.video.CheckVideoFavoured
 import dev.aaa1115910.biliapi.entity.video.CheckSentCoin
+import dev.aaa1115910.biliapi.entity.video.CheckVideoFavoured
 import dev.aaa1115910.biliapi.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
+import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
 import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
@@ -57,15 +66,16 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
-import mu.KotlinLogging
+import org.jsoup.nodes.Document
 import javax.xml.parsers.DocumentBuilderFactory
 
+@Suppress("SpellCheckingInspection")
 object BiliApi {
-    private var endPoint: String = ""
+    private var endPoint: String = "api.bilibili.com"
     private lateinit var client: HttpClient
-    private val logger = KotlinLogging.logger { }
 
     private val json = Json {
         coerceInputValues = true
@@ -90,8 +100,9 @@ object BiliApi {
             install(HttpRequestRetry) {
                 retryOnException(maxRetries = 2)
             }
+            install(JsoupPlugin)
             defaultRequest {
-                host = "api.bilibili.com"
+                host = endPoint
             }
         }
     }
@@ -399,7 +410,7 @@ object BiliApi {
     /**
      * 上报视频播放心跳
      *
-     * @param aid 稿件avid avid与bvid任选一个
+     * @param avid 稿件avid avid与bvid任选一个
      * @param bvid 稿件bvid avid与bvid任选一个
      * @param cid 视频cid 用于识别分P
      * @param epid 番剧epid
@@ -585,9 +596,8 @@ object BiliApi {
                 Parameters.build {
                     append("rid", "$avid")
                     append("type", "$type")
-                    val regex = """ |\[|]""".toRegex()
-                    append("add_media_ids", "${addMediaIds.toString().replace(regex, "")}")
-                    append("del_media_ids", "${delMediaIds.toString().replace(regex, "")}")
+                    append("add_media_ids", addMediaIds.joinToString(separator = ","))
+                    append("del_media_ids", delMediaIds.joinToString(separator = ","))
                     append("csrf", csrf)
                 }
             ))
@@ -792,8 +802,14 @@ object BiliApi {
     /**
      * 获取搜索热词
      */
-    suspend fun getHotwords(): HotwordResponse =
-        client.get("https://s.search.bilibili.com/main/hotword").body()
+    suspend fun getHotwords(
+        limit: Int = 10,
+        platform: String? = null
+    ): BiliResponse<HotwordData> =
+        client.get("/x/web-interface/search/square") {
+            parameter("limit", limit)
+            platform?.let { parameter("platform", platform) }
+        }.body()
 
     /**
      * 获取搜索关键词建议
@@ -848,6 +864,7 @@ object BiliApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        buvid3: String? = null
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
         parameter("keyword", keyword)
         parameter("search_type", type)
@@ -855,5 +872,76 @@ object BiliApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
+        header("Cookie", "buvid3=$buvid3;")
+    }.body()
+
+    /** 获取番剧首页数据 */
+    suspend fun getAnimeHomepageData(
+        dataType: AnimeHomepageDataType = AnimeHomepageDataType.V1
+    ): AnimeHomepageData? {
+        val htmlDocuments = client.get("https://www.bilibili.com/anime") {
+            when (dataType) {
+                AnimeHomepageDataType.V1 -> header("Cookie", "ogv_channel_version=v1")
+                AnimeHomepageDataType.V2 -> header("Cookie", "ogv_channel_version=v2")
+            }
+        }.body<Document>()
+
+        val dataScriptTagContent = htmlDocuments.body().select("script").find {
+            it.html().contains("__INITIAL_STATE__")
+        }?.html() ?: return null
+        val dataJson =
+            dataScriptTagContent.split("__INITIAL_STATE__=", ";(function()")[1]
+
+        return when (dataType) {
+            AnimeHomepageDataType.V1 -> {
+                val dataV1 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV1>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV1 = dataV1)
+            }
+
+            AnimeHomepageDataType.V2 -> {
+                val dataV2 =
+                    runCatching { json.decodeFromString<AnimeHomepageDataV2>(dataJson) }.getOrNull()
+                AnimeHomepageData(_dataV2 = dataV2)
+            }
+        }
+    }
+
+    /**
+     * 获取猜你喜欢
+     *
+     * 返回数据的前几条内包含每小时更新的分类排行榜
+     */
+    suspend fun getAnimeFeed(
+        name: String = "anime",
+        cursor: Int = 0
+    ): BiliResponse<AnimeFeedData> = client.get("/pgc/page/web/v3/feed") {
+        parameter("name", name)
+        parameter("coursor", cursor)
+    }.body()
+
+    /**
+     * 获取用户[mid]的追剧列表
+     *
+     * @param type 追剧类型
+     * @param status 追剧状态
+     * @param pageNumber 页码
+     * @param pageSize 每页数量 [1, 30]
+     * @param mid 用户id
+     */
+    suspend fun getFollowingSeasons(
+        type: FollowingSeasonType,
+        status: FollowingSeasonStatus,
+        pageNumber: Int = 1,
+        pageSize: Int = 15,
+        mid: Long,
+        sessData: String? = ""
+    ): BiliResponse<FollowingSeasonData> = client.get("/x/space/bangumi/follow/list") {
+        parameter("type", type.id)
+        parameter("follow_status", status.id)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+        parameter("vmid", mid)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }

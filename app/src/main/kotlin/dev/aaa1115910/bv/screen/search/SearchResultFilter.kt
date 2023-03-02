@@ -70,7 +70,7 @@ fun SearchResultVideoFilter(
             modifier = modifier
                 .fillMaxWidth(0.8f),
             onDismissRequest = onHideFilter,
-            title = { Text(text = stringResource(R.string.search_result_video_filter_title)) },
+            title = { Text(text = stringResource(R.string.filter_dialog_title)) },
             text = {
                 Column {
                     TvLazyRow(

@@ -9,5 +9,7 @@ fun String.resizedImageUrl(size: ImageSize): String {
 
 enum class ImageSize(val sizeString: String) {
     Default(""),
-    Cover("180h_288w_1c")
+    Cover("180h_288w_1c"),
+    SmallVideoCardCover("400h_640w_1c"),
+    SeasonCoverThumbnail("466h_622w")
 }
