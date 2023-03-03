@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.player.impl.vlc
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import org.videolan.libvlc.LibVLC
@@ -19,11 +20,13 @@ class VlcMediaPlayer(
 
     init {
         initPlayer()
+        Log.i("BvVlcMediaPlayer", "LibVLC version: ${LibVLC.version()}")
     }
 
     override fun initPlayer() {
         val libVLCArgs = mutableListOf<String>()
-        options.referer?.let{libVLCArgs.add("--http-referrer=$it")}
+        //libVLCArgs.add("-vvv")
+        options.referer?.let { libVLCArgs.add("--http-referrer=$it") }
         mLibVLC = LibVLC(context, libVLCArgs)
         options.userAgent?.let { mLibVLC?.setUserAgent("BV", it) }
         mPlayer = MediaPlayer(mLibVLC)
