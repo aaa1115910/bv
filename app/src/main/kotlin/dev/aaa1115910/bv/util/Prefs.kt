@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
 import kotlinx.coroutines.flow.first
@@ -143,6 +144,14 @@ object Prefs {
             }
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBuvid3Key, value) }
+
+    var playerType: PlayerType
+        get() = runBlocking {
+            runCatching {
+                PlayerType.values()[dsm.getPreferenceFlow(PrefKeys.prefPlayerTypeRequest).first()]
+            }.getOrDefault(PlayerType.ExoPlayer)
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerTypeKey, value.ordinal) }
 }
 
 private object PrefKeys {
@@ -165,6 +174,7 @@ private object PrefKeys {
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
+    val prefPlayerTypeKey = intPreferencesKey("pt")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -189,4 +199,5 @@ private object PrefKeys {
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
+    val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.ExoPlayer.ordinal)
 }

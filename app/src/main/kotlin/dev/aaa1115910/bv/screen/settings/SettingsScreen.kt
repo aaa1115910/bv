@@ -53,6 +53,7 @@ import dev.aaa1115910.bv.screen.settings.content.AboutSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
 import dev.aaa1115910.bv.screen.settings.content.NetworkSetting
 import dev.aaa1115910.bv.screen.settings.content.OtherSetting
+import dev.aaa1115910.bv.screen.settings.content.PlayerTypeSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
 import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -172,6 +173,7 @@ fun SettingsNav(
 enum class SettingsMenuNavItem(private val strRes: Int) {
     Resolution(R.string.settings_item_resolution),
     VideoCodec(R.string.settings_item_codec),
+    PlayerType(R.string.settings_item_player_type),
     Other(R.string.settings_item_other),
     Network(R.string.settings_item_network),
     Info(R.string.settings_item_info),
@@ -209,6 +211,7 @@ fun SettingContent(
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
                 SettingsMenuNavItem.Other -> OtherSetting()
                 SettingsMenuNavItem.Network -> NetworkSetting()
+                SettingsMenuNavItem.PlayerType -> PlayerTypeSetting()
             }
         }
     }

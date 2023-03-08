@@ -135,6 +135,7 @@
     <string name="settings_item_info">设备信息</string>
     <string name="settings_item_network">网络测试</string>
     <string name="settings_item_other">更多设置</string>
+    <string name="settings_item_player_type">播放器</string>
     <string name="settings_item_resolution">默认分辨率</string>
     <string name="settings_network_start_button">开始测试</string>
     <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
