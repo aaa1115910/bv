@@ -22,6 +22,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.video.TagActivity"
+            android:exported="false"
+            android:label="@string/title_activity_tag"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.anime.AnimeIndexActivity"
             android:exported="false"
             android:label="@string/title_activity_anime_index"

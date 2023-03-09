@@ -365,6 +365,28 @@ internal class BiliApiTest {
     }
 
     @Test
+    fun `get tag detail`() = runBlocking {
+        println(
+            BiliApi.getTagDetail(
+                tagId = 6020278,
+                pageNumber = 1,
+                pageSize = 20
+            )
+        )
+    }
+
+    @Test
+    fun `get tag popular videos`() = runBlocking {
+        println(
+            BiliApi.getTagTopVideos(
+                tagId = 6020278,
+                pageNumber = 1,
+                pageSize = 20
+            )
+        )
+    }
+
+    @Test
     fun `get timeline`() {
         runBlocking {
             TimelineType.values().forEach { timelineType ->

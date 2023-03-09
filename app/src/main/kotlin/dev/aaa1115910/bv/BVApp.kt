@@ -15,6 +15,7 @@ import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
@@ -74,6 +75,7 @@ val appModule = module {
     viewModel { SearchResultViewModel() }
     viewModel { AnimeViewModel() }
     viewModel { FollowingSeasonViewModel() }
+    viewModel { TagViewModel() }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")
