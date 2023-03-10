@@ -21,7 +21,7 @@ data class AnimeHomepageData(
         _dataV2?.modules?.banner?.items?.filter { it.episodeId != null }?.forEach {
             result.add(
                 CarouselItem(
-                    cover = "https:${it.webpBigCover}",
+                    cover = it.bigCover,
                     title = it.title,
                     seasonId = it.seasonId
                 )
