@@ -41,6 +41,8 @@ import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
 import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
 import dev.aaa1115910.biliapi.entity.video.Tag
+import dev.aaa1115910.biliapi.entity.video.TagDetail
+import dev.aaa1115910.biliapi.entity.video.TagTopVideosResponse
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
@@ -720,6 +722,32 @@ object BiliApi {
         avid?.let { parameter("aid", it) }
         bvid?.let { parameter("bvid", it) }
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取视频标签[tagId]的详细信息，包含相关标签和最新视频
+     */
+    suspend fun getTagDetail(
+        tagId: Int,
+        pageNumber: Int,
+        pageSize: Int
+    ): BiliResponse<TagDetail> = client.get("/x/tag/detail") {
+        parameter("tag_id", tagId)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+    }.body()
+
+    /**
+     * 获取视频标签[tagId]的最热门的视频列表
+     */
+    suspend fun getTagTopVideos(
+        tagId: Int,
+        pageNumber: Int,
+        pageSize: Int
+    ): TagTopVideosResponse = client.get("/x/web-interface/tag/top") {
+        parameter("tid", tagId)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
     }.body()
 
     /**

@@ -65,3 +65,47 @@ data class Tag(
         val atten: Int
     )
 }
+
+/**
+ * Tag 详情，包含相似的 Tag 和最新的视频
+ *
+ * @param info Tag 信息
+ * @param similar 相似的 Tag
+ * @param news 最新的 Tag 的视频
+ */
+@Serializable
+data class TagDetail(
+    val info: Tag,
+    val similar: List<SimilarTag>,
+    val news: NewTags
+) {
+    /**
+     * 相似的 Tag
+     */
+    @Serializable
+    data class SimilarTag(
+        val rid: Int,
+        val rname: String,
+        val tid: Int,
+        val cover: String,
+        val atten: Int,
+        val tname: String
+    )
+
+    /**
+     * 最新的 Tag 的视频
+     */
+    @Serializable
+    data class NewTags(
+        val count: Int,
+        val archives: List<VideoInfo>
+    )
+}
+
+@Serializable
+data class TagTopVideosResponse(
+    val code: Int,
+    val message: String,
+    val total: Int,
+    val data: List<VideoInfo>
+)

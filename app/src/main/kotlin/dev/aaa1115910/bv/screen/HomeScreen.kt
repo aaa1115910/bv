@@ -192,8 +192,7 @@ fun HomeScreen(
                     },
                     onShowUserPanel = { showUserPanel = true }
                 )
-            },
-            containerColor = Color.Black
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier

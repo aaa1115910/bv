@@ -160,6 +160,7 @@
     <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>
+    <string name="title_activity_tag">视频标签</string>
     <string name="title_activity_up_info">UP 投稿</string>
     <string name="title_activity_user_info">用户信息</string>
     <string name="title_activity_video_info">视频信息</string>

@@ -261,6 +261,7 @@ fun AnimeFeedVideoRow(
     modifier: Modifier = Modifier,
     data: List<AnimeFeedData.FeedItem.FeedSubItem>
 ) {
+    val context = LocalContext.current
     TvLazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 24.dp)
@@ -287,7 +288,13 @@ fun AnimeFeedVideoRow(
                         subTitle = feedItem.subTitle,
                         cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
                         rating = feedItem.rating ?: ""
-                    )
+                    ),
+                    onClick = {
+                        SeasonInfoActivity.actionStart(
+                            context = context,
+                            seasonId = feedItem.seasonId
+                        )
+                    }
                 )
             }
         }
@@ -299,6 +306,7 @@ fun AnimeFeedRankRow(
     modifier: Modifier = Modifier,
     data: List<AnimeFeedData.FeedItem.FeedSubItem>
 ) {
+    val context = LocalContext.current
     Box(
         modifier = modifier
             .height(300.dp)
@@ -394,7 +402,13 @@ fun AnimeFeedRankRow(
                                 subTitle = feedItem.subTitle,
                                 cover = feedItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
                                 rating = feedItem.rating ?: ""
-                            )
+                            ),
+                            onClick = {
+                                SeasonInfoActivity.actionStart(
+                                    context = context,
+                                    seasonId = feedItem.seasonId
+                                )
+                            }
                         )
                     }
                 }

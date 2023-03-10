@@ -118,6 +118,7 @@ fun CookiesDialog(
                         Prefs.biliJct = cookies.biliJct
                         Prefs.sessData = cookies.sessData
                         Prefs.tokenExpiredData = Date(cookies.tokenExpiredData)
+                        Prefs.isLogin = true
                     }.onFailure {
                         println(it.stackTraceToString())
                         "无法解析".toast(context)
