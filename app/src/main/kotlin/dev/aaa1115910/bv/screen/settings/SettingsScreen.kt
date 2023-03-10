@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +57,6 @@ import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier
@@ -289,7 +287,6 @@ fun SettingsDetail(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsMenuSelectItem(
     modifier: Modifier = Modifier,
@@ -304,7 +301,7 @@ fun SettingsMenuSelectItem(
             .onFocusChanged { hasFocus = it.hasFocus }
             .clip(MaterialTheme.shapes.small)
             .clickable { onClick() },
-        headlineText = { Text(text = text) },
+        headlineContent = { Text(text = text) },
         trailingContent = {
             RadioButton(
                 modifier = Modifier.focusable(false),
