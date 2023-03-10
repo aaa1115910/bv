@@ -37,6 +37,9 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ## 自行编译注意事项
 
+### JDK 版本
+`jdk 11`
+
 ### google-services.json
 
 该项目使用 Firebase Crashlytics 进行异常日志统计，因此需要用到 `google-services.json` 文件。

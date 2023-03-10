@@ -35,7 +35,7 @@ fun VideosRow(
 ) {
     val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(

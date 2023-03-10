@@ -13,6 +13,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.search.SearchResultFilterDuration
 import dev.aaa1115910.bv.screen.search.SearchResultFilterOrderType
 import dev.aaa1115910.bv.util.Partition
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,7 +83,8 @@ class SearchResultViewModel : ViewModel() {
                         page = currentPage.pageNumber,
                         tid = selectedChildPartition?.tid ?: selectedPartition?.tid,
                         order = selectedOrder.order,
-                        duration = selectedDuration.duration
+                        duration = selectedDuration.duration,
+                        buvid3 = Prefs.buvid3
                     ).getResponseData()
                 when (searchType) {
                     SearchResultType.Video -> videoSearchResult =

@@ -261,16 +261,19 @@ fun VideoPlayerController(
                         }
 
                         KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                             if (isPlaying) onPause() else onPlay()
                             return@onPreviewKeyEvent true
                         }
 
                         KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                             if (!isPlaying) onPlay()
                             return@onPreviewKeyEvent true
                         }
 
                         KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent true
                             if (isPlaying) onPause()
                             return@onPreviewKeyEvent true
                         }

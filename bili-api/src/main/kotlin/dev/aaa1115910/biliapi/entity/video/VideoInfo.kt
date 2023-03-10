@@ -5,6 +5,11 @@ import dev.aaa1115910.biliapi.entity.user.Staff
 import dev.aaa1115910.biliapi.entity.user.UserGarb
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * 视频详细信息
@@ -64,7 +69,7 @@ data class VideoInfo(
     val pic: String,
     val title: String,
     val pubdate: Int,
-    val ctime: Int,
+    val ctime: Int = 0,
     val desc: String,
     val state: Int,
     val duration: Int,
@@ -116,8 +121,20 @@ data class VideoInfo(
     @SerialName("ogv_info")
     val ogvInfo: String? = null,
     @SerialName("rcmd_reason")
-    val rcmdReason: RcmdReason? = null,
+    private val _rcmdReason: JsonElement? = null,
+    var rcmdReason: RcmdReason? = null,
 ) {
+    init {
+        rcmdReason = if (_rcmdReason == null) {
+            null
+        } else if (_rcmdReason is JsonObject) {
+            Json.decodeFromJsonElement<RcmdReason>(_rcmdReason)
+        } else {
+            val reason = _rcmdReason.jsonPrimitive.content
+            if (reason == "") null else RcmdReason(content = reason, cornerMark = 0)
+        }
+    }
+
     @Serializable
     data class RcmdReason(
         val content: String,

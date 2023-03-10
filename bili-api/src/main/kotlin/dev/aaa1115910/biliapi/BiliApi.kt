@@ -41,6 +41,8 @@ import dev.aaa1115910.biliapi.entity.video.PopularVideoData
 import dev.aaa1115910.biliapi.entity.video.RelatedVideosResponse
 import dev.aaa1115910.biliapi.entity.video.SetVideoFavorite
 import dev.aaa1115910.biliapi.entity.video.Tag
+import dev.aaa1115910.biliapi.entity.video.TagDetail
+import dev.aaa1115910.biliapi.entity.video.TagTopVideosResponse
 import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
@@ -723,6 +725,32 @@ object BiliApi {
     }.body()
 
     /**
+     * 获取视频标签[tagId]的详细信息，包含相关标签和最新视频
+     */
+    suspend fun getTagDetail(
+        tagId: Int,
+        pageNumber: Int,
+        pageSize: Int
+    ): BiliResponse<TagDetail> = client.get("/x/tag/detail") {
+        parameter("tag_id", tagId)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+    }.body()
+
+    /**
+     * 获取视频标签[tagId]的最热门的视频列表
+     */
+    suspend fun getTagTopVideos(
+        tagId: Int,
+        pageNumber: Int,
+        pageSize: Int
+    ): TagTopVideosResponse = client.get("/x/web-interface/tag/top") {
+        parameter("tid", tagId)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+    }.body()
+
+    /**
      * 获取剧集更新时间表
      */
     suspend fun getTimeline(
@@ -864,6 +892,7 @@ object BiliApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        buvid3: String? = null
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
         parameter("keyword", keyword)
         parameter("search_type", type)
@@ -871,6 +900,7 @@ object BiliApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
+        header("Cookie", "buvid3=$buvid3;")
     }.body()
 
     /** 获取番剧首页数据 */

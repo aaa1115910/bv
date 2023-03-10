@@ -63,6 +63,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -74,15 +75,17 @@ import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationType
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.UgcSeason
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
+import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
-import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.UpIcon
+import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -119,6 +122,7 @@ fun VideoInfoScreen(
     var videoInfo: VideoInfo? by remember { mutableStateOf(null) }
     val relatedVideos = remember { mutableStateListOf<VideoCardData>() }
     var relations: RelationData? by remember { mutableStateOf(null) }
+    val tags = remember { mutableStateListOf<Tag>() }
 
     var lastPlayedCid by remember { mutableStateOf(0) }
     var lastPlayedTime by remember { mutableStateOf(0) }
@@ -176,6 +180,17 @@ fun VideoInfoScreen(
                 ).getResponseData()
             }.onFailure {
                 logger.fInfo { "Get relation data failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
+
+    val updateTags: (avid: Int) -> Unit = { avid ->
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                logger.fInfo { "Getting tags" }
+                tags.swapList(BiliApi.getVideoTags(avid = avid).getResponseData())
+            }.onFailure {
+                logger.fInfo { "Get tags failed: ${it.stackTraceToString()}" }
             }
         }
     }
@@ -256,9 +271,10 @@ fun VideoInfoScreen(
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
                 }
             }
-            //如果是从剧集跳转过来的，就不需要获取相关视频，因为页面一直都是 Loading
+            //如果是从剧集跳转过来的，就不需要获取相关视频等信息，因为页面一直都是 Loading
             if (!fromSeason) {
                 updateRelationVideos(aid.toLong())
+                updateTags(aid)
             }
         }
     }
@@ -342,6 +358,7 @@ fun VideoInfoScreen(
                         VideoInfoData(
                             videoInfo = videoInfo!!,
                             relations = relations,
+                            tags = tags,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
                                 VideoPlayerActivity.actionStart(
@@ -370,6 +387,13 @@ fun VideoInfoScreen(
                                 modifyRelation(FollowAction.DelFollow) {
                                     updateRelationData()
                                 }
+                            },
+                            onClickTip = { tag ->
+                                TagActivity.actionStart(
+                                    context = context,
+                                    tagId = tag.tagId,
+                                    tagName = tag.tagName
+                                )
                             }
                         )
                     }
@@ -405,7 +429,7 @@ fun VideoInfoScreen(
                                     ?: emptyList(),
                                 lastPlayedCid = lastPlayedCid,
                                 lastPlayedTime = lastPlayedTime,
-                                onClick = {aid, cid ->
+                                onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
                                     VideoPlayerActivity.actionStart(
                                         context = context,
@@ -422,7 +446,7 @@ fun VideoInfoScreen(
                     }
                     item {
                         VideosRow(
-                            header = stringResource(R.string.video_info_related_video),
+                            header = stringResource(R.string.video_info_related_video_title),
                             videos = relatedVideos,
                             showMore = {}
                         )
@@ -438,11 +462,14 @@ fun VideoInfoData(
     modifier: Modifier = Modifier,
     videoInfo: VideoInfo,
     relations: RelationData?,
+    tags: List<Tag>,
     onClickCover: () -> Unit,
     onClickUp: () -> Unit,
     onAddFollow: () -> Unit,
-    onDelFollow: () -> Unit
+    onDelFollow: () -> Unit,
+    onClickTip: (Tag) -> Unit
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val localDensity = LocalDensity.current
@@ -528,7 +555,7 @@ fun VideoInfoData(
                     Box(modifier = Modifier.focusable(true)) {}
                     FavoriteButton(
                         isFavorite = false,
-                        onClick = {}
+                        onClick = { "还没写呢".toast(context) }
                     )
                     Box(modifier = Modifier.focusable(true)) {}
                 }
@@ -545,13 +572,32 @@ fun VideoInfoData(
                     color = Color.White
                 )
             }
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Text(
                     text = stringResource(R.string.video_info_tags),
                     color = Color.White
                 )
-                TvLazyRow {
-
+                TvLazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(tags) { tag ->
+                        Surface(
+                            modifier = Modifier
+                                .focusedBorder(MaterialTheme.shapes.small)
+                                .clickable { onClickTip(tag) },
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(8.dp, 4.dp),
+                                text = tag.tagName,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -598,10 +644,10 @@ private fun UpButton(
             ) {
                 if (followed) {
                     Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
-                    Text(text = "已关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_followed), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-                    Text(text = "关注", color = Color.White)
+                    Text(text = stringResource(R.string.video_info_follow), color = Color.White)
                 }
             }
         }
@@ -614,7 +660,7 @@ fun VideoDescription(
     description: String
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
@@ -623,7 +669,7 @@ fun VideoDescription(
             .padding(horizontal = 50.dp),
     ) {
         Text(
-            text = stringResource(R.string.video_info_description),
+            text = stringResource(R.string.video_info_description_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -667,7 +713,7 @@ fun VideoDescriptionDialog(
             onDismissRequest = { onHideDialog() },
             title = {
                 Text(
-                    text = stringResource(R.string.video_info_description),
+                    text = stringResource(R.string.video_info_description_title),
                     color = Color.White
                 )
             },
@@ -729,7 +775,7 @@ fun VideoPartRow(
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
@@ -739,7 +785,7 @@ fun VideoPartRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "视频分 P",
+            text = stringResource(R.string.video_info_part_row_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -769,10 +815,10 @@ fun VideoUgcSeasonRow(
     episodes: List<UgcSeason.Section.Episode>,
     lastPlayedCid: Int = 0,
     lastPlayedTime: Int = 0,
-    onClick: (avid:Int,cid: Int) -> Unit
+    onClick: (avid: Int, cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
@@ -782,7 +828,7 @@ fun VideoUgcSeasonRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = "视频合集",
+            text = stringResource(R.string.video_info_ugc_season_row_title),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
@@ -799,7 +845,7 @@ fun VideoUgcSeasonRow(
                     title = episode.title,
                     played = if (episode.cid == lastPlayedCid) lastPlayedTime else 0,
                     duration = episode.arc.duration,
-                    onClick = { onClick(episode.aid,episode.cid) }
+                    onClick = { onClick(episode.aid, episode.cid) }
                 )
             }
         }

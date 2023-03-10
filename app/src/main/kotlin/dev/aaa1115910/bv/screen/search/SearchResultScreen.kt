@@ -313,7 +313,8 @@ private fun SearchResultListItem(
                 data = SeasonCardData(
                     seasonId = searchResult.seasonId,
                     title = searchResult.title.removeHtmlTags(),
-                    cover = searchResult.cover
+                    cover = searchResult.cover,
+                    rating = String.format("%.1f", searchResult.mediaScore.score)
                 ),
                 onClick = onClick,
                 onFocus = onFocus

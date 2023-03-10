@@ -1,7 +1,8 @@
 package dev.aaa1115910.bv.component.videocard
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,21 +19,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
+import dev.aaa1115910.bv.util.focusedScale
 
 @Composable
 fun SeasonCard(
@@ -41,8 +52,10 @@ fun SeasonCard(
     onClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
+    val localDensity = LocalDensity.current
+
+    var coverRealWidth by remember { mutableStateOf(0.dp) }
     var hasFocus by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (hasFocus) 1f else 0.9f)
 
     LaunchedEffect(hasFocus) {
         if (hasFocus) onFocus()
@@ -50,11 +63,14 @@ fun SeasonCard(
 
     Card(
         modifier = modifier
-            .scale(scale)
+            .focusedScale()
             .onFocusChanged { hasFocus = it.isFocused }
-            .focusedBorder(MaterialTheme.shapes.medium)
+            .focusedBorder()
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
     ) {
         Column {
             val coverModifier = if (coverHeight != null) {
@@ -68,14 +84,50 @@ fun SeasonCard(
                 Modifier
             }
 
-            AsyncImage(
-                modifier = coverModifier
-                    .aspectRatio(0.75f)
-                    .clip(MaterialTheme.shapes.large),
-                model = data.cover,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds
-            )
+            Box(
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                AsyncImage(
+                    modifier = coverModifier
+                        .aspectRatio(0.75f)
+                        .clip(MaterialTheme.shapes.large)
+                        .onGloballyPositioned { coordinates ->
+                            coverRealWidth = with(localDensity) { coordinates.size.width.toDp() }
+                        },
+                    model = data.cover,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
+                )
+
+                if (data.rating != null) {
+                    Box(
+                        modifier = Modifier
+                            .height(48.dp)
+                            // 无法使用 fillMaxWidth 来确定宽度
+                            .width(coverRealWidth)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.8f)
+                                    )
+                                )
+                            )
+                    )
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .fillMaxWidth()
+                            .padding(8.dp, 0.dp),
+                        text = data.rating,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+
             Column(
                 modifier = textBoxModifier.padding(8.dp)
             ) {
@@ -85,6 +137,15 @@ fun SeasonCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                if (data.subTitle != null) {
+                    Text(
+                        text = data.subTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }
@@ -101,7 +162,8 @@ private fun SeasonCardPreview() {
                         data = SeasonCardData(
                             seasonId = 40794,
                             title = "007：没空去死",
-                            cover = "http://i0.hdslb.com/bfs/bangumi/image/8d211c396aad084d6fa413015200dda6ed260768.png"
+                            cover = "http://i0.hdslb.com/bfs/bangumi/image/8d211c396aad084d6fa413015200dda6ed260768.png",
+                            rating = "8.6"
                         )
                     )
                 }

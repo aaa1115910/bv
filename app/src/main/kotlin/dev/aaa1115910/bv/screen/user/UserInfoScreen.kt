@@ -187,7 +187,8 @@ fun UserInfoScreen(
                         SeasonCardData(
                             seasonId = followedSeason.seasonId,
                             title = followedSeason.title,
-                            cover = followedSeason.cover
+                            cover = followedSeason.cover,
+                            rating = null
                         )
                     )
                 }
@@ -605,7 +606,7 @@ private fun FollowingAnimeVideosRow(
 ) {
     val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.Gray
+    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
     Column(
