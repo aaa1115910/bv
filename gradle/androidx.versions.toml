@@ -1,16 +1,16 @@
 [versions]
-activity = "1.7.0-beta01"
-compose = "1.4.0-beta01"
-compose-compiler = "1.4.2"
-compose-material3 = "1.1.0-alpha06"
+activity = "1.7.0-beta02"
+compose = "1.4.0-rc01"
+compose-compiler = "1.4.3"
+compose-material3 = "1.1.0-alpha08"
 compose-tv = "1.0.0-alpha04"
-core = "1.10.0-alpha02"
+core = "1.10.0-rc01"
 core-splashscreen = "1.0.0"
 dataStore = "1.1.0-alpha01"
-lifecycle = "2.6.0-beta01"
-media3 = "1.0.0-rc01"
+lifecycle = "2.6.0"
+media3 = "1.0.0-rc02"
 room = "2.5.0"
-webkit = "1.7.0-alpha02"
+webkit = "1.7.0-alpha03"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity
