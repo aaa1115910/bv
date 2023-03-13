@@ -20,14 +20,11 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
 import kotlinx.serialization.json.Json
-import mu.KotlinLogging
 import java.io.File
-import java.lang.IllegalStateException
 
 object VlcLibsApi {
     private var endPoint = "api.github.com"
     private lateinit var client: HttpClient
-    private val logger = KotlinLogging.logger { }
 
     init {
         createClient()
@@ -92,16 +89,16 @@ object VlcLibsApi {
     }
 
     private fun getFileName(): String {
-        if (Build.SUPPORTED_ABIS.contains("arm64-v8a")) {
-            return "arm64-v8a.zip"
-        } else if (Build.SUPPORTED_ABIS.contains("armeabi-v7a")) {
-            return "armeabi-v7a.zip"
-        } else if (Build.SUPPORTED_ABIS.contains("x86_64")) {
-            return "x86_64.zip"
+        return if (Build.SUPPORTED_ABIS.contains("x86_64")) {
+            "x86_64.zip"
         } else if (Build.SUPPORTED_ABIS.contains("x86")) {
-            return "x86.zip"
+            "x86.zip"
+        } else if (Build.SUPPORTED_ABIS.contains("arm64-v8a")) {
+            "arm64-v8a.zip"
+        } else if (Build.SUPPORTED_ABIS.contains("armeabi-v7a")) {
+            "armeabi-v7a.zip"
         } else {
-            return ""
+            ""
         }
     }
 }
