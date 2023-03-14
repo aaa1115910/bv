@@ -10,6 +10,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
+import dev.aaa1115910.bv.activities.video.VideoPlayerV3ViewModel
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -76,6 +77,7 @@ val appModule = module {
     viewModel { AnimeViewModel() }
     viewModel { FollowingSeasonViewModel() }
     viewModel { TagViewModel() }
+    viewModel { VideoPlayerV3ViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

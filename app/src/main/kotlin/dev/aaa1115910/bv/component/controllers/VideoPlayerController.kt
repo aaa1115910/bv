@@ -475,7 +475,10 @@ data class VideoPlayerControllerData(
     val currentSubtitleData: List<SubtitleItem> = emptyList(),
     val currentPosition: Long = 0,
     val currentSubtitleFontSize: TextUnit = 24.sp,
-    val currentSubtitleBottomPadding: Dp = 12.dp
+    val currentSubtitleBottomPadding: Dp = 12.dp,
+    val lastPlayed: Int = 0,
+    val title: String = "Title",
+    val secondTitle: String = "Second title"
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

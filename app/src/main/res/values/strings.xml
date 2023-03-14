@@ -165,6 +165,7 @@
     <string name="title_activity_user_info">用户信息</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
+    <string name="title_activity_video_player_v3">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
     <string name="top_nav_item_dynamics">动态</string>
@@ -195,4 +196,6 @@
     <string name="video_info_time">投稿时间: %1$s</string>
     <string name="video_info_ugc_season_row_title">视频合集</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
+    <string name="video_player_referer">https://www.bilibili.com</string>
+    <string name="video_player_user_agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
 </resources>

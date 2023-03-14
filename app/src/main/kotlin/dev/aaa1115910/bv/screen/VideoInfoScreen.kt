@@ -83,7 +83,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
-import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.activities.video.VideoPlayerV3Activity
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -228,7 +228,7 @@ fun VideoInfoScreen(
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
                         val playPart = videoInfo!!.pages.first()
-                        VideoPlayerActivity.actionStart(
+                        VideoPlayerV3Activity.actionStart(
                             context = context,
                             avid = videoInfo!!.aid,
                             cid = playPart.cid,
@@ -361,7 +361,7 @@ fun VideoInfoScreen(
                             tags = tags,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
-                                VideoPlayerActivity.actionStart(
+                                VideoPlayerV3Activity.actionStart(
                                     context = context,
                                     avid = videoInfo!!.aid,
                                     cid = videoInfo!!.pages.first().cid,
@@ -410,7 +410,7 @@ fun VideoInfoScreen(
                                 lastPlayedTime = lastPlayedTime,
                                 onClick = { cid ->
                                     logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerActivity.actionStart(
+                                    VideoPlayerV3Activity.actionStart(
                                         context = context,
                                         avid = videoInfo!!.aid,
                                         cid = cid,
@@ -431,7 +431,7 @@ fun VideoInfoScreen(
                                 lastPlayedTime = lastPlayedTime,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerActivity.actionStart(
+                                    VideoPlayerV3Activity.actionStart(
                                         context = context,
                                         avid = aid,
                                         cid = cid,
