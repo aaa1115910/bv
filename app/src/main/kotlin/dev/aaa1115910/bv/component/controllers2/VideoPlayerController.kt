@@ -1,20 +1,27 @@
 package dev.aaa1115910.bv.component.controllers2
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
@@ -48,9 +55,12 @@ fun VideoPlayerController(
     val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
 
     var lastPressBack by remember { mutableStateOf(0L) }
+    var hasFocus by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
+            .onFocusChanged { hasFocus = it.hasFocus }
+            .focusable()
             .onPreviewKeyEvent {
 
                 if (showClickableControllers) {
@@ -124,7 +134,6 @@ fun VideoPlayerController(
                             lastPressBack = currentTime
                             R.string.video_player_press_back_again_to_exit.toast(context)
                         }
-                        onExit()
                         return@onPreviewKeyEvent true
                     }
 
@@ -184,6 +193,14 @@ fun VideoPlayerController(
             videoList = data.availableVideoList,
             onPlayNewVideo = onPlayNewVideo
         )
+        if (BuildConfig.DEBUG) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                text = "hasFocus: $hasFocus"
+            )
+        }
     }
 }
 

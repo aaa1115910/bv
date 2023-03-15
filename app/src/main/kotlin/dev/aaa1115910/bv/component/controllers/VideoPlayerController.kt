@@ -41,6 +41,7 @@ import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoAspectRatio
@@ -468,6 +469,7 @@ data class VideoPlayerControllerData(
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     val currentDanmakuEnabled: Boolean = true,
+    val currentDanmakuEnabledList: List<DanmakuType> = listOf(),
     val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     val currentDanmakuArea: Float = 1f,

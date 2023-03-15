@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.activities.video
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -23,6 +24,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -185,9 +188,11 @@ fun VideoPlayerV3Screen(
     modifier: Modifier = Modifier,
     playerViewModel: VideoPlayerV3ViewModel = koinViewModel()
 ) {
-    val context= LocalContext.current
-    val scope= rememberCoroutineScope()
-    val videoPlayer=playerViewModel.videoPlayer!!
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val videoPlayer = playerViewModel.videoPlayer!!
+
+    val focusRequester = remember { FocusRequester() }
 
     var infoData by remember {
         mutableStateOf(
@@ -258,6 +263,10 @@ fun VideoPlayerV3Screen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     DisposableEffect(Unit) {
         val timer = Timer()
         timer.schedule(object : TimerTask() {
@@ -274,6 +283,12 @@ fun VideoPlayerV3Screen(
         }, 0, 100)
         onDispose {
             timer.cancel()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            videoPlayer.release()
         }
     }
 
@@ -296,19 +311,32 @@ fun VideoPlayerV3Screen(
             currentSubtitleData = playerViewModel.currentSubtitleData,
             currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
             currentSubtitleBottomPadding = playerViewModel.currentSubtitleBottomPadding,
-            currentPosition = currentPosition
+            currentPosition = currentPosition,
+            lastPlayed = playerViewModel.lastPlayed,
+            title = playerViewModel.title,
+            secondTitle = playerViewModel.partTitle,
         )
     ) {
         VideoPlayerController(
-            modifier=modifier,
-            videoPlayer=playerViewModel.videoPlayer!!,
-            onPlay = {},
-            onPause = {},
-            onExit = {},
-            onGoTime = {},
-            onBackToHistory = {},
-            onPlayNewVideo = {}
-        ){
+            modifier = modifier
+                .focusRequester(focusRequester),
+            videoPlayer = playerViewModel.videoPlayer!!,
+            onPlay = { videoPlayer.start() },
+            onPause = {
+                // TODO 暂停时上报播放记录
+                videoPlayer.pause()
+            },
+            onExit = {
+                // TODO 退出前上报播放记录
+                (context as Activity).finish()
+            },
+            onGoTime = { videoPlayer.seekTo(it * 1000L) },
+            onBackToHistory = { videoPlayer.seekTo(playerViewModel.lastPlayed * 1000L) },
+            onPlayNewVideo = {
+                // TODO 播放新视频前上报播放记录
+                playerViewModel.loadPlayUrl(it.aid, it.cid)
+            }
+        ) {
             BoxWithConstraints(
                 modifier = Modifier.background(Color.Black),
                 contentAlignment = Alignment.Center
@@ -348,7 +376,7 @@ class VideoPlayerV3ViewModel(
     private val videoInfoRepository: VideoInfoRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger { }
-    
+
     var videoPlayer: AbstractVideoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
     var show by mutableStateOf(false)
@@ -533,7 +561,7 @@ class VideoPlayerV3ViewModel(
         val audioUrl = dashData?.audio?.first()?.baseUrl
 
         withContext(Dispatchers.Main) {
-            videoPlayer!!.playUrl(videoUrl,audioUrl)
+            videoPlayer!!.playUrl(videoUrl, audioUrl)
             videoPlayer!!.prepare()
             showBuffering = true
         }

@@ -50,6 +50,7 @@ fun ControllerVideoInfo(
         modifier = modifier.fillMaxSize()
     ) {
         AnimatedVisibility(
+            modifier = Modifier.align(Alignment.TopCenter),
             visible = show,
             enter = expandVertically(),
             exit = shrinkVertically()
@@ -61,6 +62,7 @@ fun ControllerVideoInfo(
             )
         }
         AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomCenter),
             visible = show,
             enter = expandVertically(),
             exit = shrinkVertically()
