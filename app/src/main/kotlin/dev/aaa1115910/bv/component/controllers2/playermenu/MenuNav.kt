@@ -2,8 +2,6 @@ package dev.aaa1115910.bv.component.controllers2.playermenu
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -45,7 +43,7 @@ fun MenuNavList(
             MenuListItem(
                 modifier = buttonModifier,
                 text = item.getDisplayName(context),
-                icon = Icons.Default.Adb,
+                icon = item.icon,
                 expanded = isFocusing,
                 selected = selectedMenu == item,
                 onClick = {},

@@ -65,7 +65,7 @@ fun CheckBoxMenuList(
                 text = item,
                 selected = selected.contains(index),
                 onClick = {
-                    val newSelectedIndexes=selected.toMutableList()
+                    val newSelectedIndexes = selected.toMutableList()
                     if (newSelectedIndexes.contains(index)) newSelectedIndexes.remove(index)
                     else newSelectedIndexes.add(index)
                     onSelectedChanged(newSelectedIndexes)

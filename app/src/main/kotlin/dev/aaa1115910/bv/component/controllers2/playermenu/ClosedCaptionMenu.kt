@@ -23,38 +23,40 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
 import dev.aaa1115910.bv.component.controllers2.MenuFocusState
-import dev.aaa1115910.bv.component.controllers2.VideoPlayerPictureMenuItem
+import dev.aaa1115910.bv.component.controllers2.VideoPlayerClosedCaptionMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
-import dev.aaa1115910.bv.entity.VideoAspectRatio
-import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
 import dev.aaa1115910.bv.util.requestFocus
+import java.text.NumberFormat
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun PictureMenuList(
+fun ClosedCaptionMenuList(
     modifier: Modifier = Modifier,
-    onResolutionChange: (Int) -> Unit,
-    onCodecChange: (VideoCodec) -> Unit,
-    onAspectRatioChange: (VideoAspectRatio) -> Unit,
-
-
+    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleSizeChange: (TextUnit) -> Unit,
+    onSubtitleBackgroundOpacityChange: (Float) -> Unit,
+    onSubtitleBottomPadding: (Dp) -> Unit,
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val data = LocalVideoPlayerControllerData.current
     val focusState = LocalMenuFocusStateData.current
 
     val focusRequester = remember { FocusRequester() }
-    var selectedPictureMenuItem by remember { mutableStateOf(VideoPlayerPictureMenuItem.Resolution) }
-
-    val data = LocalVideoPlayerControllerData.current
+    var selectedClosedCaptionMenuItem by remember { mutableStateOf(VideoPlayerClosedCaptionMenuItem.Switch) }
 
     LaunchedEffect(focusState.focusState) {
         if (focusState.focusState == MenuFocusState.Menu) focusRequester.requestFocus(scope)
@@ -67,36 +69,51 @@ fun PictureMenuList(
             .width(200.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
-
-            when (selectedPictureMenuItem) {
-                VideoPlayerPictureMenuItem.Resolution -> RadioMenuList(
+            when (selectedClosedCaptionMenuItem) {
+                VideoPlayerClosedCaptionMenuItem.Switch -> RadioMenuList(
                     modifier = menuItemsModifier,
-                    items = data.resolutionMap.values.toList(),
-                    selected = data.resolutionMap.keys.indexOf(data.currentResolution),
+                    items = data.availableSubtitleTracks.map { it.lanDoc },
+                    selected = data.availableSubtitleTracks.indexOfFirst { it.id == data.currentSubtitleId },
                     isFocusing = focusState.focusState == MenuFocusState.Items,
-                    onSelectedChanged = { onResolutionChange(data.resolutionMap.keys.toList()[it]) },
+                    onSelectedChanged = { onSubtitleChange(data.availableSubtitleTracks[it]) },
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
                 )
 
-                VideoPlayerPictureMenuItem.Codec -> RadioMenuList(
+                VideoPlayerClosedCaptionMenuItem.Size -> StepLessMenuItem(
                     modifier = menuItemsModifier,
-                    items = data.availableVideoCodec.map { it.getDisplayName(context) },
-                    selected = data.availableVideoCodec.indexOf(data.currentVideoCodec),
+                    value = data.currentSubtitleFontSize.value.toInt(),
+                    step = 1,
+                    range = 12..48,
+                    text = "${data.currentSubtitleFontSize.value.toInt()} SP",
                     isFocusing = focusState.focusState == MenuFocusState.Items,
-                    onSelectedChanged = { onCodecChange(data.availableVideoCodec[it]) },
-                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
+                    onValueChange = { onSubtitleSizeChange(it.sp) },
+                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
 
-                VideoPlayerPictureMenuItem.AspectRatio -> RadioMenuList(
+                VideoPlayerClosedCaptionMenuItem.Opacity -> StepLessMenuItem(
                     modifier = menuItemsModifier,
-                    items = VideoAspectRatio.values().map { it.getDisplayName(context) },
-                    selected = VideoAspectRatio.values().indexOf(data.currentVideoAspectRatio),
+                    value = data.currentSubtitleBackgroundOpacity,
+                    step = 0.01f,
+                    range = 0f..1f,
+                    text = NumberFormat.getPercentInstance()
+                        .apply { maximumFractionDigits = 0 }
+                        .format(data.currentSubtitleBackgroundOpacity),
                     isFocusing = focusState.focusState == MenuFocusState.Items,
-                    onSelectedChanged = { onAspectRatioChange(VideoAspectRatio.values()[it]) },
-                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
+                    onValueChange = onSubtitleBackgroundOpacityChange,
+                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
+                )
+
+                VideoPlayerClosedCaptionMenuItem.Padding -> StepLessMenuItem(
+                    modifier = menuItemsModifier,
+                    value = data.currentSubtitleBottomPadding.value.toInt(),
+                    step = 1,
+                    range = 0..48,
+                    text = "${data.currentSubtitleBottomPadding.value.toInt()} DP",
+                    isFocusing = focusState.focusState == MenuFocusState.Items,
+                    onValueChange = { onSubtitleBottomPadding(it.dp) },
+                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
             }
-
         }
         TvLazyColumn(
             modifier = modifier
@@ -118,16 +135,18 @@ fun PictureMenuList(
                     }
                 }
         ) {
-            items(VideoPlayerPictureMenuItem.values()) { item ->
+            items(VideoPlayerClosedCaptionMenuItem.values()) { item ->
                 val buttonModifier =
-                    (if (selectedPictureMenuItem == item) Modifier.focusRequester(focusRequester) else Modifier)
+                    (if (selectedClosedCaptionMenuItem == item) Modifier.focusRequester(
+                        focusRequester
+                    ) else Modifier)
                         .width(200.dp)
                 MenuListItem(
                     modifier = buttonModifier,
                     text = item.getDisplayName(context),
-                    selected = selectedPictureMenuItem == item,
+                    selected = selectedClosedCaptionMenuItem == item,
                     onClick = {},
-                    onFocus = { selectedPictureMenuItem = item },
+                    onFocus = { selectedClosedCaptionMenuItem = item },
                 )
             }
         }
