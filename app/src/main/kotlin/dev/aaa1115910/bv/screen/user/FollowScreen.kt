@@ -170,14 +170,12 @@ fun UpCard(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            androidx.compose.material3.Surface(
                 modifier = Modifier
                     .padding(start = 12.dp, end = 8.dp)
                     .size(48.dp)
                     .clip(CircleShape),
-                color = Color.White,
-                enabled = false,
-                onClick = {}
+                color = Color.White
             ) {
                 AsyncImage(
                     modifier = Modifier

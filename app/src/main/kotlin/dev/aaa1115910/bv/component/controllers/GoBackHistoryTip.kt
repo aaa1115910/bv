@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.formatMinSec
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -17,11 +17,9 @@ fun GoBackHistoryTip(
     modifier: Modifier = Modifier,
     played: Int
 ) {
-    Surface(
+    SurfaceWithoutClickable(
         modifier = modifier,
-        color = Color.Black.copy(alpha = 0.6f),
-        enabled = false,
-        onClick = {}
+        color = Color.Black.copy(alpha = 0.6f)
     ) {
         Text(
             modifier = Modifier.padding(8.dp),

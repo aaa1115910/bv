@@ -20,10 +20,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Typography
 import androidx.tv.material3.darkColorScheme
 import dev.aaa1115910.bv.component.FpsMonitor
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -93,16 +93,15 @@ fun BVTheme(
             CompositionLocalProvider(
                 LocalIndication provides NoRippleIndication,
             ) {
-                Surface(
-                    enabled = false,
-                    onClick = {}
-                ) {
-                    if (showFps) {
-                        FpsMonitor {
+                androidx.compose.material3.Surface(color = Color.Transparent) {
+                    SurfaceWithoutClickable {
+                        if (showFps) {
+                            FpsMonitor {
+                                content()
+                            }
+                        } else {
                             content()
                         }
-                    } else {
-                        content()
                     }
                 }
             }

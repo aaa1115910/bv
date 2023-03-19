@@ -434,14 +434,12 @@ private fun UserInfo(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            androidx.compose.material3.Surface(
                 modifier = Modifier
                     .padding(start = 24.dp, end = 8.dp)
                     .size(80.dp)
                     .clip(CircleShape),
-                color = Color.White,
-                enabled = false,
-                onClick = {}
+                color = Color.White
             ) {
                 AsyncImage(
                     modifier = Modifier

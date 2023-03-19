@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -21,12 +21,10 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 fun PauseIcon(
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    SurfaceWithoutClickable(
         modifier = modifier,
         color = Color.Black.copy(0.5f),
-        shape = MaterialTheme.shapes.medium,
-        enabled = false,
-        onClick = {}
+        shape = MaterialTheme.shapes.medium
     ) {
         Icon(
             modifier = Modifier
