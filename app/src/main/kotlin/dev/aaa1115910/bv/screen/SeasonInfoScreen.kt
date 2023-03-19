@@ -22,12 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -67,8 +63,11 @@ import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
@@ -97,7 +96,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -510,6 +508,7 @@ fun SeasonInfoPart(
 }
 
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeButton(
     modifier: Modifier = Modifier,
@@ -524,10 +523,10 @@ fun SeasonEpisodeButton(
 
     Surface(
         modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.medium)
-            .clickable { onClick() },
+            .focusedBorder(MaterialTheme.shapes.medium),
         color = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.medium,
+        onClick = onClick
     ) {
         Row {
             val coverBackground by remember { mutableStateOf(if (played != 0) Color.Black.copy(alpha = 0.2f) else Color.Transparent) }
@@ -716,6 +715,7 @@ fun SeasonEpisodesDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeRow(
     modifier: Modifier = Modifier,
@@ -753,10 +753,10 @@ fun SeasonEpisodeRow(
                     modifier = modifier
                         .size(60.dp, 80.dp)
                         .focusedScale(0.9f)
-                        .focusedBorder(MaterialTheme.shapes.medium)
-                        .clickable { showEpisodesDialog = true },
+                        .focusedBorder(MaterialTheme.shapes.medium),
                     color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.medium
+                    shape = MaterialTheme.shapes.medium,
+                    onClick = { showEpisodesDialog = true }
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),

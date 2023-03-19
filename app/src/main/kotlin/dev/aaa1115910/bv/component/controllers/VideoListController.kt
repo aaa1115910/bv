@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -22,9 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.rememberTvLazyListState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Surface
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.requestFocus
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoListController(
     modifier: Modifier = Modifier,
@@ -45,7 +47,9 @@ fun VideoListController(
 
     Surface(
         modifier = modifier,
-        color = Color.Black.copy(alpha = 0.5f)
+        color = Color.Black.copy(alpha = 0.5f),
+        enabled = false,
+        onClick = {}
     ) {
         Box(
             modifier = Modifier

@@ -1,15 +1,17 @@
 package dev.aaa1115910.bv.component.controllers
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.util.formatMinSec
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun GoBackHistoryTip(
     modifier: Modifier = Modifier,
@@ -17,7 +19,9 @@ fun GoBackHistoryTip(
 ) {
     Surface(
         modifier = modifier,
-        color = Color.Black.copy(alpha = 0.6f)
+        color = Color.Black.copy(alpha = 0.6f),
+        enabled = false,
+        onClick = {}
     ) {
         Text(
             modifier = Modifier.padding(8.dp),

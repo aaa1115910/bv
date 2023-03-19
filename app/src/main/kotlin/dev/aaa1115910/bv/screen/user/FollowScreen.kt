@@ -1,7 +1,6 @@
 package dev.aaa1115910.bv.screen.user
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -43,6 +38,10 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
@@ -54,7 +53,6 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FollowScreen(
     modifier: Modifier = Modifier,
@@ -150,6 +148,7 @@ fun FollowScreen(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpCard(
     modifier: Modifier = Modifier,
@@ -163,10 +162,10 @@ fun UpCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(280.dp, 80.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
+            .focusedBorder(MaterialTheme.shapes.large),
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -176,7 +175,9 @@ fun UpCard(
                     .padding(start = 12.dp, end = 8.dp)
                     .size(48.dp)
                     .clip(CircleShape),
-                color = Color.White
+                color = Color.White,
+                enabled = false,
+                onClick = {}
             ) {
                 AsyncImage(
                     modifier = Modifier

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import dev.aaa1115910.bv.component.Button
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -20,13 +21,21 @@ fun FavoriteButton(
         modifier = modifier,
         icon = {
             if (isFavorite) {
-                Icon(imageVector = Icons.Rounded.Favorite, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.Favorite,
+                    contentDescription = null,
+                    tint = Color.White
+                )
             } else {
-                Icon(imageVector = Icons.Rounded.FavoriteBorder, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.FavoriteBorder,
+                    contentDescription = null,
+                    tint = Color.White
+                )
             }
         },
         text = "收藏",
-        onClick=onClick
+        onClick = onClick
     )
 }
 

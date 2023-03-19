@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +31,7 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.R
@@ -47,7 +46,6 @@ import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FollowingSeasonScreen(
     modifier: Modifier = Modifier,
@@ -198,7 +196,7 @@ fun FollowingSeasonScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Text(text = stringResource(R.string.no_data))
-                                TextButton(onClick = { showFilter=true }) {
+                                TextButton(onClick = { showFilter = true }) {
                                     Text(text = stringResource(R.string.filter_dialog_open_tip_click))
                                 }
                             }

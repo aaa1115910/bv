@@ -24,9 +24,6 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,14 +46,17 @@ import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
 import dev.aaa1115910.biliapi.entity.anime.CarouselItem
 import dev.aaa1115910.biliapi.entity.web.Hover
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.anime.AnimeIndexActivity
 import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity
+import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
@@ -224,6 +224,7 @@ private fun AnimeFeatureButtons(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeatureButton(
     modifier: Modifier = Modifier,
@@ -234,9 +235,9 @@ fun AnimeFeatureButton(
     Surface(
         modifier = modifier
             .focusedBorder()
-            .focusedScale()
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.large
+            .focusedScale(),
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -324,7 +325,7 @@ fun AnimeFeedRankRow(
                     )
                 )
         ) {}
-        BoxWithConstraints() {
+        BoxWithConstraints {
             AsyncImage(
                 modifier = Modifier
                     .fillMaxHeight()

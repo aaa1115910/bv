@@ -24,9 +24,9 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -224,6 +224,7 @@ fun NavItemTab(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SettingsIcon(
     modifier: Modifier = Modifier,
@@ -255,6 +256,7 @@ private fun SettingsIcon(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserIcon(
     modifier: Modifier = Modifier,
@@ -284,7 +286,9 @@ private fun UserIcon(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),
-                    color = Color.White
+                    color = Color.White,
+                    enabled = false,
+                    onClick = {}
                 ) {
                     AsyncImage(
                         modifier = Modifier

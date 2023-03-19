@@ -26,12 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -65,6 +61,10 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -107,7 +107,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -457,6 +456,7 @@ fun VideoInfoScreen(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoData(
     modifier: Modifier = Modifier,
@@ -586,10 +586,10 @@ fun VideoInfoData(
                     items(tags) { tag ->
                         Surface(
                             modifier = Modifier
-                                .focusedBorder(MaterialTheme.shapes.small)
-                                .clickable { onClickTip(tag) },
+                                .focusedBorder(MaterialTheme.shapes.small),
                             color = Color.White.copy(alpha = 0.2f),
-                            shape = MaterialTheme.shapes.small
+                            shape = MaterialTheme.shapes.small,
+                            onClick = { onClickTip(tag) }
                         ) {
                             Text(
                                 modifier = Modifier.padding(8.dp, 4.dp),
@@ -643,10 +643,18 @@ private fun UpButton(
                     .animateContentSize()
             ) {
                 if (followed) {
-                    Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Done,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                     Text(text = stringResource(R.string.video_info_followed), color = Color.White)
                 } else {
-                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                     Text(text = stringResource(R.string.video_info_follow), color = Color.White)
                 }
             }
@@ -729,6 +737,7 @@ fun VideoDescriptionDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
@@ -740,10 +749,10 @@ fun VideoPartButton(
 ) {
     Surface(
         modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.medium)
-            .clickable { onClick() },
+            .focusedBorder(MaterialTheme.shapes.medium),
         color = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.medium,
+        onClick = { onClick() }
     ) {
         Box(
             modifier = Modifier
