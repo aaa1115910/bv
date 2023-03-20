@@ -16,7 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -65,13 +68,16 @@ fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    val fontScale = LocalDensity.current.fontScale
+    val view = LocalView.current
+
     val colorScheme = bvColorSchemeTv
     val typographyTv =
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypographyTv else Typography()
     val typographyCommon =
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypographyCommon else androidx.compose.material3.Typography()
 
-    val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
@@ -80,6 +86,7 @@ fun BVTheme(
         }
     }
 
+    val density by remember { mutableStateOf(context.resources.displayMetrics.widthPixels / 960f) }
     val showFps by remember { mutableStateOf(if (!view.isInEditMode) Prefs.showFps else false) }
 
     MaterialTheme(
@@ -92,6 +99,7 @@ fun BVTheme(
         ) {
             CompositionLocalProvider(
                 LocalIndication provides NoRippleIndication,
+                LocalDensity provides Density(density = density, fontScale = fontScale)
             ) {
                 androidx.compose.material3.Surface(color = Color.Transparent) {
                     SurfaceWithoutClickable {
