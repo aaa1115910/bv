@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.screen.settings.content
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
@@ -11,40 +12,81 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
+import java.text.DecimalFormat
+import kotlin.math.pow
+
 
 @Composable
 fun InfoSetting(
-    modifier: Modifier = Modifier,
-    maxHeight: Dp,
-    maxWidth: Dp
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val density = LocalDensity.current
 
-    val getMemoryInfo: () -> String = {
-        val memoryInfo = ActivityManager.MemoryInfo()
-        (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            .getMemoryInfo(memoryInfo)
-        "${memoryInfo.availMem / (1024 * 1024)}MB / ${memoryInfo.totalMem / (1024 * 1024)}MB"
+    val memoryInfo by remember {
+        mutableStateOf(
+            lazy {
+                runCatching {
+                    val memoryInfo = ActivityManager.MemoryInfo()
+                    (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
+                        .getMemoryInfo(memoryInfo)
+                    val df = DecimalFormat("###.##")
+                    Pair(
+                        "${df.format(memoryInfo.availMem / 1024.0.pow(3))} GB",
+                        "${df.format(memoryInfo.totalMem / 1024.0.pow(3))} GB"
+                    )
+                }.getOrDefault(Pair("Unknown", "Unknown"))
+            }.value
+        )
     }
 
-    val getStorageInfo: () -> String = {
-        runCatching {
-            val statFs = StatFs(Environment.getExternalStorageDirectory().absolutePath)
-            "${statFs.availableBytes / (1024 * 1024)}MB / ${statFs.totalBytes / (1024 * 1024)}MB"
-        }.getOrDefault("Unknown")
+    val storageInfo by remember {
+        mutableStateOf(
+            lazy {
+                runCatching {
+                    val statFs = StatFs(Environment.getExternalStorageDirectory().absolutePath)
+                    val df = DecimalFormat("###.##")
+                    Pair(
+                        "${df.format(statFs.availableBytes / 1024.0.pow(3))} GB",
+                        "${df.format(statFs.totalBytes / 1024.0.pow(3))} GB"
+                    )
+                }.getOrDefault(Pair("Unknown", "Unknown"))
+            }.value
+        )
     }
+
+    @Suppress("DEPRECATION")
+    val screenInfo by remember {
+        mutableStateOf(
+            lazy {
+                val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    context.display!!
+                } else {
+                    (context as Activity).windowManager.defaultDisplay
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val mode = display.mode
+                    Triple(mode.physicalWidth, mode.physicalHeight, mode.refreshRate)
+                } else {
+                    Triple(display.width, display.height, display.refreshRate)
+                }
+            }.value
+        )
+    }
+
+
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -66,9 +108,7 @@ fun InfoSetting(
             Text(text = stringResource(R.string.settings_info_system, Build.VERSION.RELEASE))
             Text(
                 text = stringResource(
-                    R.string.settings_info_resolution,
-                    with(density) { maxWidth.toPx() }.toInt(),
-                    with(density) { maxHeight.toPx() }.toInt()
+                    R.string.settings_info_screen, *screenInfo.toList().toTypedArray()
                 )
             )
             if (Build.VERSION.SDK_INT >= 31)
@@ -77,8 +117,18 @@ fun InfoSetting(
                         R.string.settings_info_soc, Build.SOC_MANUFACTURER, Build.SOC_MODEL
                     )
                 )
-            Text(text = stringResource(R.string.settings_info_memory, getMemoryInfo()))
-            Text(text = stringResource(R.string.settings_info_storage, getStorageInfo()))
+            Text(
+                text = stringResource(
+                    R.string.settings_info_memory,
+                    *memoryInfo.toList().toTypedArray()
+                )
+            )
+            Text(
+                text = stringResource(
+                    R.string.settings_info_storage,
+                    *storageInfo.toList().toTypedArray()
+                )
+            )
         }
     }
 }

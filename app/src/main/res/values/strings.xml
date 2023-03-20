@@ -124,11 +124,11 @@
     <string name="season_no_feature_film">还没有正片</string>
 
     <string name="settings_info_manufacturer">厂商: %1$s</string>
-    <string name="settings_info_memory">内存: %1$s</string>
+    <string name="settings_info_memory">内存: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_model">型号: %1$s (%2$s)</string>
-    <string name="settings_info_resolution">分辨率: %1$d x %2$d</string>
+    <string name="settings_info_screen">屏幕: %1$d x %2$d %3$fHz</string>
     <string name="settings_info_soc">SOC: %1$s %2$s</string>
-    <string name="settings_info_storage">存储: %1$s</string>
+    <string name="settings_info_storage">存储: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
     <string name="settings_item_about">关于</string>
     <string name="settings_item_codec">默认视频编码</string>
