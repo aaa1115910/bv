@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.component.controllers
 
 import android.content.Context
 import android.view.KeyEvent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,9 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,10 +37,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.BottomTip
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
@@ -53,6 +54,7 @@ import dev.aaa1115910.bv.util.requestFocus
 import mu.KotlinLogging
 import java.text.NumberFormat
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerMenuController(
     modifier: Modifier = Modifier,
@@ -78,7 +80,7 @@ fun VideoPlayerMenuController(
         focusRequester.requestFocus(scope)
     }
 
-    Surface(
+    SurfaceWithoutClickable(
         modifier = modifier,
         color = Color.Black.copy(alpha = 0.5f)
     ) {
@@ -598,6 +600,7 @@ fun SubtitleBottomPaddingContent(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MenuListItem(
     modifier: Modifier = Modifier,
@@ -619,10 +622,10 @@ fun MenuListItem(
             .onFocusChanged {
                 hasFocus = it.hasFocus
                 if (hasFocus) onFocus()
-            }
-            .clickable { onClick() },
+            },
         color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
+        onClick = onClick
     ) {
         Box {
             Text(

@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,8 +32,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -45,6 +46,7 @@ import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.resizedImageUrl
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SmallVideoCard(
     modifier: Modifier = Modifier,
@@ -174,6 +176,7 @@ fun SmallVideoCard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 fun SmallVideoCardPreview() {
@@ -187,7 +190,7 @@ fun SmallVideoCardPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        Surface {
+        SurfaceWithoutClickable {
             SmallVideoCard(
                 data = data
             )

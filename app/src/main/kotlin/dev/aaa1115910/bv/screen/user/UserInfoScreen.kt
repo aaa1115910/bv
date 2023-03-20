@@ -7,7 +7,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,13 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -57,6 +52,10 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.AuthFailureException
@@ -90,7 +89,6 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
@@ -401,6 +399,7 @@ private fun LogoutConfirmDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserInfo(
     modifier: Modifier = Modifier,
@@ -427,15 +426,15 @@ private fun UserInfo(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(480.dp, 140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
+            .focusedBorder(MaterialTheme.shapes.large),
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            androidx.compose.material3.Surface(
                 modifier = Modifier
                     .padding(start = 24.dp, end = 8.dp)
                     .size(80.dp)
@@ -509,6 +508,7 @@ private fun UserInfo(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun IncognitoModeCard(
     modifier: Modifier = Modifier,
@@ -524,13 +524,13 @@ fun IncognitoModeCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable {
-                enabled = !enabled
-                onClick()
-            },
+            .focusedBorder(MaterialTheme.shapes.large),
         color = backgroundColor,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = {
+            enabled = !enabled
+            onClick()
+        }
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
@@ -549,6 +549,7 @@ fun IncognitoModeCard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowedUserCard(
     modifier: Modifier = Modifier,
@@ -560,10 +561,10 @@ fun FollowedUserCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
+            .focusedBorder(MaterialTheme.shapes.large),
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),

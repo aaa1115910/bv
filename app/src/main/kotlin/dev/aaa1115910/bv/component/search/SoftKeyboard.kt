@@ -1,15 +1,11 @@
 package dev.aaa1115910.bv.component.search
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,6 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
 
@@ -85,6 +85,7 @@ fun SoftKeyboard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SoftKeyboardKey(
     modifier: Modifier = Modifier,
@@ -93,12 +94,10 @@ fun SoftKeyboardKey(
 ) {
     Surface(
         modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.small)
-            .clickable {
-                onClick()
-            },
+            .focusedBorder(MaterialTheme.shapes.small),
         color = Color.White.copy(0.1f),
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
+        onClick = onClick
     ) {
         Box(
             modifier = Modifier.size(38.dp),
