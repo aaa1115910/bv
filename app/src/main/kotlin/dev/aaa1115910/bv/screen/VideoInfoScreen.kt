@@ -25,12 +25,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -84,6 +86,7 @@ import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -107,6 +110,7 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import java.util.Date
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -128,8 +132,13 @@ fun VideoInfoScreen(
 
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
-
     var paused by remember { mutableStateOf(false) }
+    val containsVerticalScreenVideo by remember {
+        derivedStateOf {
+            videoInfo?.pages?.any { page -> page.dimension.height > page.dimension.width } ?: false
+                    || videoInfo?.ugcSeason?.sections?.any { section -> section.episodes.any { episode -> episode.page.dimension.height > episode.page.dimension.width } } ?: false
+        }
+    }
 
     val updateV2Data: () -> Unit = {
         scope.launch(Dispatchers.Default) {
@@ -353,6 +362,33 @@ fun VideoInfoScreen(
                     contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    if (containsVerticalScreenVideo)
+                        item {
+                            SurfaceWithoutClickable(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 50.dp),
+                                color = Color.Yellow.copy(alpha = 0.2f),
+                                contentColor = Color.Yellow,
+                                shape = MaterialTheme.shapes.small
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 8.dp
+                                    ),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Warning,
+                                        contentDescription = null,
+                                        tint = Color.Yellow
+                                    )
+                                    Text(text = "温馨提示：该稿件包含竖屏视频内容")
+                                }
+                            }
+                        }
                     item {
                         VideoInfoData(
                             videoInfo = videoInfo!!,
