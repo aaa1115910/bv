@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.component
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.network.VlcLibsApi
 import dev.aaa1115910.bv.player.BuildConfig
 import dev.aaa1115910.bv.util.toast

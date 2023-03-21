@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -36,8 +35,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.playermenu.ClosedCaptionMenuList
@@ -49,7 +50,7 @@ import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.swapList
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun MenuController(
     modifier: Modifier = Modifier,
@@ -68,7 +69,7 @@ fun MenuController(
     var selectedNavItem by remember { mutableStateOf(VideoPlayerMenuNavItem.Picture) }
     var focusState by remember { mutableStateOf(MenuFocusState.MenuNav) }
 
-    Surface(
+    SurfaceWithoutClickable(
         modifier = modifier
             .fillMaxHeight(),
         color = Color.Black.copy(alpha = 0.5f)
@@ -214,6 +215,7 @@ enum class DanmakuType(private val strRes: Int) {
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 fun MenuControllerPreview() {
@@ -287,7 +289,7 @@ fun MenuControllerPreview() {
     }
 
     BVTheme {
-        Surface(
+        SurfaceWithoutClickable(
             color = Color.White
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
