@@ -110,7 +110,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import java.util.Date
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -362,33 +361,18 @@ fun VideoInfoScreen(
                     contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (containsVerticalScreenVideo)
-                        item {
-                            SurfaceWithoutClickable(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 50.dp),
-                                color = Color.Yellow.copy(alpha = 0.2f),
-                                contentColor = Color.Yellow,
-                                shape = MaterialTheme.shapes.small
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(
-                                        horizontal = 16.dp,
-                                        vertical = 8.dp
-                                    ),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Warning,
-                                        contentDescription = null,
-                                        tint = Color.Yellow
-                                    )
-                                    Text(text = "温馨提示：该稿件包含竖屏视频内容")
-                                }
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (containsVerticalScreenVideo) {
+                                ArgueTip(text = stringResource(R.string.video_info_argue_tip_vertical_screen))
+                            }
+                            if ((videoInfo?.stat?.argueMsg ?: "") != "") {
+                                ArgueTip(text = videoInfo!!.stat.argueMsg)
                             }
                         }
+                    }
                     item {
                         VideoInfoData(
                             videoInfo = videoInfo!!,
@@ -488,6 +472,38 @@ fun VideoInfoScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun ArgueTip(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    SurfaceWithoutClickable(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 50.dp),
+        color = Color.Yellow.copy(alpha = 0.2f),
+        contentColor = Color.Yellow,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = null,
+                tint = Color.Yellow
+            )
+            Text(text = text)
         }
     }
 }
