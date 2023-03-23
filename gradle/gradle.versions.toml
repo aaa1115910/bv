@@ -1,10 +1,10 @@
 [versions]
-agp = "7.4.1"
+agp = "7.4.2"
 firebase-crashlytics = "2.9.4"
 gms = "4.3.15"
 kotlin = "1.8.10"
 ksp = "1.8.10-1.0.9"
-versions = "0.45.0"
+versions = "0.46.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
