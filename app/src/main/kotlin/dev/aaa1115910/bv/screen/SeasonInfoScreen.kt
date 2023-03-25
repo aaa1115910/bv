@@ -781,10 +781,7 @@ fun SeasonEpisodeRow(
                     }
                 }
             }
-            itemsIndexed(
-                items = episodes,
-                key = { _, episode -> episode.aid + episode.cid }
-            ) { index, episode ->
+            itemsIndexed(items = episodes) { index, episode ->
                 val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
                 SeasonEpisodeButton(
                     modifier = Modifier
