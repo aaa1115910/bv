@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -12,16 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.focusedBorder
 
 @Composable
 fun SoftKeyboard(
@@ -66,19 +69,19 @@ fun SoftKeyboard(
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            SoftKeyboardKey(
+            SoftKeyboardButton(
                 modifier = Modifier.weight(1f),
-                key = "清空",
+                key = stringResource(R.string.search_input_soft_keybord_clear),
                 onClick = onClear
             )
-            SoftKeyboardKey(
+            SoftKeyboardButton(
                 modifier = Modifier.weight(1f),
-                key = "删除",
+                key = stringResource(R.string.search_input_soft_keybord_delete),
                 onClick = onDelete
             )
-            SoftKeyboardKey(
+            SoftKeyboardButton(
                 modifier = Modifier.weight(1f),
-                key = "搜索",
+                key = stringResource(R.string.search_input_soft_keybord_search),
                 onClick = onSearch
             )
         }
@@ -93,20 +96,52 @@ fun SoftKeyboardKey(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.small),
-        color = Color.White.copy(0.1f),
-        shape = MaterialTheme.shapes.small,
+        modifier = modifier,
+        color = ClickableSurfaceDefaults.color(
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
     ) {
         Box(
             modifier = Modifier.size(38.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = key,
-                fontSize = 24.sp
-            )
+            Text(text = key, fontSize = 24.sp)
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun SoftKeyboardButton(
+    modifier: Modifier = Modifier,
+    key: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier.height(38.dp),
+        color = ClickableSurfaceDefaults.color(
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = key, fontSize = 24.sp)
         }
     }
 }

@@ -1,6 +1,5 @@
 package dev.aaa1115910.bv.screen.user
 
-import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +19,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -46,6 +50,7 @@ import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FollowingSeasonScreen(
     modifier: Modifier = Modifier,
@@ -85,8 +90,11 @@ fun FollowingSeasonScreen(
     Scaffold(
         modifier = modifier
             .onPreviewKeyEvent {
-                when (it.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_CENTER -> {
+                when (it.key) {
+                    Key.DirectionCenter, Key.Enter -> {
+                        // 让 Surface 监听到 KeyUp 事件，否则 Surface 将会是一直按下的状态
+                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
+
                         if (it.nativeKeyEvent.isLongPress) {
                             showFilter = true
                             return@onPreviewKeyEvent true
@@ -160,51 +168,54 @@ fun FollowingSeasonScreen(
         TvLazyVerticalGrid(
             modifier = Modifier.padding(innerPadding),
             columns = TvGridCells.Fixed(6),
-            contentPadding = PaddingValues(48.dp, 0.dp, 48.dp, 48.dp),
-            content = {
-                itemsIndexed(items = followingSeasons) { index, followingSeason ->
-                    SeasonCard(
-                        data = SeasonCardData(
-                            seasonId = followingSeason.seasonId,
-                            title = followingSeason.title,
-                            cover = followingSeason.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
-                            rating = null
-                        ),
-                        onFocus = {
-                            currentIndex = index
-                            if (index + 30 > followingSeasons.size) {
-                                followingSeasonViewModel.loadMore()
-                            }
-                        },
-                        onClick = {
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            itemsIndexed(items = followingSeasons) { index, followingSeason ->
+                SeasonCard(
+                    data = SeasonCardData(
+                        seasonId = followingSeason.seasonId,
+                        title = followingSeason.title,
+                        cover = followingSeason.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
+                        rating = null
+                    ),
+                    onFocus = {
+                        currentIndex = index
+                        if (index + 30 > followingSeasons.size) {
+                            followingSeasonViewModel.loadMore()
+                        }
+                    },
+                    onClick = {
+                        if (!showFilter) {
                             SeasonInfoActivity.actionStart(
                                 context = context,
                                 seasonId = followingSeason.seasonId
                             )
                         }
-                    )
-                }
-                if (followingSeasons.isEmpty() && noMore) {
-                    item(
-                        span = { TvGridItemSpan(6) }
+                    }
+                )
+            }
+            if (followingSeasons.isEmpty() && noMore) {
+                item(
+                    span = { TvGridItemSpan(6) }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Text(text = stringResource(R.string.no_data))
-                                TextButton(onClick = { showFilter = true }) {
-                                    Text(text = stringResource(R.string.filter_dialog_open_tip_click))
-                                }
+                            Text(text = stringResource(R.string.no_data))
+                            TextButton(onClick = { showFilter = true }) {
+                                Text(text = stringResource(R.string.filter_dialog_open_tip_click))
                             }
                         }
                     }
                 }
             }
-        )
+        }
     }
 
     FollowingSeasonFilter(

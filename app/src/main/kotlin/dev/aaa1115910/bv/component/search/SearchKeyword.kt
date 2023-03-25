@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -62,8 +63,17 @@ fun SearchKeyword(
             .onFocusChanged {
                 hasFocus = it.hasFocus
             },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small,
+        color = ClickableSurfaceDefaults.color(
+            color = buttonBackgroundColor,
+            focusedColor = buttonBackgroundColor,
+            pressedColor = buttonBackgroundColor
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
     ) {
         Box {

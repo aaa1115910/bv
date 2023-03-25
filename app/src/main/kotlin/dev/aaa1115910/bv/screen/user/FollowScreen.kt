@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.screen.user
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,8 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -47,8 +50,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -106,17 +107,16 @@ fun FollowScreen(
         TvLazyVerticalGrid(
             modifier = Modifier.padding(innerPadding),
             columns = TvGridCells.Fixed(3),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (!followViewModel.updating) {
                 itemsIndexed(items = followViewModel.followedUsers) { index, up ->
                     val upCardModifier =
                         if (index == 0) Modifier.focusRequester(defaultFocusRequester) else Modifier
                     UpCard(
-                        modifier = upCardModifier
-                            .focusedScale(0.95f),
+                        modifier = upCardModifier,
                         face = up.face,
                         sign = up.sign,
                         username = up.uname,
@@ -161,13 +161,28 @@ fun UpCard(
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
-            .size(280.dp, 80.dp)
-            .focusedBorder(MaterialTheme.shapes.large),
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large,
+            .size(280.dp, 80.dp),
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.surface,
+            focusedColor = MaterialTheme.colorScheme.surface,
+            pressedColor = MaterialTheme.colorScheme.surface
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onSurface,
+            focusedColor = MaterialTheme.colorScheme.onSurface,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
         onClick = onClick
     ) {
         Row(
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             androidx.compose.material3.Surface(

@@ -1,13 +1,14 @@
 package dev.aaa1115910.bv.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,12 +18,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.focusedBorder
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -64,15 +67,29 @@ fun Button(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .focusedBorder(shape)
-            .height(height),
+        modifier = modifier.height(height),
         onClick = { onClick() },
-        shape = shape,
-        color = color
+        color = ClickableSurfaceDefaults.color(
+            color = color,
+            focusedColor = color,
+            pressedColor = color
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = shape),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White), shape = shape
+            )
+        )
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -82,11 +99,11 @@ fun Button(
             ) {
                 text()
             }
-
         }
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview
 @Composable
 private fun ButtonsTestPreview() {
@@ -107,6 +124,7 @@ private fun ButtonsTestPreview() {
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview
 @Composable
 private fun ButtonWithIcon() {

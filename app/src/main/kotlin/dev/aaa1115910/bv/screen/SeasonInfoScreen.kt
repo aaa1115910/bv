@@ -61,6 +61,7 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
@@ -524,8 +525,12 @@ fun SeasonEpisodeButton(
     Surface(
         modifier = modifier
             .focusedBorder(MaterialTheme.shapes.medium),
-        color = MaterialTheme.colorScheme.primary,
-        shape = MaterialTheme.shapes.medium,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.primary,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Row {
@@ -754,8 +759,12 @@ fun SeasonEpisodeRow(
                         .size(60.dp, 80.dp)
                         .focusedScale(0.9f)
                         .focusedBorder(MaterialTheme.shapes.medium),
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.medium,
+                    color = ClickableSurfaceDefaults.color(
+                        color = MaterialTheme.colorScheme.primary,
+                        focusedColor = MaterialTheme.colorScheme.primary,
+                        pressedColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
                     onClick = { showEpisodesDialog = true }
                 ) {
                     Box(

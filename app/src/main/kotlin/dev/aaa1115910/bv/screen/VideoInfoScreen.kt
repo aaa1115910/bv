@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,6 +64,8 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -633,14 +636,25 @@ fun VideoInfoData(
                     color = Color.White
                 )
                 TvLazyRow(
+                    contentPadding = PaddingValues(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(tags) { tag ->
                         Surface(
-                            modifier = Modifier
-                                .focusedBorder(MaterialTheme.shapes.small),
-                            color = Color.White.copy(alpha = 0.2f),
-                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier,
+                            color = ClickableSurfaceDefaults.color(
+                                color = Color.White.copy(alpha = 0.2f),
+                                focusedColor = Color.White.copy(alpha = 0.2f),
+                                pressedColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
+                            border = ClickableSurfaceDefaults.border(
+                                focusedBorder = Border(
+                                    border = BorderStroke(width = 3.dp, color = Color.White),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            ),
+                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
                             onClick = { onClickTip(tag) }
                         ) {
                             Text(
@@ -800,10 +814,24 @@ fun VideoPartButton(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.medium),
-        color = MaterialTheme.colorScheme.primary,
-        shape = MaterialTheme.shapes.medium,
+        modifier = modifier,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.primary,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onPrimary,
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
         onClick = { onClick() }
     ) {
         Box(
@@ -852,10 +880,9 @@ fun VideoPartRow(
         )
 
         TvLazyRow(
-            modifier = Modifier
-                .padding(top = 15.dp),
-            contentPadding = PaddingValues(0.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(top = 15.dp),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
@@ -895,10 +922,9 @@ fun VideoUgcSeasonRow(
         )
 
         TvLazyRow(
-            modifier = Modifier
-                .padding(top = 15.dp),
+            modifier = Modifier.padding(top = 15.dp),
             contentPadding = PaddingValues(0.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             itemsIndexed(items = episodes) { index, episode ->
                 VideoPartButton(

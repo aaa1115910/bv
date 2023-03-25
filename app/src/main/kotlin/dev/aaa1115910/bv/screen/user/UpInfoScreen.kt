@@ -96,9 +96,9 @@ fun UpSpaceScreen(
         TvLazyVerticalGrid(
             modifier = Modifier.padding(innerPadding),
             columns = TvGridCells.Fixed(4),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             itemsIndexed(
                 items = upInfoViewModel.spaceVideos,

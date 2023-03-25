@@ -2,7 +2,7 @@ package dev.aaa1115910.bv.screen.home
 
 import android.content.Intent
 import android.view.KeyEvent
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.Border
 import androidx.tv.material3.Carousel
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -63,7 +68,6 @@ import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -83,13 +87,13 @@ fun AnimeScreen(
     ) {
         item {
             AnimeCarousel(
-                modifier = Modifier.padding(48.dp, 0.dp),
+                modifier = Modifier.padding(32.dp, 0.dp),
                 data = carouselItems
             )
         }
         item {
             AnimeFeatureButtons(
-                modifier = Modifier.padding(48.dp, 24.dp),
+                modifier = Modifier.padding(32.dp, 24.dp),
                 onOpenTimeline = {
                     context.startActivity(Intent(context, AnimeTimelineActivity::class.java))
                 },
@@ -105,6 +109,7 @@ fun AnimeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(vertical = 12.dp)
                     .onFocusChanged {
                         if (it.hasFocus) {
                             if (index + 10 > animeFeeds.size) {
@@ -116,12 +121,10 @@ fun AnimeScreen(
             ) {
                 when (feedItems.firstOrNull()?.cardStyle) {
                     "v_card" -> AnimeFeedVideoRow(
-                        modifier = modifier,
                         data = feedItems
                     )
 
                     "rank" -> AnimeFeedRankRow(
-                        modifier = modifier,
                         data = feedItems
                     )
                 }
@@ -130,7 +133,7 @@ fun AnimeScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeCarousel(
     modifier: Modifier = Modifier,
@@ -146,18 +149,16 @@ fun AnimeCarousel(
             .clip(MaterialTheme.shapes.large)
             .focusedBorder()
     ) { itemIndex ->
-        CarouselItem(
-            modifier = Modifier
-                .clickable {
+        CarouselSlide {
+            AnimeCarouselCard(
+                data = data[itemIndex],
+                onClick = {
                     SeasonInfoActivity.actionStart(
                         context = context,
                         epId = data[itemIndex].episodeId,
                         seasonId = data[itemIndex].seasonId
                     )
                 }
-        ) {
-            AnimeCarouselCard(
-                data = data[itemIndex]
             )
         }
     }
@@ -166,12 +167,14 @@ fun AnimeCarousel(
 @Composable
 fun AnimeCarouselCard(
     modifier: Modifier = Modifier,
-    data: CarouselItem
+    data: CarouselItem,
+    onClick: () -> Unit = {}
 ) {
     AsyncImage(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large),
+            .clip(MaterialTheme.shapes.large)
+            .clickable { onClick() },
         model = data.cover,
         contentDescription = null,
         contentScale = ContentScale.FillWidth,
@@ -211,7 +214,8 @@ private fun AnimeFeatureButtons(
     )
 
     Row(
-        modifier = modifier.height(80.dp)
+        modifier = modifier.height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         buttons.forEach { (title, icon, onClick) ->
             AnimeFeatureButton(
@@ -233,10 +237,24 @@ fun AnimeFeatureButton(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .focusedBorder()
-            .focusedScale(),
-        shape = MaterialTheme.shapes.large,
+        modifier = modifier,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.surface,
+            focusedColor = MaterialTheme.colorScheme.surface,
+            pressedColor = MaterialTheme.colorScheme.surface
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onSurface,
+            focusedColor = MaterialTheme.colorScheme.onSurface,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
         onClick = onClick
     ) {
         Box(
@@ -257,6 +275,7 @@ fun AnimeFeatureButton(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AnimeFeedVideoRow(
     modifier: Modifier = Modifier,
@@ -265,13 +284,14 @@ fun AnimeFeedVideoRow(
     val context = LocalContext.current
     TvLazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 24.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         data.forEachIndexed { index, feedItem ->
             val cardModifier = if (index == data.lastIndex) {
                 Modifier.onPreviewKeyEvent {
-                    when (it.nativeKeyEvent.keyCode) {
-                        KeyEvent.KEYCODE_DPAD_RIGHT -> return@onPreviewKeyEvent true
+                    when (it.key) {
+                        Key.DirectionRight -> return@onPreviewKeyEvent true
                     }
                     false
                 }
@@ -282,7 +302,7 @@ fun AnimeFeedVideoRow(
             item {
                 SeasonCard(
                     modifier = cardModifier,
-                    coverHeight = 200.dp,
+                    coverHeight = 180.dp,
                     data = SeasonCardData(
                         seasonId = feedItem.seasonId ?: 0,
                         title = feedItem.title,
@@ -379,7 +399,8 @@ fun AnimeFeedRankRow(
 
             TvLazyRow(
                 modifier = modifier,
-                contentPadding = PaddingValues(end = 32.dp)
+                contentPadding = PaddingValues(horizontal = 32.dp),
+                horizontalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 data.first().subItems?.forEachIndexed { index, feedItem ->
                     val cardModifier = if (index == data.first().subItems?.lastIndex) {
@@ -396,7 +417,7 @@ fun AnimeFeedRankRow(
                     item {
                         SeasonCard(
                             modifier = cardModifier,
-                            coverHeight = 200.dp,
+                            coverHeight = 180.dp,
                             data = SeasonCardData(
                                 seasonId = feedItem.seasonId ?: 0,
                                 title = feedItem.title,
