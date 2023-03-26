@@ -49,11 +49,10 @@ fun VideosRow(
             color = titleColor
         )
         TvLazyRow(
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.padding(top = 15.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(end = 50.dp),
-            modifier = Modifier
-                .padding(top = 15.dp)
+            contentPadding = PaddingValues(end = 50.dp, start = 12.dp)
         ) {
             items(items = videos) { videoData ->
                 SmallVideoCard(

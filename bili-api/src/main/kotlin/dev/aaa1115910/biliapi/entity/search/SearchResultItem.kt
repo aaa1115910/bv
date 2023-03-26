@@ -49,6 +49,8 @@ data class SearchArticleResult(
     val templateId: Int,
     @SerialName("category_id")
     val categoryId: Int,
+    @SerialName("sub_type")
+    val subType: Int,
     val version: String,
     val view: Int,
     val reply: Int,

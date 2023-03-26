@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -225,8 +226,17 @@ fun SettingsMenuButton(
                 hasFocus = it.hasFocus
                 if (hasFocus) onFocus() else onLoseFocus()
             },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small,
+        color = ClickableSurfaceDefaults.color(
+            color = buttonBackgroundColor,
+            focusedColor = buttonBackgroundColor,
+            pressedColor = buttonBackgroundColor
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
     ) {
         Box {

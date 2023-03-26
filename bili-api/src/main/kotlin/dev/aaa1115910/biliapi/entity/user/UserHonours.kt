@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class UserHonours(
     val mid: Long,
     val colour: Colour? = null,
-    val tags: String? = null
+    val tags: List<String> = emptyList()
 ) {
     @Serializable
     data class Colour(
