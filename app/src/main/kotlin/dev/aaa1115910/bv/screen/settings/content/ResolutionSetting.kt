@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuSelectItem

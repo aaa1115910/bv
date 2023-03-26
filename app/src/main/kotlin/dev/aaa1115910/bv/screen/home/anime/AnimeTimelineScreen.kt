@@ -169,12 +169,15 @@ fun TimelinePerDay(
         episodeChunkedList.forEachIndexed { index, episodes ->
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 episodes.forEach { episode ->
                     SeasonCard(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp),
                         data = SeasonCardData(
                             title = episode.title,
                             cover = episode.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),

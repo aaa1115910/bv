@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,16 +26,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +64,12 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -84,6 +89,7 @@ import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -107,7 +113,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -129,8 +134,13 @@ fun VideoInfoScreen(
 
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
-
     var paused by remember { mutableStateOf(false) }
+    val containsVerticalScreenVideo by remember {
+        derivedStateOf {
+            videoInfo?.pages?.any { page -> page.dimension.height > page.dimension.width } ?: false
+                    || videoInfo?.ugcSeason?.sections?.any { section -> section.episodes.any { episode -> episode.page.dimension.height > episode.page.dimension.width } } ?: false
+        }
+    }
 
     val updateV2Data: () -> Unit = {
         scope.launch(Dispatchers.Default) {
@@ -342,7 +352,7 @@ fun VideoInfoScreen(
                     modifier = Modifier.fillMaxSize(),
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(videoInfo!!.ugcSeason?.cover ?: videoInfo!!.pic)
+                            .data(if (videoInfo!!.isSeasonDisplay) videoInfo!!.ugcSeason!!.cover else videoInfo!!.pic)
                             .transformations(BlurTransformation(LocalContext.current, 20f, 5f))
                             .build()
                     ),
@@ -354,6 +364,18 @@ fun VideoInfoScreen(
                     contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (containsVerticalScreenVideo) {
+                                ArgueTip(text = stringResource(R.string.video_info_argue_tip_vertical_screen))
+                            }
+                            if ((videoInfo?.stat?.argueMsg ?: "") != "") {
+                                ArgueTip(text = videoInfo!!.stat.argueMsg)
+                            }
+                        }
+                    }
                     item {
                         VideoInfoData(
                             videoInfo = videoInfo!!,
@@ -457,6 +479,39 @@ fun VideoInfoScreen(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun ArgueTip(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    SurfaceWithoutClickable(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 50.dp),
+        color = Color.Yellow.copy(alpha = 0.2f),
+        contentColor = Color.Yellow,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = null,
+                tint = Color.Yellow
+            )
+            Text(text = text)
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoData(
     modifier: Modifier = Modifier,
@@ -496,7 +551,7 @@ fun VideoInfoData(
                 }
                 .focusedBorder(MaterialTheme.shapes.large)
                 .clickable { onClickCover() },
-            model = videoInfo.ugcSeason?.cover ?: videoInfo.pic,
+            model = if (videoInfo.isSeasonDisplay) videoInfo.ugcSeason!!.cover else videoInfo.pic,
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
@@ -581,15 +636,26 @@ fun VideoInfoData(
                     color = Color.White
                 )
                 TvLazyRow(
+                    contentPadding = PaddingValues(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(tags) { tag ->
                         Surface(
-                            modifier = Modifier
-                                .focusedBorder(MaterialTheme.shapes.small)
-                                .clickable { onClickTip(tag) },
-                            color = Color.White.copy(alpha = 0.2f),
-                            shape = MaterialTheme.shapes.small
+                            modifier = Modifier,
+                            color = ClickableSurfaceDefaults.color(
+                                color = Color.White.copy(alpha = 0.2f),
+                                focusedColor = Color.White.copy(alpha = 0.2f),
+                                pressedColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
+                            border = ClickableSurfaceDefaults.border(
+                                focusedBorder = Border(
+                                    border = BorderStroke(width = 3.dp, color = Color.White),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            ),
+                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                            onClick = { onClickTip(tag) }
                         ) {
                             Text(
                                 modifier = Modifier.padding(8.dp, 4.dp),
@@ -643,10 +709,18 @@ private fun UpButton(
                     .animateContentSize()
             ) {
                 if (followed) {
-                    Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Done,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                     Text(text = stringResource(R.string.video_info_followed), color = Color.White)
                 } else {
-                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                     Text(text = stringResource(R.string.video_info_follow), color = Color.White)
                 }
             }
@@ -729,6 +803,7 @@ fun VideoDescriptionDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
@@ -739,11 +814,25 @@ fun VideoPartButton(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.medium)
-            .clickable { onClick() },
-        color = MaterialTheme.colorScheme.primary,
-        shape = MaterialTheme.shapes.medium,
+        modifier = modifier,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.primary,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onPrimary,
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
+        onClick = { onClick() }
     ) {
         Box(
             modifier = Modifier
@@ -791,10 +880,9 @@ fun VideoPartRow(
         )
 
         TvLazyRow(
-            modifier = Modifier
-                .padding(top = 15.dp),
-            contentPadding = PaddingValues(0.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(top = 15.dp),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
@@ -834,10 +922,9 @@ fun VideoUgcSeasonRow(
         )
 
         TvLazyRow(
-            modifier = Modifier
-                .padding(top = 15.dp),
+            modifier = Modifier.padding(top = 15.dp),
             contentPadding = PaddingValues(0.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             itemsIndexed(items = episodes) { index, episode ->
                 VideoPartButton(

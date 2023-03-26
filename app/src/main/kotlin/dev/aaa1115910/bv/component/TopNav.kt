@@ -24,9 +24,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
@@ -224,6 +223,7 @@ fun NavItemTab(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SettingsIcon(
     modifier: Modifier = Modifier,
@@ -255,6 +255,7 @@ private fun SettingsIcon(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserIcon(
     modifier: Modifier = Modifier,
@@ -278,9 +279,12 @@ private fun UserIcon(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Text(text = if (isLogin) username else "未登录")
+            Text(
+                text = if (isLogin) username else "未登录",
+                color = MaterialTheme.colorScheme.primary
+            )
             Box {
-                Surface(
+                SurfaceWithoutClickable(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),

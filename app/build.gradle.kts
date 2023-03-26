@@ -86,6 +86,7 @@ android {
             if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
         }
     }
+    // https://issuetracker.google.com/issues/260059413
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

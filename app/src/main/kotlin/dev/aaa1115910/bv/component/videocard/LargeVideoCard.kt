@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,12 +32,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LargeVideoCard(
     modifier: Modifier = Modifier,
@@ -64,7 +66,7 @@ fun LargeVideoCard(
         modifier = modifier
             .fillMaxWidth()
             .scale(scale)
-            .onFocusChanged {  hasFocus = it.isFocused }
+            .onFocusChanged { hasFocus = it.isFocused }
             .focusedBorder(MaterialTheme.shapes.medium)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.large
@@ -85,7 +87,7 @@ fun LargeVideoCard(
                         contentScale = ContentScale.FillBounds
                     )
                 } else {
-                    Surface(
+                    SurfaceWithoutClickable(
                         modifier = Modifier
                             .fillMaxHeight()
                             .aspectRatio(1.6f),
@@ -93,7 +95,7 @@ fun LargeVideoCard(
                         color = Color.White
                     ) {}
                 }
-                Surface(
+                SurfaceWithoutClickable(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp),
@@ -157,6 +159,7 @@ fun LargeVideoCard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview
 @Composable
 fun LargeVideoCardPreview() {
@@ -171,7 +174,7 @@ fun LargeVideoCardPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        Surface {
+        SurfaceWithoutClickable {
             LargeVideoCard(
                 data = data
             )

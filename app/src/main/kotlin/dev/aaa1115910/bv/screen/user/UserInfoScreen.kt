@@ -7,7 +7,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,13 +21,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -57,6 +53,12 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.AuthFailureException
@@ -79,7 +81,6 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
-import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.toast
@@ -90,7 +91,6 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
@@ -401,6 +401,7 @@ private fun LogoutConfirmDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserInfo(
     modifier: Modifier = Modifier,
@@ -420,22 +421,37 @@ private fun UserInfo(
         animationSpec = tween(
             durationMillis = 1500,
             easing = LinearEasing
-        )
+        ),
+        label = "Loading level exp slider"
     )
 
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
-            .size(480.dp, 140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large
+            .size(480.dp, 140.dp),
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
+        onClick = onClick
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            androidx.compose.material3.Surface(
                 modifier = Modifier
                     .padding(start = 24.dp, end = 8.dp)
                     .size(80.dp)
@@ -491,8 +507,8 @@ private fun UserInfo(
                     modifier = Modifier.padding(start = startPaddingValue),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(text = "Lv$level")
-                    Text(text = "UID: $uid")
+                    Text(text = stringResource(R.string.user_info_level, level))
+                    Text(text = stringResource(R.string.user_info_uid, uid))
                 }
 
                 Slider(
@@ -509,6 +525,7 @@ private fun UserInfo(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun IncognitoModeCard(
     modifier: Modifier = Modifier,
@@ -517,38 +534,57 @@ fun IncognitoModeCard(
 ) {
     var enabled by remember { mutableStateOf(Prefs.incognitoMode) }
     val backgroundColor by animateColorAsState(
-        targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer
+        targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer,
+        label = "Incognito background switch"
     )
 
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable {
-                enabled = !enabled
-                onClick()
-            },
-        color = backgroundColor,
-        shape = MaterialTheme.shapes.large
+            .height(140.dp),
+        color = ClickableSurfaceDefaults.color(
+            color = backgroundColor,
+            focusedColor = backgroundColor,
+            pressedColor = backgroundColor
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
+        onClick = {
+            enabled = !enabled
+            onClick()
+        }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "隐身模式",
+                text = stringResource(R.string.user_info_Incognito_mode_title),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = if (enabled) "已开启" else "未开启",
+                text = if (enabled) stringResource(R.string.user_info_Incognito_mode_on)
+                else stringResource(R.string.user_info_Incognito_mode_off),
                 style = MaterialTheme.typography.titleMedium
             )
         }
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowedUserCard(
     modifier: Modifier = Modifier,
@@ -559,14 +595,30 @@ fun FollowedUserCard(
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.large
+            .height(140.dp),
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        ),
+        onClick = onClick
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -621,11 +673,10 @@ private fun FollowingAnimeVideosRow(
             color = titleColor
         )
         TvLazyRow(
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.padding(top = 15.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(end = 50.dp),
-            modifier = Modifier
-                .padding(top = 15.dp)
+            contentPadding = PaddingValues(end = 50.dp, start = 12.dp)
         ) {
             items(items = videos) { seasonCardData ->
                 SeasonCard(

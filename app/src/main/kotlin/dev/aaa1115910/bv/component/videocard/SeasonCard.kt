@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.component.videocard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,12 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,12 +33,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.focusedScale
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonCard(
     modifier: Modifier = Modifier,
@@ -53,24 +53,28 @@ fun SeasonCard(
     onFocus: () -> Unit = {}
 ) {
     val localDensity = LocalDensity.current
-
     var coverRealWidth by remember { mutableStateOf(0.dp) }
-    var hasFocus by remember { mutableStateOf(false) }
 
-    LaunchedEffect(hasFocus) {
-        if (hasFocus) onFocus()
-    }
-
-    Card(
-        modifier = modifier
-            .focusedScale()
-            .onFocusChanged { hasFocus = it.isFocused }
-            .focusedBorder()
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+    Surface(
+        modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
+        onClick = onClick,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.surface,
+            focusedColor = MaterialTheme.colorScheme.surface,
+            pressedColor = MaterialTheme.colorScheme.surface
         ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onSurface,
+            focusedColor = MaterialTheme.colorScheme.onSurface,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        )
     ) {
         Column {
             val coverModifier = if (coverHeight != null) {
@@ -85,6 +89,7 @@ fun SeasonCard(
             }
 
             Box(
+                modifier = Modifier.clip(MaterialTheme.shapes.large),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 AsyncImage(

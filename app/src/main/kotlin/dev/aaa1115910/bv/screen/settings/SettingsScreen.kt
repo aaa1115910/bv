@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,15 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -44,10 +39,14 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.content.AboutSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
@@ -58,7 +57,6 @@ import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier
@@ -69,59 +67,53 @@ fun SettingsScreen(
     var currentMenu by remember { mutableStateOf(SettingsMenuNavItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
 
-    BoxWithConstraints {
-        Scaffold(
-            modifier = modifier,
-            topBar = {
-                Box(
-                    modifier = Modifier.padding(
-                        start = 48.dp,
-                        top = 24.dp,
-                        bottom = 8.dp,
-                        end = 48.dp
-                    )
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            Box(
+                modifier = Modifier.padding(
+                    start = 48.dp,
+                    top = 24.dp,
+                    bottom = 8.dp,
+                    end = 48.dp
+                )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.title_activity_settings),
-                            fontSize = titleFontSize.sp
-                        )
-                        Text(
-                            text = "",
-                            color = Color.White.copy(alpha = 0.6f)
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.title_activity_settings),
+                        fontSize = titleFontSize.sp
+                    )
+                    Text(
+                        text = "",
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
                 }
             }
-        ) { innerPadding ->
-            Row(
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                SettingsNav(
-                    modifier = Modifier
-                        .onFocusChanged { focusInNav = it.hasFocus }
-                        .weight(3f)
-                        .fillMaxHeight(),
-                    currentMenu = currentMenu,
-                    onMenuChanged = { currentMenu = it },
-                    isFocusing = focusInNav
-                )
-                SettingContent(
-                    modifier = Modifier
-                        .weight(5f)
-                        .fillMaxSize(),
-                    onBackNav = {
-                        focusInNav = true
-                    },
-                    currentMenu = currentMenu,
-                    maxWidth = this@BoxWithConstraints.maxWidth,
-                    maxHeight = this@BoxWithConstraints.maxHeight
-                )
-            }
+        }
+    ) { innerPadding ->
+        Row(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            SettingsNav(
+                modifier = Modifier
+                    .onFocusChanged { focusInNav = it.hasFocus }
+                    .weight(3f)
+                    .fillMaxHeight(),
+                currentMenu = currentMenu,
+                onMenuChanged = { currentMenu = it },
+                isFocusing = focusInNav
+            )
+            SettingContent(
+                modifier = Modifier
+                    .weight(5f)
+                    .fillMaxSize(),
+                onBackNav = { focusInNav = true },
+                currentMenu = currentMenu
+            )
         }
     }
 }
@@ -184,9 +176,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
 fun SettingContent(
     modifier: Modifier = Modifier,
     onBackNav: () -> Unit,
-    currentMenu: SettingsMenuNavItem,
-    maxWidth: Dp,
-    maxHeight: Dp
+    currentMenu: SettingsMenuNavItem
 ) {
     Box(
         modifier = modifier
@@ -200,11 +190,7 @@ fun SettingContent(
         ) {
             when (currentMenu) {
                 SettingsMenuNavItem.Resolution -> ResolutionSetting()
-                SettingsMenuNavItem.Info -> InfoSetting(
-                    maxWidth = maxWidth,
-                    maxHeight = maxHeight
-                )
-
+                SettingsMenuNavItem.Info -> InfoSetting()
                 SettingsMenuNavItem.About -> AboutSetting()
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
                 SettingsMenuNavItem.Other -> OtherSetting()
@@ -214,6 +200,7 @@ fun SettingContent(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingsMenuButton(
     modifier: Modifier = Modifier,
@@ -235,10 +222,19 @@ fun SettingsMenuButton(
             .onFocusChanged {
                 hasFocus = it.hasFocus
                 if (hasFocus) onFocus() else onLoseFocus()
-            }
-            .clickable { onClick() },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small
+            },
+        color = ClickableSurfaceDefaults.color(
+            color = buttonBackgroundColor,
+            focusedColor = buttonBackgroundColor,
+            pressedColor = buttonBackgroundColor
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
+        onClick = onClick
     ) {
         Box {
             Text(
@@ -289,7 +285,7 @@ fun SettingsDetail(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingsMenuSelectItem(
     modifier: Modifier = Modifier,
@@ -304,7 +300,7 @@ fun SettingsMenuSelectItem(
             .onFocusChanged { hasFocus = it.hasFocus }
             .clip(MaterialTheme.shapes.small)
             .clickable { onClick() },
-        headlineText = { Text(text = text) },
+        headlineContent = { Text(text = text) },
         trailingContent = {
             RadioButton(
                 modifier = Modifier.focusable(false),

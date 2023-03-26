@@ -1,7 +1,6 @@
 package dev.aaa1115910.bv.screen.search
 
 import android.app.Activity
-import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,9 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -24,11 +21,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,6 +43,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.search.SearchBiliUserResult
 import dev.aaa1115910.biliapi.entity.search.SearchMediaResult
 import dev.aaa1115910.biliapi.entity.search.SearchResultItem
@@ -63,7 +66,7 @@ import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchResultScreen(
     modifier: Modifier = Modifier,
@@ -134,9 +137,6 @@ fun SearchResultScreen(
             searchKeyword = intent.getStringExtra("keyword") ?: ""
             if (searchKeyword == "") context.finish()
             searchResultViewModel.keyword = searchKeyword
-            // 筛选变更监听在启动时会误触发一次 update()，所以这里不再触发
-            //logger.fInfo { "Start update search result because init" }
-            //searchResultViewModel.update()
         } else {
             context.finish()
         }
@@ -155,6 +155,12 @@ fun SearchResultScreen(
     ) {
         logger.fInfo { "Start update search result because filter updated" }
         searchResultViewModel.update()
+    }
+
+    LaunchedEffect(currentIndex) {
+        if (currentIndex + 24 > searchResult.results.size) {
+            searchResultViewModel.loadMore(searchResult.type)
+        }
     }
 
     Scaffold(
@@ -230,18 +236,20 @@ fun SearchResultScreen(
 
             TvLazyVerticalGrid(
                 modifier = Modifier.onPreviewKeyEvent {
-                    when (it.nativeKeyEvent.keyCode) {
-                        KeyEvent.KEYCODE_BACK -> {
-                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
-                                backToTabRow()
-                            }
+                    when (it.key) {
+                        Key.Back -> {
+                            if (it.type == KeyEventType.KeyUp) backToTabRow()
                             return@onPreviewKeyEvent true
                         }
 
-                        KeyEvent.KEYCODE_DPAD_CENTER -> {
+                        Key.DirectionCenter, Key.Enter -> {
+                            // 让 Surface 监听到 KeyUp 事件，否则 Surface 将会是一直按下的状态
+                            if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
+
                             if (it.nativeKeyEvent.isLongPress) {
-                                if (searchResultViewModel.searchType == SearchResultType.Video)
+                                if (searchResultViewModel.searchType == SearchResultType.Video) {
                                     showFilter = true
+                                }
                                 return@onPreviewKeyEvent true
                             }
                             if (showFilter) return@onPreviewKeyEvent true
@@ -250,20 +258,15 @@ fun SearchResultScreen(
                     false
                 },
                 columns = TvGridCells.Fixed(rowSize),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 itemsIndexed(items = searchResult.results) { index, searchResultItem ->
                     SearchResultListItem(
                         searchResult = searchResultItem,
-                        onClick = { onClickResult(searchResultItem) },
-                        onFocus = {
-                            currentIndex = index
-                            if (index + 20 > searchResult.results.size) {
-                                searchResultViewModel.loadMore(searchResult.type)
-                            }
-                        }
+                        onClick = { if (!showFilter) onClickResult(searchResultItem) },
+                        onFocus = { currentIndex = index }
                     )
                 }
             }

@@ -6,27 +6,29 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PauseIcon(
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    SurfaceWithoutClickable(
         modifier = modifier,
         color = Color.Black.copy(0.5f),
         shape = MaterialTheme.shapes.medium
     ) {
         Icon(
             modifier = Modifier
-                .padding(12.dp,4.dp)
+                .padding(12.dp, 4.dp)
                 .size(50.dp),
             imageVector = Icons.Rounded.Pause,
             contentDescription = null,

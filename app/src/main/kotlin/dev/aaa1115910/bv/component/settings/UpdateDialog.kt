@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,12 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.network.AppCenterApi
 import dev.aaa1115910.bv.network.PackageInfo
@@ -39,7 +38,6 @@ private const val APP_NAME = "bv"
 private const val GROUP_NAME = "public"
 private const val GROUP_ID = "9259f371-d475-4088-b9fe-e5adfac1b563"
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UpdateDialog(
     modifier: Modifier = Modifier,

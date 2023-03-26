@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.screen
 
 import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,12 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -65,10 +61,16 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.Episode
@@ -97,7 +99,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -510,6 +511,7 @@ fun SeasonInfoPart(
 }
 
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeButton(
     modifier: Modifier = Modifier,
@@ -523,11 +525,25 @@ fun SeasonEpisodeButton(
     val isPreview = LocalInspectionMode.current
 
     Surface(
-        modifier = modifier
-            .focusedBorder(MaterialTheme.shapes.medium)
-            .clickable { onClick() },
-        color = MaterialTheme.colorScheme.primary,
-        shape = MaterialTheme.shapes.medium,
+        modifier = modifier,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.primary,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onPrimary,
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.medium
+            )
+        ),
+        onClick = onClick
     ) {
         Row {
             val coverBackground by remember { mutableStateOf(if (played != 0) Color.Black.copy(alpha = 0.2f) else Color.Transparent) }
@@ -673,7 +689,8 @@ fun SeasonEpisodesDialog(
                     TvLazyVerticalGrid(
                         state = listState,
                         columns = TvGridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         itemsIndexed(
                             items = selectedEpisodes,
@@ -716,6 +733,7 @@ fun SeasonEpisodesDialog(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeRow(
     modifier: Modifier = Modifier,
@@ -744,19 +762,31 @@ fun SeasonEpisodeRow(
         )
 
         TvLazyRow(
-            modifier = Modifier
-                .padding(top = 15.dp),
-            contentPadding = PaddingValues(horizontal = 50.dp)
+            modifier = Modifier.padding(top = 15.dp),
+            contentPadding = PaddingValues(horizontal = 50.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             item {
                 Surface(
-                    modifier = modifier
-                        .size(60.dp, 80.dp)
-                        .focusedScale(0.9f)
-                        .focusedBorder(MaterialTheme.shapes.medium)
-                        .clickable { showEpisodesDialog = true },
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.medium
+                    modifier = modifier.size(60.dp, 80.dp),
+                    color = ClickableSurfaceDefaults.color(
+                        color = MaterialTheme.colorScheme.primary,
+                        focusedColor = MaterialTheme.colorScheme.primary,
+                        pressedColor = MaterialTheme.colorScheme.primary
+                    ),
+                    contentColor = ClickableSurfaceDefaults.contentColor(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        focusedColor = MaterialTheme.colorScheme.onPrimary,
+                        pressedColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+                    border = ClickableSurfaceDefaults.border(
+                        focusedBorder = Border(
+                            border = BorderStroke(width = 3.dp, color = Color.White),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                    ),
+                    onClick = { showEpisodesDialog = true }
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -772,14 +802,10 @@ fun SeasonEpisodeRow(
                     }
                 }
             }
-            itemsIndexed(
-                items = episodes,
-                key = { _, episode -> episode.aid + episode.cid }
-            ) { index, episode ->
+            itemsIndexed(items = episodes) { index, episode ->
                 val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
                 SeasonEpisodeButton(
-                    modifier = Modifier
-                        .focusedScale(0.9f),
+                    modifier = Modifier,
                     partTitle = if (title == "正片") {
                         //如果 title 是数字的话，就会返回 "第 x 集"
                         //如果 title 不是数字的话（例如 SP），就会原样使用 title

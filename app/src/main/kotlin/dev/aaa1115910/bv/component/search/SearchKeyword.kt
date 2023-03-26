@@ -2,16 +2,12 @@ package dev.aaa1115910.bv.component.search
 
 import android.os.Build
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +21,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
@@ -32,6 +33,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchKeyword(
     modifier: Modifier = Modifier,
@@ -60,10 +62,19 @@ fun SearchKeyword(
         modifier = modifier
             .onFocusChanged {
                 hasFocus = it.hasFocus
-            }
-            .clickable { onClick() },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small
+            },
+        color = ClickableSurfaceDefaults.color(
+            color = buttonBackgroundColor,
+            focusedColor = buttonBackgroundColor,
+            pressedColor = buttonBackgroundColor
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = Color.White,
+            focusedColor = Color.White,
+            pressedColor = Color.White
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
+        onClick = onClick
     ) {
         Box {
             Row(

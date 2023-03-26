@@ -7,8 +7,6 @@ import android.webkit.WebView.setWebContentsDebuggingEnabled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,10 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Text
 import androidx.webkit.WebViewClientCompat
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.Prefs
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SpeedTestScreen(
     modifier: Modifier = Modifier
@@ -98,7 +100,7 @@ fun SpeedTestScreen(
         )
 
         if (loading) {
-            Surface(
+            SurfaceWithoutClickable(
                 modifier = Modifier.fillMaxSize(),
                 color = Color.Black.copy(alpha = 0.9f)
             ) {

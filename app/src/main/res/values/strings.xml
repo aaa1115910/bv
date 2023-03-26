@@ -103,6 +103,9 @@
 
     <string name="search_input_history">历史记录</string>
     <string name="search_input_hotword">bilibili 热搜</string>
+    <string name="search_input_soft_keybord_clear">清空</string>
+    <string name="search_input_soft_keybord_delete">删除</string>
+    <string name="search_input_soft_keybord_search">搜索</string>
     <string name="search_input_suggest">你可能要找的是</string>
     <string name="search_input_title">搜索</string>
     <string name="search_result_filter_duration_10_to_30">10–30 分钟</string>
@@ -124,11 +127,11 @@
     <string name="season_no_feature_film">还没有正片</string>
 
     <string name="settings_info_manufacturer">厂商: %1$s</string>
-    <string name="settings_info_memory">内存: %1$s</string>
+    <string name="settings_info_memory">内存: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_model">型号: %1$s (%2$s)</string>
-    <string name="settings_info_resolution">分辨率: %1$d x %2$d</string>
+    <string name="settings_info_screen">屏幕: %1$d x %2$d %3$fHz</string>
     <string name="settings_info_soc">SOC: %1$s %2$s</string>
-    <string name="settings_info_storage">存储: %1$s</string>
+    <string name="settings_info_storage">存储: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
     <string name="settings_item_about">关于</string>
     <string name="settings_item_codec">默认视频编码</string>
@@ -175,6 +178,11 @@
     <string name="user_homepage_favorite">私人藏品</string>
     <string name="user_homepage_follow">已关注</string>
     <string name="user_homepage_recent">最近播放记录</string>
+    <string name="user_info_Incognito_mode_off">未开启</string>
+    <string name="user_info_Incognito_mode_on">已开启</string>
+    <string name="user_info_Incognito_mode_title">隐身模式</string>
+    <string name="user_info_level">Lv%1$s</string>
+    <string name="user_info_uid">UID: %1$s</string>
 
     <string name="video_aspect_ratio_default">默认</string>
     <string name="video_aspect_ratio_four_to_three">4:3</string>
@@ -185,6 +193,7 @@
     <string name="video_codec_hevc">H.265</string>
     <string name="video_codec_hvc1" tools:ignore="Typos">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
+    <string name="video_info_argue_tip_vertical_screen">温馨提示：该稿件包含竖屏视频内容</string>
     <string name="video_info_description_title">视频简介</string>
     <string name="video_info_follow">关注</string>
     <string name="video_info_followed">已关注</string>

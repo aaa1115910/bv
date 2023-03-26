@@ -5,13 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +20,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingSwitchListItem(
     modifier: Modifier = Modifier,
@@ -46,8 +46,8 @@ fun SettingSwitchListItem(
                 switchChecked = !switchChecked
                 onCheckedChange(switchChecked)
             },
-        headlineText = { Text(text = title) },
-        supportingText = { Text(text = supportText) },
+        headlineContent = { Text(text = title) },
+        supportingContent = { Text(text = supportText) },
         trailingContent = {
             Switch(
                 modifier = Modifier

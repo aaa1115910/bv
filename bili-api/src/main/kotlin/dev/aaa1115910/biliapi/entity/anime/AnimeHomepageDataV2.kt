@@ -77,10 +77,11 @@ data class AnimeHomepageDataV2(
                 val id: String,
                 @SerialName("showReportData")
                 val showReportData: ShowReportData,
-                @SerialName("webpcover")
-                val webpCover: String,
-                @SerialName("webpbigcover")
-                val webpBigCover: String
+                // 当前获取到的 json 中未包含 webpcover 和 webpbigcover
+                //@SerialName("webpcover")
+                //val webpCover: String,
+                //@SerialName("webpbigcover")
+                //val webpBigCover: String
             ) {
 
                 @Serializable
@@ -106,7 +107,5 @@ data class AnimeHomepageDataV2(
                 )
             }
         }
-
-
     }
 }

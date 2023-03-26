@@ -1,17 +1,25 @@
 package dev.aaa1115910.bv.screen.home
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
@@ -19,6 +27,7 @@ import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyGridState
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
@@ -28,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DynamicsScreen(
     modifier: Modifier = Modifier,
@@ -37,15 +47,21 @@ fun DynamicsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var currentFocusedIndex by remember { mutableStateOf(0) }
+
+    LaunchedEffect(currentFocusedIndex) {
+        if (currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size) {
+            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+        }
+    }
 
     if (dynamicViewModel.isLogin) {
-
         TvLazyVerticalGrid(
             modifier = modifier
                 .onPreviewKeyEvent {
-                    when (it.nativeKeyEvent.keyCode) {
-                        KeyEvent.KEYCODE_BACK -> {
-                            if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    when (it.key) {
+                        Key.Back -> {
+                            if (it.type == KeyEventType.KeyUp) {
                                 scope.launch(Dispatchers.Main) {
                                     tvLazyGridState.animateScrollToItem(0)
                                 }
@@ -53,46 +69,43 @@ fun DynamicsScreen(
                             }
                             return@onPreviewKeyEvent true
                         }
+
+                        Key.DirectionRight -> {
+                            if (currentFocusedIndex % 4 == 3) {
+                                return@onPreviewKeyEvent true
+                            }
+                        }
                     }
                     return@onPreviewKeyEvent false
                 },
             state = tvLazyGridState,
             columns = TvGridCells.Fixed(4),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        data = VideoCardData(
-                            avid = dynamic.modules.moduleDynamic.major?.archive?.aid?.toInt()
-                                ?: 170001,
-                            title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
-                            cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
-                            playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play
-                                ?: "",
-                            danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
-                                ?: "",
-                            upName = dynamic.modules.moduleAuthor.name,
-                            timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
-                                ?: ""
-                        ),
-                        onClick = {
-                            VideoInfoActivity.actionStart(
-                                context,
-                                dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
-                            )
-                        },
-                        onFocus = {
-                            if (index + 24 > dynamicViewModel.dynamicList.size) {
-                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
-                            }
-                        }
-                    )
-                }
+                SmallVideoCard(
+                    data = VideoCardData(
+                        avid = dynamic.modules.moduleDynamic.major?.archive?.aid?.toInt()
+                            ?: 170001,
+                        title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
+                        cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
+                        playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play
+                            ?: "",
+                        danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
+                            ?: "",
+                        upName = dynamic.modules.moduleAuthor.name,
+                        timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
+                            ?: ""
+                    ),
+                    onClick = {
+                        VideoInfoActivity.actionStart(
+                            context, dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
+                        )
+                    },
+                    onFocus = { currentFocusedIndex = index }
+                )
             }
             if (dynamicViewModel.loading)
                 item(

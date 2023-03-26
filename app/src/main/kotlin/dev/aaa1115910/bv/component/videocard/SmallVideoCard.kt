@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.component.videocard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,18 +10,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,16 +25,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
-import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.resizedImageUrl
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SmallVideoCard(
     modifier: Modifier = Modifier,
@@ -52,22 +48,26 @@ fun SmallVideoCard(
     onClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    LaunchedEffect(hasFocus) {
-        if (hasFocus) onFocus()
-    }
-
-    Card(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.isFocused }
-            .focusedScale()
-            .focusedBorder()
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+    Surface(
+        modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
+        onClick = onClick,
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.surface,
+            focusedColor = MaterialTheme.colorScheme.surface,
+            pressedColor = MaterialTheme.colorScheme.surface
         ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onSurface,
+            focusedColor = MaterialTheme.colorScheme.onSurface,
+            pressedColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.large
+            )
+        )
     ) {
         Column {
             Box(
@@ -174,6 +174,7 @@ fun SmallVideoCard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 fun SmallVideoCardPreview() {
@@ -187,7 +188,7 @@ fun SmallVideoCardPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        Surface {
+        SurfaceWithoutClickable {
             SmallVideoCard(
                 data = data
             )
