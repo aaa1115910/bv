@@ -352,7 +352,7 @@ fun VideoInfoScreen(
                     modifier = Modifier.fillMaxSize(),
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(videoInfo!!.ugcSeason?.cover ?: videoInfo!!.pic)
+                            .data(if (videoInfo!!.isSeasonDisplay) videoInfo!!.ugcSeason!!.cover else videoInfo!!.pic)
                             .transformations(BlurTransformation(LocalContext.current, 20f, 5f))
                             .build()
                     ),
@@ -551,7 +551,7 @@ fun VideoInfoData(
                 }
                 .focusedBorder(MaterialTheme.shapes.large)
                 .clickable { onClickCover() },
-            model = videoInfo.ugcSeason?.cover ?: videoInfo.pic,
+            model = if (videoInfo.isSeasonDisplay) videoInfo.ugcSeason!!.cover else videoInfo.pic,
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )

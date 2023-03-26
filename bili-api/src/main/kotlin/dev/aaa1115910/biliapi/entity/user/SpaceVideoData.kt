@@ -106,10 +106,12 @@ data class SpaceVideoData(
             val isLivePlayback: Int,
             val meta: Meta? = null,
             @SerialName("is_avoided")
-            val isAvoided: Int,
+            private val _isAvoided: Int,
             @SerialName("attribute")
             val attribute: Int
         ) {
+            val isAvoided: Boolean = _isAvoided == 1
+
             /**
              * 合集信息
              */
