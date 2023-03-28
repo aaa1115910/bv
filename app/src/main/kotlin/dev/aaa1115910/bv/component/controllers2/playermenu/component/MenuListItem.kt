@@ -8,12 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -21,9 +16,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import androidx.tv.material3.ToggleableSurfaceDefaults
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -37,22 +34,27 @@ fun MenuListItem(
     onFocus: () -> Unit = {},
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    val buttonBackgroundColor =
-        if (hasFocus) MaterialTheme.colorScheme.primary
-        else if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-        else Color.Transparent
-
     Surface(
-        modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.hasFocus
-                if (hasFocus) onFocus()
-            },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small,
-        onClick = onClick
+        modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
+        checked = selected,
+        onCheckedChange = { onClick() },
+        color = ToggleableSurfaceDefaults.color(
+            color = Color.Transparent,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary,
+            selectedColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+            focusedSelectedColor = MaterialTheme.colorScheme.primary,
+            pressedSelectedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ToggleableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onPrimary,
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onPrimary,
+            selectedColor = MaterialTheme.colorScheme.onPrimary,
+            focusedSelectedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedSelectedColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = ToggleableSurfaceDefaults.shape(MaterialTheme.shapes.small)
     ) {
         Row(
             modifier = Modifier

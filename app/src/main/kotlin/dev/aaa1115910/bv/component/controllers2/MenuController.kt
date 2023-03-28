@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.ClosedCaption
@@ -99,7 +98,6 @@ fun MenuController(
                 )
                 MenuNavList(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
                         .onPreviewKeyEvent {
                             if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                             println(it)

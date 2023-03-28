@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.component.controllers2.playermenu
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -133,7 +134,8 @@ fun ClosedCaptionMenuList(
 
                         else -> return@onPreviewKeyEvent false
                     }
-                }
+                },
+            contentPadding = PaddingValues(8.dp)
         ) {
             items(VideoPlayerClosedCaptionMenuItem.values()) { item ->
                 val buttonModifier =

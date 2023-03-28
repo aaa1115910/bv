@@ -52,7 +52,7 @@ fun CheckBoxMenuList(
                 result
             },
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(vertical = 120.dp)
+        contentPadding = PaddingValues(vertical = 120.dp, horizontal = 8.dp)
     ) {
         itemsIndexed(items) { index, item ->
             val buttonModifier = if (index == 0) Modifier

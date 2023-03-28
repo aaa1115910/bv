@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.component.controllers2.playermenu
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,7 +35,8 @@ fun MenuNavList(
     }
 
     TvLazyColumn(
-        modifier = modifier.animateContentSize()
+        modifier = modifier.animateContentSize(),
+        contentPadding = PaddingValues(16.dp)
     ) {
         items(VideoPlayerMenuNavItem.values()) { item ->
             val buttonModifier =
