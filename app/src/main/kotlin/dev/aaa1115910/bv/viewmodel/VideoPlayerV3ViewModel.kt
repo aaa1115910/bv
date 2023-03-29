@@ -19,8 +19,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.entity.DanmakuSize
-import dev.aaa1115910.bv.entity.DanmakuTransparency
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -62,9 +61,12 @@ class VideoPlayerV3ViewModel(
 
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
-    var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
-    var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
+    var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
+    var currentDanmakuTransparency by mutableStateOf(Prefs.defaultDanmakuTransparencyFloat)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
+    val currentDanmakuTypes = mutableStateListOf<DanmakuType>().apply {
+        addAll(Prefs.defaultDanmakuTypes)
+    }
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
     var currentSubtitleId by mutableStateOf(0L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
@@ -294,6 +296,7 @@ class VideoPlayerV3ViewModel(
     }
 
     private fun addLogs(text: String) {
+        println(text)
         val lines = logs.lines().toMutableList()
         lines.add(text)
         while (lines.size > 8) {

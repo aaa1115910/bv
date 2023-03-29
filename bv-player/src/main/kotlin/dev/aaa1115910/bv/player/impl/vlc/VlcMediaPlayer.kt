@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerOptions
+import dev.aaa1115910.bv.player.formatMinSec
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
 import org.videolan.libvlc.MediaPlayer
@@ -85,12 +86,14 @@ class VlcMediaPlayer(
         mLibVLC?.release()
     }
 
+    private var buffed: Int = 0
+
     override val currentPosition: Long
         get() = mPlayer?.time ?: 0
     override val duration: Long
         get() = mPlayer?.media?.duration ?: 0
     override val bufferedPercentage: Int
-        get() = 0
+        get() = buffed
 
     override fun setOptions() {
         //TODO("Not yet implemented")
@@ -106,17 +109,26 @@ class VlcMediaPlayer(
 
     override fun onEvent(event: Event) {
         when (event.type) {
+            Event.Opening -> mPlayerEventListener?.onReady()
             Event.Buffering -> {
+                buffed = event.buffering.toInt()
                 mPlayerEventListener?.onBuffering()
             }
 
-            Event.Playing -> {
-                mPlayerEventListener?.onPlay()
-            }
-
-            Event.EndReached -> {
-                mPlayerEventListener?.onEnd()
-            }
+            Event.Playing -> mPlayerEventListener?.onPlay()
+            Event.Paused -> mPlayerEventListener?.onPause()
+            Event.EndReached -> mPlayerEventListener?.onEnd()
         }
     }
+
+    override val debugInfo: String
+        get() {
+            return """
+                player: LibVLC/${LibVLC.version()}
+                time: ${currentPosition.formatMinSec()} / ${duration.formatMinSec()}
+                buffered: $bufferedPercentage%
+                resolution: ${mPlayer?.currentVideoTrack?.width} x ${mPlayer?.currentVideoTrack?.height}
+                codec: ${mPlayer?.currentVideoTrack?.codec}
+            """.trimIndent()
+        }
 }

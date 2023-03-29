@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -22,10 +23,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.tv.material3.Text
+import com.kuaishou.akdanmaku.DanmakuConfig
+import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
@@ -42,8 +47,11 @@ import dev.aaa1115910.bv.player.impl.vlc.VlcPlayerFactory
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -161,6 +169,7 @@ fun VideoPlayerV3Screen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val videoPlayer = playerViewModel.videoPlayer!!
+    val logger = KotlinLogging.logger { }
 
     val focusRequester = remember { FocusRequester() }
 
@@ -176,6 +185,7 @@ fun VideoPlayerV3Screen(
             )
         )
     }
+    var debugInfo by remember { mutableStateOf("") }
 
     var usingDefaultAspectRatio by remember { mutableStateOf(true) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
@@ -191,6 +201,7 @@ fun VideoPlayerV3Screen(
             resolutionHeight = 0,//videoPlayer.videoSize.height,
             codec = ""//videoPlayer.videoFormat?.sampleMimeType ?: "null"
         )
+        debugInfo = videoPlayer.debugInfo
     }
 
     val videoPlayerListener = object : VideoPlayerListener {
@@ -201,17 +212,23 @@ fun VideoPlayerV3Screen(
 
         override fun onReady() {
             println("onReady")
-            //TODO("Not yet implemented")
+            val danmakuConfig = DanmakuConfig(
+                retainerPolicy = RETAINER_BILIBILI,
+                textSizeScale = playerViewModel.currentDanmakuScale
+            )
+            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
         }
 
         override fun onPlay() {
             println("onPlay")
-            //TODO("Not yet implemented")
+            println("${playerViewModel.danmakuPlayer?.isReleased}")
+            playerViewModel.danmakuPlayer?.start()
+
         }
 
         override fun onPause() {
             println("onPause")
-            //TODO("Not yet implemented")
+            playerViewModel.danmakuPlayer?.pause()
         }
 
         override fun onBuffering() {
@@ -221,15 +238,15 @@ fun VideoPlayerV3Screen(
 
         override fun onEnd() {
             println("onEnd")
-            //TODO("Not yet implemented")
+            playerViewModel.danmakuPlayer?.pause()
         }
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
-            //TODO("Not yet implemented")
+            playerViewModel.danmakuPlayer?.seekTo(currentPosition)
         }
 
         override fun onSeekForward(seekForwardIncrementMs: Long) {
-            //TODO("Not yet implemented")
+            playerViewModel.danmakuPlayer?.seekTo(currentPosition)
         }
     }
 
@@ -264,6 +281,7 @@ fun VideoPlayerV3Screen(
 
     CompositionLocalProvider(
         LocalVideoPlayerControllerData provides VideoPlayerControllerData(
+            debugInfo = debugInfo,
             infoData = infoData,
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
@@ -274,8 +292,8 @@ fun VideoPlayerV3Screen(
             currentVideoCodec = playerViewModel.currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
             currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
-            currentDanmakuSize = playerViewModel.currentDanmakuSize,
-            currentDanmakuTransparency = playerViewModel.currentDanmakuTransparency,
+            currentDanmakuScale = playerViewModel.currentDanmakuScale,
+            currentDanmakuTransparencyFloat = playerViewModel.currentDanmakuTransparency,
             currentDanmakuArea = playerViewModel.currentDanmakuArea,
             currentSubtitleId = playerViewModel.currentSubtitleId,
             currentSubtitleData = playerViewModel.currentSubtitleData,
@@ -295,6 +313,7 @@ fun VideoPlayerV3Screen(
             onPause = {
                 // TODO 暂停时上报播放记录
                 videoPlayer.pause()
+
             },
             onExit = {
                 // TODO 退出前上报播放记录
@@ -305,7 +324,53 @@ fun VideoPlayerV3Screen(
             onPlayNewVideo = {
                 // TODO 播放新视频前上报播放记录
                 playerViewModel.loadPlayUrl(it.aid, it.cid)
-            }
+            },
+
+            onResolutionChange = { qualityId ->
+                playerViewModel.currentQuality = qualityId
+                videoPlayer.pause()
+                val current = videoPlayer.currentPosition
+                scope.launch(Dispatchers.Default) {
+                    playerViewModel.updateAvailableCodec()
+                    playerViewModel.playQuality(qualityId)
+                    withContext(Dispatchers.Main) {
+                        videoPlayer.seekTo(current)
+                        videoPlayer.start()
+                    }
+                }
+            },
+            onCodecChange = { videoCodec ->
+                playerViewModel.currentVideoCodec = videoCodec
+                videoPlayer.pause()
+                val current = videoPlayer.currentPosition
+                scope.launch(Dispatchers.Default) {
+                    playerViewModel.playQuality(
+                        playerViewModel.currentQuality,
+                        playerViewModel.currentVideoCodec
+                    )
+                    withContext(Dispatchers.Main) {
+                        videoPlayer.seekTo(current)
+                        videoPlayer.start()
+                    }
+                }
+            },
+            onAspectRatioChange = {
+                // TODO 画面比例调节
+                currentVideoAspectRatio = it
+            },
+            onDanmakuSwitchChange = { enabledDanmakuTypes ->
+                Prefs.defaultDanmakuTypes = enabledDanmakuTypes
+                playerViewModel.currentDanmakuTypes.swapList(enabledDanmakuTypes)
+                // TODO 更新弹幕参数
+            },
+            onDanmakuSizeChange = { },
+            onDanmakuOpacityChange = { },
+            onDanmakuAreaChange = { },
+            onSubtitleChange = { },
+            onSubtitleSizeChange = { },
+            onSubtitleBackgroundOpacityChange = {},
+            onSubtitleBottomPadding = { }
+
         ) {
             BoxWithConstraints(
                 modifier = Modifier.background(Color.Black),
@@ -334,8 +399,16 @@ fun VideoPlayerV3Screen(
                 DanmakuPlayerCompose(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .fillMaxHeight(playerViewModel.currentDanmakuArea),
+                        .fillMaxWidth()
+                        .fillMaxHeight(playerViewModel.currentDanmakuArea)
+                        // 在之前版本中，设置 DanmakuConfig 透明度后，更改其它弹幕设置后，可能会导致弹幕透明度
+                        // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
+                        .alpha(playerViewModel.currentDanmakuTransparency),
                     danmakuPlayer = playerViewModel.danmakuPlayer
+                )
+                Text(
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    text = playerViewModel.logs
                 )
             }
         }

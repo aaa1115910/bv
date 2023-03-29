@@ -58,6 +58,8 @@ abstract class AbstractVideoPlayer {
     /** 当前缓冲的网速 */
     abstract val tcpSpeed: Long
 
+    abstract val debugInfo: String
+
     /**
      * 绑定VideoView，监听播放异常，完成，开始准备，视频size变化，视频信息等操作
      */

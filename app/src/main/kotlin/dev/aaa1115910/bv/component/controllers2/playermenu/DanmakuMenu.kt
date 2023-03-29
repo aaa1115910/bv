@@ -113,12 +113,12 @@ fun DanmakuMenuList(
 
                 VideoPlayerDanmakuMenuItem.Size -> StepLessMenuItem(
                     modifier = menuItemsModifier,
-                    value = data.currentDanmakuSizeStepLess,
+                    value = data.currentDanmakuScale,
                     step = 0.01f,
                     range = 0.5f..2f,
                     text = NumberFormat.getPercentInstance()
                         .apply { maximumFractionDigits = 0 }
-                        .format(data.currentDanmakuSizeStepLess),
+                        .format(data.currentDanmakuScale),
                     isFocusing = focusState.focusState == MenuFocusState.Items,
                     onValueChange = onDanmakuSizeChange,
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
@@ -155,7 +155,12 @@ fun DanmakuMenuList(
             modifier = modifier
                 .padding(horizontal = 8.dp)
                 .onPreviewKeyEvent {
-                    if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
+                    if (it.type == KeyEventType.KeyUp) {
+                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                            return@onPreviewKeyEvent false
+                        }
+                        return@onPreviewKeyEvent true
+                    }
                     when (it.key) {
                         Key.DirectionRight -> {
                             onFocusStateChange(MenuFocusState.MenuNav)

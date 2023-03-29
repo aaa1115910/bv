@@ -459,6 +459,7 @@ fun VideoPlayerController(
 }
 
 data class VideoPlayerControllerData(
+    val debugInfo: String = "",
     val infoData: VideoPlayerInfoData = VideoPlayerInfoData(0, 0, 0, 0, 0, ""),
     val resolutionMap: Map<Int, String> = emptyMap(),
     val availableVideoCodec: List<VideoCodec> = emptyList(),
@@ -472,15 +473,16 @@ data class VideoPlayerControllerData(
     val currentDanmakuEnabled: Boolean = true,
     val currentDanmakuEnabledList: List<DanmakuType> = listOf(),
     val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
-    val currentDanmakuSizeStepLess: Float = 1f,
+    val currentDanmakuScale: Float = 1f,
     val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    val currentDanmakuTransparencyFloat: Float = 1f,
     val currentDanmakuOpacity: Float = 1f,
     val currentDanmakuArea: Float = 1f,
     val currentSubtitleId: Long = 0,
     val currentSubtitleData: List<SubtitleItem> = emptyList(),
     val currentPosition: Long = 0,
     val currentSubtitleFontSize: TextUnit = 24.sp,
-    val currentSubtitleBackgroundOpacity:Float= 0.5f,
+    val currentSubtitleBackgroundOpacity: Float = 0.5f,
     val currentSubtitleBottomPadding: Dp = 12.dp,
     val lastPlayed: Int = 0,
     val title: String = "Title",

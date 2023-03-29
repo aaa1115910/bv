@@ -1,7 +1,10 @@
 package dev.aaa1115910.bv.component.controllers2
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -48,6 +51,48 @@ import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.swapList
+
+@Composable
+fun MenuController(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onResolutionChange: (Int) -> Unit = {},
+    onCodecChange: (VideoCodec) -> Unit = {},
+    onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
+    onDanmakuSizeChange: (Float) -> Unit,
+    onDanmakuOpacityChange: (Float) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit,
+    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleSizeChange: (TextUnit) -> Unit,
+    onSubtitleBackgroundOpacityChange: (Float) -> Unit,
+    onSubtitleBottomPadding: (Dp) -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        AnimatedVisibility(
+            visible = show,
+            enter = expandHorizontally(),
+            exit = shrinkHorizontally()
+        ) {
+            MenuController(
+                onResolutionChange = onResolutionChange,
+                onCodecChange = onCodecChange,
+                onAspectRatioChange = onAspectRatioChange,
+                onDanmakuSwitchChange = onDanmakuSwitchChange,
+                onDanmakuSizeChange = onDanmakuSizeChange,
+                onDanmakuOpacityChange = onDanmakuOpacityChange,
+                onDanmakuAreaChange = onDanmakuAreaChange,
+                onSubtitleChange = onSubtitleChange,
+                onSubtitleSizeChange = onSubtitleSizeChange,
+                onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
+                onSubtitleBottomPadding = onSubtitleBottomPadding
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
@@ -99,7 +144,12 @@ fun MenuController(
                 MenuNavList(
                     modifier = Modifier
                         .onPreviewKeyEvent {
-                            if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
+                            if (it.type == KeyEventType.KeyUp) {
+                                if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                                    return@onPreviewKeyEvent false
+                                }
+                                return@onPreviewKeyEvent true
+                            }
                             println(it)
                             val result = it.key == Key.DirectionLeft
                             if (result) focusState = MenuFocusState.Menu
@@ -307,7 +357,7 @@ fun MenuControllerPreview() {
                         currentVideoAspectRatio = currentVideoAspectRatio,
 
                         currentDanmakuEnabledList = currentDanmakuSwitch,
-                        currentDanmakuSizeStepLess = currentDanmakuSize,
+                        currentDanmakuScale = currentDanmakuSize,
                         currentDanmakuOpacity = currentDanmakuOpacity,
                         currentDanmakuArea = currentDanmakuArea,
 

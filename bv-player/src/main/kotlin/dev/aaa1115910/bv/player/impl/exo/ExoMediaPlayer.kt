@@ -12,7 +12,9 @@ import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerOptions
+import dev.aaa1115910.bv.player.formatMinSec
 
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExoMediaPlayer(
     private val context: Context,
     private val options: VideoPlayerOptions
@@ -119,22 +121,18 @@ class ExoMediaPlayer(
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
-            Player.STATE_IDLE -> {
+            Player.STATE_IDLE -> {}
+            Player.STATE_BUFFERING -> mPlayerEventListener?.onBuffering()
+            Player.STATE_READY -> mPlayerEventListener?.onReady()
+            Player.STATE_ENDED -> mPlayerEventListener?.onEnd()
+        }
+    }
 
-            }
-
-            Player.STATE_BUFFERING -> {
-                mPlayerEventListener?.onBuffering()
-            }
-
-            Player.STATE_READY -> {
-                if (mPlayer?.isPlaying == true) mPlayerEventListener?.onPlay()
-                //mPlayerEventListener?.onReady()
-            }
-
-            Player.STATE_ENDED -> {
-                mPlayerEventListener?.onEnd()
-            }
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
+        if (isPlaying) {
+            mPlayerEventListener?.onPlay()
+        } else {
+            mPlayerEventListener?.onPause()
         }
     }
 
@@ -145,4 +143,15 @@ class ExoMediaPlayer(
     override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) {
         mPlayerEventListener?.onSeekForward(seekForwardIncrementMs)
     }
+
+    override val debugInfo: String
+        get() {
+            return """
+                player: ${androidx.media3.common.MediaLibraryInfo.VERSION_SLASHY}
+                time: ${currentPosition.formatMinSec()} / ${duration.formatMinSec()}
+                buffered: $bufferedPercentage%
+                resolution: ${mPlayer?.videoSize?.width} x ${mPlayer?.videoSize?.height}
+                codec: ${mPlayer?.videoFormat?.sampleMimeType ?: "null"}
+            """.trimIndent()
+        }
 }

@@ -20,10 +20,15 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
+import dev.aaa1115910.bv.entity.VideoAspectRatio
+import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.fInfo
@@ -41,6 +46,20 @@ fun VideoPlayerController(
     onGoTime: (time: Int) -> Unit,
     onBackToHistory: () -> Unit,
     onPlayNewVideo: (VideoListItem) -> Unit,
+
+    //menu events
+    onResolutionChange: (Int) -> Unit = {},
+    onCodecChange: (VideoCodec) -> Unit = {},
+    onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
+    onDanmakuSizeChange: (Float) -> Unit,
+    onDanmakuOpacityChange: (Float) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit,
+    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleSizeChange: (TextUnit) -> Unit,
+    onSubtitleBackgroundOpacityChange: (Float) -> Unit,
+    onSubtitleBottomPadding: (Dp) -> Unit,
+
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -66,6 +85,7 @@ fun VideoPlayerController(
                 if (showClickableControllers) {
                     if (listOf(Key.Back, Key.Menu).contains(it.key)) {
                         if (it.type == KeyEventType.KeyUp) {
+                            logger.fInfo { "[${it.key}] hide all controllers" }
                             showMenuController = false
                             showListController = false
                             showSeekController = false
@@ -88,10 +108,10 @@ fun VideoPlayerController(
                             return@onPreviewKeyEvent true
                         }
 
-                        logger.fInfo { "[${it.type}] short press" }
+                        logger.fInfo { "[${it.key}] short press" }
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         if (videoPlayer.isPlaying) onPause() else onPlay()
-                        return@onPreviewKeyEvent true
+                        return@onPreviewKeyEvent false
                     }
 
                     // KEYCODE_CENTER_LONG
@@ -175,6 +195,14 @@ fun VideoPlayerController(
             }
     ) {
         content()
+        if (BuildConfig.DEBUG) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                text = data.debugInfo
+            )
+        }
         ControllerVideoInfo(
             show = showInfo,
             infoData = data.infoData,
@@ -193,14 +221,20 @@ fun VideoPlayerController(
             videoList = data.availableVideoList,
             onPlayNewVideo = onPlayNewVideo
         )
-        if (BuildConfig.DEBUG) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .background(Color.Black.copy(alpha = 0.3f)),
-                text = "hasFocus: $hasFocus"
-            )
-        }
+        MenuController(
+            show = showMenuController,
+            onResolutionChange = onResolutionChange,
+            onCodecChange = onCodecChange,
+            onAspectRatioChange = onAspectRatioChange,
+            onDanmakuSwitchChange = onDanmakuSwitchChange,
+            onDanmakuSizeChange = onDanmakuSizeChange,
+            onDanmakuOpacityChange = onDanmakuOpacityChange,
+            onDanmakuAreaChange = onDanmakuAreaChange,
+            onSubtitleChange = onSubtitleChange,
+            onSubtitleSizeChange = onSubtitleSizeChange,
+            onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
+            onSubtitleBottomPadding = onSubtitleBottomPadding
+        )
     }
 }
 

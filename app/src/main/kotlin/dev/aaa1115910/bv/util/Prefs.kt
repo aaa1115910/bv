@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
@@ -67,6 +68,12 @@ object Prefs {
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuSizeKey, value) }
 
+    var defaultDanmakuScale: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuScaleRequest).first()
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuScaleKey, value) }
+
     var defaultDanmakuTransparency: Int
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTransparencyRequest).first()
@@ -75,12 +82,33 @@ object Prefs {
             dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyKey, value)
         }
 
+    var defaultDanmakuTransparencyFloat: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTransparencyFloatRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyFloatKey, value)
+        }
+
     var defaultDanmakuEnabled: Boolean
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuEnabledRequest).first()
         }
         set(value) = runBlocking {
             dsm.editPreference(PrefKeys.prefDefaultDanmakuEnabledKey, value)
+        }
+
+    var defaultDanmakuTypes: List<DanmakuType>
+        get() = runBlocking {
+            val a = dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTypesRequest).first()
+                .split(",")
+            a.map { DanmakuType.values()[it.toInt()] }
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(
+                PrefKeys.prefDefaultDanmakuTypesKey,
+                value.map { it.ordinal }.joinToString(",")
+            )
         }
 
     var defaultDanmakuArea: Float
@@ -164,8 +192,11 @@ private object PrefKeys {
     val prefTokenExpiredDateKey = longPreferencesKey("ted")
     val prefDefaultQualityKey = intPreferencesKey("dq")
     val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
+    val prefDefaultDanmakuScaleKey = floatPreferencesKey("dds2")
     val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
+    val prefDefaultDanmakuTransparencyFloatKey = floatPreferencesKey("ddtf")
     val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
+    val prefDefaultDanmakuTypesKey = stringPreferencesKey("ddts")
     val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
     val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
     val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
@@ -185,9 +216,14 @@ private object PrefKeys {
     val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
     val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
     val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
+    val prefDefaultDanmakuScaleRequest = PreferenceRequest(prefDefaultDanmakuScaleKey, 1f)
     val prefDefaultDanmakuTransparencyRequest =
         PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
+    val prefDefaultDanmakuTransparencyFloatRequest =
+        PreferenceRequest(prefDefaultDanmakuTransparencyFloatKey, 1f)
     val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
+    val prefDefaultDanmakuTypesRequest =
+        PreferenceRequest(prefDefaultDanmakuTypesKey, "0,1,2")
     val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
     val prefDefaultVideoCodecRequest =
         PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)

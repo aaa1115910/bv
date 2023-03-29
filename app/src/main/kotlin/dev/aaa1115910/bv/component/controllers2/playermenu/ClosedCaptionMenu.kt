@@ -120,7 +120,12 @@ fun ClosedCaptionMenuList(
             modifier = modifier
                 .padding(horizontal = 8.dp)
                 .onPreviewKeyEvent {
-                    if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
+                    if (it.type == KeyEventType.KeyUp) {
+                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                            return@onPreviewKeyEvent false
+                        }
+                        return@onPreviewKeyEvent true
+                    }
                     when (it.key) {
                         Key.DirectionRight -> {
                             onFocusStateChange(MenuFocusState.MenuNav)

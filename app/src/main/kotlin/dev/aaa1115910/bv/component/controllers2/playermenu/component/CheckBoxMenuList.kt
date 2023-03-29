@@ -43,8 +43,9 @@ fun CheckBoxMenuList(
             .onPreviewKeyEvent {
                 println(it)
                 if (it.type == KeyEventType.KeyUp) {
-                    // 使用回车键来触发点击事件时，需要监听到 KeyUp
-                    if (it.key == Key.Enter) return@onPreviewKeyEvent false
+                    if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                        return@onPreviewKeyEvent false
+                    }
                     return@onPreviewKeyEvent true
                 }
                 val result = it.key == Key.DirectionRight
