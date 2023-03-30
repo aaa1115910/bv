@@ -257,7 +257,7 @@ enum class VideoPlayerClosedCaptionMenuItem(private val strRes: Int) {
 enum class DanmakuType(private val strRes: Int) {
     All(R.string.video_player_menu_danmaku_type_all),
     Top(R.string.video_player_menu_danmaku_type_top),
-    Cross(R.string.video_player_menu_danmaku_type_cross),
+    Rolling(R.string.video_player_menu_danmaku_type_cross),
     Bottom(R.string.video_player_menu_danmaku_type_bottom);
 
     fun getDisplayName(context: Context) = context.getString(strRes)

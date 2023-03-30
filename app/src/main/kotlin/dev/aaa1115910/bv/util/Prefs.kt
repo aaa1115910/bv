@@ -82,12 +82,12 @@ object Prefs {
             dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyKey, value)
         }
 
-    var defaultDanmakuTransparencyFloat: Float
+    var defaultDanmakuOpacity: Float
         get() = runBlocking {
-            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTransparencyFloatRequest).first()
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuOpacityRequest).first()
         }
         set(value) = runBlocking {
-            dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyFloatKey, value)
+            dsm.editPreference(PrefKeys.prefDefaultDanmakuOpacityKey, value)
         }
 
     var defaultDanmakuEnabled: Boolean
@@ -100,9 +100,13 @@ object Prefs {
 
     var defaultDanmakuTypes: List<DanmakuType>
         get() = runBlocking {
-            val a = dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTypesRequest).first()
-                .split(",")
-            a.map { DanmakuType.values()[it.toInt()] }
+            val danmakuTypeIdsString =
+                dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTypesRequest).first()
+            if (danmakuTypeIdsString == "") {
+                emptyList()
+            } else {
+                danmakuTypeIdsString.split(",").map { DanmakuType.values()[it.toInt()] }
+            }
         }
         set(value) = runBlocking {
             dsm.editPreference(
@@ -194,7 +198,7 @@ private object PrefKeys {
     val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
     val prefDefaultDanmakuScaleKey = floatPreferencesKey("dds2")
     val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
-    val prefDefaultDanmakuTransparencyFloatKey = floatPreferencesKey("ddtf")
+    val prefDefaultDanmakuOpacityKey = floatPreferencesKey("ddo")
     val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
     val prefDefaultDanmakuTypesKey = stringPreferencesKey("ddts")
     val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
@@ -219,8 +223,7 @@ private object PrefKeys {
     val prefDefaultDanmakuScaleRequest = PreferenceRequest(prefDefaultDanmakuScaleKey, 1f)
     val prefDefaultDanmakuTransparencyRequest =
         PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
-    val prefDefaultDanmakuTransparencyFloatRequest =
-        PreferenceRequest(prefDefaultDanmakuTransparencyFloatKey, 1f)
+    val prefDefaultDanmakuOpacityRequest = PreferenceRequest(prefDefaultDanmakuOpacityKey, 1f)
     val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
     val prefDefaultDanmakuTypesRequest =
         PreferenceRequest(prefDefaultDanmakuTypesKey, "0,1,2")

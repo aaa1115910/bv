@@ -204,10 +204,10 @@
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
     <string name="video_info_ugc_season_row_title">视频合集</string>
-    <string name="video_player_menu_danmaku_area">区域</string>
+    <string name="video_player_menu_danmaku_area">显示区域</string>
     <string name="video_player_menu_danmaku_opacity">不透明度</string>
-    <string name="video_player_menu_danmaku_size">字体大小</string>
-    <string name="video_player_menu_danmaku_switch">类型开关</string>
+    <string name="video_player_menu_danmaku_size">字体缩放</string>
+    <string name="video_player_menu_danmaku_switch">弹幕类型</string>
     <string name="video_player_menu_danmaku_type_all">全部弹幕</string>
     <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
     <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>

@@ -475,7 +475,6 @@ data class VideoPlayerControllerData(
     val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     val currentDanmakuScale: Float = 1f,
     val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
-    val currentDanmakuTransparencyFloat: Float = 1f,
     val currentDanmakuOpacity: Float = 1f,
     val currentDanmakuArea: Float = 1f,
     val currentSubtitleId: Long = 0,

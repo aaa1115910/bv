@@ -62,7 +62,7 @@ class VideoPlayerV3ViewModel(
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
-    var currentDanmakuTransparency by mutableStateOf(Prefs.defaultDanmakuTransparencyFloat)
+    var currentDanmakuOpacity by mutableStateOf(Prefs.defaultDanmakuOpacity)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
     val currentDanmakuTypes = mutableStateListOf<DanmakuType>().apply {
         addAll(Prefs.defaultDanmakuTypes)

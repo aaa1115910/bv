@@ -30,12 +30,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
+import com.kuaishou.akdanmaku.data.DanmakuItemData
+import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.VideoAspectRatio
@@ -187,6 +190,9 @@ fun VideoPlayerV3Screen(
     }
     var debugInfo by remember { mutableStateOf("") }
 
+    var typeFilter by remember { mutableStateOf(TypeFilter()) }
+    var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
+
     var usingDefaultAspectRatio by remember { mutableStateOf(true) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
     var currentPosition by remember { mutableStateOf(0L) }
@@ -204,6 +210,63 @@ fun VideoPlayerV3Screen(
         debugInfo = videoPlayer.debugInfo
     }
 
+    val initDanmakuConfig: () -> Unit = {
+        val danmakuTypes = playerViewModel.currentDanmakuTypes
+        if (!danmakuTypes.contains(DanmakuType.All)) {
+            val types = DanmakuType.values().toMutableList()
+            types.remove(DanmakuType.All)
+            types.removeAll(danmakuTypes)
+            val filterTypes = types.mapNotNull {
+                when (it) {
+                    DanmakuType.Rolling -> DanmakuItemData.DANMAKU_MODE_ROLLING
+                    DanmakuType.Top -> DanmakuItemData.DANMAKU_MODE_CENTER_TOP
+                    DanmakuType.Bottom -> DanmakuItemData.DANMAKU_MODE_CENTER_BOTTOM
+                    else -> null
+                }
+            }
+            filterTypes.forEach { typeFilter.addFilterItem(it) }
+        }
+        danmakuConfig = danmakuConfig.copy(
+            retainerPolicy = RETAINER_BILIBILI,
+            textSizeScale = playerViewModel.currentDanmakuScale,
+            dataFilter = listOf(typeFilter)
+        )
+        danmakuConfig.updateFilter()
+        logger.info { "Init danmaku config: $danmakuConfig" }
+        playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
+    }
+
+    val updateDanmakuConfigTypeFilter: () -> Unit = {
+        val danmakuTypes = playerViewModel.currentDanmakuTypes
+        typeFilter.clear()
+        if (!danmakuTypes.contains(DanmakuType.All)) {
+            val types = DanmakuType.values().toMutableList()
+            types.remove(DanmakuType.All)
+            types.removeAll(danmakuTypes)
+            val filterTypes = types.mapNotNull {
+                when (it) {
+                    DanmakuType.Rolling -> DanmakuItemData.DANMAKU_MODE_ROLLING
+                    DanmakuType.Top -> DanmakuItemData.DANMAKU_MODE_CENTER_TOP
+                    DanmakuType.Bottom -> DanmakuItemData.DANMAKU_MODE_CENTER_BOTTOM
+                    else -> null
+                }
+            }
+            filterTypes.forEach { typeFilter.addFilterItem(it) }
+        }
+        logger.info { "Update danmaku type filters: ${typeFilter.filterSet}" }
+        danmakuConfig.updateFilter()
+        playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
+    }
+
+    val updateDanmakuConfig: () -> Unit = {
+        danmakuConfig = danmakuConfig.copy(
+            retainerPolicy = RETAINER_BILIBILI,
+            textSizeScale = playerViewModel.currentDanmakuScale,
+        )
+        logger.info { "Update danmaku config: $danmakuConfig" }
+        playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
+    }
+
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: String) {
             println("onError: $error")
@@ -212,11 +275,7 @@ fun VideoPlayerV3Screen(
 
         override fun onReady() {
             println("onReady")
-            val danmakuConfig = DanmakuConfig(
-                retainerPolicy = RETAINER_BILIBILI,
-                textSizeScale = playerViewModel.currentDanmakuScale
-            )
-            playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
+            initDanmakuConfig()
         }
 
         override fun onPlay() {
@@ -292,8 +351,9 @@ fun VideoPlayerV3Screen(
             currentVideoCodec = playerViewModel.currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
             currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
+            currentDanmakuEnabledList = playerViewModel.currentDanmakuTypes,
             currentDanmakuScale = playerViewModel.currentDanmakuScale,
-            currentDanmakuTransparencyFloat = playerViewModel.currentDanmakuTransparency,
+            currentDanmakuOpacity = playerViewModel.currentDanmakuOpacity,
             currentDanmakuArea = playerViewModel.currentDanmakuArea,
             currentSubtitleId = playerViewModel.currentSubtitleId,
             currentSubtitleData = playerViewModel.currentSubtitleData,
@@ -359,13 +419,27 @@ fun VideoPlayerV3Screen(
                 currentVideoAspectRatio = it
             },
             onDanmakuSwitchChange = { enabledDanmakuTypes ->
+                logger.info { "On enabled danmaku type change: $enabledDanmakuTypes" }
                 Prefs.defaultDanmakuTypes = enabledDanmakuTypes
                 playerViewModel.currentDanmakuTypes.swapList(enabledDanmakuTypes)
-                // TODO 更新弹幕参数
+                updateDanmakuConfigTypeFilter()
             },
-            onDanmakuSizeChange = { },
-            onDanmakuOpacityChange = { },
-            onDanmakuAreaChange = { },
+            onDanmakuSizeChange = { scale ->
+                logger.info { "On danmaku scale change: $scale" }
+                Prefs.defaultDanmakuScale = scale
+                playerViewModel.currentDanmakuScale = scale
+                updateDanmakuConfig()
+            },
+            onDanmakuOpacityChange = { opacity ->
+                logger.info { "On danmaku opacity change: $opacity" }
+                Prefs.defaultDanmakuOpacity = opacity
+                playerViewModel.currentDanmakuOpacity = opacity
+            },
+            onDanmakuAreaChange = { area ->
+                logger.info { "On danmaku area change: $area" }
+                Prefs.defaultDanmakuArea = area
+                playerViewModel.currentDanmakuArea = area
+            },
             onSubtitleChange = { },
             onSubtitleSizeChange = { },
             onSubtitleBackgroundOpacityChange = {},
@@ -403,7 +477,7 @@ fun VideoPlayerV3Screen(
                         .fillMaxHeight(playerViewModel.currentDanmakuArea)
                         // 在之前版本中，设置 DanmakuConfig 透明度后，更改其它弹幕设置后，可能会导致弹幕透明度
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
-                        .alpha(playerViewModel.currentDanmakuTransparency),
+                        .alpha(playerViewModel.currentDanmakuOpacity),
                     danmakuPlayer = playerViewModel.danmakuPlayer
                 )
                 Text(
