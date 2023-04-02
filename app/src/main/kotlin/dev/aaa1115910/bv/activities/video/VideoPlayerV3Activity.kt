@@ -10,8 +10,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -28,6 +28,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
@@ -193,8 +195,9 @@ fun VideoPlayerV3Screen(
     var typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
-    var usingDefaultAspectRatio by remember { mutableStateOf(true) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    var videoPlayerHeight by remember { mutableStateOf(0.dp) }
+    var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var currentPosition by remember { mutableStateOf(0L) }
 
     val updateSeek: () -> Unit = {
@@ -203,8 +206,8 @@ fun VideoPlayerV3Screen(
             totalDuration = videoPlayer.duration.coerceAtLeast(0L),
             currentTime = videoPlayer.currentPosition.coerceAtLeast(0L),
             bufferedPercentage = videoPlayer.bufferedPercentage,
-            resolutionWidth = 0,//videoPlayer.videoSize.width,
-            resolutionHeight = 0,//videoPlayer.videoSize.height,
+            resolutionWidth = videoPlayer.videoWidth,
+            resolutionHeight = videoPlayer.videoHeight,
             codec = ""//videoPlayer.videoFormat?.sampleMimeType ?: "null"
         )
         debugInfo = videoPlayer.debugInfo
@@ -267,6 +270,23 @@ fun VideoPlayerV3Screen(
         playerViewModel.danmakuPlayer?.updateConfig(danmakuConfig)
     }
 
+    val updateVideoAspectRatio: () -> Unit = {
+        videoPlayerWidth = when (currentVideoAspectRatio) {
+            VideoAspectRatio.Default -> {
+                (playerViewModel.currentVideoWidth / playerViewModel.currentVideoHeight.toFloat()) * videoPlayerHeight
+            }
+
+            VideoAspectRatio.FourToThree -> {
+                videoPlayerHeight * (4 / 3f)
+            }
+
+            VideoAspectRatio.SixteenToNine -> {
+                videoPlayerHeight * (16 / 9f)
+            }
+        }
+        logger.info { "Update video player size: $videoPlayerWidth x $videoPlayerHeight" }
+    }
+
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: String) {
             println("onError: $error")
@@ -276,13 +296,13 @@ fun VideoPlayerV3Screen(
         override fun onReady() {
             println("onReady")
             initDanmakuConfig()
+            updateVideoAspectRatio()
         }
 
         override fun onPlay() {
             println("onPlay")
             println("${playerViewModel.danmakuPlayer?.isReleased}")
             playerViewModel.danmakuPlayer?.start()
-
         }
 
         override fun onPause() {
@@ -310,6 +330,9 @@ fun VideoPlayerV3Screen(
     }
 
     LaunchedEffect(Unit) {
+        // LibVLC 需要提前初始化播放器的宽高，才能正常播放
+        if (Prefs.playerType == PlayerType.VLC) updateVideoAspectRatio()
+
         focusRequester.requestFocus()
     }
 
@@ -416,9 +439,9 @@ fun VideoPlayerV3Screen(
                     }
                 }
             },
-            onAspectRatioChange = {
-                // TODO 画面比例调节
-                currentVideoAspectRatio = it
+            onAspectRatioChange = { aspectRadio ->
+                currentVideoAspectRatio = aspectRadio
+                updateVideoAspectRatio()
             },
             onDanmakuSwitchChange = { enabledDanmakuTypes ->
                 logger.info { "On enabled danmaku type change: $enabledDanmakuTypes" }
@@ -465,22 +488,16 @@ fun VideoPlayerV3Screen(
                 modifier = Modifier.background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                //videoPlayerHeight = this.maxHeight
-
-                /*val videoPlayerModifier = if (usingDefaultAspectRatio) {
-                    Modifier.fillMaxSize()
-                } else {
-                    Modifier
-                        .fillMaxHeight()
-                        .width(videoPlayerWidth)
-                }*/
+                videoPlayerHeight = this.maxHeight
 
                 LaunchedEffect(Unit) {
                     videoPlayer.setOptions()
                 }
 
                 BvVideoPlayer(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(videoPlayerWidth),
                     videoPlayer = videoPlayer,
                     playerListener = videoPlayerListener
                 )

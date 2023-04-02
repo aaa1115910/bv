@@ -59,6 +59,9 @@ class VideoPlayerV3ViewModel(
     var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
     val availableVideoList get() = videoInfoRepository.videoList
 
+    var currentVideoHeight by mutableStateOf(0)
+    var currentVideoWidth by mutableStateOf(0)
+
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
@@ -225,10 +228,12 @@ class VideoPlayerV3ViewModel(
         showLogs = true
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
-        val videoUrl = dashData!!.video
-            .find { it.id == qn && it.codecs.startsWith(codec.prefix) }?.baseUrl
-            ?: dashData!!.video[0].baseUrl
+        val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
+        val videoUrl = videoItem?.baseUrl ?: dashData!!.video[0].baseUrl
         val audioUrl = dashData?.audio?.first()?.baseUrl
+
+        currentVideoHeight = videoItem?.height ?: 0
+        currentVideoWidth = videoItem?.width ?: 0
 
         withContext(Dispatchers.Main) {
             videoPlayer!!.playUrl(videoUrl, audioUrl)

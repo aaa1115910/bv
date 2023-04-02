@@ -154,4 +154,9 @@ class ExoMediaPlayer(
                 codec: ${mPlayer?.videoFormat?.sampleMimeType ?: "null"}
             """.trimIndent()
         }
+
+    override val videoWidth: Int
+        get() = mPlayer?.videoSize?.width ?: 0
+    override val videoHeight: Int
+        get() = mPlayer?.videoSize?.height ?: 0
 }

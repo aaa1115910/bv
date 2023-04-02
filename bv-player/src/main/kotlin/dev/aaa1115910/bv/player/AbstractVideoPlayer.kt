@@ -58,7 +58,14 @@ abstract class AbstractVideoPlayer {
     /** 当前缓冲的网速 */
     abstract val tcpSpeed: Long
 
+    /** 调试信息 */
     abstract val debugInfo: String
+
+    /** 视频宽度 */
+    abstract val videoWidth: Int
+
+    /** 视频高度 */
+    abstract val videoHeight: Int
 
     /**
      * 绑定VideoView，监听播放异常，完成，开始准备，视频size变化，视频信息等操作

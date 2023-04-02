@@ -131,4 +131,9 @@ class VlcMediaPlayer(
                 codec: ${mPlayer?.currentVideoTrack?.codec}
             """.trimIndent()
         }
+
+    override val videoWidth: Int
+        get() = mPlayer?.currentVideoTrack?.width ?: 0
+    override val videoHeight: Int
+        get() = mPlayer?.currentVideoTrack?.height ?: 0
 }
