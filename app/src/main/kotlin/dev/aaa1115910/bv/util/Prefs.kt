@@ -149,6 +149,14 @@ object Prefs {
             dsm.editPreference(PrefKeys.prefDefaultSubtitleFontSizeKey, value.value.roundToInt())
         }
 
+    var defaultSubtitleBackgroundOpacity: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleBackgroundOpacityRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultSubtitleBackgroundOpacityKey, value)
+        }
+
     var defaultSubtitleBottomPadding: Dp
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleBottomPaddingRequest).first().dp
@@ -206,6 +214,7 @@ private object PrefKeys {
     val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
     val prefIncognitoModeKey = booleanPreferencesKey("im")
     val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
+    val prefDefaultSubtitleBackgroundOpacityKey = floatPreferencesKey("dsbo")
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
@@ -234,6 +243,8 @@ private object PrefKeys {
         PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
     val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
     val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
+    val prefDefaultSubtitleBackgroundOpacityRequest =
+        PreferenceRequest(prefDefaultSubtitleBackgroundOpacityKey, 0.4f)
     val prefDefaultSubtitleBottomPaddingRequest =
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)

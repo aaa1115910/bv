@@ -481,7 +481,7 @@ data class VideoPlayerControllerData(
     val currentSubtitleData: List<SubtitleItem> = emptyList(),
     val currentPosition: Long = 0,
     val currentSubtitleFontSize: TextUnit = 24.sp,
-    val currentSubtitleBackgroundOpacity: Float = 0.5f,
+    val currentSubtitleBackgroundOpacity: Float = 0.4f,
     val currentSubtitleBottomPadding: Dp = 12.dp,
     val lastPlayed: Int = 0,
     val title: String = "Title",

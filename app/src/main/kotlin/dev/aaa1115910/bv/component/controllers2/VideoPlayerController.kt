@@ -203,6 +203,7 @@ fun VideoPlayerController(
                 text = data.debugInfo
             )
         }
+        BottomSubtitle()
         ControllerVideoInfo(
             show = showInfo,
             infoData = data.infoData,

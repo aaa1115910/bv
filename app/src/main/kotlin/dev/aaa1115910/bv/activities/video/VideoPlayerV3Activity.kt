@@ -345,6 +345,7 @@ fun VideoPlayerV3Screen(
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
             availableSubtitle = playerViewModel.availableSubtitle,
+            availableSubtitleTracks = playerViewModel.availableSubtitle,
             availableVideoList = playerViewModel.availableVideoList,
             currentVideoCid = playerViewModel.currentCid,
             currentResolution = playerViewModel.currentQuality,
@@ -358,6 +359,7 @@ fun VideoPlayerV3Screen(
             currentSubtitleId = playerViewModel.currentSubtitleId,
             currentSubtitleData = playerViewModel.currentSubtitleData,
             currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
+            currentSubtitleBackgroundOpacity = playerViewModel.currentSubtitleBackgroundOpacity,
             currentSubtitleBottomPadding = playerViewModel.currentSubtitleBottomPadding,
             currentPosition = currentPosition,
             lastPlayed = playerViewModel.lastPlayed,
@@ -440,11 +442,24 @@ fun VideoPlayerV3Screen(
                 Prefs.defaultDanmakuArea = area
                 playerViewModel.currentDanmakuArea = area
             },
-            onSubtitleChange = { },
-            onSubtitleSizeChange = { },
-            onSubtitleBackgroundOpacityChange = {},
-            onSubtitleBottomPadding = { }
-
+            onSubtitleChange = { subtitle ->
+                playerViewModel.loadSubtitle(subtitle.id)
+            },
+            onSubtitleSizeChange = { size ->
+                logger.info { "On subtitle font size change: $size" }
+                Prefs.defaultSubtitleFontSize = size
+                playerViewModel.currentSubtitleFontSize = size
+            },
+            onSubtitleBackgroundOpacityChange = { opacity ->
+                logger.info { "On subtitle background opacity change: $opacity" }
+                Prefs.defaultSubtitleBackgroundOpacity = opacity
+                playerViewModel.currentSubtitleBackgroundOpacity = opacity
+            },
+            onSubtitleBottomPadding = { padding ->
+                logger.info { "On subtitle bottom padding change: $padding" }
+                Prefs.defaultSubtitleBottomPadding = padding
+                playerViewModel.currentSubtitleBottomPadding = padding
+            }
         ) {
             BoxWithConstraints(
                 modifier = Modifier.background(Color.Black),

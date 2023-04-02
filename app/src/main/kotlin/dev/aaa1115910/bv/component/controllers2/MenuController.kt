@@ -280,7 +280,7 @@ fun MenuControllerPreview() {
     var currentSubtitleId by remember { mutableStateOf(-1L) }
     val currentSubtitleList = remember { mutableStateListOf<VideoMoreInfo.SubtitleItem>() }
     var currentSubtitleFontSize by remember { mutableStateOf(24.sp) }
-    var currentSubtitleBackgroundOpacity by remember { mutableStateOf(0.5f) }
+    var currentSubtitleBackgroundOpacity by remember { mutableStateOf(0.4f) }
     var currentSubtitleBottomPadding by remember { mutableStateOf(8.dp) }
 
     LaunchedEffect(Unit) {

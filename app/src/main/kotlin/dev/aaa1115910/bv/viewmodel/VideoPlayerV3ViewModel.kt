@@ -68,9 +68,10 @@ class VideoPlayerV3ViewModel(
         addAll(Prefs.defaultDanmakuTypes)
     }
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
-    var currentSubtitleId by mutableStateOf(0L)
+    var currentSubtitleId by mutableStateOf(-1L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
     var currentSubtitleFontSize by mutableStateOf(Prefs.defaultSubtitleFontSize)
+    var currentSubtitleBackgroundOpacity by mutableStateOf(Prefs.defaultSubtitleBackgroundOpacity)
     var currentSubtitleBottomPadding by mutableStateOf(Prefs.defaultSubtitleBottomPadding)
 
     var title by mutableStateOf("")
@@ -266,7 +267,7 @@ class VideoPlayerV3ViewModel(
     }
 
     private suspend fun updateSubtitle() {
-        currentSubtitleId = 0
+        currentSubtitleId = -1
         currentSubtitleData.clear()
 
         val responseData = runCatching {
@@ -291,6 +292,7 @@ class VideoPlayerV3ViewModel(
             )
         )
         availableSubtitle.addAll(responseData.subtitle.subtitles)
+        availableSubtitle.sortBy { it.id }
         addLogs("获取到 ${responseData.subtitle.subtitles.size} 条字幕: ${responseData.subtitle.subtitles.map { it.lanDoc }}")
         logger.fInfo { "Update subtitle size: ${responseData.subtitle.subtitles.size}" }
     }
@@ -345,7 +347,7 @@ class VideoPlayerV3ViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             if (id == 0L) {
                 currentSubtitleData.clear()
-                currentSubtitleId = 0
+                currentSubtitleId = -1
                 return@launch
             }
             var subtitleName = ""
