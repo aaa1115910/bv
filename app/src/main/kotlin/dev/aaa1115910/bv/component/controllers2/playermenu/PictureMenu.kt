@@ -33,6 +33,7 @@ import dev.aaa1115910.bv.component.controllers2.MenuFocusState
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerPictureMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
+import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.requestFocus
@@ -55,9 +56,17 @@ fun PictureMenuList(
 
     val data = LocalVideoPlayerControllerData.current
 
+    val resolutionMap = remember(data.resolutionMap) {
+        data.resolutionMap
+            .toList()
+            .sortedByDescending { (key, _) -> key }
+            .toMap()
+    }
+
     LaunchedEffect(focusState.focusState) {
         if (focusState.focusState == MenuFocusState.Menu) focusRequester.requestFocus(scope)
     }
+
     Row(
         modifier = modifier.fillMaxHeight(),
         verticalAlignment = Alignment.CenterVertically
@@ -70,10 +79,15 @@ fun PictureMenuList(
             when (selectedPictureMenuItem) {
                 VideoPlayerPictureMenuItem.Resolution -> RadioMenuList(
                     modifier = menuItemsModifier,
-                    items = data.resolutionMap.values.toList(),
-                    selected = data.resolutionMap.keys.indexOf(data.currentResolution),
+                    items = resolutionMap.keys.toList().map { resolutionCode ->
+                        runCatching {
+                            Resolution.values().find { it.code == resolutionCode }!!
+                                .getShortDisplayName(context)
+                        }.getOrDefault("unknown: $resolutionCode")
+                    },
+                    selected = resolutionMap.keys.indexOf(data.currentResolution),
                     isFocusing = focusState.focusState == MenuFocusState.Items,
-                    onSelectedChanged = { onResolutionChange(data.resolutionMap.keys.toList()[it]) },
+                    onSelectedChanged = { onResolutionChange(resolutionMap.keys.toList()[it]) },
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
                 )
 
