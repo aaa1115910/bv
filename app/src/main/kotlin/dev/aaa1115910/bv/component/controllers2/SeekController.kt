@@ -71,7 +71,7 @@ private fun SeekController(
                     MaterialTheme.shapes.large
                         .copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
                 )
-                .background(Color.Black.copy(0.3f)),
+                .background(Color.Black.copy(0.5f)),
             verticalArrangement = Arrangement.Bottom
         ) {
             VideoProgressSeek(
