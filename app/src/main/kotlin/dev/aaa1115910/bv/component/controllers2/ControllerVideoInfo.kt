@@ -4,8 +4,19 @@ import android.os.CountDownTimer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,9 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.aaa1115910.bv.component.controllers.BottomControls
-import dev.aaa1115910.bv.component.controllers.TopController
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
+import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.formatMinSec
 
 @Composable
 fun ControllerVideoInfo(
@@ -53,10 +72,10 @@ fun ControllerVideoInfo(
             modifier = Modifier.align(Alignment.TopCenter),
             visible = show,
             enter = expandVertically(),
-            exit = shrinkVertically()
+            exit = shrinkVertically(),
+            label = "ControllerTopVideoInfo"
         ) {
-            // TODO 重做顶部信息UI
-            TopController(
+            ControllerVideoInfoTop(
                 modifier = Modifier.align(Alignment.TopCenter),
                 title = title
             )
@@ -65,13 +84,148 @@ fun ControllerVideoInfo(
             modifier = Modifier.align(Alignment.BottomCenter),
             visible = show,
             enter = expandVertically(),
-            exit = shrinkVertically()
+            exit = shrinkVertically(),
+            label = "ControllerBottomVideoInfo"
         ) {
-            // TODO 重做底部信息UI
-            BottomControls(
+            ControllerVideoInfoBottom(
                 infoData = infoData,
                 partTitle = secondTitle
             )
         }
+    }
+}
+
+@Composable
+fun ControllerVideoInfoTop(
+    modifier: Modifier = Modifier,
+    title: String
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(
+                MaterialTheme.shapes.large
+                    .copy(topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp))
+            )
+            .background(Color.Black.copy(0.3f))
+            .padding(horizontal = 32.dp, vertical = 16.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.displaySmall,
+            color = Color.White,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun ControllerVideoInfoBottom(
+    modifier: Modifier = Modifier,
+    partTitle: String,
+    infoData: VideoPlayerInfoData
+) {
+    Column(
+        modifier = modifier
+            .clip(
+                MaterialTheme.shapes.large
+                    .copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+            )
+            .background(Color.Black.copy(0.3f))
+            .padding(bottom = 12.dp),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+                .focusable(false),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 28.dp)
+                    .fillMaxWidth(0.5f),
+                text = partTitle,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontSize = (MaterialTheme.typography.displaySmall.fontSize.value - 10).sp
+                ),
+            )
+            Text(
+                modifier = Modifier.padding(top = 16.dp, bottom = 0.dp, end = 40.dp),
+                text = "${infoData.currentTime.formatMinSec()} / ${infoData.totalDuration.formatMinSec()}",
+                color = Color.White
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        ) {
+            Slider(
+                modifier = Modifier.fillMaxWidth(),
+                value = infoData.bufferedPercentage.toFloat(),
+                enabled = false,
+                onValueChange = {},
+                valueRange = 0f..100f,
+                colors = SliderDefaults.colors(
+                    disabledThumbColor = Color.Transparent,
+                    disabledInactiveTrackColor = Color.Transparent,
+                    disabledActiveTrackColor = Color.Gray
+                )
+            )
+
+            Slider(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false,
+                value = infoData.currentTime.toFloat(),
+                onValueChange = {},
+                valueRange = 0f..infoData.totalDuration.toFloat(),
+                colors = SliderDefaults.colors(
+                    disabledThumbColor = Color.Transparent,
+                    disabledInactiveTrackColor = Color.Gray.copy(alpha = 0.5f),
+                    disabledActiveTrackColor = Color.White
+                )
+            )
+        }
+    }
+}
+
+@Preview(device = "id:tv_1080p")
+@Composable
+private fun ControllerVideoInfoPreview() {
+    var show by remember { mutableStateOf(true) }
+
+    BVTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(onClick = { show = !show }) {
+                Text(text = "Switch")
+            }
+        }
+        ControllerVideoInfo(
+            modifier = Modifier.fillMaxSize(),
+            show = show,
+            infoData = VideoPlayerInfoData(
+                totalDuration = 100,
+                currentTime = 33,
+                bufferedPercentage = 66,
+                resolutionWidth = 0,
+                resolutionHeight = 0,
+                codec = ""
+            ),
+            title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
+            secondTitle = "2023车队车手介绍分析预测",
+            onHideInfo = {}
+        )
     }
 }
