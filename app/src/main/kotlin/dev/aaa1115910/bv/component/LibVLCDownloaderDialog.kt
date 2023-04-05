@@ -32,6 +32,7 @@ fun LibVLCDownloaderDialog(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var processing by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf("等待操作中...") }
 
     val unZipLibs: (zipFile: File) -> Unit = { zipFile ->
         val vlcLibsDir = File(context.filesDir, "vlc_libs")
@@ -63,6 +64,7 @@ fun LibVLCDownloaderDialog(
 
         scope.launch(Dispatchers.Default) {
             runCatching {
+                text = "正在获取下载地址"
                 val release =
                     VlcLibsApi.getRelease(BuildConfig.libVLCVersion)
                         ?: throw IllegalStateException("Release not found")
@@ -75,16 +77,19 @@ fun LibVLCDownloaderDialog(
                     tempFile,
                     object : ProgressListener {
                         override suspend fun invoke(downloaded: Long, total: Long) {
-
+                            text = "正在下载(${downloaded / total.toFloat() * 100}%)"
                         }
                     })
 
+                text = "正在解压"
                 unZipLibs(tempFile)
             }.onSuccess {
+                text = "安装完成"
                 withContext(Dispatchers.Main) {
                     "Install success".toast(context)
                 }
             }.onFailure {
+                text = "安装失败"
                 withContext(Dispatchers.Main) {
                     "Install failed".toast(context)
                 }
@@ -99,6 +104,7 @@ fun LibVLCDownloaderDialog(
         AlertDialog(
             modifier = modifier,
             title = { Text(text = "LibVLC Downloader") },
+            text = { Text(text = text) },
             onDismissRequest = { if (!processing) onHideDialog() },
             confirmButton = {
                 FilledTonalButton(
