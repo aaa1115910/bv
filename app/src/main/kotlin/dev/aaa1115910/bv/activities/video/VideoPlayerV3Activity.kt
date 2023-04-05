@@ -404,7 +404,12 @@ fun VideoPlayerV3Screen(
                 // TODO 退出前上报播放记录
                 (context as Activity).finish()
             },
-            onGoTime = { videoPlayer.seekTo(it * 1000L) },
+            onGoTime = {
+                videoPlayer.seekTo(it)
+                playerViewModel.danmakuPlayer?.seekTo(it)
+                // akdanmaku 会在跳转后立即播放，如果需要缓冲则会导致弹幕不同步
+                playerViewModel.danmakuPlayer?.pause()
+            },
             onBackToHistory = { videoPlayer.seekTo(playerViewModel.lastPlayed * 1000L) },
             onPlayNewVideo = {
                 // TODO 播放新视频前上报播放记录

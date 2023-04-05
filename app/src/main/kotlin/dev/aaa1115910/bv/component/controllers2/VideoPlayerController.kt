@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +44,7 @@ fun VideoPlayerController(
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExit: () -> Unit,
-    onGoTime: (time: Int) -> Unit,
+    onGoTime: (time: Long) -> Unit,
     onBackToHistory: () -> Unit,
     onPlayNewVideo: (VideoListItem) -> Unit,
 
@@ -76,6 +77,15 @@ fun VideoPlayerController(
     var lastPressBack by remember { mutableStateOf(0L) }
     var hasFocus by remember { mutableStateOf(false) }
 
+    var goTime by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(showSeekController) {
+        if (showSeekController) goTime = data.infoData.currentTime
+    }
+
+    val onTimeForward = { goTime += 10000 }
+    val onTimeBack = { goTime -= 5000 }
+
     Box(
         modifier = modifier
             .onFocusChanged { hasFocus = it.hasFocus }
@@ -95,10 +105,30 @@ fun VideoPlayerController(
                     return@onPreviewKeyEvent false
                 }
 
+                if (showSeekController) {
+                    if (listOf(
+                            Key.Back,
+                            Key.Menu,
+                            Key.DirectionDown,
+                            Key.DirectionUp
+                        ).contains(it.key)
+                    ) {
+                        if (it.type != KeyEventType.KeyDown) showSeekController = false
+                        return@onPreviewKeyEvent true
+                    }
+                }
+
                 when (it.key) {
                     Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
                         if (data.lastPlayed != 0) {
                             onBackToHistory()
+                            return@onPreviewKeyEvent true
+                        }
+
+                        if (showSeekController) {
+                            if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
+                            onGoTime(goTime)
+                            showSeekController = false
                             return@onPreviewKeyEvent true
                         }
 
@@ -179,15 +209,31 @@ fun VideoPlayerController(
                     }
 
                     Key.MediaFastForward -> {
-                        if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
+                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
                         showSeekController = true
+                        onTimeForward()
                     }
 
                     Key.MediaRewind -> {
-                        if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
+                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
                         showSeekController = true
+                        onTimeBack()
+                    }
+
+                    Key.DirectionLeft -> {
+                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
+                        logger.info { "[${it.key} press]" }
+                        showSeekController = true
+                        onTimeBack()
+                    }
+
+                    Key.DirectionRight -> {
+                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
+                        logger.info { "[${it.key} press]" }
+                        showSeekController = true
+                        onTimeForward()
                     }
                 }
 
@@ -214,7 +260,7 @@ fun VideoPlayerController(
         SeekController(
             show = showSeekController,
             infoData = data.infoData,
-            onGoTime = onGoTime
+            goTime = goTime
         )
         VideoListController(
             show = showListController,

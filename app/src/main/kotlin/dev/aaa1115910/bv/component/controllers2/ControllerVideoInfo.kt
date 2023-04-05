@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -162,37 +160,14 @@ fun ControllerVideoInfoBottom(
                 color = Color.White
             )
         }
-        Box(
+        VideoProgressSeek(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        ) {
-            Slider(
-                modifier = Modifier.fillMaxWidth(),
-                value = infoData.bufferedPercentage.toFloat(),
-                enabled = false,
-                onValueChange = {},
-                valueRange = 0f..100f,
-                colors = SliderDefaults.colors(
-                    disabledThumbColor = Color.Transparent,
-                    disabledInactiveTrackColor = Color.Transparent,
-                    disabledActiveTrackColor = Color.Gray
-                )
-            )
-
-            Slider(
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false,
-                value = infoData.currentTime.toFloat(),
-                onValueChange = {},
-                valueRange = 0f..infoData.totalDuration.toFloat(),
-                colors = SliderDefaults.colors(
-                    disabledThumbColor = Color.Transparent,
-                    disabledInactiveTrackColor = Color.Gray.copy(alpha = 0.5f),
-                    disabledActiveTrackColor = Color.White
-                )
-            )
-        }
+                .padding(horizontal = 24.dp),
+            duration = infoData.totalDuration,
+            position = infoData.currentTime,
+            bufferedPercentage = infoData.bufferedPercentage
+        )
     }
 }
 
