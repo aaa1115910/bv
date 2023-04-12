@@ -7,6 +7,8 @@
 
     <string name="app_name">BV</string>
 
+    <string name="common_confirm">确定</string>
+
     <string name="confirm">确认</string>
 
     <string name="date_format_hours_age">%1$d 小时前</string>
@@ -14,6 +16,9 @@
     <string name="date_format_minutes_age">%1$d 分钟前</string>
 
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
+
+    <string name="favorite_button_text">收藏</string>
+    <string name="favorite_dialog_title">选择收藏夹</string>
 
     <string name="filter_dialog_open_tip">长按确认键更改筛选</string>
     <string name="filter_dialog_open_tip_click">点击打开筛选</string>

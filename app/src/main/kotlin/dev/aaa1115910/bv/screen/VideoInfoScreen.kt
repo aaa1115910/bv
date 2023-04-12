@@ -80,6 +80,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationType
+import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.UgcSeason
@@ -142,6 +143,11 @@ fun VideoInfoScreen(
                     || videoInfo?.ugcSeason?.sections?.any { section -> section.episodes.any { episode -> episode.page.dimension.height > episode.page.dimension.width } } ?: false
         }
     }
+
+    var favorited by remember { mutableStateOf(false) }
+    val favoriteFolders =
+        remember { mutableStateListOf<UserFavoriteFoldersData.UserFavoriteFolder>() }
+    val videoInFavoriteFolderIds = remember { mutableStateListOf<Long>() }
 
     val updateV2Data: () -> Unit = {
         scope.launch(Dispatchers.Default) {
@@ -225,6 +231,76 @@ fun VideoInfoScreen(
             }
         }
 
+    val updateFavoriteData: (Int) -> Unit = { avid ->
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                favorited = BiliApi.checkVideoFavoured(avid = avid, sessData = Prefs.sessData)
+            }
+        }
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val userFavoriteFoldersDataBiliResponse =
+                    BiliApi.getAllFavoriteFoldersInfo(mid = Prefs.uid, sessData = Prefs.sessData)
+                favoriteFolders.swapList(userFavoriteFoldersDataBiliResponse.getResponseData().list)
+            }
+        }
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val favoriteFoldersResponse =
+                    BiliApi.getAllFavoriteFoldersInfo(
+                        mid = Prefs.uid,
+                        rid = avid,
+                        sessData = Prefs.sessData
+                    )
+                videoInFavoriteFolderIds.swapList(
+                    favoriteFoldersResponse.getResponseData().list.map { it.id }
+                )
+            }
+        }
+    }
+
+    val addVideoToFavoriteFolder: (List<Long>) -> Unit = { folderIds ->
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                require(favoriteFolders.isNotEmpty()) { "Not found favorite folder" }
+                require(videoInfo?.aid != null) { "Video info is null" }
+
+                BiliApi.setVideoToFavorite(
+                    avid = videoInfo!!.aid,
+                    addMediaIds = folderIds,
+                    delMediaIds = favoriteFolders.map { it.id } - folderIds.toSet(),
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            }.onFailure {
+                logger.fInfo { "Add video to favorite folder failed: ${it.stackTraceToString()}" }
+                withContext(Dispatchers.Main) {
+                    it.message ?: "unknown error".toast(context)
+                }
+            }.onSuccess {
+                videoInFavoriteFolderIds.swapList(folderIds)
+                withContext(Dispatchers.Main) {
+                    if (folderIds.isEmpty()) {
+                        "已移除收藏夹".toast(context)
+                    } else {
+                        "已添加到收藏夹".toast(context)
+                    }
+                }
+            }
+        }
+    }
+
+    val addVideoToDefaultFavoriteFolder: () -> Unit = {
+        runCatching {
+            val defaultFavoriteFolder = favoriteFolders.firstOrNull { it.title == "默认收藏夹" }
+            require(defaultFavoriteFolder != null) { "Not found default favorite folder" }
+            addVideoToFavoriteFolder(listOf(defaultFavoriteFolder.id))
+        }.onFailure {
+            logger.fInfo { "Add video to default favorite folder failed: ${it.stackTraceToString()}" }
+            it.message ?: "unknown error".toast(context)
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
@@ -235,6 +311,7 @@ fun VideoInfoScreen(
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.getResponseData()
                     updateV2Data()
+                    if (Prefs.isLogin) updateFavoriteData(aid)
 
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
@@ -382,6 +459,9 @@ fun VideoInfoScreen(
                             videoInfo = videoInfo!!,
                             relations = relations,
                             tags = tags,
+                            isFavorite = favorited,
+                            userFavoriteFolders = favoriteFolders,
+                            favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
                                 VideoPlayerActivity.actionStart(
@@ -417,6 +497,15 @@ fun VideoInfoScreen(
                                     tagId = tag.tagId,
                                     tagName = tag.tagName
                                 )
+                            },
+                            onAddToDefaultFavoriteFolder = {
+                                addVideoToDefaultFavoriteFolder()
+                                favorited = true
+                            },
+                            onUpdateFavoriteFolders = {
+                                addVideoToFavoriteFolder(it)
+                                favorited = it.isNotEmpty()
+                                videoInFavoriteFolderIds.swapList(it)
                             }
                         )
                     }
@@ -519,13 +608,17 @@ fun VideoInfoData(
     videoInfo: VideoInfo,
     relations: RelationData?,
     tags: List<Tag>,
+    isFavorite: Boolean,
+    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    favoriteFolderIds: List<Long> = emptyList(),
     onClickCover: () -> Unit,
     onClickUp: () -> Unit,
     onAddFollow: () -> Unit,
     onDelFollow: () -> Unit,
-    onClickTip: (Tag) -> Unit
+    onClickTip: (Tag) -> Unit,
+    onAddToDefaultFavoriteFolder: () -> Unit,
+    onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val localDensity = LocalDensity.current
@@ -610,8 +703,11 @@ fun VideoInfoData(
                 Row {
                     Box(modifier = Modifier.focusable(true)) {}
                     FavoriteButton(
-                        isFavorite = false,
-                        onClick = { "还没写呢".toast(context) }
+                        isFavorite = isFavorite,
+                        userFavoriteFolders = userFavoriteFolders,
+                        favoriteFolderIds = favoriteFolderIds,
+                        onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
+                        onUpdateFavoriteFolders = onUpdateFavoriteFolders
                     )
                     Box(modifier = Modifier.focusable(true)) {}
                 }
