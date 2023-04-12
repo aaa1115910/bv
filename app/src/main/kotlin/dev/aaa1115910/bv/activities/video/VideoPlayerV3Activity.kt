@@ -289,34 +289,32 @@ fun VideoPlayerV3Screen(
 
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: String) {
-            println("onError: $error")
+            logger.info { "onError: $error" }
             //TODO("Not yet implemented")
         }
 
         override fun onReady() {
-            println("onReady")
+            logger.info { "onReady" }
             initDanmakuConfig()
             updateVideoAspectRatio()
         }
 
         override fun onPlay() {
-            println("onPlay")
-            println("${playerViewModel.danmakuPlayer?.isReleased}")
+            logger.info { "onPlay" }
             playerViewModel.danmakuPlayer?.start()
         }
 
         override fun onPause() {
-            println("onPause")
+            logger.info { "onPause" }
             playerViewModel.danmakuPlayer?.pause()
         }
 
         override fun onBuffering() {
-            println("onBuffering")
-            //TODO("Not yet implemented")
+            logger.info { "onBuffering" }
         }
 
         override fun onEnd() {
-            println("onEnd")
+            logger.info { "onEnd" }
             playerViewModel.danmakuPlayer?.pause()
         }
 
