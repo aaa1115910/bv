@@ -52,6 +52,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -680,7 +681,8 @@ private fun UpButton(
     onAddFollow: () -> Unit,
     onDelFollow: () -> Unit
 ) {
-    val isLogin by remember { mutableStateOf(Prefs.isLogin) }
+    val view = LocalView.current
+    val isLogin by remember { mutableStateOf(if (!view.isInEditMode) Prefs.isLogin else true) }
 
     Row(
         modifier = modifier,
