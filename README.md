@@ -13,15 +13,17 @@
 [![Release workflow](https://github.com/aaa1115910/bv/actions/workflows/release.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
 [![Release workflow](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
 
-**BV 不支持在中国大陆地区内使用，如有相关使用需求请使用 [云视听小电视](https://app.bilibili.com)**
+**BV
+不支持在中国大陆地区内的智慧型电视上使用，如有相关使用需求请使用 [云视听小电视](https://app.bilibili.com)
+**
 
 </div>
 
 ---
-BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三方 `Android TV`
-应用，使用 `Jetpack Compose` 开发，支持 `Android 5.0+`
+BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三方应用，适配 `Android 移动端`
+和 `Android TV`，使用 `Jetpack Compose` 开发，支持 `Android 5.0+`
 
-都是随心乱写的代码，能跑就行。
+**都是随心乱写的代码，能跑就行。**
 
 ## 特色
 
@@ -38,6 +40,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ## 自行编译注意事项
 
 ### JDK 版本
+
 `jdk 11`
 
 ### google-services.json
