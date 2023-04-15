@@ -17,6 +17,12 @@ jobs:
         with:
           ref: develop
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Gradle dependency submission
         uses: mikepenz/gradle-dependency-submission@v0.8.4
         with:
