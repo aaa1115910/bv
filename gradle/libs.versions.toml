@@ -1,4 +1,5 @@
 [versions]
+accompanist = "0.31.0-alpha"
 akdanmaku = "1.0.3"
 coil = "2.3.0"
 firebase-bom = "31.4.0"
@@ -16,6 +17,9 @@ slf4j-android-mvysny = "2.0.4"
 slf4j-simple = "2.0.7"
 
 [libraries]
+# https://google.github.io/accompanist/
+accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+
 # https://github.com/KwaiAppTeam/AkDanmaku
 akdanmaku = { module = "com.kuaishou:akdanmaku", version.ref = "akdanmaku" }
 
