@@ -110,6 +110,7 @@ import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
@@ -246,6 +247,7 @@ fun VideoInfoScreen(
         scope.launch(Dispatchers.IO) {
             runCatching {
                 favorited = BiliApi.checkVideoFavoured(avid = avid, sessData = Prefs.sessData)
+                logger.fDebug { "Update video is favorite: $favorited" }
             }
         }
         scope.launch(Dispatchers.IO) {
@@ -253,6 +255,7 @@ fun VideoInfoScreen(
                 val userFavoriteFoldersDataBiliResponse =
                     BiliApi.getAllFavoriteFoldersInfo(mid = Prefs.uid, sessData = Prefs.sessData)
                 favoriteFolders.swapList(userFavoriteFoldersDataBiliResponse.getResponseData().list)
+                logger.fDebug { "Update favoriteFolders: ${userFavoriteFoldersDataBiliResponse.getResponseData().list.map { it.title }}" }
             }
         }
         scope.launch(Dispatchers.IO) {
@@ -263,9 +266,10 @@ fun VideoInfoScreen(
                         rid = avid,
                         sessData = Prefs.sessData
                     )
-                videoInFavoriteFolderIds.swapList(
-                    favoriteFoldersResponse.getResponseData().list.map { it.id }
-                )
+                val list =
+                    favoriteFoldersResponse.getResponseData().list.filter { it.favState == 1 }
+                videoInFavoriteFolderIds.swapList(list.map { it.id })
+                logger.fDebug { "Update videoInFavoriteFolderIds: ${list.map { it.title }}" }
             }
         }
     }
