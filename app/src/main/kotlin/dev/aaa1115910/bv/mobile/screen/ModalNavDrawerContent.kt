@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.mobile.screen.home
+package dev.aaa1115910.bv.mobile.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,7 +41,12 @@ fun ModalNavDrawerContent(
     isLogin: Boolean,
     onCloseDrawer: () -> Unit,
     onLogin: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onGoHome: () -> Unit = {},
+    onGoMyFollowingUser: () -> Unit = {},
+    onGoHistory: () -> Unit = {},
+    onGoFavorite: () -> Unit = {},
+    onGoSetting: () -> Unit = {},
 ) {
     ModalDrawerSheet(
         modifier = modifier
@@ -56,39 +61,57 @@ fun ModalNavDrawerContent(
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = "首页") },
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = null) },
-            selected = false,
-            onClick = { onCloseDrawer() }
-        )
-        NavigationDrawerItem(
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = "我的关注") },
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = null) },
+            label = { Text(text = MobileMainScreenNav.Home.displayName) },
+            icon = { Icon(imageVector = MobileMainScreenNav.Home.icon, contentDescription = null) },
             selected = false,
             onClick = {
                 onCloseDrawer()
-                //TODO navigate to item
+                onGoHome()
             }
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = "历史记录") },
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = null) },
+            label = { Text(text = MobileMainScreenNav.FollowingUser.displayName) },
+            icon = {
+                Icon(
+                    imageVector = MobileMainScreenNav.FollowingUser.icon,
+                    contentDescription = null
+                )
+            },
             selected = false,
             onClick = {
                 onCloseDrawer()
-                //TODO navigate to item
+                onGoMyFollowingUser()
             }
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = "私人收藏") },
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = null) },
+            label = { Text(text = MobileMainScreenNav.History.displayName) },
+            icon = {
+                Icon(
+                    imageVector = MobileMainScreenNav.History.icon,
+                    contentDescription = null
+                )
+            },
             selected = false,
             onClick = {
                 onCloseDrawer()
-                //TODO navigate to item
+                onGoHistory()
+            }
+        )
+        NavigationDrawerItem(
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            label = { Text(text = MobileMainScreenNav.Favorite.displayName) },
+            icon = {
+                Icon(
+                    imageVector = MobileMainScreenNav.Favorite.icon,
+                    contentDescription = null
+                )
+            },
+            selected = false,
+            onClick = {
+                onCloseDrawer()
+                onGoFavorite()
             }
         )
         NavigationDrawerItem(
@@ -113,12 +136,17 @@ fun ModalNavDrawerContent(
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = "设置") },
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = null) },
+            label = { Text(text = MobileMainScreenNav.Setting.displayName) },
+            icon = {
+                Icon(
+                    imageVector = MobileMainScreenNav.Setting.icon,
+                    contentDescription = null
+                )
+            },
             selected = false,
             onClick = {
                 onCloseDrawer()
-                //TODO navigate to item
+                onGoSetting()
             }
         )
     }
