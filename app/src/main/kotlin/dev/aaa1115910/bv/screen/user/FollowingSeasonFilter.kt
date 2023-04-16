@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -34,7 +33,6 @@ import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.getDisplayName
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FollowingSeasonFilter(
     modifier: Modifier = Modifier,

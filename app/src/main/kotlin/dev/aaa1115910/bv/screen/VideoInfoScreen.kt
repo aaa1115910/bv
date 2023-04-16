@@ -122,7 +122,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import org.koin.androidx.compose.getKoin
+import org.koin.compose.getKoin
 import java.util.Date
 import kotlin.math.ceil
 
