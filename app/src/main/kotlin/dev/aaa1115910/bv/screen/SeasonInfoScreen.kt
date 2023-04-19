@@ -127,7 +127,7 @@ fun SeasonInfoScreen(
                     cid = cid,
                     title = seasonData!!.title,
                     partTitle = episodeTitle,
-                    played = startTime * 100,
+                    played = startTime * 1000,
                     fromSeason = true,
                     subType = seasonData?.type,
                     epid = epid,
