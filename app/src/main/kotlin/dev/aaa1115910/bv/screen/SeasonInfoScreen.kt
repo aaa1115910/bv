@@ -302,6 +302,8 @@ fun SeasonInfoScreen(
                                     VideoListItem(
                                         aid = episode.aid.toInt(),
                                         cid = episode.cid,
+                                        epid = episode.id,
+                                        seasonId = seasonData?.seasonId,
                                         title = episode.longTitle,
                                         index = index,
                                         isEpisode = true
@@ -367,6 +369,8 @@ fun SeasonInfoScreen(
                                 VideoListItem(
                                     aid = episode.aid.toInt(),
                                     cid = episode.cid,
+                                    epid = episode.id,
+                                    seasonId = seasonData?.seasonId,
                                     title = episode.longTitle,
                                     index = index,
                                     isEpisode = true
@@ -391,6 +395,8 @@ fun SeasonInfoScreen(
                                     VideoListItem(
                                         aid = episode.aid.toInt(),
                                         cid = episode.cid,
+                                        epid = episode.id,
+                                        seasonId = seasonData?.seasonId,
                                         title = episode.longTitle,
                                         index = index,
                                         isEpisode = true
