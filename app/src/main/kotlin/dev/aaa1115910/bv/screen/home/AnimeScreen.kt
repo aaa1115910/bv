@@ -141,14 +141,14 @@ fun AnimeCarousel(
     val context = LocalContext.current
 
     Carousel(
-        slideCount = data.size,
+        itemCount = data.size,
         modifier = modifier
             .fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
             .focusedBorder()
     ) { itemIndex ->
-        CarouselSlide {
+        CarouselItem {
             AnimeCarouselCard(
                 data = data[itemIndex],
                 onClick = {
