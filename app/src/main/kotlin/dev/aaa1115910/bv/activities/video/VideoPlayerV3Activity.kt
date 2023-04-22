@@ -411,7 +411,12 @@ fun VideoPlayerV3Screen(
             onBackToHistory = { videoPlayer.seekTo(playerViewModel.lastPlayed * 1000L) },
             onPlayNewVideo = {
                 // TODO 播放新视频前上报播放记录
-                playerViewModel.loadPlayUrl(it.aid, it.cid)
+                playerViewModel.loadPlayUrl(
+                    avid = it.aid,
+                    cid = it.cid,
+                    epid = it.epid,
+                    seasonId = it.seasonId
+                )
             },
 
             onResolutionChange = { qualityId ->

@@ -104,17 +104,25 @@ class VideoPlayerV3ViewModel(
 
     fun loadPlayUrl(
         avid: Int,
-        cid: Int
+        cid: Int,
+        epid: Int? = null,
+        seasonId: Int? = null
     ) {
         showLogs = true
         currentAid = avid
         currentCid = cid
+        epid?.let { this.epid = it }
+        seasonId?.let { this.seasonId = it }
         addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
             releaseDanmakuPlayer()
             initDanmakuPlayer()
             addLogs("初始化弹幕引擎")
-            addLogs("av$avid，cid:$cid")
+            if (epid != null || seasonId != null) {
+                addLogs("av$avid，cid:$cid, epid:$epid, seasonId:$seasonId")
+            } else {
+                addLogs("av$avid，cid:$cid")
+            }
             updateSubtitle()
             loadPlayUrl(avid, cid, 4048)
             addLogs("加载弹幕中")
