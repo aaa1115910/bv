@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -52,14 +53,20 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.tv.foundation.lazy.grid.TvGridCells
+import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
+import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
@@ -67,8 +74,12 @@ import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
+import androidx.tv.material3.Tab
+import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -79,6 +90,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.user.RelationData
 import dev.aaa1115910.biliapi.entity.user.RelationType
+import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.UgcSeason
@@ -98,6 +110,7 @@ import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
@@ -110,8 +123,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import org.koin.androidx.compose.getKoin
+import org.koin.compose.getKoin
 import java.util.Date
+import kotlin.math.ceil
 
 @Composable
 fun VideoInfoScreen(
@@ -142,6 +156,11 @@ fun VideoInfoScreen(
                     || videoInfo?.ugcSeason?.sections?.any { section -> section.episodes.any { episode -> episode.page.dimension.height > episode.page.dimension.width } } ?: false
         }
     }
+
+    var favorited by remember { mutableStateOf(false) }
+    val favoriteFolders =
+        remember { mutableStateListOf<UserFavoriteFoldersData.UserFavoriteFolder>() }
+    val videoInFavoriteFolderIds = remember { mutableStateListOf<Long>() }
 
     val updateV2Data: () -> Unit = {
         scope.launch(Dispatchers.Default) {
@@ -225,6 +244,79 @@ fun VideoInfoScreen(
             }
         }
 
+    val updateFavoriteData: (Int) -> Unit = { avid ->
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                favorited = BiliApi.checkVideoFavoured(avid = avid, sessData = Prefs.sessData)
+                logger.fDebug { "Update video is favorite: $favorited" }
+            }
+        }
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val userFavoriteFoldersDataBiliResponse =
+                    BiliApi.getAllFavoriteFoldersInfo(mid = Prefs.uid, sessData = Prefs.sessData)
+                favoriteFolders.swapList(userFavoriteFoldersDataBiliResponse.getResponseData().list)
+                logger.fDebug { "Update favoriteFolders: ${userFavoriteFoldersDataBiliResponse.getResponseData().list.map { it.title }}" }
+            }
+        }
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val favoriteFoldersResponse =
+                    BiliApi.getAllFavoriteFoldersInfo(
+                        mid = Prefs.uid,
+                        rid = avid,
+                        sessData = Prefs.sessData
+                    )
+                val list =
+                    favoriteFoldersResponse.getResponseData().list.filter { it.favState == 1 }
+                videoInFavoriteFolderIds.swapList(list.map { it.id })
+                logger.fDebug { "Update videoInFavoriteFolderIds: ${list.map { it.title }}" }
+            }
+        }
+    }
+
+    val addVideoToFavoriteFolder: (List<Long>) -> Unit = { folderIds ->
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                require(favoriteFolders.isNotEmpty()) { "Not found favorite folder" }
+                require(videoInfo?.aid != null) { "Video info is null" }
+
+                BiliApi.setVideoToFavorite(
+                    avid = videoInfo!!.aid,
+                    addMediaIds = folderIds,
+                    delMediaIds = favoriteFolders.map { it.id } - folderIds.toSet(),
+                    csrf = Prefs.biliJct,
+                    sessData = Prefs.sessData
+                )
+            }.onFailure {
+                logger.fInfo { "Add video to favorite folder failed: ${it.stackTraceToString()}" }
+                withContext(Dispatchers.Main) {
+                    it.message ?: "unknown error".toast(context)
+                }
+            }.onSuccess {
+                videoInFavoriteFolderIds.swapList(folderIds)
+                withContext(Dispatchers.Main) {
+                    if (folderIds.isEmpty()) {
+                        "已移除收藏夹".toast(context)
+                    } else {
+                        "已添加到收藏夹".toast(context)
+                    }
+                }
+            }
+        }
+    }
+
+    val addVideoToDefaultFavoriteFolder: () -> Unit = {
+        runCatching {
+            val defaultFavoriteFolder = favoriteFolders.firstOrNull { it.title == "默认收藏夹" }
+            require(defaultFavoriteFolder != null) { "Not found default favorite folder" }
+            addVideoToFavoriteFolder(listOf(defaultFavoriteFolder.id))
+        }.onFailure {
+            logger.fInfo { "Add video to default favorite folder failed: ${it.stackTraceToString()}" }
+            it.message ?: "unknown error".toast(context)
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
@@ -235,6 +327,7 @@ fun VideoInfoScreen(
                     val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.getResponseData()
                     updateV2Data()
+                    if (Prefs.isLogin) updateFavoriteData(aid)
 
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
@@ -362,7 +455,7 @@ fun VideoInfoScreen(
                     alpha = 0.6f
                 )
                 TvLazyColumn(
-                    contentPadding = PaddingValues(vertical = 16.dp),
+                    contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
@@ -382,6 +475,9 @@ fun VideoInfoScreen(
                             videoInfo = videoInfo!!,
                             relations = relations,
                             tags = tags,
+                            isFavorite = favorited,
+                            userFavoriteFolders = favoriteFolders,
+                            favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
                                 VideoPlayerV3Activity.actionStart(
@@ -417,6 +513,15 @@ fun VideoInfoScreen(
                                     tagId = tag.tagId,
                                     tagName = tag.tagName
                                 )
+                            },
+                            onAddToDefaultFavoriteFolder = {
+                                addVideoToDefaultFavoriteFolder()
+                                favorited = true
+                            },
+                            onUpdateFavoriteFolders = {
+                                addVideoToFavoriteFolder(it)
+                                favorited = it.isNotEmpty()
+                                videoInFavoriteFolderIds.swapList(it)
                             }
                         )
                     }
@@ -431,6 +536,7 @@ fun VideoInfoScreen(
                                 pages = videoInfo?.pages ?: emptyList(),
                                 lastPlayedCid = lastPlayedCid,
                                 lastPlayedTime = lastPlayedTime,
+                                enablePartListDialog = videoInfo?.pages?.size ?: 0 > 5,
                                 onClick = { cid ->
                                     logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
                                     VideoPlayerV3Activity.actionStart(
@@ -452,6 +558,7 @@ fun VideoInfoScreen(
                                     ?: emptyList(),
                                 lastPlayedCid = lastPlayedCid,
                                 lastPlayedTime = lastPlayedTime,
+                                enableUgcListDialog = videoInfo?.ugcSeason?.sections?.get(0)?.episodes?.size ?: 0 > 5,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
                                     VideoPlayerV3Activity.actionStart(
@@ -519,13 +626,17 @@ fun VideoInfoData(
     videoInfo: VideoInfo,
     relations: RelationData?,
     tags: List<Tag>,
+    isFavorite: Boolean,
+    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    favoriteFolderIds: List<Long> = emptyList(),
     onClickCover: () -> Unit,
     onClickUp: () -> Unit,
     onAddFollow: () -> Unit,
     onDelFollow: () -> Unit,
-    onClickTip: (Tag) -> Unit
+    onClickTip: (Tag) -> Unit,
+    onAddToDefaultFavoriteFolder: () -> Unit,
+    onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val localDensity = LocalDensity.current
@@ -610,8 +721,11 @@ fun VideoInfoData(
                 Row {
                     Box(modifier = Modifier.focusable(true)) {}
                     FavoriteButton(
-                        isFavorite = false,
-                        onClick = { "还没写呢".toast(context) }
+                        isFavorite = isFavorite,
+                        userFavoriteFolders = userFavoriteFolders,
+                        favoriteFolderIds = favoriteFolderIds,
+                        onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
+                        onUpdateFavoriteFolders = onUpdateFavoriteFolders
                     )
                     Box(modifier = Modifier.focusable(true)) {}
                 }
@@ -671,6 +785,7 @@ fun VideoInfoData(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UpButton(
     modifier: Modifier = Modifier,
@@ -681,7 +796,8 @@ private fun UpButton(
     onAddFollow: () -> Unit,
     onDelFollow: () -> Unit
 ) {
-    val isLogin by remember { mutableStateOf(Prefs.isLogin) }
+    val view = LocalView.current
+    val isLogin by remember { mutableStateOf(if (!view.isInEditMode) Prefs.isLogin else true) }
 
     Row(
         modifier = modifier,
@@ -856,15 +972,59 @@ fun VideoPartButton(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun VideoPartRowButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier.height(64.dp),
+        color = ClickableSurfaceDefaults.color(
+            color = MaterialTheme.colorScheme.primary,
+            focusedColor = MaterialTheme.colorScheme.primary,
+            pressedColor = MaterialTheme.colorScheme.primary
+        ),
+        contentColor = ClickableSurfaceDefaults.contentColor(
+            color = MaterialTheme.colorScheme.onPrimary,
+            focusedColor = MaterialTheme.colorScheme.onPrimary,
+            pressedColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.White),
+                shape = MaterialTheme.shapes.medium
+            )
+        ),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(48.dp)
+                    .rotate(90f),
+                imageVector = Icons.Rounded.ViewModule,
+                contentDescription = null
+            )
+        }
+    }
+}
+
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
     pages: List<VideoPage>,
     lastPlayedCid: Int = 0,
     lastPlayedTime: Int = 0,
+    enablePartListDialog: Boolean = false,
     onClick: (cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
+    var showPartListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
@@ -885,6 +1045,13 @@ fun VideoPartRow(
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (enablePartListDialog) {
+                item {
+                    VideoPartRowButton(
+                        onClick = { showPartListDialog = true }
+                    )
+                }
+            }
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
                     index = index + 1,
@@ -896,6 +1063,14 @@ fun VideoPartRow(
             }
         }
     }
+
+    VideoPartListDialog(
+        show = showPartListDialog,
+        onHideDialog = { showPartListDialog = false },
+        pages = pages,
+        title = "分 P 列表",
+        onClick = onClick
+    )
 }
 
 @Composable
@@ -904,9 +1079,11 @@ fun VideoUgcSeasonRow(
     episodes: List<UgcSeason.Section.Episode>,
     lastPlayedCid: Int = 0,
     lastPlayedTime: Int = 0,
+    enableUgcListDialog: Boolean = false,
     onClick: (avid: Int, cid: Int) -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
+    var showUgcListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
 
@@ -924,9 +1101,16 @@ fun VideoUgcSeasonRow(
 
         TvLazyRow(
             modifier = Modifier.padding(top = 15.dp),
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (enableUgcListDialog) {
+                item {
+                    VideoPartRowButton(
+                        onClick = { showUgcListDialog = true }
+                    )
+                }
+            }
             itemsIndexed(items = episodes) { index, episode ->
                 VideoPartButton(
                     index = index + 1,
@@ -938,8 +1122,233 @@ fun VideoUgcSeasonRow(
             }
         }
     }
+
+    VideoUgcListDialog(
+        show = showUgcListDialog,
+        onHideDialog = { showUgcListDialog = false },
+        episodes = episodes,
+        title = "合集列表",
+        onClick = onClick
+    )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun VideoPartListDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    title: String,
+    pages: List<VideoPage>,
+    onHideDialog: () -> Unit,
+    onClick: (cid: Int) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabCount by remember { mutableStateOf(ceil(pages.size / 20.0).toInt()) }
+    val selectedVideoPart = remember { mutableStateListOf<VideoPage>() }
+
+    val tabRowFocusRequester = remember { FocusRequester() }
+    val videoListFocusRequester = remember { FocusRequester() }
+    val listState = rememberTvLazyGridState()
+
+    LaunchedEffect(selectedTabIndex) {
+        val fromIndex = selectedTabIndex * 20
+        var toIndex = (selectedTabIndex + 1) * 20
+        if (toIndex >= pages.size) {
+            toIndex = pages.size
+        }
+        selectedVideoPart.swapList(pages.subList(fromIndex, toIndex))
+    }
+
+    LaunchedEffect(show) {
+        if (show && tabCount > 1) tabRowFocusRequester.requestFocus(scope)
+        if (show && tabCount == 1) videoListFocusRequester.requestFocus(scope)
+    }
+
+    if (show) {
+        AlertDialog(
+            modifier = modifier,
+            title = { Text(text = title) },
+            onDismissRequest = { onHideDialog() },
+            confirmButton = {},
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            text = {
+                Column(
+                    modifier = Modifier.size(600.dp, 330.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TabRow(
+                        modifier = Modifier
+                            .onFocusChanged {
+                                if (it.hasFocus) {
+                                    scope.launch(Dispatchers.Main) {
+                                        listState.scrollToItem(0)
+                                    }
+                                }
+                            },
+                        selectedTabIndex = selectedTabIndex,
+                        separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                    ) {
+                        for (i in 0 until tabCount) {
+                            Tab(
+                                modifier = if (i == 0) Modifier.focusRequester(
+                                    tabRowFocusRequester
+                                ) else Modifier,
+                                selected = i == selectedTabIndex,
+                                onFocus = { selectedTabIndex = i },
+                            ) {
+                                Text(
+                                    text = "P${i * 20 + 1}-${(i + 1) * 20}",
+                                    fontSize = 12.sp,
+                                    color = LocalContentColor.current,
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 6.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    TvLazyVerticalGrid(
+                        state = listState,
+                        columns = TvGridCells.Fixed(2),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        itemsIndexed(
+                            items = selectedVideoPart,
+                            key = { _, video -> video.cid }
+                        ) { index, page ->
+                            val buttonModifier =
+                                if (index == 0) Modifier.focusRequester(videoListFocusRequester) else Modifier
+
+                            VideoPartButton(
+                                modifier = buttonModifier,
+                                index = index + 1,
+                                title = page.part,
+                                played = 0,
+                                duration = page.duration,
+                                onClick = { onClick(page.cid) }
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun VideoUgcListDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    title: String,
+    episodes: List<UgcSeason.Section.Episode>,
+    onHideDialog: () -> Unit,
+    onClick: (avid: Int, cid: Int) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabCount by remember { mutableStateOf(ceil(episodes.size / 20.0).toInt()) }
+    val selectedVideoPart = remember { mutableStateListOf<UgcSeason.Section.Episode>() }
+
+    val tabRowFocusRequester = remember { FocusRequester() }
+    val videoListFocusRequester = remember { FocusRequester() }
+    val listState = rememberTvLazyGridState()
+
+    LaunchedEffect(selectedTabIndex) {
+        val fromIndex = selectedTabIndex * 20
+        var toIndex = (selectedTabIndex + 1) * 20
+        if (toIndex >= episodes.size) {
+            toIndex = episodes.size
+        }
+        selectedVideoPart.swapList(episodes.subList(fromIndex, toIndex))
+    }
+
+    LaunchedEffect(show) {
+        if (show && tabCount > 1) tabRowFocusRequester.requestFocus(scope)
+        if (show && tabCount == 1) videoListFocusRequester.requestFocus(scope)
+    }
+
+    if (show) {
+        AlertDialog(
+            modifier = modifier,
+            title = { Text(text = title) },
+            onDismissRequest = { onHideDialog() },
+            confirmButton = {},
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            text = {
+                Column(
+                    modifier = Modifier.size(600.dp, 330.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TabRow(
+                        modifier = Modifier
+                            .onFocusChanged {
+                                if (it.hasFocus) {
+                                    scope.launch(Dispatchers.Main) {
+                                        listState.scrollToItem(0)
+                                    }
+                                }
+                            },
+                        selectedTabIndex = selectedTabIndex,
+                        separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                    ) {
+                        for (i in 0 until tabCount) {
+                            Tab(
+                                modifier = if (i == 0) Modifier.focusRequester(
+                                    tabRowFocusRequester
+                                ) else Modifier,
+                                selected = i == selectedTabIndex,
+                                onFocus = { selectedTabIndex = i },
+                            ) {
+                                Text(
+                                    text = "P${i * 20 + 1}-${(i + 1) * 20}",
+                                    fontSize = 12.sp,
+                                    color = LocalContentColor.current,
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 6.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    TvLazyVerticalGrid(
+                        state = listState,
+                        columns = TvGridCells.Fixed(2),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        itemsIndexed(
+                            items = selectedVideoPart,
+                            key = { _, video -> video.cid }
+                        ) { index, episode ->
+                            val buttonModifier =
+                                if (index == 0) Modifier.focusRequester(videoListFocusRequester) else Modifier
+
+                            VideoPartButton(
+                                modifier = buttonModifier,
+                                index = index + 1,
+                                title = episode.title,
+                                played = 0,
+                                duration = episode.arc.duration,
+                                onClick = { onClick(episode.aid, episode.cid) }
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
 
 @Preview
 @Composable

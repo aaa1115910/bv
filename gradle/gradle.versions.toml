@@ -1,9 +1,9 @@
 [versions]
-agp = "7.4.2"
-firebase-crashlytics = "2.9.4"
+agp = "8.0.0"
+firebase-crashlytics = "2.9.5"
 gms = "4.3.15"
-kotlin = "1.8.10"
-ksp = "1.8.10-1.0.9"
+kotlin = "1.8.20"
+ksp = "1.8.20-1.0.11"
 versions = "0.46.0"
 
 [plugins]

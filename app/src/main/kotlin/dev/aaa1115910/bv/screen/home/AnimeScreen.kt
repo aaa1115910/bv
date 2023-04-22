@@ -26,7 +26,6 @@ import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -142,14 +141,14 @@ fun AnimeCarousel(
     val context = LocalContext.current
 
     Carousel(
-        slideCount = data.size,
+        itemCount = data.size,
         modifier = modifier
             .fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
             .focusedBorder()
     ) { itemIndex ->
-        CarouselSlide {
+        CarouselItem {
             AnimeCarouselCard(
                 data = data[itemIndex],
                 onClick = {
@@ -275,7 +274,6 @@ fun AnimeFeatureButton(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AnimeFeedVideoRow(
     modifier: Modifier = Modifier,

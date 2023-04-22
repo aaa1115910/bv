@@ -15,6 +15,7 @@ import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -192,6 +193,11 @@ object Prefs {
             }.getOrDefault(PlayerType.ExoPlayer)
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerTypeKey, value.ordinal) }
+
+    val densityFlow: Flow<Float> get() = dsm.getPreferenceFlow(PrefKeys.prefDensityRequest)
+    var density: Float
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDensityRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDensityKey, value) }
 }
 
 private object PrefKeys {
@@ -219,6 +225,7 @@ private object PrefKeys {
     val prefShowFpsKey = booleanPreferencesKey("sf")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
     val prefPlayerTypeKey = intPreferencesKey("pt")
+    val prefDensityKey = floatPreferencesKey("density")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -250,4 +257,6 @@ private object PrefKeys {
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
     val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.ExoPlayer.ordinal)
+    val prefDensityRequest =
+        PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
 }

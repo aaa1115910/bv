@@ -7,6 +7,8 @@
 
     <string name="app_name">BV</string>
 
+    <string name="common_confirm">确定</string>
+
     <string name="confirm">确认</string>
 
     <string name="date_format_hours_age">%1$d 小时前</string>
@@ -14,6 +16,9 @@
     <string name="date_format_minutes_age">%1$d 分钟前</string>
 
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
+
+    <string name="favorite_button_text">收藏</string>
+    <string name="favorite_dialog_title">选择收藏夹</string>
 
     <string name="filter_dialog_open_tip">长按确认键更改筛选</string>
     <string name="filter_dialog_open_tip_click">点击打开筛选</string>
@@ -140,6 +145,7 @@
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_player_type">播放器</string>
     <string name="settings_item_resolution">默认分辨率</string>
+    <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_start_button">开始测试</string>
     <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
     <string name="settings_other_cookies_title">Cookies 导入/导出</string>
@@ -147,6 +153,8 @@
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
     <string name="settings_other_fps_title">FPS 显示</string>
+    <string name="settings_ui_density_text">更改整个应用的大小缩放</string>
+    <string name="settings_ui_density_title">界面缩放</string>
     <string name="settings_version_check_update_button">爷要更新</string>
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>

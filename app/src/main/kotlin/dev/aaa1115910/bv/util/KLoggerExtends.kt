@@ -18,7 +18,7 @@ fun KLogger.fWarn(msg: () -> Any?) {
 
 fun KLogger.fDebug(msg: () -> Any?) {
     if (BuildConfig.DEBUG) {
-        debug(msg)
+        info(msg)
         Firebase.crashlytics.log("[Debug] ${msg.toStringSafe()}")
     }
 }

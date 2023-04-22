@@ -36,12 +36,12 @@ fun HomeCarousel(
     )
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = modifier
             .height(300.dp)
             .fillMaxWidth(),
     ) { itemIndex ->
-        CarouselSlide(
+        CarouselItem(
             background = {
                 Box(
                     modifier = Modifier
