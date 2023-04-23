@@ -88,7 +88,7 @@ class VideoPlayerV3ViewModel(
     var needPay by mutableStateOf(false)
 
     var logs by mutableStateOf("")
-    var showLogs by mutableStateOf(false)
+    var lastChangedLog by mutableStateOf(System.currentTimeMillis())
     var showBuffering by mutableStateOf(false)
 
     private var currentAid = 0
@@ -108,7 +108,6 @@ class VideoPlayerV3ViewModel(
         epid: Int? = null,
         seasonId: Int? = null
     ) {
-        showLogs = true
         currentAid = avid
         currentCid = cid
         epid?.let { this.epid = it }
@@ -233,7 +232,6 @@ class VideoPlayerV3ViewModel(
 
     suspend fun playQuality(qn: Int = currentQuality, codec: VideoCodec = currentVideoCodec) {
         logger.fInfo { "Select resolution: $qn, codec: $codec" }
-        showLogs = true
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
         val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
@@ -322,6 +320,7 @@ class VideoPlayerV3ViewModel(
             newTip += if (newTip == "") it else "\n$it"
         }
         logs = newTip
+        lastChangedLog = System.currentTimeMillis()
     }
 
     suspend fun uploadHistory(time: Int) {

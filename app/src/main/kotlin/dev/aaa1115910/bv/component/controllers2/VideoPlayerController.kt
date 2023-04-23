@@ -1,8 +1,10 @@
 package dev.aaa1115910.bv.component.controllers2
 
+import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -11,8 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -23,6 +25,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
@@ -32,11 +36,11 @@ import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoListItem
+import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import mu.KotlinLogging
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
@@ -78,6 +82,8 @@ fun VideoPlayerController(
     var hasFocus by remember { mutableStateOf(false) }
 
     var goTime by remember { mutableStateOf(0L) }
+
+    var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     LaunchedEffect(showSeekController) {
         if (showSeekController) goTime = data.infoData.currentTime
@@ -162,6 +168,13 @@ fun VideoPlayerController(
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
                         showInfo = !showInfo
+                        if (showInfo) {
+                            hideVideoInfoTimer = countDownTimer(3000, 1000, "hideVideoInfoTimer") {
+                                showInfo = false
+                            }
+                        } else {
+                            hideVideoInfoTimer?.cancel()
+                        }
                         return@onPreviewKeyEvent true
                     }
 
@@ -242,12 +255,18 @@ fun VideoPlayerController(
     ) {
         content()
         if (BuildConfig.DEBUG) {
-            Text(
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .background(Color.Black.copy(alpha = 0.3f)),
-                text = data.debugInfo
-            )
+                    .padding(8.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(Color.Black.copy(alpha = 0.3f))
+            ) {
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = data.debugInfo
+                )
+            }
         }
         BottomSubtitle()
         ControllerVideoInfo(

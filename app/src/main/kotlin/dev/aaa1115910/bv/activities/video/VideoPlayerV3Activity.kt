@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
@@ -51,6 +53,7 @@ import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
 import dev.aaa1115910.bv.player.impl.vlc.VlcPlayerFactory
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -191,6 +194,7 @@ fun VideoPlayerV3Screen(
         )
     }
     var debugInfo by remember { mutableStateOf("") }
+    var showLogs by remember { mutableStateOf(false) }
 
     var typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
@@ -199,6 +203,8 @@ fun VideoPlayerV3Screen(
     var videoPlayerHeight by remember { mutableStateOf(0.dp) }
     var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var currentPosition by remember { mutableStateOf(0L) }
+
+    var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -350,6 +356,14 @@ fun VideoPlayerV3Screen(
         }, 0, 100)
         onDispose {
             timer.cancel()
+        }
+    }
+
+    LaunchedEffect(playerViewModel.lastChangedLog) {
+        hideLogsTimer?.cancel()
+        showLogs = true
+        hideLogsTimer = countDownTimer(3000, 1000, "hideLogsTimer") {
+            showLogs = false
         }
     }
 
@@ -520,10 +534,14 @@ fun VideoPlayerV3Screen(
                         .alpha(playerViewModel.currentDanmakuOpacity),
                     danmakuPlayer = playerViewModel.danmakuPlayer
                 )
-                Text(
-                    modifier = Modifier.align(Alignment.BottomStart),
-                    text = playerViewModel.logs
-                )
+
+                if (showLogs) {
+                    Column(
+                        modifier = Modifier.align(Alignment.BottomStart)
+                    ) {
+                        Text(text = playerViewModel.logs)
+                    }
+                }
             }
         }
     }
