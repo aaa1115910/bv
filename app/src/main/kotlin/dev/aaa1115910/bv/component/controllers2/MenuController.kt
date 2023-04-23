@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -94,7 +93,7 @@ fun MenuController(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MenuController(
     modifier: Modifier = Modifier,
@@ -150,10 +149,8 @@ fun MenuController(
                                 }
                                 return@onPreviewKeyEvent true
                             }
-                            println(it)
-                            val result = it.key == Key.DirectionLeft
-                            if (result) focusState = MenuFocusState.Menu
-                            result
+                            if (it.key == Key.DirectionLeft) focusState = MenuFocusState.Menu
+                            false
                         },
                     selectedMenu = selectedNavItem,
                     onSelectedChanged = { selectedNavItem = it },

@@ -7,14 +7,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -25,8 +22,10 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.items
+import androidx.tv.foundation.lazy.list.itemsIndexed
+import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
 import dev.aaa1115910.bv.component.controllers2.MenuFocusState
@@ -36,9 +35,8 @@ import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuLi
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
-import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun PictureMenuList(
     modifier: Modifier = Modifier,
@@ -48,23 +46,16 @@ fun PictureMenuList(
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val focusState = LocalMenuFocusStateData.current
+    val data = LocalVideoPlayerControllerData.current
 
     val focusRequester = remember { FocusRequester() }
     var selectedPictureMenuItem by remember { mutableStateOf(VideoPlayerPictureMenuItem.Resolution) }
-
-    val data = LocalVideoPlayerControllerData.current
-
     val resolutionMap = remember(data.resolutionMap) {
         data.resolutionMap
             .toList()
             .sortedByDescending { (key, _) -> key }
             .toMap()
-    }
-
-    LaunchedEffect(focusState.focusState) {
-        if (focusState.focusState == MenuFocusState.Menu) focusRequester.requestFocus(scope)
     }
 
     Row(
@@ -75,7 +66,6 @@ fun PictureMenuList(
             .width(200.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
-
             when (selectedPictureMenuItem) {
                 VideoPlayerPictureMenuItem.Resolution -> RadioMenuList(
                     modifier = menuItemsModifier,
@@ -86,68 +76,70 @@ fun PictureMenuList(
                         }.getOrDefault("unknown: $resolutionCode")
                     },
                     selected = resolutionMap.keys.indexOf(data.currentResolution),
-                    isFocusing = focusState.focusState == MenuFocusState.Items,
                     onSelectedChanged = { onResolutionChange(resolutionMap.keys.toList()[it]) },
-                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
+                    onFocusBackToParent = {
+                        onFocusStateChange(MenuFocusState.Menu)
+                        focusRequester.requestFocus()
+                    },
                 )
 
                 VideoPlayerPictureMenuItem.Codec -> RadioMenuList(
                     modifier = menuItemsModifier,
                     items = data.availableVideoCodec.map { it.getDisplayName(context) },
                     selected = data.availableVideoCodec.indexOf(data.currentVideoCodec),
-                    isFocusing = focusState.focusState == MenuFocusState.Items,
                     onSelectedChanged = { onCodecChange(data.availableVideoCodec[it]) },
-                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
+                    onFocusBackToParent = {
+                        onFocusStateChange(MenuFocusState.Menu)
+                        focusRequester.requestFocus()
+                    },
                 )
 
                 VideoPlayerPictureMenuItem.AspectRatio -> RadioMenuList(
                     modifier = menuItemsModifier,
                     items = VideoAspectRatio.values().map { it.getDisplayName(context) },
                     selected = VideoAspectRatio.values().indexOf(data.currentVideoAspectRatio),
-                    isFocusing = focusState.focusState == MenuFocusState.Items,
                     onSelectedChanged = { onAspectRatioChange(VideoAspectRatio.values()[it]) },
-                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) },
+                    onFocusBackToParent = {
+                        onFocusStateChange(MenuFocusState.Menu)
+                        focusRequester.requestFocus()
+                    },
                 )
             }
-
         }
-        TvLazyColumn(
-            modifier = modifier
-                .padding(horizontal = 8.dp)
-                .onPreviewKeyEvent {
-                    if (it.type == KeyEventType.KeyUp) {
-                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
-                            return@onPreviewKeyEvent false
-                        }
-                        return@onPreviewKeyEvent true
-                    }
-                    when (it.key) {
-                        Key.DirectionRight -> {
-                            onFocusStateChange(MenuFocusState.MenuNav)
-                            return@onPreviewKeyEvent true
-                        }
-
-                        Key.DirectionLeft -> {
-                            onFocusStateChange(MenuFocusState.Items)
-                            return@onPreviewKeyEvent true
-                        }
-
-                        else -> return@onPreviewKeyEvent false
-                    }
-                },
-            contentPadding = PaddingValues(8.dp)
+        FocusGroup(
+            modifier = Modifier.focusRequester(focusRequester)
         ) {
-            items(VideoPlayerPictureMenuItem.values()) { item ->
-                val buttonModifier =
-                    (if (selectedPictureMenuItem == item) Modifier.focusRequester(focusRequester) else Modifier)
-                        .width(200.dp)
-                MenuListItem(
-                    modifier = buttonModifier,
-                    text = item.getDisplayName(context),
-                    selected = selectedPictureMenuItem == item,
-                    onClick = {},
-                    onFocus = { selectedPictureMenuItem = item },
-                )
+            TvLazyColumn(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .onPreviewKeyEvent {
+                        if (it.type == KeyEventType.KeyUp) {
+                            if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                                return@onPreviewKeyEvent false
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                        when (it.key) {
+                            Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
+                            Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
+                            else -> {}
+                        }
+                        false
+                    },
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                itemsIndexed(VideoPlayerPictureMenuItem.values()) { index, item ->
+                    val buttonModifier =
+                        (if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus())
+                            .width(200.dp)
+                    MenuListItem(
+                        modifier = buttonModifier,
+                        text = item.getDisplayName(context),
+                        selected = selectedPictureMenuItem == item,
+                        onClick = {},
+                        onFocus = { selectedPictureMenuItem = item },
+                    )
+                }
             }
         }
     }

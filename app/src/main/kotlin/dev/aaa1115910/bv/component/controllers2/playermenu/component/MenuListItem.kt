@@ -81,7 +81,6 @@ fun MenuListItem(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            //if(!expanded){
             if (icon == null) {
                 Box(modifier = Modifier.size(32.dp))
             } else {
