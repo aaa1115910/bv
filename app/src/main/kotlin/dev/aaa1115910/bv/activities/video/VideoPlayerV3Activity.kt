@@ -130,8 +130,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
             referer = getString(R.string.video_player_referer)
         )
         val videoPlayer = when (Prefs.playerType) {
-            PlayerType.ExoPlayer -> ExoPlayerFactory().create(this, options)
-            PlayerType.VLC -> VlcPlayerFactory().create(this, options)
+            PlayerType.Media3 -> ExoPlayerFactory().create(this, options)
+            PlayerType.LibVLC -> VlcPlayerFactory().create(this, options)
         }
         playerViewModel.videoPlayer = videoPlayer
     }
@@ -335,7 +335,7 @@ fun VideoPlayerV3Screen(
 
     LaunchedEffect(Unit) {
         // LibVLC 需要提前初始化播放器的宽高，才能正常播放
-        if (Prefs.playerType == PlayerType.VLC) updateVideoAspectRatio()
+        if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
 
         focusRequester.requestFocus()
     }

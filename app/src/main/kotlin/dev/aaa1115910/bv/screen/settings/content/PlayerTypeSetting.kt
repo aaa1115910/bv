@@ -40,8 +40,8 @@ fun PlayerTypeSetting(
     LaunchedEffect(Unit) {
         if (!LibVLCUtil.existLibs()) {
             "LibVLC not found".toast(context)
-            selectedPlayerType = PlayerType.ExoPlayer
-            Prefs.playerType = PlayerType.ExoPlayer
+            selectedPlayerType = PlayerType.Media3
+            Prefs.playerType = PlayerType.Media3
         }
     }
 
@@ -71,7 +71,7 @@ fun PlayerTypeSetting(
                             selectedPlayerType = playerType
                             Prefs.playerType = playerType
 
-                            if (playerType == PlayerType.VLC && !LibVLCUtil.existLibs()) {
+                            if (playerType == PlayerType.LibVLC && !LibVLCUtil.existLibs()) {
                                 showLibVLCDownloaderDialog = true
                             }
                         }
@@ -86,8 +86,8 @@ fun PlayerTypeSetting(
         onHideDialog = {
             showLibVLCDownloaderDialog = false
             if (!LibVLCUtil.existLibs()) {
-                selectedPlayerType = PlayerType.ExoPlayer
-                Prefs.playerType = PlayerType.ExoPlayer
+                selectedPlayerType = PlayerType.Media3
+                Prefs.playerType = PlayerType.Media3
             }
         }
     )

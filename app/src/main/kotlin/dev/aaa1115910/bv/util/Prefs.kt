@@ -190,7 +190,7 @@ object Prefs {
         get() = runBlocking {
             runCatching {
                 PlayerType.values()[dsm.getPreferenceFlow(PrefKeys.prefPlayerTypeRequest).first()]
-            }.getOrDefault(PlayerType.ExoPlayer)
+            }.getOrDefault(PlayerType.Media3)
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerTypeKey, value.ordinal) }
 
@@ -256,7 +256,7 @@ private object PrefKeys {
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
-    val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.ExoPlayer.ordinal)
+    val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.Media3.ordinal)
     val prefDensityRequest =
         PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
 }
