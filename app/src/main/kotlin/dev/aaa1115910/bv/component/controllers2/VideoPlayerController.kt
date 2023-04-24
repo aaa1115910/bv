@@ -82,6 +82,8 @@ fun VideoPlayerController(
     var hasFocus by remember { mutableStateOf(false) }
 
     var goTime by remember { mutableStateOf(0L) }
+    var seekChangeCount by remember { mutableStateOf(0) }
+    var lastSeekChangeTime by remember { mutableStateOf(0L) }
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
@@ -89,8 +91,27 @@ fun VideoPlayerController(
         if (showSeekController) goTime = data.infoData.currentTime
     }
 
-    val onTimeForward = { goTime += 10000 }
-    val onTimeBack = { goTime -= 5000 }
+    val calCoefficient = {
+        if (System.currentTimeMillis() - lastSeekChangeTime < 200) {
+            seekChangeCount++
+            seekChangeCount / 5
+        } else {
+            seekChangeCount = 0
+            0
+        }
+    }
+
+    val onTimeForward = {
+        val targetTime = goTime + (10000 + calCoefficient() * 5000)
+        goTime =
+            if (targetTime > data.infoData.totalDuration) data.infoData.totalDuration else targetTime
+        lastSeekChangeTime = System.currentTimeMillis()
+    }
+    val onTimeBack = {
+        val targetTime = goTime - (5000 + calCoefficient() * 5000)
+        goTime = if (targetTime < 0) 0 else targetTime
+        lastSeekChangeTime = System.currentTimeMillis()
+    }
 
     Box(
         modifier = modifier
