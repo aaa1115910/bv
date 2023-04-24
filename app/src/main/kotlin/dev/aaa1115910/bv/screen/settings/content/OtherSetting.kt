@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +37,7 @@ fun OtherSetting(
 
     var showCookiesDialog by remember { mutableStateOf(false) }
     var showFps by remember { mutableStateOf(Prefs.showFps) }
+    var useOldPlayer by remember { mutableStateOf(Prefs.useOldPlayer) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -83,6 +84,17 @@ fun OtherSetting(
                     onCheckedChange = {
                         showFps = it
                         Prefs.showFps = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_other_old_player_title),
+                    supportText = stringResource(R.string.settings_other_old_player_text),
+                    checked = useOldPlayer,
+                    onCheckedChange = {
+                        useOldPlayer = it
+                        Prefs.useOldPlayer = it
                     }
                 )
             }

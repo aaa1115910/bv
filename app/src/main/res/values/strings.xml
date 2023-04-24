@@ -233,4 +233,6 @@
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
+    <string name="settings_other_old_player_title">旧版播放器</string>
+    <string name="settings_other_old_player_text">使用旧版播放器，旧版播放器不会再有任何新特性更新，并且将在后续版本内移除</string>
 </resources>

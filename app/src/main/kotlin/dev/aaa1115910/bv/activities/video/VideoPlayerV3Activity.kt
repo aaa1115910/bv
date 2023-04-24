@@ -101,6 +101,12 @@ class VideoPlayerV3Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Prefs.useOldPlayer) {
+            launchOldPlayer()
+            finish()
+        }
+
         initVideoPlayer()
         //initDanmakuPlayer()
         getParamsFromIntent()
@@ -166,6 +172,21 @@ class VideoPlayerV3Activity : ComponentActivity() {
         } else {
             logger.fInfo { "Null launch parameter" }
         }
+    }
+
+    private fun launchOldPlayer() {
+        VideoPlayerActivity.actionStart(
+            context = this,
+            avid = intent.getIntExtra("avid", 170001),
+            cid = intent.getIntExtra("cid", 170001),
+            title = intent.getStringExtra("title") ?: "Unknown Title",
+            partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title",
+            played = intent.getIntExtra("played", 0),
+            fromSeason = intent.getBooleanExtra("fromSeason", false),
+            subType = intent.getIntExtra("subType", 0),
+            epid = intent.getIntExtra("epid", 0),
+            seasonId = intent.getIntExtra("seasonId", 0)
+        )
     }
 }
 

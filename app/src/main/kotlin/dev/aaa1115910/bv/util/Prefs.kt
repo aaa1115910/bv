@@ -198,6 +198,10 @@ object Prefs {
     var density: Float
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDensityRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDensityKey, value) }
+
+    var useOldPlayer: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefUseOldPlayerRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefUseOldPlayerKey, value) }
 }
 
 private object PrefKeys {
@@ -226,6 +230,7 @@ private object PrefKeys {
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
     val prefPlayerTypeKey = intPreferencesKey("pt")
     val prefDensityKey = floatPreferencesKey("density")
+    val prefUseOldPlayerKey = booleanPreferencesKey("uop")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -259,4 +264,5 @@ private object PrefKeys {
     val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.Media3.ordinal)
     val prefDensityRequest =
         PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
+    val prefUseOldPlayerRequest = PreferenceRequest(prefUseOldPlayerKey, false)
 }
