@@ -21,9 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
@@ -49,6 +52,7 @@ import dev.aaa1115910.bv.component.controllers2.playermenu.PictureMenuList
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 
 @Composable
@@ -67,6 +71,13 @@ fun MenuController(
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val defaultFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(show) {
+        if (show) defaultFocusRequester.requestFocus(scope)
+    }
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterEnd
@@ -77,6 +88,7 @@ fun MenuController(
             exit = shrinkHorizontally()
         ) {
             MenuController(
+                defaultFocusRequester = defaultFocusRequester,
                 onResolutionChange = onResolutionChange,
                 onCodecChange = onCodecChange,
                 onAspectRatioChange = onAspectRatioChange,
@@ -97,6 +109,7 @@ fun MenuController(
 @Composable
 fun MenuController(
     modifier: Modifier = Modifier,
+    defaultFocusRequester: FocusRequester,
     onResolutionChange: (Int) -> Unit = {},
     onCodecChange: (VideoCodec) -> Unit = {},
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
@@ -142,6 +155,7 @@ fun MenuController(
                 )
                 MenuNavList(
                     modifier = Modifier
+                        .focusRequester(defaultFocusRequester)
                         .onPreviewKeyEvent {
                             if (it.type == KeyEventType.KeyUp) {
                                 if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
@@ -265,6 +279,8 @@ enum class DanmakuType(private val strRes: Int) {
 @Composable
 fun MenuControllerPreview() {
 
+    val defaultFocusRequester = remember { FocusRequester() }
+
     var currentResolution by remember { mutableStateOf(1) }
     var currentCodec by remember { mutableStateOf(VideoCodec.HEVC) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
@@ -368,6 +384,7 @@ fun MenuControllerPreview() {
                     MenuController(
                         modifier = Modifier
                             .align(Alignment.CenterEnd),
+                        defaultFocusRequester = defaultFocusRequester,
                         onResolutionChange = { currentResolution = it },
                         onCodecChange = { currentCodec = it },
                         onAspectRatioChange = { currentVideoAspectRatio = it },
