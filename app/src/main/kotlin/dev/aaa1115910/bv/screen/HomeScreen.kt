@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -55,7 +54,6 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -73,18 +71,18 @@ fun HomeScreen(
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
     var lastPressBack: Long by remember { mutableStateOf(0) }
-    var focusInNav by remember { mutableStateOf(false) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
     val navFocusRequester = remember { FocusRequester() }
 
     val onFocusBackToNav: () -> Unit = {
-        println("onFocusBackToNav")
-        focusInNav = true
+        logger.fInfo { "onFocusBackToNav" }
+        navFocusRequester.requestFocus(scope)
     }
 
     //启动时刷新数据
     LaunchedEffect(Unit) {
+        navFocusRequester.requestFocus()
         scope.launch(Dispatchers.Default) {
             popularViewModel.loadMore()
         }
@@ -129,7 +127,6 @@ fun HomeScreen(
                     isLogin = userViewModel.isLogin,
                     username = userViewModel.username,
                     face = userViewModel.face,
-                    focusInNav = focusInNav,
                     settingsButtonFocusRequester = settingsButtonFocusRequester,
                     onSelectedChange = { nav ->
                         selectedTab = nav
@@ -194,11 +191,7 @@ fun HomeScreen(
             }
         ) { innerPadding ->
             Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .onFocusChanged {
-                        focusInNav = !it.hasFocus
-                    }
+                modifier = Modifier.padding(innerPadding)
             ) {
                 Crossfade(targetState = selectedTab) { screen ->
                     when (screen) {
@@ -242,13 +235,15 @@ fun HomeScreen(
                 ) {
                     UserPanel(
                         modifier = Modifier
-                            .padding(12.dp),
+                            .padding(12.dp)
+                            .onFocusChanged {
+                                if (!it.hasFocus) {
+                                    settingsButtonFocusRequester.requestFocus()
+                                }
+                            },
                         username = userViewModel.username,
                         face = userViewModel.face,
-                        onHide = {
-                            showUserPanel = false
-                            settingsButtonFocusRequester.requestFocus(scope)
-                        },
+                        onHide = { showUserPanel = false },
                         onGoMy = {
                             context.startActivity(Intent(context, UserInfoActivity::class.java))
                         },
@@ -259,7 +254,12 @@ fun HomeScreen(
                             context.startActivity(Intent(context, FavoriteActivity::class.java))
                         },
                         onGoFollowing = {
-                            context.startActivity(Intent(context, FollowingSeasonActivity::class.java))
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    FollowingSeasonActivity::class.java
+                                )
+                            )
                         },
                         onGoLater = {
                             "按钮放在这只是拿来当摆设的！".toast(context)

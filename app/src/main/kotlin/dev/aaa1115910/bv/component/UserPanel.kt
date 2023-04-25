@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,6 +38,9 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.lazy.grid.TvGridCells
+import androidx.tv.foundation.lazy.grid.TvGridItemSpan
+import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -85,33 +89,38 @@ fun UserPanel(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
+        TvLazyVerticalGrid(
+            columns = TvGridCells.Fixed(2),
+            contentPadding = PaddingValues(12.dp)
         ) {
-            UserPanelMyItem(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onPreviewKeyEvent {
-                        when (it.nativeKeyEvent.keyCode) {
-                            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                return@onPreviewKeyEvent true
-                            }
+            item(
+                span = { TvGridItemSpan(2) },
+            ) {
+                UserPanelMyItem(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .onPreviewKeyEvent {
+                            when (it.nativeKeyEvent.keyCode) {
+                                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                                    return@onPreviewKeyEvent true
+                                }
 
-                            KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
-                                return@onPreviewKeyEvent true
+                                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                                    if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
+                                    return@onPreviewKeyEvent true
+                                }
                             }
-                        }
-                        false
-                    },
-                username = username,
-                face = face,
-                onClick = {
-                    onGoMy()
-                    onHide()
-                }
-            )
-            Row {
+                            false
+                        },
+                    username = username,
+                    face = face,
+                    onClick = {
+                        onGoMy()
+                        onHide()
+                    }
+                )
+            }
+            item {
                 UserPanelSmallItem(
                     modifier = Modifier
                         .weight(1f)
@@ -131,6 +140,8 @@ fun UserPanel(
                         onHide()
                     }
                 )
+            }
+            item {
                 UserPanelSmallItem(
                     modifier = Modifier
                         .weight(1f),
@@ -142,7 +153,7 @@ fun UserPanel(
                     }
                 )
             }
-            Row {
+            item {
                 UserPanelSmallItem(
                     modifier = Modifier
                         .weight(1f)
@@ -163,6 +174,8 @@ fun UserPanel(
                         onHide()
                     }
                 )
+            }
+            item {
                 UserPanelSmallItem(
                     modifier = Modifier
                         .weight(1f),
