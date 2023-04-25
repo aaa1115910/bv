@@ -82,8 +82,11 @@ fun VideoListController(
                             }
                             MenuListItem(
                                 modifier = itemModifier,
-                                // TODO 如果该分集是 SP（例如柯南），那集数会被打乱
-                                text = "P${video.index + 1} ${video.title}",
+                                text = if (video.isEpisode) {
+                                    video.title
+                                } else {
+                                    "P${video.index + 1} ${video.title}"
+                                },
                                 selected = isSelected,
                                 textAlign = TextAlign.Start
                             ) {

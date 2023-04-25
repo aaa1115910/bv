@@ -304,7 +304,9 @@ fun SeasonInfoScreen(
                                         cid = episode.cid,
                                         epid = episode.id,
                                         seasonId = seasonData?.seasonId,
-                                        title = episode.longTitle,
+                                        title = runCatching {
+                                            "第 ${episode.title.toInt()} 集"
+                                        }.getOrDefault(episode.title) + " " + episode.longTitle,
                                         index = index,
                                         isEpisode = true
                                     )
@@ -371,7 +373,9 @@ fun SeasonInfoScreen(
                                     cid = episode.cid,
                                     epid = episode.id,
                                     seasonId = seasonData?.seasonId,
-                                    title = episode.longTitle,
+                                    title = runCatching {
+                                        "第 ${episode.title.toInt()} 集"
+                                    }.getOrDefault(episode.title) + " " + episode.longTitle,
                                     index = index,
                                     isEpisode = true
                                 )
@@ -397,7 +401,9 @@ fun SeasonInfoScreen(
                                         cid = episode.cid,
                                         epid = episode.id,
                                         seasonId = seasonData?.seasonId,
-                                        title = episode.longTitle,
+                                        title = runCatching {
+                                            "第 ${episode.title.toInt()} 集"
+                                        }.getOrDefault(episode.title) + " " + episode.longTitle,
                                         index = index,
                                         isEpisode = true
                                     )
