@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +67,9 @@ private val bvColorSchemeCommon = androidx.compose.material3.darkColorScheme(
 @Composable
 fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable (
+        onDensityChange: (Float) -> Unit
+    ) -> Unit
 ) {
     val context = LocalContext.current
     val fontScale = LocalDensity.current.fontScale
@@ -86,7 +89,11 @@ fun BVTheme(
         }
     }
 
-    val density by remember { mutableStateOf(context.resources.displayMetrics.widthPixels / 960f) }
+    val density = if (view.isInEditMode)
+        LocalDensity.current.density
+    else
+        Prefs.densityFlow.collectAsState(context.resources.displayMetrics.widthPixels / 960f).value
+
     val showFps by remember { mutableStateOf(if (!view.isInEditMode) Prefs.showFps else false) }
 
     MaterialTheme(
@@ -105,10 +112,18 @@ fun BVTheme(
                     SurfaceWithoutClickable {
                         if (showFps) {
                             FpsMonitor {
-                                content()
+                                content(
+                                    onDensityChange = {
+
+                                    }
+                                )
                             }
                         } else {
-                            content()
+                            content(
+                                onDensityChange = {
+
+                                }
+                            )
                         }
                     }
                 }

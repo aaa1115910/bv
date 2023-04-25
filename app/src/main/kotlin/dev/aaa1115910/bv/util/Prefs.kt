@@ -13,6 +13,7 @@ import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -143,6 +144,11 @@ object Prefs {
             }
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBuvid3Key, value) }
+
+    val densityFlow: Flow<Float> get() = dsm.getPreferenceFlow(PrefKeys.prefDensityRequest)
+    var density: Float
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDensityRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDensityKey, value) }
 }
 
 private object PrefKeys {
@@ -165,6 +171,7 @@ private object PrefKeys {
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
+    val prefDensityKey = floatPreferencesKey("density")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -189,4 +196,6 @@ private object PrefKeys {
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
+    val prefDensityRequest =
+        PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
 }

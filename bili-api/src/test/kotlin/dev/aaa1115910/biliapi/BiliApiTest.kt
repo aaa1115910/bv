@@ -7,8 +7,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowAction
 import dev.aaa1115910.biliapi.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.entity.video.TimelineType
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.*
-
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
@@ -351,6 +350,16 @@ internal class BiliApiTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun `get user season status data`() = runBlocking {
+        println(
+            BiliApi.getSeasonUserStatus(
+                seasonId = 44152,
+                sessData = SESSDATA
+            )
+        )
     }
 
     @Test

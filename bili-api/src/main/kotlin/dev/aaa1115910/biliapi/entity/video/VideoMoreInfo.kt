@@ -101,7 +101,7 @@ data class VideoMoreInfo(
     @SerialName("preview_toast")
     val previewToast: String,
     @SerialName("pcdn_loader")
-    val pcdnLoader: PcdnLoader,
+    val pcdnLoader: PcdnLoader? = null,
     val options: Options,
     @SerialName("guide_attention")
     val guideAttention: JsonArray,
