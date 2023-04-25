@@ -32,9 +32,11 @@ import dev.aaa1115910.bv.component.controllers2.MenuFocusState
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerPictureMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
+import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalTvFoundationApi::class)
 @Composable
@@ -43,6 +45,7 @@ fun PictureMenuList(
     onResolutionChange: (Int) -> Unit,
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     val context = LocalContext.current
@@ -80,7 +83,7 @@ fun PictureMenuList(
                     onFocusBackToParent = {
                         onFocusStateChange(MenuFocusState.Menu)
                         focusRequester.requestFocus()
-                    },
+                    }
                 )
 
                 VideoPlayerPictureMenuItem.Codec -> RadioMenuList(
@@ -91,7 +94,7 @@ fun PictureMenuList(
                     onFocusBackToParent = {
                         onFocusStateChange(MenuFocusState.Menu)
                         focusRequester.requestFocus()
-                    },
+                    }
                 )
 
                 VideoPlayerPictureMenuItem.AspectRatio -> RadioMenuList(
@@ -102,7 +105,17 @@ fun PictureMenuList(
                     onFocusBackToParent = {
                         onFocusStateChange(MenuFocusState.Menu)
                         focusRequester.requestFocus()
-                    },
+                    }
+                )
+
+                VideoPlayerPictureMenuItem.PlaySpeed -> StepLessMenuItem(
+                    modifier = menuItemsModifier,
+                    value = data.currentVideoSpeed,
+                    step = 0.25f,
+                    range = 0.25f..2f,
+                    text = "${(data.currentVideoSpeed * 100).roundToInt() / 100f}x",
+                    onValueChange = onPlaySpeedChange,
+                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
             }
         }

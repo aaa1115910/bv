@@ -84,13 +84,14 @@ fun VideoPlayerV3Screen(
     var isError by remember { mutableStateOf(false) }
     var exception: Exception? by remember { mutableStateOf(null) }
 
-    var typeFilter by remember { mutableStateOf(TypeFilter()) }
+    val typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
     var videoPlayerHeight by remember { mutableStateOf(0.dp) }
     var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var currentPosition by remember { mutableStateOf(0L) }
+    var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
 
     var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
@@ -194,6 +195,11 @@ fun VideoPlayerV3Screen(
             exception = null
             initDanmakuConfig()
             updateVideoAspectRatio()
+
+            //reset default play speed
+            logger.info { "Reset default play speed: $currentPlaySpeed" }
+            videoPlayer.speed = currentPlaySpeed
+            playerViewModel.danmakuPlayer?.updatePlaySpeed(currentPlaySpeed)
         }
 
         override fun onPlay() {
@@ -282,6 +288,7 @@ fun VideoPlayerV3Screen(
             currentResolution = playerViewModel.currentQuality,
             currentVideoCodec = playerViewModel.currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
+            currentVideoSpeed = currentPlaySpeed,
             currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
             currentDanmakuEnabledList = playerViewModel.currentDanmakuTypes,
             currentDanmakuScale = playerViewModel.currentDanmakuScale,
@@ -364,6 +371,13 @@ fun VideoPlayerV3Screen(
             onAspectRatioChange = { aspectRadio ->
                 currentVideoAspectRatio = aspectRadio
                 updateVideoAspectRatio()
+            },
+            onPlaySpeedChange = { speed ->
+                logger.info { "Set default play speed: $speed" }
+                Prefs.defaultPlaySpeed = speed
+                currentPlaySpeed = speed
+                videoPlayer.speed = speed
+                playerViewModel.danmakuPlayer?.updatePlaySpeed(speed)
             },
             onDanmakuSwitchChange = { enabledDanmakuTypes ->
                 logger.info { "On enabled danmaku type change: $enabledDanmakuTypes" }

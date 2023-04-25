@@ -62,6 +62,7 @@ fun MenuController(
     onResolutionChange: (Int) -> Unit = {},
     onCodecChange: (VideoCodec) -> Unit = {},
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onPlaySpeedChange: (Float) -> Unit = {},
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
@@ -92,6 +93,7 @@ fun MenuController(
                 onResolutionChange = onResolutionChange,
                 onCodecChange = onCodecChange,
                 onAspectRatioChange = onAspectRatioChange,
+                onPlaySpeedChange = onPlaySpeedChange,
                 onDanmakuSwitchChange = onDanmakuSwitchChange,
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuOpacityChange = onDanmakuOpacityChange,
@@ -113,6 +115,7 @@ fun MenuController(
     onResolutionChange: (Int) -> Unit = {},
     onCodecChange: (VideoCodec) -> Unit = {},
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
@@ -142,6 +145,7 @@ fun MenuController(
                     selectedNavMenu = selectedNavItem,
                     onResolutionChange = onResolutionChange,
                     onCodecChange = onCodecChange,
+                    onPlaySpeedChange = onPlaySpeedChange,
                     onAspectRatioChange = onAspectRatioChange,
                     onDanmakuSwitchChange = onDanmakuSwitchChange,
                     onDanmakuSizeChange = onDanmakuSizeChange,
@@ -182,6 +186,7 @@ private fun MenuList(
     onResolutionChange: (Int) -> Unit,
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
@@ -201,9 +206,10 @@ private fun MenuList(
             VideoPlayerMenuNavItem.Picture -> {
                 PictureMenuList(
                     onResolutionChange = onResolutionChange,
-                    onFocusStateChange = onFocusStateChange,
                     onCodecChange = onCodecChange,
                     onAspectRatioChange = onAspectRatioChange,
+                    onPlaySpeedChange = onPlaySpeedChange,
+                    onFocusStateChange = onFocusStateChange
                 )
             }
 
@@ -242,7 +248,8 @@ enum class VideoPlayerMenuNavItem(private val strRes: Int, val icon: ImageVector
 enum class VideoPlayerPictureMenuItem(private val strRes: Int) {
     Resolution(R.string.video_player_menu_picture_resolution),
     Codec(R.string.video_player_menu_picture_codec),
-    AspectRatio(R.string.video_player_menu_picture_aspect_ratio);
+    AspectRatio(R.string.video_player_menu_picture_aspect_ratio),
+    PlaySpeed(R.string.video_player_menu_picture_play_speed);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
@@ -284,6 +291,7 @@ fun MenuControllerPreview() {
     var currentResolution by remember { mutableStateOf(1) }
     var currentCodec by remember { mutableStateOf(VideoCodec.HEVC) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    var currentPlaySpeed by remember { mutableStateOf(1f) }
 
     val currentDanmakuSwitch = remember { mutableStateListOf<DanmakuType>() }
     var currentDanmakuSize by remember { mutableStateOf(1f) }
@@ -368,6 +376,7 @@ fun MenuControllerPreview() {
                         currentResolution = currentResolution,
                         currentVideoCodec = currentCodec,
                         currentVideoAspectRatio = currentVideoAspectRatio,
+                        currentVideoSpeed = currentPlaySpeed,
 
                         currentDanmakuEnabledList = currentDanmakuSwitch,
                         currentDanmakuScale = currentDanmakuSize,
@@ -388,6 +397,7 @@ fun MenuControllerPreview() {
                         onResolutionChange = { currentResolution = it },
                         onCodecChange = { currentCodec = it },
                         onAspectRatioChange = { currentVideoAspectRatio = it },
+                        onPlaySpeedChange = { currentPlaySpeed = it },
                         onDanmakuSwitchChange = {
                             val a = currentDanmakuSwitch.toList()
                             currentDanmakuSwitch.swapList(it)

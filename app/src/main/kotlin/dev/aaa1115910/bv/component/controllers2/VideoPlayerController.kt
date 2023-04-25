@@ -53,9 +53,10 @@ fun VideoPlayerController(
     onPlayNewVideo: (VideoListItem) -> Unit,
 
     //menu events
-    onResolutionChange: (Int) -> Unit = {},
-    onCodecChange: (VideoCodec) -> Unit = {},
+    onResolutionChange: (Int) -> Unit,
+    onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
@@ -319,6 +320,7 @@ fun VideoPlayerController(
             onResolutionChange = onResolutionChange,
             onCodecChange = onCodecChange,
             onAspectRatioChange = onAspectRatioChange,
+            onPlaySpeedChange = onPlaySpeedChange,
             onDanmakuSwitchChange = onDanmakuSwitchChange,
             onDanmakuSizeChange = onDanmakuSizeChange,
             onDanmakuOpacityChange = onDanmakuOpacityChange,
