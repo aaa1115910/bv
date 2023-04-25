@@ -43,10 +43,12 @@ fun VideoListController(
     val listState = rememberTvLazyListState()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        val currentIndex = videoList.indexOfFirst { it.cid == currentCid }
-        listState.animateScrollToItem(currentIndex)
-        focusRequester.requestFocus(scope)
+    LaunchedEffect(show) {
+        if (show) {
+            val currentIndex = videoList.indexOfFirst { it.cid == currentCid }
+            listState.animateScrollToItem(currentIndex)
+            focusRequester.requestFocus(scope)
+        }
     }
 
     Box {
