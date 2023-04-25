@@ -485,7 +485,11 @@ data class VideoPlayerControllerData(
     val currentSubtitleBottomPadding: Dp = 12.dp,
     val lastPlayed: Int = 0,
     val title: String = "Title",
-    val secondTitle: String = "Second title"
+    val secondTitle: String = "Second title",
+    val isPlaying: Boolean = false,
+    val isBuffering: Boolean = false,
+    val isError: Boolean = false,
+    val exception: Exception? = null,
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

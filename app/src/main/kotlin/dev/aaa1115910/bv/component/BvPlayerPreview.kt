@@ -25,7 +25,7 @@ private val options = VideoPlayerOptions(
 )
 
 private val videoPlayerListener = object : VideoPlayerListener {
-    override fun onError(error: String) {
+    override fun onError(error: Exception) {
         println("onError: $error")
         //TODO("Not yet implemented")
     }

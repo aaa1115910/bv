@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.player.impl.exo
 import android.content.Context
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -14,7 +15,7 @@ import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.formatMinSec
 
-@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+@OptIn(UnstableApi::class)
 class ExoMediaPlayer(
     private val context: Context,
     private val options: VideoPlayerOptions
@@ -159,4 +160,8 @@ class ExoMediaPlayer(
         get() = mPlayer?.videoSize?.width ?: 0
     override val videoHeight: Int
         get() = mPlayer?.videoSize?.height ?: 0
+
+    override fun onPlayerError(error: PlaybackException) {
+        mPlayerEventListener?.onError(error)
+    }
 }

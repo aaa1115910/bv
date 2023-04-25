@@ -2,7 +2,7 @@ package dev.aaa1115910.bv.player
 
 interface VideoPlayerListener {
     /** 异常 */
-    fun onError(error: String)
+    fun onError(error: Exception)
 
     /**
      * 准备

@@ -79,6 +79,10 @@ fun VideoPlayerV3Screen(
     }
     var debugInfo by remember { mutableStateOf("") }
     var showLogs by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(true) }
+    var isBuffering by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
+    var exception: Exception? by remember { mutableStateOf(null) }
 
     var typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
@@ -178,13 +182,16 @@ fun VideoPlayerV3Screen(
     }
 
     val videoPlayerListener = object : VideoPlayerListener {
-        override fun onError(error: String) {
+        override fun onError(error: Exception) {
             logger.info { "onError: $error" }
-            //TODO("Not yet implemented")
+            isError = true
+            exception = error
         }
 
         override fun onReady() {
             logger.info { "onReady" }
+            isError = false
+            exception = null
             initDanmakuConfig()
             updateVideoAspectRatio()
         }
@@ -192,20 +199,25 @@ fun VideoPlayerV3Screen(
         override fun onPlay() {
             logger.info { "onPlay" }
             playerViewModel.danmakuPlayer?.start()
+            isPlaying = true
+            isBuffering = false
         }
 
         override fun onPause() {
             logger.info { "onPause" }
             playerViewModel.danmakuPlayer?.pause()
+            isPlaying = false
         }
 
         override fun onBuffering() {
             logger.info { "onBuffering" }
+            isBuffering = true
         }
 
         override fun onEnd() {
             logger.info { "onEnd" }
             playerViewModel.danmakuPlayer?.pause()
+            isPlaying = false
         }
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
@@ -284,6 +296,10 @@ fun VideoPlayerV3Screen(
             lastPlayed = playerViewModel.lastPlayed,
             title = playerViewModel.title,
             secondTitle = playerViewModel.partTitle,
+            isPlaying = isPlaying,
+            isBuffering = isBuffering,
+            isError = isError,
+            exception = exception
         )
     ) {
         VideoPlayerController(

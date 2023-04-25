@@ -290,6 +290,12 @@ fun VideoPlayerController(
             }
         }
         BottomSubtitle()
+        PlayStateTips(
+            isPlaying = data.isPlaying,
+            isBuffering = data.isBuffering,
+            isError = data.isError,
+            exception = data.exception
+        )
         ControllerVideoInfo(
             show = showInfo,
             infoData = data.infoData,

@@ -120,6 +120,8 @@ class VlcMediaPlayer(
             Event.EndReached -> mPlayerEventListener?.onEnd()
             // 在 LibVLC 中，更改播放进度时，不会再触发 Playing 事件，因此无法在恢复播放时继续播放弹幕，此时监听该事件来实现监听跳转进度后继续播放
             Event.PositionChanged -> mPlayerEventListener?.onPlay()
+            // LibVLC 无法监听到具体的错误信息
+            Event.EncounteredError -> mPlayerEventListener?.onError(Exception("LibVLC encountered error."))
         }
     }
 
