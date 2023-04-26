@@ -54,6 +54,7 @@ import dev.aaa1115910.bv.screen.settings.content.NetworkSetting
 import dev.aaa1115910.bv.screen.settings.content.OtherSetting
 import dev.aaa1115910.bv.screen.settings.content.PlayerTypeSetting
 import dev.aaa1115910.bv.screen.settings.content.ResolutionSetting
+import dev.aaa1115910.bv.screen.settings.content.StorageSetting
 import dev.aaa1115910.bv.screen.settings.content.UISetting
 import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -169,6 +170,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     PlayerType(R.string.settings_item_player_type),
     UI(R.string.settings_item_ui),
     Other(R.string.settings_item_other),
+    Storage(R.string.settings_item_storage),
     Network(R.string.settings_item_network),
     Info(R.string.settings_item_info),
     About(R.string.settings_item_about);
@@ -201,6 +203,7 @@ fun SettingContent(
                 SettingsMenuNavItem.Network -> NetworkSetting()
                 SettingsMenuNavItem.PlayerType -> PlayerTypeSetting()
                 SettingsMenuNavItem.UI -> UISetting()
+                SettingsMenuNavItem.Storage -> StorageSetting()
             }
         }
     }

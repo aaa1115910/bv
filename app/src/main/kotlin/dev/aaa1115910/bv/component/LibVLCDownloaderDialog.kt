@@ -1,8 +1,6 @@
 package dev.aaa1115910.bv.component
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +9,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.tv.material3.Button
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.network.VlcLibsApi
 import dev.aaa1115910.bv.player.BuildConfig
@@ -23,6 +24,7 @@ import java.io.File
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LibVLCDownloaderDialog(
     modifier: Modifier = Modifier,
@@ -62,14 +64,16 @@ fun LibVLCDownloaderDialog(
     val startInstall: () -> Unit = {
         processing = true
 
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
                 text = "正在获取下载地址"
                 val release =
                     VlcLibsApi.getRelease(BuildConfig.libVLCVersion)
                         ?: throw IllegalStateException("Release not found")
                 val tempFilename = "${UUID.randomUUID()}.zip"
-                val tempFile = File(context.cacheDir, tempFilename)
+                val tempDir = File(context.cacheDir, "libvlc_downloader")
+                if (!tempDir.exists()) tempDir.mkdirs()
+                val tempFile = File(tempDir, tempFilename)
                 tempFile.createNewFile()
 
                 VlcLibsApi.downloadFile(
@@ -85,15 +89,16 @@ fun LibVLCDownloaderDialog(
                 unZipLibs(tempFile)
             }.onSuccess {
                 text = "安装完成"
+                onHideDialog()
                 withContext(Dispatchers.Main) {
-                    "Install success".toast(context)
+                    "LibVLC 安装成功".toast(context)
                 }
             }.onFailure {
                 text = "安装失败"
                 withContext(Dispatchers.Main) {
-                    "Install failed".toast(context)
+                    "LibVLC 安装失败: ${it.message}".toast(context)
                 }
-                println(it)
+                it.printStackTrace()
             }
 
             processing = false
@@ -103,23 +108,23 @@ fun LibVLCDownloaderDialog(
     if (show) {
         AlertDialog(
             modifier = modifier,
-            title = { Text(text = "LibVLC Downloader") },
+            title = { Text(text = "LibVLC 下载器") },
             text = { Text(text = text) },
             onDismissRequest = { if (!processing) onHideDialog() },
             confirmButton = {
-                FilledTonalButton(
+                Button(
                     onClick = { startInstall() },
                     enabled = !processing
                 ) {
-                    Text(text = "Download")
+                    Text(text = "下载")
                 }
             },
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = { onHideDialog() },
                     enabled = !processing
                 ) {
-                    Text(text = "Cancel")
+                    Text(text = "取消")
                 }
             }
         )

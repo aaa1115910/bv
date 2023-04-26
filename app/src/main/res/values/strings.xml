@@ -145,6 +145,7 @@
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_player_type">播放器</string>
     <string name="settings_item_resolution">默认分辨率</string>
+    <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_start_button">开始测试</string>
     <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
@@ -155,6 +156,10 @@
     <string name="settings_other_fps_title">FPS 显示</string>
     <string name="settings_other_old_player_text">使用旧版播放器，旧版播放器不会再有任何新特性更新，并且将在后续版本内移除</string>
     <string name="settings_other_old_player_title">旧版播放器</string>
+    <string name="settings_storage_calculating">计算中</string>
+    <string name="settings_storage_image_cache">图片缓存</string>
+    <string name="settings_storage_libvlc_files">LibVLC 文件</string>
+    <string name="settings_storage_others_cache">其他缓存</string>
     <string name="settings_ui_density_text">更改整个应用的大小缩放</string>
     <string name="settings_ui_density_title">界面缩放</string>
     <string name="settings_version_check_update_button">爷要更新</string>
