@@ -127,7 +127,7 @@ fun SeasonInfoScreen(
                     cid = cid,
                     title = seasonData!!.title,
                     partTitle = episodeTitle,
-                    played = startTime * 100,
+                    played = startTime * 1000,
                     fromSeason = true,
                     subType = seasonData?.type,
                     epid = epid,
@@ -302,6 +302,8 @@ fun SeasonInfoScreen(
                                     VideoListItem(
                                         aid = episode.aid.toInt(),
                                         cid = episode.cid,
+                                        epid = episode.id,
+                                        seasonId = seasonData?.seasonId,
                                         title = episode.longTitle,
                                         index = index,
                                         isEpisode = true
@@ -367,6 +369,8 @@ fun SeasonInfoScreen(
                                 VideoListItem(
                                     aid = episode.aid.toInt(),
                                     cid = episode.cid,
+                                    epid = episode.id,
+                                    seasonId = seasonData?.seasonId,
                                     title = episode.longTitle,
                                     index = index,
                                     isEpisode = true
@@ -391,6 +395,8 @@ fun SeasonInfoScreen(
                                     VideoListItem(
                                         aid = episode.aid.toInt(),
                                         cid = episode.cid,
+                                        epid = episode.id,
+                                        seasonId = seasonData?.seasonId,
                                         title = episode.longTitle,
                                         index = index,
                                         isEpisode = true

@@ -22,15 +22,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
+import androidx.tv.material3.IconButton
+import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Tab
@@ -57,108 +56,98 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
-import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
     isLogin: Boolean,
     username: String,
     face: String,
-    focusInNav: Boolean,
     settingsButtonFocusRequester: FocusRequester,
     onSelectedChange: (TopNavItem) -> Unit = {},
     onClick: (TopNavItem) -> Unit = {},
     onShowUserPanel: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
     val navList =
         listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Anime, TopNavItem.Dynamics)
-
-    val navItemFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        navItemFocusRequester.requestFocus(scope)
-    }
-
-
-    LaunchedEffect(focusInNav) {
-        if (focusInNav) {
-            navItemFocusRequester.requestFocus(scope)
-        }
-    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Bug Video",
-                    fontSize = 13.sp,
-                    modifier = Modifier
-                        .alpha(0.5f)
-                        .padding(horizontal = 30.dp)
-                )
-
-                var selectedTabIndex by remember { mutableStateOf(1) }
-
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                ) {
-                    navList.forEachIndexed { index, tab ->
-                        NavItemTab(
-                            topNavItem = tab,
-                            navItemFocusRequester = navItemFocusRequester,
-                            selected = index == selectedTabIndex,
-                            onFocus = {
-                                if (tab != TopNavItem.Search) {
-                                    onSelectedChange(tab)
-                                    selectedNav = tab
-                                }
-                                selectedTabIndex = index
-                            },
-                            onClick = { onClick(tab) }
-                        )
-                    }
-                }
-            }
+        FocusGroup {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                SettingsIcon(
-                    modifier = Modifier.focusRequester(settingsButtonFocusRequester),
-                    onClick = {
-                        context.startActivity(Intent(context, SettingsActivity::class.java))
-                    }
-                )
-                UserIcon(
-                    modifier = Modifier.padding(end = 12.dp),
-                    isLogin = isLogin,
-                    username = username,
-                    face = face,
-                    onGotoLogin = {
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    },
-                    onGotoInfo = {
-                        context.startActivity(Intent(context, UserInfoActivity::class.java))
-                    },
-                    onFocused = {
-                        if (isLogin) {
-                            onShowUserPanel()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Bug Video",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .alpha(0.5f)
+                            .padding(horizontal = 26.dp)
+                    )
+
+                    var selectedTabIndex by remember { mutableStateOf(1) }
+
+                    TabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                    ) {
+                        navList.forEachIndexed { index, tab ->
+                            NavItemTab(
+                                modifier = if (index == 1) Modifier.initiallyFocused() else Modifier.restorableFocus(),
+                                topNavItem = tab,
+                                selected = index == selectedTabIndex,
+                                onFocus = {
+                                    if (tab != TopNavItem.Search) {
+                                        onSelectedChange(tab)
+                                        selectedNav = tab
+                                    }
+                                    selectedTabIndex = index
+                                },
+                                onClick = { onClick(tab) }
+                            )
                         }
                     }
-                )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SettingsIcon(
+                        modifier = Modifier
+                            .restorableFocus()
+                            .focusRequester(settingsButtonFocusRequester),
+                        onClick = {
+                            context.startActivity(Intent(context, SettingsActivity::class.java))
+                        }
+                    )
+                    UserIcon(
+                        modifier = Modifier
+                            .restorableFocus()
+                            .padding(end = 12.dp),
+                        isLogin = isLogin,
+                        username = username,
+                        face = face,
+                        onGotoLogin = {
+                            context.startActivity(Intent(context, LoginActivity::class.java))
+                        },
+                        onGotoInfo = {
+                            context.startActivity(Intent(context, UserInfoActivity::class.java))
+                        },
+                        onFocused = {
+                            if (isLogin) {
+                                onShowUserPanel()
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -169,19 +158,14 @@ fun TopNav(
 fun NavItemTab(
     modifier: Modifier = Modifier,
     topNavItem: TopNavItem,
-    navItemFocusRequester: FocusRequester,
     selected: Boolean,
     onClick: () -> Unit,
     onFocus: () -> Unit
 ) {
     val context = LocalContext.current
-    val tabModifier =
-        if (topNavItem == TopNavItem.Popular || selected)
-            modifier.focusRequester(navItemFocusRequester)
-        else modifier
 
     Tab(
-        modifier = tabModifier,
+        modifier = modifier,
         selected = selected,
         onFocus = onFocus,
         onClick = onClick
@@ -242,9 +226,13 @@ private fun SettingsIcon(
     )
 
     IconButton(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus },
-        onClick = onClick
+        modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
+        onClick = onClick,
+        colors = IconButtonDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+            pressedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+        )
     ) {
         Icon(
             modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),

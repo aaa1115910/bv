@@ -235,7 +235,7 @@ fun VideoPlayerScreen(
         modifier = modifier
             .focusRequester(focusRequester)
             .fillMaxSize(),
-        playbackState=videoPlayer.playbackState,
+        playbackState = videoPlayer.playbackState,
         infoData = infoData,
 
         resolutionMap = playerViewModel.availableQuality,
@@ -384,7 +384,9 @@ fun VideoPlayerScreen(
             playerViewModel.partTitle = videoListItem.title
             playerViewModel.loadPlayUrl(
                 avid = videoListItem.aid,
-                cid = videoListItem.cid
+                cid = videoListItem.cid,
+                epid = videoListItem.epid,
+                seasonId = videoListItem.seasonId
             )
         }
     ) {
