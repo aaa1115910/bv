@@ -34,6 +34,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchInputActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -70,6 +71,7 @@ fun HomeScreen(
     val logger = KotlinLogging.logger { }
 
     val popularState = rememberTvLazyGridState()
+    val animeState = rememberTvLazyListState()
     val dynamicState = rememberTvLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
@@ -218,7 +220,11 @@ fun HomeScreen(
                         )
 
                         TopNavItem.Partition -> PartitionScreen()
-                        TopNavItem.Anime -> AnimeScreen()
+                        TopNavItem.Anime -> AnimeScreen(
+                            tvLazyListState = animeState,
+                            onBackNav = onFocusBackToNav
+                        )
+
                         TopNavItem.Dynamics -> DynamicsScreen(
                             tvLazyGridState = dynamicState,
                             onBackNav = onFocusBackToNav
