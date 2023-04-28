@@ -244,19 +244,6 @@ fun VideoPlayerV3Screen(
         if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
 
         focusRequester.requestFocus()
-
-        clockRefreshTimer = countDownTimer(
-            millisInFuture = Long.MAX_VALUE,
-            countDownInterval = 1000,
-            tag = "clockRefreshTimer",
-            onTick = {
-                val calendar = Calendar.getInstance()
-                val hour = calendar.get(Calendar.HOUR_OF_DAY)
-                val minute = calendar.get(Calendar.MINUTE)
-                val second = calendar.get(Calendar.SECOND)
-                clock = Triple(hour, minute, second)
-            }
-        )
     }
 
     DisposableEffect(Unit) {
@@ -289,6 +276,24 @@ fun VideoPlayerV3Screen(
     DisposableEffect(Unit) {
         onDispose {
             videoPlayer.release()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        clockRefreshTimer = countDownTimer(
+            millisInFuture = Long.MAX_VALUE,
+            countDownInterval = 1000,
+            tag = "clockRefreshTimer",
+            onTick = {
+                val calendar = Calendar.getInstance()
+                val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                val minute = calendar.get(Calendar.MINUTE)
+                val second = calendar.get(Calendar.SECOND)
+                clock = Triple(hour, minute, second)
+            }
+        )
+        onDispose {
+            clockRefreshTimer?.cancel()
         }
     }
 
