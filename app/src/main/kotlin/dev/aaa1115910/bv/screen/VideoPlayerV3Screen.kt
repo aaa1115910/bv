@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 import java.util.Timer
 import java.util.TimerTask
 
@@ -93,7 +94,10 @@ fun VideoPlayerV3Screen(
     var currentPosition by remember { mutableStateOf(0L) }
     var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
 
+    var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
+
     var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    var clockRefreshTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -240,6 +244,19 @@ fun VideoPlayerV3Screen(
         if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
 
         focusRequester.requestFocus()
+
+        clockRefreshTimer = countDownTimer(
+            millisInFuture = Long.MAX_VALUE,
+            countDownInterval = 1000,
+            tag = "clockRefreshTimer",
+            onTick = {
+                val calendar = Calendar.getInstance()
+                val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                val minute = calendar.get(Calendar.MINUTE)
+                val second = calendar.get(Calendar.SECOND)
+                clock = Triple(hour, minute, second)
+            }
+        )
     }
 
     DisposableEffect(Unit) {
@@ -306,7 +323,8 @@ fun VideoPlayerV3Screen(
             isPlaying = isPlaying,
             isBuffering = isBuffering,
             isError = isError,
-            exception = exception
+            exception = exception,
+            clock = clock
         )
     ) {
         VideoPlayerController(

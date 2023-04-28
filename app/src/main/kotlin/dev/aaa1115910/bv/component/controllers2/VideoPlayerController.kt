@@ -302,6 +302,7 @@ fun VideoPlayerController(
             infoData = data.infoData,
             title = data.title,
             secondTitle = data.secondTitle,
+            clock = data.clock,
             onHideInfo = { showInfo = false }
         )
         SeekController(

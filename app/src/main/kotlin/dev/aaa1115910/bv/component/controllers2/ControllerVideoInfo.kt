@@ -25,7 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +46,7 @@ fun ControllerVideoInfo(
     infoData: VideoPlayerInfoData,
     title: String,
     secondTitle: String,
+    clock: Triple<Int, Int, Int>,
     onHideInfo: () -> Unit
 ) {
     var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
@@ -75,7 +80,8 @@ fun ControllerVideoInfo(
         ) {
             ControllerVideoInfoTop(
                 modifier = Modifier.align(Alignment.TopCenter),
-                title = title
+                title = title,
+                clock = clock
             )
         }
         AnimatedVisibility(
@@ -96,7 +102,8 @@ fun ControllerVideoInfo(
 @Composable
 fun ControllerVideoInfoTop(
     modifier: Modifier = Modifier,
-    title: String
+    title: String,
+    clock: Triple<Int, Int, Int>
 ) {
     Column(
         modifier = modifier
@@ -108,13 +115,24 @@ fun ControllerVideoInfoTop(
             .background(Color.Black.copy(0.5f))
             .padding(horizontal = 32.dp, vertical = 16.dp),
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.displaySmall,
-            color = Color.White,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
+        Box {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 100.dp),
+                text = title,
+                style = MaterialTheme.typography.displaySmall,
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Clock(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                hour = clock.first,
+                minute = clock.second,
+                second = clock.third
+            )
+        }
     }
 }
 
@@ -171,6 +189,44 @@ fun ControllerVideoInfoBottom(
     }
 }
 
+@Composable
+private fun Clock(
+    modifier: Modifier = Modifier,
+    hour: Int,
+    minute: Int,
+    second: Int
+) {
+    Text(
+        modifier = modifier,
+        color = Color.White,
+        fontWeight = FontWeight.Bold,
+        text = buildAnnotatedString {
+            withStyle(SpanStyle(fontSize = 32.sp)) {
+                append("$hour".padStart(2, '0'))
+                append(":")
+                append("$minute".padStart(2, '0'))
+            }
+            withStyle(SpanStyle(fontSize = 18.sp)) {
+                append(":")
+                append("$second".padStart(2, '0'))
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun ClockPreview() {
+    val clock = Triple(12, 30, 30)
+    BVTheme {
+        Clock(
+            hour = clock.first,
+            minute = clock.second,
+            second = clock.third
+        )
+    }
+}
+
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun ControllerVideoInfoPreview() {
@@ -200,6 +256,7 @@ private fun ControllerVideoInfoPreview() {
             ),
             title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
             secondTitle = "2023车队车手介绍分析预测",
+            clock = Triple(12, 30, 30),
             onHideInfo = {}
         )
     }
