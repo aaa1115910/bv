@@ -152,7 +152,9 @@ class ExoMediaPlayer(
                 time: ${currentPosition.formatMinSec()} / ${duration.formatMinSec()}
                 buffered: $bufferedPercentage%
                 resolution: ${mPlayer?.videoSize?.width} x ${mPlayer?.videoSize?.height}
-                codec: ${mPlayer?.videoFormat?.sampleMimeType ?: "null"}
+                audio: ${mPlayer?.audioFormat?.bitrate ?: 0} kbps
+                video codec: ${mPlayer?.videoFormat?.sampleMimeType ?: "null"}
+                audio codec: ${mPlayer?.audioFormat?.sampleMimeType ?: "null"}
             """.trimIndent()
         }
 

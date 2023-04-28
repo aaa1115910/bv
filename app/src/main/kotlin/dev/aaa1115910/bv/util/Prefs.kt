@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
+import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
@@ -66,6 +67,13 @@ object Prefs {
     var defaultPlaySpeed: Float
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDefaultPlaySpeedRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultPlaySpeedKey, value) }
+
+    var defaultAudio: Audio
+        get() = runBlocking {
+            Audio.fromCode(dsm.getPreferenceFlow(PrefKeys.prefDefaultAudioRequest).first())
+                ?: Audio.A192K
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultAudioKey, value.code) }
 
     var defaultDanmakuSize: Int
         get() = runBlocking {
@@ -217,6 +225,7 @@ private object PrefKeys {
     val prefUidCkMd5Key = stringPreferencesKey("ucm")
     val prefTokenExpiredDateKey = longPreferencesKey("ted")
     val prefDefaultQualityKey = intPreferencesKey("dq")
+    val prefDefaultAudioKey = intPreferencesKey("da")
     val prefDefaultPlaySpeedKey = floatPreferencesKey("dps")
     val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
     val prefDefaultDanmakuScaleKey = floatPreferencesKey("dds2")
@@ -246,6 +255,7 @@ private object PrefKeys {
     val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
     val prefDefaultPlaySpeedRequest = PreferenceRequest(prefDefaultPlaySpeedKey, 1f)
     val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
+    val prefDefaultAudioRequest = PreferenceRequest(prefDefaultAudioKey, Audio.A192K.code)
     val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
     val prefDefaultDanmakuScaleRequest = PreferenceRequest(prefDefaultDanmakuScaleKey, 1f)
     val prefDefaultDanmakuTransparencyRequest =

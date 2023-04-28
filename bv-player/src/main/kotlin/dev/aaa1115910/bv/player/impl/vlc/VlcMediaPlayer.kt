@@ -132,7 +132,7 @@ class VlcMediaPlayer(
                 time: ${currentPosition.formatMinSec()} / ${duration.formatMinSec()}
                 buffered: $bufferedPercentage%
                 resolution: ${mPlayer?.currentVideoTrack?.width} x ${mPlayer?.currentVideoTrack?.height}
-                codec: ${mPlayer?.currentVideoTrack?.codec}
+                video codec: ${mPlayer?.currentVideoTrack?.codec}
             """.trimIndent()
         }
 

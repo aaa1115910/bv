@@ -298,6 +298,7 @@ fun VideoPlayerV3Screen(
             infoData = infoData,
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
+            availableAudio = playerViewModel.availableAudio,
             availableSubtitle = playerViewModel.availableSubtitle,
             availableSubtitleTracks = playerViewModel.availableSubtitle,
             availableVideoList = playerViewModel.availableVideoList,
@@ -306,6 +307,7 @@ fun VideoPlayerV3Screen(
             currentVideoCodec = playerViewModel.currentVideoCodec,
             currentVideoAspectRatio = currentVideoAspectRatio,
             currentVideoSpeed = currentPlaySpeed,
+            currentAudio = playerViewModel.currentAudio,
             currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
             currentDanmakuEnabledList = playerViewModel.currentDanmakuTypes,
             currentDanmakuScale = playerViewModel.currentDanmakuScale,
@@ -396,6 +398,19 @@ fun VideoPlayerV3Screen(
                 currentPlaySpeed = speed
                 videoPlayer.speed = speed
                 playerViewModel.danmakuPlayer?.updatePlaySpeed(speed)
+            },
+            onAudioChange = { audio ->
+                playerViewModel.currentAudio = audio
+                videoPlayer.pause()
+                val current = videoPlayer.currentPosition
+                scope.launch(Dispatchers.IO) {
+                    playerViewModel.updateAvailableCodec()
+                    playerViewModel.playQuality(audio = audio)
+                    withContext(Dispatchers.Main) {
+                        videoPlayer.seekTo(current)
+                        videoPlayer.start()
+                    }
+                }
             },
             onDanmakuSwitchChange = { enabledDanmakuTypes ->
                 logger.info { "On enabled danmaku type change: $enabledDanmakuTypes" }

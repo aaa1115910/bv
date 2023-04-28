@@ -20,6 +20,7 @@ import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
+import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -57,6 +58,7 @@ class VideoPlayerV3ViewModel(
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
     var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
+    var availableAudio = mutableStateListOf<Audio>()
     val availableVideoList get() = videoInfoRepository.videoList
 
     var currentVideoHeight by mutableStateOf(0)
@@ -64,6 +66,7 @@ class VideoPlayerV3ViewModel(
 
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
+    var currentAudio by mutableStateOf(Prefs.defaultAudio)
     var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
     var currentDanmakuOpacity by mutableStateOf(Prefs.defaultDanmakuOpacity)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
@@ -180,6 +183,17 @@ class VideoPlayerV3ViewModel(
             logger.fInfo { "Video available resolution: $resolutionMap" }
             availableQuality.swapMap(resolutionMap)
 
+            //读取音频
+            val audioList = mutableListOf<Audio>()
+            responseData.dash?.audio?.forEach {
+                Audio.fromCode(it.id)?.let { audio ->
+                    if (!audioList.contains(audio)) audioList.add(audio)
+                }
+            }
+
+            logger.fInfo { "Video available audio: $audioList" }
+            availableAudio.swapList(audioList)
+
             //先确认最终所选清晰度
             val existDefaultResolution =
                 availableQuality.keys.find { it == Prefs.defaultQuality } != null
@@ -192,6 +206,12 @@ class VideoPlayerV3ViewModel(
                         currentQuality = it
                     }
                 }
+            }
+
+            //确认最终所选音质
+            val existDefaultAudio = availableAudio.contains(Prefs.defaultAudio)
+            if (!existDefaultAudio) {
+                currentAudio = availableAudio.minByOrNull { it.code }!!
             }
 
             //再确认最终所选视频编码
@@ -230,13 +250,22 @@ class VideoPlayerV3ViewModel(
         logger.fInfo { "Select codec: $currentVideoCodec" }
     }
 
-    suspend fun playQuality(qn: Int = currentQuality, codec: VideoCodec = currentVideoCodec) {
+    suspend fun playQuality(
+        qn: Int = currentQuality,
+        codec: VideoCodec = currentVideoCodec,
+        audio: Audio = currentAudio
+    ) {
         logger.fInfo { "Select resolution: $qn, codec: $codec" }
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
         val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
         val videoUrl = videoItem?.baseUrl ?: dashData!!.video[0].baseUrl
-        val audioUrl = dashData?.audio?.first()?.baseUrl
+
+        val audioItem = dashData?.audio?.find { it.id == audio.code } ?: dashData?.audio?.first()
+        val audioUrl = audioItem?.baseUrl ?: dashData?.audio?.first()?.baseUrl
+
+        logger.fInfo { "Select audio: $audioItem" }
+        addLogs("音频编码：${(Audio.fromCode(audioItem?.id ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
         currentVideoHeight = videoItem?.height ?: 0
         currentVideoWidth = videoItem?.width ?: 0

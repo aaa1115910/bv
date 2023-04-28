@@ -33,6 +33,7 @@ import dev.aaa1115910.bv.component.controllers2.VideoPlayerPictureMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
+import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
@@ -46,6 +47,7 @@ fun PictureMenuList(
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
+    onAudioChange: (Audio) -> Unit,
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     val context = LocalContext.current
@@ -59,6 +61,9 @@ fun PictureMenuList(
             .toList()
             .sortedByDescending { (key, _) -> key }
             .toMap()
+    }
+    val audioList = remember(data.availableAudio) {
+        data.availableAudio.sortedBy { it.code }
     }
 
     Row(
@@ -116,6 +121,17 @@ fun PictureMenuList(
                     text = "${(data.currentVideoSpeed * 100).roundToInt() / 100f}x",
                     onValueChange = onPlaySpeedChange,
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
+                )
+
+                VideoPlayerPictureMenuItem.Audio -> RadioMenuList(
+                    modifier = menuItemsModifier,
+                    items = audioList.map { audio -> audio.getDisplayName(context) },
+                    selected = audioList.indexOf(data.currentAudio),
+                    onSelectedChanged = { onAudioChange(audioList[it]) },
+                    onFocusBackToParent = {
+                        onFocusStateChange(MenuFocusState.Menu)
+                        focusRequester.requestFocus()
+                    }
                 )
             }
         }
