@@ -190,6 +190,16 @@ class VideoPlayerV3ViewModel(
                     if (!audioList.contains(audio)) audioList.add(audio)
                 }
             }
+            responseData.dash?.dolby?.audio?.forEach {
+                Audio.fromCode(it.id)?.let { audio ->
+                    if (!audioList.contains(audio)) audioList.add(audio)
+                }
+            }
+            responseData.dash?.flac?.audio?.let {
+                Audio.fromCode(it.id)?.let { audio ->
+                    if (!audioList.contains(audio)) audioList.add(audio)
+                }
+            }
 
             logger.fInfo { "Video available audio: $audioList" }
             availableAudio.swapList(audioList)
@@ -261,7 +271,10 @@ class VideoPlayerV3ViewModel(
         val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
         val videoUrl = videoItem?.baseUrl ?: dashData!!.video[0].baseUrl
 
-        val audioItem = dashData?.audio?.find { it.id == audio.code } ?: dashData?.audio?.first()
+        val audioItem = dashData?.audio?.find { it.id == audio.code }
+            ?: dashData?.dolby?.audio?.find { it.id == audio.code }
+            ?: dashData?.flac?.audio?.let { if (it.id == audio.code) dashData?.flac?.audio else null }
+            ?: dashData?.audio?.first()
         val audioUrl = audioItem?.baseUrl ?: dashData?.audio?.first()?.baseUrl
 
         logger.fInfo { "Select audio: $audioItem" }

@@ -63,7 +63,7 @@ fun PictureMenuList(
             .toMap()
     }
     val audioList = remember(data.availableAudio) {
-        data.availableAudio.sortedBy { it.code }
+        data.availableAudio.sortedBy { it.ordinal }
     }
 
     Row(
