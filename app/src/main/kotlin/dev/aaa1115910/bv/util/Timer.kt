@@ -2,6 +2,8 @@ package dev.aaa1115910.bv.util
 
 import android.os.CountDownTimer
 import mu.KotlinLogging
+import java.util.Timer
+import java.util.TimerTask
 
 fun countDownTimer(
     millisInFuture: Long,
@@ -23,5 +25,22 @@ fun countDownTimer(
         }
     }
     timer.start()
+    return timer
+}
+
+fun timeTask(
+    delay: Long,
+    period: Long,
+    tag: String,
+    onTick: (() -> Unit)?
+): Timer {
+    val logger = KotlinLogging.logger { }
+    val timer = Timer()
+    timer.schedule(object : TimerTask() {
+        override fun run() {
+            logger.info { "[$tag] Time task run" }
+            onTick?.invoke()
+        }
+    }, delay, period)
     return timer
 }

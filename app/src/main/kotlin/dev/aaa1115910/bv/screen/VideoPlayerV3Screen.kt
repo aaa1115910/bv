@@ -44,6 +44,7 @@ import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -239,6 +240,18 @@ fun VideoPlayerV3Screen(
         }
     }
 
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.IO) {
+            val time = withContext(Dispatchers.Main) {
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
+    }
+
     LaunchedEffect(Unit) {
         // LibVLC 需要提前初始化播放器的宽高，才能正常播放
         if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
@@ -264,6 +277,26 @@ fun VideoPlayerV3Screen(
             timer.cancel()
         }
     }
+
+    DisposableEffect(Unit) {
+        var sendHeartbeatTimer: Timer? = null
+        if (!Prefs.incognitoMode) {
+            sendHeartbeatTimer = timeTask(
+                delay = 5000,
+                period = 15000,
+                tag = "sendHeartbeatTimer"
+            ) {
+                if (videoPlayer.isPlaying) sendHeartbeat()
+            }
+        }
+        onDispose {
+            if (!Prefs.incognitoMode) {
+                sendHeartbeat()
+                sendHeartbeatTimer?.cancel()
+            }
+        }
+    }
+
 
     LaunchedEffect(playerViewModel.lastChangedLog) {
         hideLogsTimer?.cancel()
@@ -340,12 +373,11 @@ fun VideoPlayerV3Screen(
             videoPlayer = playerViewModel.videoPlayer!!,
             onPlay = { videoPlayer.start() },
             onPause = {
-                // TODO 暂停时上报播放记录
                 videoPlayer.pause()
-
+                if (!Prefs.incognitoMode) sendHeartbeat()
             },
             onExit = {
-                // TODO 退出前上报播放记录
+                if (!Prefs.incognitoMode) sendHeartbeat()
                 (context as Activity).finish()
             },
             onGoTime = {
@@ -356,7 +388,7 @@ fun VideoPlayerV3Screen(
             },
             onBackToHistory = { videoPlayer.seekTo(playerViewModel.lastPlayed * 1000L) },
             onPlayNewVideo = {
-                // TODO 播放新视频前上报播放记录
+                if (!Prefs.incognitoMode) sendHeartbeat()
                 playerViewModel.loadPlayUrl(
                     avid = it.aid,
                     cid = it.cid,
