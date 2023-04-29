@@ -212,7 +212,13 @@ fun VideoPlayerController(
                     Key.Back -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        //TODO 播放停止时按一次返回键退出播放器
+
+                        if (!videoPlayer.isPlaying) {
+                            logger.fInfo { "Exiting video player" }
+                            onExit()
+                            return@onPreviewKeyEvent true
+                        }
+
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastPressBack < 1000 * 3) {
                             logger.fInfo { "Exiting video player" }
