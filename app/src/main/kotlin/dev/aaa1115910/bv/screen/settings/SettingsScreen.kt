@@ -49,6 +49,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.content.AboutSetting
+import dev.aaa1115910.bv.screen.settings.content.AudioSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
 import dev.aaa1115910.bv.screen.settings.content.NetworkSetting
 import dev.aaa1115910.bv.screen.settings.content.OtherSetting
@@ -167,6 +168,7 @@ fun SettingsNav(
 enum class SettingsMenuNavItem(private val strRes: Int) {
     Resolution(R.string.settings_item_resolution),
     VideoCodec(R.string.settings_item_codec),
+    Audio(R.string.settings_item_audio),
     PlayerType(R.string.settings_item_player_type),
     UI(R.string.settings_item_ui),
     Other(R.string.settings_item_other),
@@ -199,6 +201,7 @@ fun SettingContent(
                 SettingsMenuNavItem.Info -> InfoSetting()
                 SettingsMenuNavItem.About -> AboutSetting()
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()
+                SettingsMenuNavItem.Audio -> AudioSetting()
                 SettingsMenuNavItem.Other -> OtherSetting()
                 SettingsMenuNavItem.Network -> NetworkSetting()
                 SettingsMenuNavItem.PlayerType -> PlayerTypeSetting()

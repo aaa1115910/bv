@@ -145,6 +145,7 @@
     <string name="settings_info_storage">存储: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
     <string name="settings_item_about">关于</string>
+    <string name="settings_item_audio">默认音频编码</string>
     <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
     <string name="settings_item_network">网络测试</string>

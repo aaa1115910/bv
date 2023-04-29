@@ -221,7 +221,12 @@ class VideoPlayerV3ViewModel(
             //确认最终所选音质
             val existDefaultAudio = availableAudio.contains(Prefs.defaultAudio)
             if (!existDefaultAudio) {
-                currentAudio = availableAudio.minByOrNull { it.code }!!
+                currentAudio = when {
+                    availableAudio.contains(Audio.A192K) -> Audio.A192K
+                    availableAudio.contains(Audio.A132K) -> Audio.A132K
+                    availableAudio.contains(Audio.A64K) -> Audio.A64K
+                    else -> availableAudio.first()
+                }
             }
 
             //再确认最终所选视频编码
@@ -265,7 +270,7 @@ class VideoPlayerV3ViewModel(
         codec: VideoCodec = currentVideoCodec,
         audio: Audio = currentAudio
     ) {
-        logger.fInfo { "Select resolution: $qn, codec: $codec" }
+        logger.fInfo { "Select resolution: $qn, codec: $codec, audio: $audio" }
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
         val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
@@ -274,7 +279,7 @@ class VideoPlayerV3ViewModel(
         val audioItem = dashData?.audio?.find { it.id == audio.code }
             ?: dashData?.dolby?.audio?.find { it.id == audio.code }
             ?: dashData?.flac?.audio?.let { if (it.id == audio.code) dashData?.flac?.audio else null }
-            ?: dashData?.audio?.first()
+            ?: dashData?.audio?.minByOrNull { it.codecs }
         val audioUrl = audioItem?.baseUrl ?: dashData?.audio?.first()?.baseUrl
 
         logger.fInfo { "Select audio: $audioItem" }
