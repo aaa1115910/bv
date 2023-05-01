@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +22,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
+import androidx.tv.material3.Button
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.network.AppCenterApi
@@ -33,11 +35,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
 
-private const val OWNER_NAME = "aaa1115910-gmail.com"
-private const val APP_NAME = "bv"
-private const val GROUP_NAME = "public"
-private const val GROUP_ID = "9259f371-d475-4088-b9fe-e5adfac1b563"
-
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpdateDialog(
     modifier: Modifier = Modifier,
@@ -60,14 +58,9 @@ fun UpdateDialog(
     val checkUpdate: () -> Unit = {
         updateStatus = UpdateStatus.UpdatingInfo
 
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-
-                val availablePackageList = AppCenterApi.getPackageList(
-                    ownerName = OWNER_NAME,
-                    appName = APP_NAME,
-                    distributionGroupName = GROUP_NAME
-                )
+                val availablePackageList = AppCenterApi.getPackageList()
                 val latestPackage = availablePackageList.first()
                 if (latestPackage.version.toInt() <= BuildConfig.VERSION_CODE) {
                     updateStatus = UpdateStatus.NoAvailableUpdate
@@ -76,12 +69,7 @@ fun UpdateDialog(
                     latestPackageId = latestPackage.id
                 }
 
-                packageInfo = AppCenterApi.getPackageInfo(
-                    ownerName = OWNER_NAME,
-                    appName = APP_NAME,
-                    distributionGroupName = GROUP_NAME,
-                    releaseId = latestPackageId
-                )
+                packageInfo = AppCenterApi.getPackageInfo(latestPackageId)
             }.onFailure {
                 updateStatus = UpdateStatus.CheckError
             }.onSuccess {
@@ -91,14 +79,9 @@ fun UpdateDialog(
     }
 
     val sendInstallAnalytics: () -> Unit = {
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-                AppCenterApi.sendInstallAnalytics(
-                    ownerName = OWNER_NAME,
-                    appName = APP_NAME,
-                    distributionGroupId = GROUP_ID,
-                    releaseId = latestPackageId
-                )
+                AppCenterApi.sendInstallAnalytics(latestPackageId)
             }
         }
     }
@@ -223,7 +206,7 @@ fun UpdateDialog(
                     }
 
                     UpdateStatus.NoAvailableUpdate -> {
-                        Text(text = "无可用更新")
+                        Text(text = "真没更新，骗你是小狗！")
                     }
                 }
             },
@@ -232,20 +215,20 @@ fun UpdateDialog(
                     UpdateStatus.UpdatingInfo, UpdateStatus.NoAvailableUpdate, UpdateStatus.Downloading, UpdateStatus.Installing -> {}
 
                     UpdateStatus.Ready -> {
-                        TextButton(onClick = startUpdate) {
+                        Button(onClick = startUpdate) {
                             Text(text = "立即更新")
                         }
                     }
 
                     UpdateStatus.InstallError, UpdateStatus.DownloadError, UpdateStatus.CheckError -> {
-                        TextButton(onClick = checkUpdate) {
+                        Button(onClick = checkUpdate) {
                             Text(text = "再试一次")
                         }
                     }
                 }
             },
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     enabled = !(updateStatus == UpdateStatus.Downloading || updateStatus == UpdateStatus.Installing),
                     onClick = { onHideDialog() }
                 ) {

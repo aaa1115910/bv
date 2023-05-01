@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.network
 
+import dev.aaa1115910.bv.util.Prefs
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.content.ProgressListener
@@ -38,6 +39,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.UUID
+
+private const val OWNER_NAME = "aaa1115910-gmail.com"
+private const val APP_NAME = "bv"
+private const val GROUP_NAME_RELEASE = "public"
+private const val GROUP_NAME_ALPHA = "alpha"
+private const val GROUP_ID_RELEASE = "9259f371-d475-4088-b9fe-e5adfac1b563"
+private const val GROUP_ID_ALPHA = "d867ff94-66f2-4338-8aa2-ce86e2acd649"
 
 object AppCenterApi {
     private var endPoint = "install.appcenter.ms"
@@ -121,6 +129,36 @@ object AppCenterApi {
         }.execute { response ->
             response.bodyAsChannel().copyAndClose(file.writeChannel())
         }
+    }
+
+    private fun getGroupName() = if (Prefs.updateAlpha) GROUP_NAME_ALPHA else GROUP_NAME_RELEASE
+    private fun getGroupId() = if (Prefs.updateAlpha) GROUP_ID_ALPHA else GROUP_ID_RELEASE
+
+    suspend fun getPackageList() = getPackageList(
+        ownerName = OWNER_NAME,
+        appName = APP_NAME,
+        distributionGroupName = getGroupName()
+    )
+
+    suspend fun getPackageInfo(releaseId: Int) = getPackageInfo(
+        ownerName = OWNER_NAME,
+        appName = APP_NAME,
+        distributionGroupName = getGroupName(),
+        releaseId = releaseId,
+    )
+
+    suspend fun sendInstallAnalytics(releaseId: Int) {
+        sendInstallAnalytics(
+            ownerName = OWNER_NAME,
+            appName = APP_NAME,
+            distributionGroupId = getGroupId(),
+            releaseId = releaseId
+        )
+    }
+
+    suspend fun getLatestVersion(): Pair<Int, String> {
+        val list = getPackageList(OWNER_NAME, APP_NAME, getGroupName())
+        return Pair(list.first().version.toInt(), list.first().shortVersion)
     }
 }
 
