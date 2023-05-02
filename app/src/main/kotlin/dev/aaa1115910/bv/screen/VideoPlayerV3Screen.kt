@@ -43,6 +43,8 @@ import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.countDownTimer
+import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -53,7 +55,6 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Timer
-import java.util.TimerTask
 
 @Composable
 fun VideoPlayerV3Screen(
@@ -81,6 +82,7 @@ fun VideoPlayerV3Screen(
     }
     var debugInfo by remember { mutableStateOf("") }
     var showLogs by remember { mutableStateOf(false) }
+    var showBackToHistory by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(true) }
     var isBuffering by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
@@ -99,6 +101,7 @@ fun VideoPlayerV3Screen(
 
     var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var clockRefreshTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    var hideBackToHistoryTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -212,6 +215,15 @@ fun VideoPlayerV3Screen(
             playerViewModel.danmakuPlayer?.start()
             isPlaying = true
             isBuffering = false
+
+            if (playerViewModel.lastPlayed != 0 && hideBackToHistoryTimer == null) {
+                showBackToHistory = true
+                hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
+                    showBackToHistory = false
+                    hideBackToHistoryTimer = null
+                    playerViewModel.lastPlayed = 0
+                }
+            }
         }
 
         override fun onPause() {
@@ -260,21 +272,11 @@ fun VideoPlayerV3Screen(
     }
 
     DisposableEffect(Unit) {
-        val timer = Timer()
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                scope.launch {
-                    updateSeek()
-
-                    //播放一段时间后隐藏跳转历史记录
-                    if (playerViewModel.lastPlayed != 0 && infoData.currentTime > 3000) {
-                        playerViewModel.lastPlayed = 0
-                    }
-                }
-            }
-        }, 0, 100)
+        val updateSeekTimer = timeTask(0, 100, "updateSeekTimer", false) {
+            scope.launch { updateSeek() }
+        }
         onDispose {
-            timer.cancel()
+            updateSeekTimer.cancel()
         }
     }
 
@@ -364,7 +366,8 @@ fun VideoPlayerV3Screen(
             isBuffering = isBuffering,
             isError = isError,
             exception = exception,
-            clock = clock
+            clock = clock,
+            showBackToHistory = showBackToHistory
         )
     ) {
         VideoPlayerController(
@@ -386,7 +389,18 @@ fun VideoPlayerV3Screen(
                 // akdanmaku 会在跳转后立即播放，如果需要缓冲则会导致弹幕不同步
                 playerViewModel.danmakuPlayer?.pause()
             },
-            onBackToHistory = { videoPlayer.seekTo(playerViewModel.lastPlayed * 1000L) },
+            onBackToHistory = {
+                val time = playerViewModel.lastPlayed.toLong()
+                logger.fInfo { "Back to history: ${time.formatMinSec()}" }
+                videoPlayer.seekTo(time)
+                playerViewModel.danmakuPlayer?.seekTo(time)
+                // akdanmaku 会在跳转后立即播放，如果需要缓冲则会导致弹幕不同步
+                playerViewModel.danmakuPlayer?.pause()
+                playerViewModel.lastPlayed = 0
+                showBackToHistory = false
+                hideBackToHistoryTimer?.cancel()
+                hideBackToHistoryTimer = null
+            },
             onPlayNewVideo = {
                 if (!Prefs.incognitoMode) sendHeartbeat()
                 playerViewModel.loadPlayUrl(

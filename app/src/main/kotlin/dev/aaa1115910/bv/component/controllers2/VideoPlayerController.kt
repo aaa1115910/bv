@@ -78,7 +78,6 @@ fun VideoPlayerController(
     var showMenuController by remember { mutableStateOf(false) }
     var showSeekController by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
-    var showBackToHistory by remember { mutableStateOf(false) }
     val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
 
     var lastPressBack by remember { mutableStateOf(0L) }
@@ -150,9 +149,10 @@ fun VideoPlayerController(
 
                 when (it.key) {
                     Key.DirectionCenter, Key.Enter, Key.Spacebar -> {
-                        if (data.lastPlayed != 0) {
+                        @Suppress("KotlinConstantConditions")
+                        if (!showClickableControllers && data.showBackToHistory) {
+                            if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                             onBackToHistory()
-                            return@onPreviewKeyEvent true
                         }
 
                         if (showSeekController) {
@@ -299,6 +299,10 @@ fun VideoPlayerController(
             }
         }
         BottomSubtitle()
+        SkipTips(
+            historyTime = data.lastPlayed.toLong(),
+            showBackToHistory = data.showBackToHistory,
+        )
         PlayStateTips(
             isPlaying = data.isPlaying,
             isBuffering = data.isBuffering,

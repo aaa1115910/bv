@@ -494,7 +494,8 @@ data class VideoPlayerControllerData(
     val isBuffering: Boolean = false,
     val isError: Boolean = false,
     val exception: Exception? = null,
-    val clock: Triple<Int, Int, Int> = Triple(0, 0, 0)
+    val clock: Triple<Int, Int, Int> = Triple(0, 0, 0),
+    val showBackToHistory: Boolean = false
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

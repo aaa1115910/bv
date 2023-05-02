@@ -3,7 +3,6 @@ package dev.aaa1115910.bv.component.controllers2
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,12 +16,21 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
+import dev.aaa1115910.bv.util.formatMinSec
 
 
 // TODO 跳转历史记录
 @Composable
-fun BackToHistoryTip() {
-
+fun BackToHistoryTip(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    time: String
+) {
+    SkipTip(
+        modifier = modifier,
+        show = show,
+        text = "上次看到 $time 点击确认键跳转"
+    )
 }
 
 
@@ -30,14 +38,12 @@ fun BackToHistoryTip() {
 @Composable
 fun SkipOpTip(
     modifier: Modifier = Modifier,
-    show: Boolean,
-    onConfirm: () -> Unit
+    show: Boolean
 ) {
     SkipTip(
         modifier = modifier,
         show = show,
-        text = "跳过片头",
-        onConfirm = onConfirm
+        text = "跳过片头"
     )
 }
 
@@ -45,14 +51,12 @@ fun SkipOpTip(
 @Composable
 fun SkipEdTip(
     modifier: Modifier = Modifier,
-    show: Boolean,
-    onConfirm: () -> Unit
+    show: Boolean
 ) {
     SkipTip(
         modifier = modifier,
         show = show,
-        text = "跳过片尾",
-        onConfirm = onConfirm
+        text = "跳过片尾"
     )
 }
 
@@ -61,8 +65,7 @@ fun SkipEdTip(
 fun SkipTip(
     modifier: Modifier = Modifier,
     show: Boolean,
-    text: String,
-    onConfirm: () -> Unit
+    text: String
 ) {
     AnimatedVisibility(
         visible = show,
@@ -75,8 +78,7 @@ fun SkipTip(
             SurfaceWithoutClickable(
                 modifier = modifier
                     .align(Alignment.BottomStart)
-                    .padding(bottom = 32.dp)
-                    .clickable { onConfirm() },
+                    .padding(bottom = 32.dp),
                 color = Color.Black.copy(alpha = 0.6f),
                 shape = MaterialTheme.shapes.medium.copy(
                     topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
@@ -89,5 +91,24 @@ fun SkipTip(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun SkipTips(
+    modifier: Modifier = Modifier,
+    historyTime: Long,
+    showBackToHistory: Boolean,
+    showSkipOp: Boolean = false,
+    showSkipEd: Boolean = false,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        BackToHistoryTip(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = 32.dp),
+            show = showBackToHistory,
+            time = historyTime.formatMinSec()
+        )
     }
 }
