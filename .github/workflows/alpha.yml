@@ -90,6 +90,17 @@ jobs:
           USERNAME: ${{ secrets.MEGA_USERNAME }}
           PASSWORD: ${{ secrets.MEGA_PASSWORD }}
 
+      - name: Upload alpha apk to app center
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
+        with:
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Alpha
+          file: app/build/outputs/apk/alpha/${{ env.alpha_info_apk_filename }}
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
+
       - name: Archive alpha build artifacts
         uses: actions/upload-artifact@v3
         with:

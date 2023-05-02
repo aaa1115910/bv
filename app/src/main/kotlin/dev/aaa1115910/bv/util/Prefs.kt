@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package dev.aaa1115910.bv.util
 
 import androidx.compose.ui.unit.Dp
@@ -11,6 +13,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.PlayerType
@@ -214,6 +217,10 @@ object Prefs {
     var useOldPlayer: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefUseOldPlayerRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefUseOldPlayerKey, value) }
+
+    var updateAlpha: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAlphaRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefAlphaKey, value) }
 }
 
 private object PrefKeys {
@@ -245,6 +252,7 @@ private object PrefKeys {
     val prefPlayerTypeKey = intPreferencesKey("pt")
     val prefDensityKey = floatPreferencesKey("density")
     val prefUseOldPlayerKey = booleanPreferencesKey("uop")
+    val prefAlphaKey = booleanPreferencesKey("alpha")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -281,4 +289,7 @@ private object PrefKeys {
     val prefDensityRequest =
         PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
     val prefUseOldPlayerRequest = PreferenceRequest(prefUseOldPlayerKey, false)
+
+    @Suppress("KotlinConstantConditions")
+    val prefAlphaRequest = PreferenceRequest(prefAlphaKey, BuildConfig.BUILD_TYPE == "alpha")
 }
