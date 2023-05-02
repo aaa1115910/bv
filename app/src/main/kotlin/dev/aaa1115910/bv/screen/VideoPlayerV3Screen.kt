@@ -235,6 +235,7 @@ fun VideoPlayerV3Screen(
         override fun onBuffering() {
             logger.info { "onBuffering" }
             isBuffering = true
+            playerViewModel.danmakuPlayer?.pause()
         }
 
         override fun onEnd() {
