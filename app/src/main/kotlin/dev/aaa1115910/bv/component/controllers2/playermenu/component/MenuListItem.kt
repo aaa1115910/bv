@@ -63,7 +63,12 @@ fun MenuListItem(
                     horizontal = if (expanded) 24.dp else 6.dp
                 )
         ) {
-            AnimatedVisibility(visible = expanded) {
+            AnimatedVisibility(
+                visible = expanded,
+                label = "MenuListItem text [$text]",
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 //if(expanded){
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -78,6 +83,7 @@ fun MenuListItem(
         AnimatedVisibility(
             modifier = Modifier.padding(6.dp),
             visible = !expanded,
+            label = "MenuListItem icon [$text]",
             enter = fadeIn(),
             exit = fadeOut()
         ) {

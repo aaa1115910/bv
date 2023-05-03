@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.component.controllers2.playermenu
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -165,6 +166,7 @@ fun DanmakuMenuList(
                         }
                         false
                     },
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(8.dp)
             ) {
                 itemsIndexed(VideoPlayerDanmakuMenuItem.values()) { index, item ->
