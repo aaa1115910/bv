@@ -14,6 +14,7 @@ qrcode = "3.3.0"
 rememberPreference = "1.0.1"
 slf4j-android-mvysny = "2.0.4"
 slf4j-simple = "2.0.7"
+vlc = "3.5.1"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku
@@ -72,3 +73,6 @@ slf4j-android-mvysny = { module = "com.gitlab.mvysny.slf4j:slf4j-handroid", vers
 
 # https://www.slf4j.org
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
+
+# https://code.videolan.org/videolan/vlc-android
+vlc-android-all = { module = "org.videolan.android:libvlc-all", version.ref = "vlc" }

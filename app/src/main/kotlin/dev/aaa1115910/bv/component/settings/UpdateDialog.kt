@@ -107,7 +107,9 @@ fun UpdateDialog(
         updateStatus = UpdateStatus.Downloading
         scope.launch(Dispatchers.IO) {
             val tempFilename = "${UUID.randomUUID()}.apk"
-            val tempFile = File(context.cacheDir, tempFilename)
+            val tempDir = File(context.cacheDir, "update_downloader")
+            if (!tempDir.exists()) tempDir.mkdirs()
+            val tempFile = File(tempDir, tempFilename)
             tempFile.createNewFile()
             runCatching {
                 AppCenterApi.downloadFile(

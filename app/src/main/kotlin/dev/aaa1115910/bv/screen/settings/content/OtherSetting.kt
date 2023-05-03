@@ -37,6 +37,7 @@ fun OtherSetting(
 
     var showCookiesDialog by remember { mutableStateOf(false) }
     var showFps by remember { mutableStateOf(Prefs.showFps) }
+    var useOldPlayer by remember { mutableStateOf(Prefs.useOldPlayer) }
     var updateAlpha by remember { mutableStateOf(Prefs.updateAlpha) }
 
     Column(
@@ -84,6 +85,17 @@ fun OtherSetting(
                     onCheckedChange = {
                         showFps = it
                         Prefs.showFps = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_other_old_player_title),
+                    supportText = stringResource(R.string.settings_other_old_player_text),
+                    checked = useOldPlayer,
+                    onCheckedChange = {
+                        useOldPlayer = it
+                        Prefs.useOldPlayer = it
                     }
                 )
             }

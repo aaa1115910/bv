@@ -14,6 +14,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
+import dev.aaa1115910.bv.entity.Audio
+import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
 import kotlinx.coroutines.flow.Flow
@@ -64,11 +67,28 @@ object Prefs {
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDefaultQualityRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultQualityKey, value) }
 
+    var defaultPlaySpeed: Float
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDefaultPlaySpeedRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultPlaySpeedKey, value) }
+
+    var defaultAudio: Audio
+        get() = runBlocking {
+            Audio.fromCode(dsm.getPreferenceFlow(PrefKeys.prefDefaultAudioRequest).first())
+                ?: Audio.A192K
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultAudioKey, value.code) }
+
     var defaultDanmakuSize: Int
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuSizeRequest).first()
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuSizeKey, value) }
+
+    var defaultDanmakuScale: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuScaleRequest).first()
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuScaleKey, value) }
 
     var defaultDanmakuTransparency: Int
         get() = runBlocking {
@@ -78,12 +98,37 @@ object Prefs {
             dsm.editPreference(PrefKeys.prefDefaultDanmakuTransparencyKey, value)
         }
 
+    var defaultDanmakuOpacity: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuOpacityRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultDanmakuOpacityKey, value)
+        }
+
     var defaultDanmakuEnabled: Boolean
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuEnabledRequest).first()
         }
         set(value) = runBlocking {
             dsm.editPreference(PrefKeys.prefDefaultDanmakuEnabledKey, value)
+        }
+
+    var defaultDanmakuTypes: List<DanmakuType>
+        get() = runBlocking {
+            val danmakuTypeIdsString =
+                dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuTypesRequest).first()
+            if (danmakuTypeIdsString == "") {
+                emptyList()
+            } else {
+                danmakuTypeIdsString.split(",").map { DanmakuType.values()[it.toInt()] }
+            }
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(
+                PrefKeys.prefDefaultDanmakuTypesKey,
+                value.map { it.ordinal }.joinToString(",")
+            )
         }
 
     var defaultDanmakuArea: Float
@@ -120,6 +165,14 @@ object Prefs {
             dsm.editPreference(PrefKeys.prefDefaultSubtitleFontSizeKey, value.value.roundToInt())
         }
 
+    var defaultSubtitleBackgroundOpacity: Float
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleBackgroundOpacityRequest).first()
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefDefaultSubtitleBackgroundOpacityKey, value)
+        }
+
     var defaultSubtitleBottomPadding: Dp
         get() = runBlocking {
             dsm.getPreferenceFlow(PrefKeys.prefDefaultSubtitleBottomPaddingRequest).first().dp
@@ -148,10 +201,22 @@ object Prefs {
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBuvid3Key, value) }
 
+    var playerType: PlayerType
+        get() = runBlocking {
+            runCatching {
+                PlayerType.values()[dsm.getPreferenceFlow(PrefKeys.prefPlayerTypeRequest).first()]
+            }.getOrDefault(PlayerType.Media3)
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerTypeKey, value.ordinal) }
+
     val densityFlow: Flow<Float> get() = dsm.getPreferenceFlow(PrefKeys.prefDensityRequest)
     var density: Float
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefDensityRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDensityKey, value) }
+
+    var useOldPlayer: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefUseOldPlayerRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefUseOldPlayerKey, value) }
 
     var updateAlpha: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAlphaRequest).first() }
@@ -167,18 +232,26 @@ private object PrefKeys {
     val prefUidCkMd5Key = stringPreferencesKey("ucm")
     val prefTokenExpiredDateKey = longPreferencesKey("ted")
     val prefDefaultQualityKey = intPreferencesKey("dq")
+    val prefDefaultAudioKey = intPreferencesKey("da")
+    val prefDefaultPlaySpeedKey = floatPreferencesKey("dps")
     val prefDefaultDanmakuSizeKey = intPreferencesKey("dds")
+    val prefDefaultDanmakuScaleKey = floatPreferencesKey("dds2")
     val prefDefaultDanmakuTransparencyKey = intPreferencesKey("ddt")
+    val prefDefaultDanmakuOpacityKey = floatPreferencesKey("ddo")
     val prefDefaultDanmakuEnabledKey = booleanPreferencesKey("dde")
+    val prefDefaultDanmakuTypesKey = stringPreferencesKey("ddts")
     val prefDefaultDanmakuAreaKey = floatPreferencesKey("dda")
     val prefDefaultVideoCodecKey = intPreferencesKey("dvc")
     val prefEnabledFirebaseCollectionKey = booleanPreferencesKey("efc")
     val prefIncognitoModeKey = booleanPreferencesKey("im")
     val prefDefaultSubtitleFontSizeKey = intPreferencesKey("dsfs")
+    val prefDefaultSubtitleBackgroundOpacityKey = floatPreferencesKey("dsbo")
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
+    val prefPlayerTypeKey = intPreferencesKey("pt")
     val prefDensityKey = floatPreferencesKey("density")
+    val prefUseOldPlayerKey = booleanPreferencesKey("uop")
     val prefAlphaKey = booleanPreferencesKey("alpha")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
@@ -188,11 +261,17 @@ private object PrefKeys {
     val prefBiliJctRequest = PreferenceRequest(prefBiliJctKey, "")
     val prefUidCkMd5Request = PreferenceRequest(prefUidCkMd5Key, "")
     val prefTokenExpiredDateRequest = PreferenceRequest(prefTokenExpiredDateKey, 0)
+    val prefDefaultPlaySpeedRequest = PreferenceRequest(prefDefaultPlaySpeedKey, 1f)
     val prefDefaultQualityRequest = PreferenceRequest(prefDefaultQualityKey, Resolution.R1080P.code)
+    val prefDefaultAudioRequest = PreferenceRequest(prefDefaultAudioKey, Audio.A192K.code)
     val prefDefaultDanmakuSizeRequest = PreferenceRequest(prefDefaultDanmakuSizeKey, 6)
+    val prefDefaultDanmakuScaleRequest = PreferenceRequest(prefDefaultDanmakuScaleKey, 1f)
     val prefDefaultDanmakuTransparencyRequest =
         PreferenceRequest(prefDefaultDanmakuTransparencyKey, 0)
+    val prefDefaultDanmakuOpacityRequest = PreferenceRequest(prefDefaultDanmakuOpacityKey, 1f)
     val prefDefaultDanmakuEnabledRequest = PreferenceRequest(prefDefaultDanmakuEnabledKey, true)
+    val prefDefaultDanmakuTypesRequest =
+        PreferenceRequest(prefDefaultDanmakuTypesKey, "0,1,2,3")
     val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 1f)
     val prefDefaultVideoCodecRequest =
         PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
@@ -200,12 +279,16 @@ private object PrefKeys {
         PreferenceRequest(prefEnabledFirebaseCollectionKey, true)
     val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)
     val prefDefaultSubtitleFontSizeRequest = PreferenceRequest(prefDefaultSubtitleFontSizeKey, 24)
+    val prefDefaultSubtitleBackgroundOpacityRequest =
+        PreferenceRequest(prefDefaultSubtitleBackgroundOpacityKey, 0.4f)
     val prefDefaultSubtitleBottomPaddingRequest =
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
+    val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.Media3.ordinal)
     val prefDensityRequest =
         PreferenceRequest(prefDensityKey, BVApp.context.resources.displayMetrics.widthPixels / 960f)
+    val prefUseOldPlayerRequest = PreferenceRequest(prefUseOldPlayerKey, false)
 
     @Suppress("KotlinConstantConditions")
     val prefAlphaRequest = PreferenceRequest(prefAlphaKey, BuildConfig.BUILD_TYPE == "alpha")

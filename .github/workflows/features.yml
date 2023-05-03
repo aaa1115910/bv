@@ -1,4 +1,4 @@
-name: Alpha Build
+name: Feature Build
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
+          submodules: 'true'
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
