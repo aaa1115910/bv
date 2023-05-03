@@ -153,6 +153,7 @@ fun VideoPlayerController(
                         if (!showClickableControllers && data.showBackToHistory) {
                             if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                             onBackToHistory()
+                            return@onPreviewKeyEvent true
                         }
 
                         if (showSeekController) {
