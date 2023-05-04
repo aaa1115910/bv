@@ -7,6 +7,12 @@
 
     <string name="app_name">BV</string>
 
+    <string name="audio_132k">132K</string>
+    <string name="audio_192k">192K</string>
+    <string name="audio_64k">64K</string>
+    <string name="audio_dolby_atoms">Dolby Atoms</string>
+    <string name="audio_hi_res">Hi-Res</string>
+
     <string name="common_confirm">确定</string>
 
     <string name="confirm">确认</string>
@@ -139,19 +145,30 @@
     <string name="settings_info_storage">存储: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
     <string name="settings_item_about">关于</string>
+    <string name="settings_item_audio">默认音频编码</string>
     <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
     <string name="settings_item_network">网络测试</string>
     <string name="settings_item_other">更多设置</string>
+    <string name="settings_item_player_type">播放器</string>
     <string name="settings_item_resolution">默认分辨率</string>
+    <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_start_button">开始测试</string>
+    <string name="settings_other_alpha_text">获取最新自动构建的 Alpha 版更新</string>
+    <string name="settings_other_alpha_title">Alpha 版更新</string>
     <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
     <string name="settings_other_cookies_title">Cookies 导入/导出</string>
     <string name="settings_other_firebase_text">这将帮助开发者更快地发现与解决大部分问题</string>
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
     <string name="settings_other_fps_title">FPS 显示</string>
+    <string name="settings_other_old_player_text">使用旧版播放器，旧版播放器不会再有任何新特性更新，并且将在后续版本内移除</string>
+    <string name="settings_other_old_player_title">旧版播放器</string>
+    <string name="settings_storage_calculating">计算中</string>
+    <string name="settings_storage_image_cache">图片缓存</string>
+    <string name="settings_storage_libvlc_files">LibVLC 文件</string>
+    <string name="settings_storage_others_cache">其他缓存</string>
     <string name="settings_ui_density_text">更改整个应用的大小缩放</string>
     <string name="settings_ui_density_title">界面缩放</string>
     <string name="settings_version_check_update_button">爷要更新</string>
@@ -175,6 +192,7 @@
     <string name="title_activity_user_info">用户信息</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
+    <string name="title_activity_video_player_v3">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
     <string name="top_nav_item_dynamics">动态</string>
@@ -210,5 +228,27 @@
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
     <string name="video_info_ugc_season_row_title">视频合集</string>
+    <string name="video_player_menu_danmaku_area">显示区域</string>
+    <string name="video_player_menu_danmaku_opacity">不透明度</string>
+    <string name="video_player_menu_danmaku_size">字体缩放</string>
+    <string name="video_player_menu_danmaku_switch">弹幕类型</string>
+    <string name="video_player_menu_danmaku_type_all">全部弹幕</string>
+    <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
+    <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
+    <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
+    <string name="video_player_menu_nav_danmaku">弹幕设置</string>
+    <string name="video_player_menu_nav_picture">画面音频</string>
+    <string name="video_player_menu_nav_subtitle">字幕设置</string>
+    <string name="video_player_menu_picture_aspect_ratio">画面比例</string>
+    <string name="video_player_menu_picture_audio">音频编码</string>
+    <string name="video_player_menu_picture_codec">视频编码</string>
+    <string name="video_player_menu_picture_play_speed">播放速度</string>
+    <string name="video_player_menu_picture_resolution">清晰度</string>
+    <string name="video_player_menu_subtitle_background_opacity">背景不透明度</string>
+    <string name="video_player_menu_subtitle_bottom_padding">底部间距</string>
+    <string name="video_player_menu_subtitle_size">字体大小</string>
+    <string name="video_player_menu_subtitle_switch">选择字幕</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
+    <string name="video_player_referer">https://www.bilibili.com</string>
+    <string name="video_player_user_agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
 </resources>

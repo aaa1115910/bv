@@ -92,7 +92,7 @@ fun FocusRequester.requestFocus(scope: CoroutineScope) {
             requestFocus()
         }.onFailure {
             delay(100)
-            requestFocus()
+            runCatching { requestFocus() }
         }
     }
 }

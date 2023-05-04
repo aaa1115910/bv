@@ -41,6 +41,8 @@ import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoTip
+import dev.aaa1115910.bv.component.controllers2.DanmakuType
+import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.VideoAspectRatio
@@ -458,24 +460,42 @@ fun VideoPlayerController(
 }
 
 data class VideoPlayerControllerData(
+    val debugInfo: String = "",
     val infoData: VideoPlayerInfoData = VideoPlayerInfoData(0, 0, 0, 0, 0, ""),
     val resolutionMap: Map<Int, String> = emptyMap(),
     val availableVideoCodec: List<VideoCodec> = emptyList(),
+    val availableAudio: List<Audio> = emptyList(),
     val availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
+    val availableSubtitleTracks: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     val availableVideoList: List<VideoListItem> = emptyList(),
     val currentVideoCid: Int = 0,
     val currentResolution: Int? = null,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
+    val currentVideoSpeed: Float = 1f,
+    val currentAudio: Audio = Audio.A192K,
     val currentDanmakuEnabled: Boolean = true,
+    val currentDanmakuEnabledList: List<DanmakuType> = listOf(),
     val currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
+    val currentDanmakuScale: Float = 1f,
     val currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
+    val currentDanmakuOpacity: Float = 1f,
     val currentDanmakuArea: Float = 1f,
     val currentSubtitleId: Long = 0,
     val currentSubtitleData: List<SubtitleItem> = emptyList(),
     val currentPosition: Long = 0,
     val currentSubtitleFontSize: TextUnit = 24.sp,
-    val currentSubtitleBottomPadding: Dp = 12.dp
+    val currentSubtitleBackgroundOpacity: Float = 0.4f,
+    val currentSubtitleBottomPadding: Dp = 12.dp,
+    val lastPlayed: Int = 0,
+    val title: String = "Title",
+    val secondTitle: String = "Second title",
+    val isPlaying: Boolean = false,
+    val isBuffering: Boolean = false,
+    val isError: Boolean = false,
+    val exception: Exception? = null,
+    val clock: Triple<Int, Int, Int> = Triple(0, 0, 0),
+    val showBackToHistory: Boolean = false
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

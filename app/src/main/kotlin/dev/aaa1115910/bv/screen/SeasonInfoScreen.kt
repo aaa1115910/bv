@@ -78,7 +78,7 @@ import dev.aaa1115910.biliapi.entity.season.SeasonData
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
-import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
+import dev.aaa1115910.bv.activities.video.VideoPlayerV3Activity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
@@ -121,7 +121,7 @@ fun SeasonInfoScreen(
     val onClickVideo: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
         { avid, cid, epid, episodeTitle, startTime ->
             if (cid != 0) {
-                VideoPlayerActivity.actionStart(
+                VideoPlayerV3Activity.actionStart(
                     context = context,
                     avid = avid,
                     cid = cid,
@@ -304,7 +304,9 @@ fun SeasonInfoScreen(
                                         cid = episode.cid,
                                         epid = episode.id,
                                         seasonId = seasonData?.seasonId,
-                                        title = episode.longTitle,
+                                        title = runCatching {
+                                            "第 ${episode.title.toInt()} 集"
+                                        }.getOrDefault(episode.title) + " " + episode.longTitle,
                                         index = index,
                                         isEpisode = true
                                     )
@@ -371,7 +373,9 @@ fun SeasonInfoScreen(
                                     cid = episode.cid,
                                     epid = episode.id,
                                     seasonId = seasonData?.seasonId,
-                                    title = episode.longTitle,
+                                    title = runCatching {
+                                        "第 ${episode.title.toInt()} 集"
+                                    }.getOrDefault(episode.title) + " " + episode.longTitle,
                                     index = index,
                                     isEpisode = true
                                 )
@@ -397,7 +401,9 @@ fun SeasonInfoScreen(
                                         cid = episode.cid,
                                         epid = episode.id,
                                         seasonId = seasonData?.seasonId,
-                                        title = episode.longTitle,
+                                        title = runCatching {
+                                            "第 ${episode.title.toInt()} 集"
+                                        }.getOrDefault(episode.title) + " " + episode.longTitle,
                                         index = index,
                                         isEpisode = true
                                     )
