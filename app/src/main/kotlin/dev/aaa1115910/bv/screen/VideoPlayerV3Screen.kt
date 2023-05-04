@@ -289,7 +289,9 @@ fun VideoPlayerV3Screen(
                 period = 15000,
                 tag = "sendHeartbeatTimer"
             ) {
-                if (videoPlayer.isPlaying) sendHeartbeat()
+                scope.launch(Dispatchers.Main) {
+                    if (videoPlayer.isPlaying) sendHeartbeat()
+                }
             }
         }
         onDispose {
