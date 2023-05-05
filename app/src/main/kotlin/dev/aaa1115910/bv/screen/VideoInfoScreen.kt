@@ -100,7 +100,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
-import dev.aaa1115910.bv.activities.video.VideoPlayerV3Activity
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
@@ -116,6 +115,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
+import dev.aaa1115910.bv.util.launchPlayerActivity
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
@@ -332,7 +332,7 @@ fun VideoInfoScreen(
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
                         val playPart = videoInfo!!.pages.first()
-                        VideoPlayerV3Activity.actionStart(
+                        launchPlayerActivity(
                             context = context,
                             avid = videoInfo!!.aid,
                             cid = playPart.cid,
@@ -480,7 +480,7 @@ fun VideoInfoScreen(
                             favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
-                                VideoPlayerV3Activity.actionStart(
+                                launchPlayerActivity(
                                     context = context,
                                     avid = videoInfo!!.aid,
                                     cid = videoInfo!!.pages.first().cid,
@@ -539,7 +539,7 @@ fun VideoInfoScreen(
                                 enablePartListDialog = videoInfo?.pages?.size ?: 0 > 5,
                                 onClick = { cid ->
                                     logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerV3Activity.actionStart(
+                                    launchPlayerActivity(
                                         context = context,
                                         avid = videoInfo!!.aid,
                                         cid = cid,
@@ -561,7 +561,7 @@ fun VideoInfoScreen(
                                 enableUgcListDialog = videoInfo?.ugcSeason?.sections?.get(0)?.episodes?.size ?: 0 > 5,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerV3Activity.actionStart(
+                                    launchPlayerActivity(
                                         context = context,
                                         avid = aid,
                                         cid = cid,
