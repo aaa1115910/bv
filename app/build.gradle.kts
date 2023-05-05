@@ -182,7 +182,6 @@ dependencies {
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
     implementation(project(mapOf("path" to ":bv-player")))
-    implementation(project(":libs:av1Decoder"))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(androidx.compose.ui.test.junit4)
