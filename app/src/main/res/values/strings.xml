@@ -150,7 +150,7 @@
     <string name="settings_item_info">设备信息</string>
     <string name="settings_item_network">网络测试</string>
     <string name="settings_item_other">更多设置</string>
-    <string name="settings_item_player_type">播放器</string>
+    <string name="settings_item_player_type">播放器内核</string>
     <string name="settings_item_resolution">默认分辨率</string>
     <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
