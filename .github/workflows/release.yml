@@ -44,77 +44,205 @@ jobs:
           echo ${{ secrets.SIGN_KEY }} > ./encoded_key
           base64 -d encoded_key > key.jks
 
-      - name: Build apk
-        run: ./gradlew assembleRelease assembleDebug
+      - name: Build lite apk
+        run: ./gradlew assembleLiteRelease assembleLiteDebug
 
-      - name: Read release apk output metadata
-        id: apk-meta-release
+      - name: Build default apk
+        run: ./gradlew assembleDefaultRelease assembleDefaultDebug
+
+      - name: Read lite release apk output metadata
+        id: apk-meta-lite-release
         uses: juliangruber/read-file-action@v1
         with:
-          path: app/build/outputs/apk/release/output-metadata.json
+          path: app/build/outputs/apk/lite/release/output-metadata.json
 
-      - name: Read debug apk output metadata
-        id: apk-meta-debug
+      - name: Read lite debug apk output metadata
+        id: apk-meta-lite-debug
         uses: juliangruber/read-file-action@v1
         with:
-          path: app/build/outputs/apk/debug/output-metadata.json
+          path: app/build/outputs/apk/lite/debug/output-metadata.json
 
-      - name: Parse release info
-        id: release-info
-        run: |
-          echo "release_info_version_code=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "release_info_version_name=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "release_info_apk_filename=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-
-      - name: Parse debug info
-        id: debug-info
-        run: |
-          echo "debug_info_version_code=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "debug_info_version_name=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "debug_info_apk_filename=${{ fromJson(steps.apk-meta-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-
-      - name: Get current time
-        id: date
-        run: echo "current_time=$(date +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_ENV
-
-      - name: Zip release outputs
-        uses: vimtor/action-zip@v1.1
+      - name: Read default release apk output metadata
+        id: apk-meta-default-release
+        uses: juliangruber/read-file-action@v1
         with:
-          files: app/build/outputs
-          dest: BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_${{ env.current_time }}.zip
+          path: app/build/outputs/apk/default/release/output-metadata.json
 
-      - name: Upload release outputs
-        uses: Difegue/action-megacmd@1.2.0
+      - name: Read default debug apk output metadata
+        id: apk-meta-default-debug
+        uses: juliangruber/read-file-action@v1
         with:
-          args: put BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_${{ env.current_time }}.zip
-        env:
-          USERNAME: ${{ secrets.MEGA_USERNAME }}
-          PASSWORD: ${{ secrets.MEGA_PASSWORD }}
+          path: app/build/outputs/apk/default/debug/output-metadata.json
 
-      - name: Upload release apk to app center
+      - name: Parse lite apks info
+        id: lite-info
+        run: |
+          echo "lite_release_info_apk_filename=${{ fromJson(steps.apk-meta-lite-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+          echo "lite_debug_info_apk_filename=${{ fromJson(steps.apk-meta-lite-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+
+      - name: Parse default apks info
+        id: default-info
+        run: |
+          echo "default_release_info_version_code=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "default_release_info_version_name=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+          echo "default_debug_info_version_code=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+
+      # upload to app center
+
+      - name: Upload lite release apk to app center
         uses: wzieba/AppCenter-Github-Action@v1.3.3
         with:
           appName: aaa1115910-gmail.com/BV
           token: ${{secrets.APP_CENTER_TOKEN}}
           group: Public
-          file: app/build/outputs/apk/release/${{ env.release_info_apk_filename }}
+          file: app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }}
           notifyTesters: true
           debug: false
 
-      - name: Archive release build artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload default release apk to app center (universal)
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
         with:
-          name: Release build artifact
-          path: app/build/outputs/apk/release/${{ env.release_info_apk_filename }}
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public-universal
+          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
 
-      - name: Archive release build mappings
-        uses: actions/upload-artifact@v3
+      - name: Upload default release apk to app center (armeabi-v7a)
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
         with:
-          name: Release build mappings
-          path: app/build/outputs/mapping/release
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public-armeabi-v7a
+          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
 
-      - name: Archive debug build artifacts
+      - name: Upload default release apk to app center (arm64-v8a)
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
+        with:
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public-arm64-v8a
+          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
+
+      - name: Upload default release apk to app center (x86)
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
+        with:
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public-x86
+          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
+
+      - name: Upload default release apk to app center (x86_64)
+        uses: wzieba/AppCenter-Github-Action@v1.3.3
+        with:
+          appName: aaa1115910-gmail.com/BV
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: Public-x86_64
+          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk
+          notifyTesters: true
+          debug: false
+          gitReleaseNotes: true
+
+      # upload artifacts lite-debug
+
+      - name: Archive lite debug build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Debug build artifact
-          path: app/build/outputs/apk/debug/${{ env.debug_info_apk_filename }}
+          name: Lite debug build artifact
+          path: app/build/outputs/apk/lite/debug/${{ env.lite_debug_info_apk_filename }}
+
+      # upload artifacts lite-release
+
+      - name: Archive lite release build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Lite release build artifact
+          path: app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }}
+
+      - name: Archive lite alpha build mappings
+        uses: actions/upload-artifact@v3
+        with:
+          name: Lite release build mappings
+          path: app/build/outputs/mapping/liteRelease
+
+      # upload artifacts default-debug
+
+      - name: Archive default debug build artifacts (universal)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default debug build artifact (universal)
+          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_universal.apk
+
+      - name: Archive default debug build artifacts (armeabi-v7a)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default debug build artifact (armeabi-v7a)
+          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_armeabi-v7a.apk
+
+      - name: Archive default debug build artifacts (arm64-v8a)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default debug build artifact (arm64-v8a)
+          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_arm64-v8a.apk
+
+      - name: Archive default debug build artifacts (x86)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default debug build artifact (x86)
+          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86.apk
+
+      - name: Archive default debug build artifacts (x86_64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default debug build artifact (x86_64)
+          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86_64.apk
+
+      # upload artifacts default-release
+
+      - name: Archive default release build mappings
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build mappings
+          path: app/build/outputs/mapping/defaultRelease
+
+      - name: Archive default release build artifacts (universal)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build artifact (universal)
+          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk
+
+      - name: Archive default release build artifacts (armeabi-v7a)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build artifact (armeabi-v7a)
+          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk
+
+      - name: Archive default release build artifacts (arm64-v8a)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build artifact (arm64-v8a)
+          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk
+
+      - name: Archive default release build artifacts (x86)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build artifact (x86)
+          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk
+
+      - name: Archive default release build artifacts (x86_64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Default release build artifact (x86_64)
+          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk

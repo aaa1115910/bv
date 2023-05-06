@@ -45,6 +45,17 @@ android {
         }
     }
 
+    flavorDimensions.add("channel")
+
+    productFlavors {
+        create("lite") {
+            dimension = "channel"
+        }
+        create("default") {
+            dimension = "channel"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -77,7 +88,7 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
-        create("alpha"){
+        create("alpha") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -101,13 +112,24 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-        resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
 
-        jniLibs {
-            // exclude vlc native libs
-            val vlcLibs = listOf("libvlc", "libc++_shared", "libvlcjni")
-            val abis = listOf("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
-            vlcLibs.forEach { vlcLibName -> abis.forEach { abi -> excludes.add("lib/$abi/$vlcLibName.so") } }
+        if (gradle.startParameter.taskNames.find { it.startsWith("assembleLite") } != null) {
+            jniLibs {
+                val vlcLibs = listOf("libvlc", "libc++_shared", "libvlcjni")
+                val abis = listOf("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
+                vlcLibs.forEach { vlcLibName -> abis.forEach { abi -> excludes.add("lib/$abi/$vlcLibName.so") } }
+            }
+        }
+    }
+
+    splits {
+        if (gradle.startParameter.taskNames.find { it.startsWith("assembleDefault") } != null) {
+            abi {
+                isEnable = true
+                reset()
+                include("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
+                isUniversalApk = true
+            }
         }
     }
 
@@ -115,10 +137,12 @@ android {
         val variant = this
         outputs.configureEach {
             (this as ApkVariantOutputImpl).apply {
+                val abi = this.filters.find { it.filterType == "ABI" }?.identifier ?: "universal"
                 outputFileName =
-                    "BV-${AppConfiguration.versionCode}-${AppConfiguration.versionName}.${variant.buildType.name}.apk"
+                    "BV_${AppConfiguration.versionCode}_${AppConfiguration.versionName}.${variant.buildType.name}_${variant.flavorName}_$abi.apk"
                 versionNameOverride =
                     "${variant.versionName}.${variant.buildType.name}"
+                variant.buildConfigField("String", "ABI_TYPE", "\"$abi\"")
             }
         }
     }
@@ -128,7 +152,7 @@ android {
     }
 }
 
-java{
+java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
     }

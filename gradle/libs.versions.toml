@@ -14,7 +14,7 @@ qrcode = "3.3.0"
 rememberPreference = "1.0.1"
 slf4j-android-mvysny = "2.0.4"
 slf4j-simple = "2.0.7"
-vlc = "3.5.1"
+vlc = "3.6.0-eap5"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku

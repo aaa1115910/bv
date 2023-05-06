@@ -32,12 +32,36 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ## 安装
 
-你可以在 [App Center](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
-或 [Actions](https://github.com/aaa1115910/bv/actions) 获取持续集成版本。
+### Release
+
+- [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
+- AppCenter
+    - [Lite 版](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public) (
+      应用大小较小，默认仅支持 AndroidxMedia3，可在设置内选择性安装 LibVLC，但在部分设备上安装 LibVLC
+      可能会导致无法启动)
+    - 普通版 (应用大小较大，内置 LibVLC，需下载设备对应的版本)
+        - [`Universal`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-universal)
+          [`Arm64-v8a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-arm64-v8a)
+          [`Armeabi-v7a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-armeabi-v7a)
+          [`X86`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-x86)
+          [`X86_64`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-x86_64)
+
+### Alpha
+
+- [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
+- AppCenter
+    - [Lite 版](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
+    - 普通版
+        - [`Universal`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha-universal)
+          [`Arm64-v8a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha-arm64-v8a)
+          [`Armeabi-v7a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha-armeabi-v7a)
+          [`X86`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha-x86)
+          [`X86_64`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha-x86_64)
 
 ## 自行编译注意事项
 
 ### JDK 版本
+
 `jdk 11`
 
 ### google-services.json
