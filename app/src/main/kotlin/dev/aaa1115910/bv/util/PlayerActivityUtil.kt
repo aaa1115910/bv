@@ -14,7 +14,8 @@ fun launchPlayerActivity(
     fromSeason: Boolean,
     subType: Int? = null,
     epid: Int? = null,
-    seasonId: Int? = null
+    seasonId: Int? = null,
+    isVerticalVideo: Boolean = false
 ) {
     if (Prefs.useOldPlayer) {
         VideoPlayerActivity.actionStart(
@@ -22,7 +23,8 @@ fun launchPlayerActivity(
         )
     } else {
         VideoPlayerV3Activity.actionStart(
-            context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId
+            context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
+            isVerticalVideo
         )
     }
 }

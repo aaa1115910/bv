@@ -23,7 +23,8 @@ import org.videolan.libvlc.util.VLCVideoLayout
 fun BvVideoPlayer(
     modifier: Modifier = Modifier,
     videoPlayer: AbstractVideoPlayer,
-    playerListener: VideoPlayerListener
+    playerListener: VideoPlayerListener,
+    isVerticalVideo: Boolean = false
 ) {
     DisposableEffect(Unit) {
         videoPlayer.setPlayerEventListener(playerListener)
@@ -55,7 +56,8 @@ fun BvVideoPlayer(
                 modifier = modifier.fillMaxSize(),
                 factory = { ctx ->
                     videoPlayerView = VLCVideoLayout(ctx).apply {
-                        videoPlayer.mPlayer?.attachViews(this, null, true, false)
+                        // subtitle 为 false 会导致一些设备播放出来的画面无法达到视频分辨率，为 true 会导致竖屏视频比例不对
+                        videoPlayer.mPlayer?.attachViews(this, null, !isVerticalVideo, false)
                         videoPlayer.mPlayer?.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
                     }
                     videoPlayerView!!

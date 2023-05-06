@@ -339,7 +339,8 @@ fun VideoInfoScreen(
                             title = videoInfo!!.title,
                             partTitle = videoInfo!!.pages.find { it.cid == playPart.cid }!!.part,
                             played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0,
-                            fromSeason = true
+                            fromSeason = true,
+                            isVerticalVideo = containsVerticalScreenVideo
                         )
                         context.finish()
                     } else if (videoInfo?.isSeasonDisplay == true) {
@@ -487,7 +488,8 @@ fun VideoInfoScreen(
                                     title = videoInfo!!.title,
                                     partTitle = videoInfo!!.pages.first().part,
                                     played = if (videoInfo!!.cid == lastPlayedCid) lastPlayedTime else 0,
-                                    fromSeason = false
+                                    fromSeason = false,
+                                    isVerticalVideo = containsVerticalScreenVideo
                                 )
                             },
                             onClickUp = {
@@ -546,7 +548,8 @@ fun VideoInfoScreen(
                                         title = videoInfo!!.title,
                                         partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
                                         played = if (cid == lastPlayedCid) lastPlayedTime else 0,
-                                        fromSeason = false
+                                        fromSeason = false,
+                                        isVerticalVideo = containsVerticalScreenVideo
                                     )
                                 }
                             )
@@ -568,7 +571,8 @@ fun VideoInfoScreen(
                                         title = videoInfo!!.title,
                                         partTitle = videoInfo!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime else 0,
-                                        fromSeason = false
+                                        fromSeason = false,
+                                        isVerticalVideo = containsVerticalScreenVideo
                                     )
                                 }
                             )

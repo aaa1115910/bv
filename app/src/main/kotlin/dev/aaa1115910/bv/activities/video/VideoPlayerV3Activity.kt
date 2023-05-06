@@ -32,7 +32,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
             fromSeason: Boolean,
             subType: Int? = null,
             epid: Int? = null,
-            seasonId: Int? = null
+            seasonId: Int? = null,
+            isVerticalVideo: Boolean = false
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerV3Activity::class.java).apply {
@@ -45,6 +46,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("subType", subType)
                     putExtra("epid", epid)
                     putExtra("seasonId", seasonId)
+                    putExtra("isVerticalVideo", isVerticalVideo)
                 }
             )
         }
@@ -105,6 +107,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val subType = intent.getIntExtra("subType", 0)
             val epid = intent.getIntExtra("epid", 0)
             val seasonId = intent.getIntExtra("seasonId", 0)
+            val isVerticalVideo = intent.getBooleanExtra("isVerticalVideo", false)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(aid, cid)
@@ -115,6 +118,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.subType = subType
                 this.epid = epid
                 this.seasonId = seasonId
+                this.isVerticalVideo = isVerticalVideo
             }
         } else {
             logger.fInfo { "Null launch parameter" }

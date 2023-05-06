@@ -522,7 +522,8 @@ fun VideoPlayerV3Screen(
                         .fillMaxHeight()
                         .width(videoPlayerWidth),
                     videoPlayer = videoPlayer,
-                    playerListener = videoPlayerListener
+                    playerListener = videoPlayerListener,
+                    isVerticalVideo = playerViewModel.isVerticalVideo
                 )
 
                 DanmakuPlayerCompose(
