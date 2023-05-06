@@ -55,7 +55,7 @@ fun BvVideoPlayer(
                 modifier = modifier.fillMaxSize(),
                 factory = { ctx ->
                     videoPlayerView = VLCVideoLayout(ctx).apply {
-                        videoPlayer.mPlayer?.attachViews(this, null, false, false)
+                        videoPlayer.mPlayer?.attachViews(this, null, true, false)
                         videoPlayer.mPlayer?.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
                     }
                     videoPlayerView!!
