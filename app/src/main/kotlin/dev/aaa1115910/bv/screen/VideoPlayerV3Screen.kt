@@ -3,11 +3,11 @@ package dev.aaa1115910.bv.screen
 import android.app.Activity
 import android.os.CountDownTimer
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -24,8 +24,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
@@ -92,10 +90,9 @@ fun VideoPlayerV3Screen(
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var videoPlayerHeight by remember { mutableStateOf(0.dp) }
-    var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var currentPosition by remember { mutableStateOf(0L) }
     var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
+    var aspectRatio by remember { mutableStateOf(16f / 9f) }
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
@@ -174,20 +171,17 @@ fun VideoPlayerV3Screen(
     }
 
     val updateVideoAspectRatio: () -> Unit = {
-        videoPlayerWidth = when (currentVideoAspectRatio) {
+        aspectRatio = when (currentVideoAspectRatio) {
             VideoAspectRatio.Default -> {
-                (playerViewModel.currentVideoWidth / playerViewModel.currentVideoHeight.toFloat()) * videoPlayerHeight
+                val aspectRatioValue =
+                    playerViewModel.currentVideoWidth / playerViewModel.currentVideoHeight.toFloat()
+                if (aspectRatioValue > 0) aspectRatioValue else 16 / 9f
             }
 
-            VideoAspectRatio.FourToThree -> {
-                videoPlayerHeight * (4 / 3f)
-            }
-
-            VideoAspectRatio.SixteenToNine -> {
-                videoPlayerHeight * (16 / 9f)
-            }
+            VideoAspectRatio.FourToThree -> 4 / 3f
+            VideoAspectRatio.SixteenToNine -> 16 / 9f
         }
-        logger.info { "Update video player size: $videoPlayerWidth x $videoPlayerHeight" }
+        logger.info { "Update video player aspectRatio: $aspectRatio" }
     }
 
     val videoPlayerListener = object : VideoPlayerListener {
@@ -507,12 +501,10 @@ fun VideoPlayerV3Screen(
                 playerViewModel.currentSubtitleBottomPadding = padding
             }
         ) {
-            BoxWithConstraints(
+            Box(
                 modifier = Modifier.background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                videoPlayerHeight = this.maxHeight
-
                 LaunchedEffect(Unit) {
                     videoPlayer.setOptions()
                 }
@@ -520,7 +512,7 @@ fun VideoPlayerV3Screen(
                 BvVideoPlayer(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(videoPlayerWidth),
+                        .aspectRatio(aspectRatio),
                     videoPlayer = videoPlayer,
                     playerListener = videoPlayerListener,
                     isVerticalVideo = playerViewModel.isVerticalVideo
