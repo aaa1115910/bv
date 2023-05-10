@@ -171,8 +171,7 @@ fun DanmakuMenuList(
             ) {
                 itemsIndexed(VideoPlayerDanmakuMenuItem.values()) { index, item ->
                     val buttonModifier =
-                        (if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus())
-                            .width(200.dp)
+                        if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
                     MenuListItem(
                         modifier = buttonModifier,
                         text = item.getDisplayName(context),

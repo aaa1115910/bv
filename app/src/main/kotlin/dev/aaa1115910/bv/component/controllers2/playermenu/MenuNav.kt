@@ -3,7 +3,6 @@ package dev.aaa1115910.bv.component.controllers2.playermenu
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,8 +34,7 @@ fun MenuNavList(
         ) {
             itemsIndexed(VideoPlayerMenuNavItem.values()) { index, item ->
                 val buttonModifier =
-                    (if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus())
-                        .width(if (isFocusing) 200.dp else 46.dp)
+                    if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
                 MenuListItem(
                     modifier = buttonModifier,
                     text = item.getDisplayName(context),
