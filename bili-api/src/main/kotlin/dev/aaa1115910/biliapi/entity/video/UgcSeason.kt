@@ -70,10 +70,10 @@ data class UgcSeason(
                 val state: Int,
                 val duration: Int,
                 val rights: VideoRights,
-                val author: Author,
+                //val author: Author,
                 val stat: VideoStat,
                 val dynamic: String,
-                val dimension: Dimension,
+                //val dimension: Dimension,
                 @SerialName("desc_v2")
                 val descV2: JsonElement? = null,
                 @SerialName("is_chargeable_season")
