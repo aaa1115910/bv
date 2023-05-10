@@ -37,9 +37,9 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
 - AppCenter
     - [Lite 版](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public) (
-      应用大小较小，默认仅支持 AndroidxMedia3，可在设置内选择性安装 LibVLC，但在部分设备上安装 LibVLC
+      应用体积较小，默认仅支持 AndroidxMedia3，可在设置内选择性安装 LibVLC，但在部分设备上安装 LibVLC
       可能会导致无法启动)
-    - 普通版 (应用大小较大，内置 LibVLC，需下载设备对应的版本)
+    - 普通版 (应用体积较大，内置 LibVLC，需下载设备对应的版本)
         - [`Universal`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-universal)
           [`Arm64-v8a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-arm64-v8a)
           [`Armeabi-v7a`](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public-armeabi-v7a)
@@ -62,7 +62,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ### JDK 版本
 
-`jdk 11`
+`jdk 17`
 
 ### google-services.json
 
@@ -70,3 +70,9 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 你应在 [Firebase](https://console.firebase.google.com/)
 上创建一个新应用，并下载获取你自己的 `google-services.json` 文件，并将其放置于 `app` 目录下。
+
+需添加以下包名：
+
+- `dev.aaa1115910.bv`
+- `dev.aaa1115910.bv.debug`
+- `dev.aaa1115910.bv.r8Test`
