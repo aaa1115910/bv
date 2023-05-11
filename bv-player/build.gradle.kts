@@ -75,7 +75,6 @@ dependencies {
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
     implementation(libs.material)
-    api(project(":libs:libVLC"))
     testImplementation(libs.kotlin.test)
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)

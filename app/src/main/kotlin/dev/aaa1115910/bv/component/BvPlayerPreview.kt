@@ -14,7 +14,6 @@ import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
-import dev.aaa1115910.bv.player.impl.vlc.VlcPlayerFactory
 
 private const val videoUrl = ""
 private const val audioUrl = ""
@@ -71,15 +70,6 @@ fun BvVideoPlayerExoPreview() {
     val exoPlayer by remember { mutableStateOf(ExoPlayerFactory().create(context, options)) }
 
     BvVideoPlayerPreview(exoPlayer)
-}
-
-@Preview
-@Composable
-fun BvVideoPlayerVlcPreview() {
-    val context = LocalContext.current
-    val vldPlayer by remember { mutableStateOf(VlcPlayerFactory().create(context, options)) }
-
-    BvVideoPlayerPreview(vldPlayer)
 }
 
 @Composable

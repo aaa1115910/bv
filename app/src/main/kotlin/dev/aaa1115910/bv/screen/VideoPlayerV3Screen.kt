@@ -35,7 +35,6 @@ import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
-import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
@@ -260,9 +259,6 @@ fun VideoPlayerV3Screen(
     }
 
     LaunchedEffect(Unit) {
-        // LibVLC 需要提前初始化播放器的宽高，才能正常播放
-        if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
-
         focusRequester.requestFocus()
     }
 

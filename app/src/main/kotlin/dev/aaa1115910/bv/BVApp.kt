@@ -13,7 +13,6 @@ import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
-import dev.aaa1115910.bv.util.LibVLCUtil
 import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
@@ -58,7 +57,6 @@ class BVApp : Application() {
             modules(appModule)
         }
         firebaseAnalytics = Firebase.analytics
-        LibVLCUtil.checkLibVLC(this)
     }
 }
 
