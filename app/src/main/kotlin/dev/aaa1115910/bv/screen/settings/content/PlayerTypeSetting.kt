@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +25,9 @@ import dev.aaa1115910.bv.component.LibVLCDownloaderDialog
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuSelectItem
+import dev.aaa1115910.bv.util.LibVLCUtil
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.toast
 
 @Composable
 fun PlayerTypeSetting(
@@ -33,6 +36,14 @@ fun PlayerTypeSetting(
     val context = LocalContext.current
     var selectedPlayerType by remember { mutableStateOf(Prefs.playerType) }
     var showLibVLCDownloaderDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!LibVLCUtil.existLibs()) {
+            "LibVLC not found".toast(context)
+            selectedPlayerType = PlayerType.Media3
+            Prefs.playerType = PlayerType.Media3
+        }
+    }
 
     Box(
         modifier = modifier
@@ -59,6 +70,10 @@ fun PlayerTypeSetting(
                         onClick = {
                             selectedPlayerType = playerType
                             Prefs.playerType = playerType
+
+                            if (playerType == PlayerType.LibVLC && !LibVLCUtil.existLibs()) {
+                                showLibVLCDownloaderDialog = true
+                            }
                         }
                     )
                 }
@@ -70,6 +85,10 @@ fun PlayerTypeSetting(
         show = showLibVLCDownloaderDialog,
         onHideDialog = {
             showLibVLCDownloaderDialog = false
+            if (!LibVLCUtil.existLibs()) {
+                selectedPlayerType = PlayerType.Media3
+                Prefs.playerType = PlayerType.Media3
+            }
         }
     )
 }
