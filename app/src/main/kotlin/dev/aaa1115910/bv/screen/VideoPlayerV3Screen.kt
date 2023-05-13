@@ -412,6 +412,7 @@ fun VideoPlayerV3Screen(
             },
             onPlayNewVideo = {
                 if (!Prefs.incognitoMode) sendHeartbeat()
+                playerViewModel.partTitle = it.title
                 playerViewModel.loadPlayUrl(
                     avid = it.aid,
                     cid = it.cid,
