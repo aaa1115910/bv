@@ -100,7 +100,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
-import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
@@ -116,6 +115,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.formatPubTimeString
+import dev.aaa1115910.bv.util.launchPlayerActivity
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
@@ -149,6 +149,7 @@ fun VideoInfoScreen(
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
+
     val containsVerticalScreenVideo by remember {
         derivedStateOf {
             videoInfo?.pages?.any { page -> page.dimension.height > page.dimension.width } ?: false
@@ -331,14 +332,15 @@ fun VideoInfoScreen(
                     //如果是从剧集跳转过来的，就直接播放 P1
                     if (fromSeason) {
                         val playPart = videoInfo!!.pages.first()
-                        VideoPlayerActivity.actionStart(
+                        launchPlayerActivity(
                             context = context,
                             avid = videoInfo!!.aid,
                             cid = playPart.cid,
                             title = videoInfo!!.title,
                             partTitle = videoInfo!!.pages.find { it.cid == playPart.cid }!!.part,
                             played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0,
-                            fromSeason = true
+                            fromSeason = true,
+                            isVerticalVideo = containsVerticalScreenVideo
                         )
                         context.finish()
                     } else if (videoInfo?.isSeasonDisplay == true) {
@@ -479,14 +481,15 @@ fun VideoInfoScreen(
                             favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
-                                VideoPlayerActivity.actionStart(
+                                launchPlayerActivity(
                                     context = context,
                                     avid = videoInfo!!.aid,
                                     cid = videoInfo!!.pages.first().cid,
                                     title = videoInfo!!.title,
                                     partTitle = videoInfo!!.pages.first().part,
                                     played = if (videoInfo!!.cid == lastPlayedCid) lastPlayedTime else 0,
-                                    fromSeason = false
+                                    fromSeason = false,
+                                    isVerticalVideo = containsVerticalScreenVideo
                                 )
                             },
                             onClickUp = {
@@ -538,14 +541,15 @@ fun VideoInfoScreen(
                                 enablePartListDialog = videoInfo?.pages?.size ?: 0 > 5,
                                 onClick = { cid ->
                                     logger.fInfo { "Click video part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerActivity.actionStart(
+                                    launchPlayerActivity(
                                         context = context,
                                         avid = videoInfo!!.aid,
                                         cid = cid,
                                         title = videoInfo!!.title,
                                         partTitle = videoInfo!!.pages.find { it.cid == cid }!!.part,
                                         played = if (cid == lastPlayedCid) lastPlayedTime else 0,
-                                        fromSeason = false
+                                        fromSeason = false,
+                                        isVerticalVideo = containsVerticalScreenVideo
                                     )
                                 }
                             )
@@ -560,14 +564,15 @@ fun VideoInfoScreen(
                                 enableUgcListDialog = videoInfo?.ugcSeason?.sections?.get(0)?.episodes?.size ?: 0 > 5,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoInfo?.aid}, bv:${videoInfo?.bvid}, cid:$cid]" }
-                                    VideoPlayerActivity.actionStart(
+                                    launchPlayerActivity(
                                         context = context,
                                         avid = aid,
                                         cid = cid,
                                         title = videoInfo!!.title,
                                         partTitle = videoInfo!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime else 0,
-                                        fromSeason = false
+                                        fromSeason = false,
+                                        isVerticalVideo = containsVerticalScreenVideo
                                     )
                                 }
                             )

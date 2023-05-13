@@ -1,8 +1,8 @@
 [versions]
 akdanmaku = "1.0.3"
 coil = "2.3.0"
-firebase-bom = "31.5.0"
-jsoup = "1.15.4"
+firebase-bom = "32.0.0"
+jsoup = "1.16.1"
 koin = "3.4.0"
 koin-compose = "3.4.4"
 kotlinx-serialization = "1.5.0"
@@ -14,6 +14,7 @@ qrcode = "3.3.0"
 rememberPreference = "1.0.1"
 slf4j-android-mvysny = "2.0.4"
 slf4j-simple = "2.0.7"
+vlc = "3.6.0-eap5"
 
 [libraries]
 # https://github.com/KwaiAppTeam/AkDanmaku
@@ -72,3 +73,6 @@ slf4j-android-mvysny = { module = "com.gitlab.mvysny.slf4j:slf4j-handroid", vers
 
 # https://www.slf4j.org
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
+
+# https://code.videolan.org/videolan/vlc-android
+vlc-android-all = { module = "org.videolan.android:libvlc-all", version.ref = "vlc" }

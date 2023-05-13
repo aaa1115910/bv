@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.screen
 
 import android.app.Activity
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
@@ -27,9 +26,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchInputActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -66,6 +71,7 @@ fun HomeScreen(
     val logger = KotlinLogging.logger { }
 
     val popularState = rememberTvLazyGridState()
+    val animeState = rememberTvLazyListState()
     val dynamicState = rememberTvLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
@@ -105,7 +111,7 @@ fun HomeScreen(
         }
     }
 
-    BackHandler(!showUserPanel) {
+    val handleBack = {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastPressBack < 1000 * 3) {
             logger.fInfo { "Exiting bug video" }
@@ -116,6 +122,11 @@ fun HomeScreen(
         }
     }
 
+    // FocusGroup 会导致 BackHandler 失效
+    //BackHandler(!showUserPanel) {
+    //    handleBack()
+    //}
+
     Box(
         modifier = modifier
     ) {
@@ -123,7 +134,15 @@ fun HomeScreen(
             modifier = Modifier,
             topBar = {
                 TopNav(
-                    modifier = Modifier.focusRequester(navFocusRequester),
+                    modifier = Modifier
+                        .focusRequester(navFocusRequester)
+                        // FocusGroup 会导致 BackHandler 失效，所以在这里直接监听返回键事件
+                        .onKeyEvent {
+                            if (it.key == Key.Back && it.type == KeyEventType.KeyUp) {
+                                handleBack()
+                            }
+                            false
+                        },
                     isLogin = userViewModel.isLogin,
                     username = userViewModel.username,
                     face = userViewModel.face,
@@ -201,7 +220,11 @@ fun HomeScreen(
                         )
 
                         TopNavItem.Partition -> PartitionScreen()
-                        TopNavItem.Anime -> AnimeScreen()
+                        TopNavItem.Anime -> AnimeScreen(
+                            tvLazyListState = animeState,
+                            onBackNav = onFocusBackToNav
+                        )
+
                         TopNavItem.Dynamics -> DynamicsScreen(
                             tvLazyGridState = dynamicState,
                             onBackNav = onFocusBackToNav

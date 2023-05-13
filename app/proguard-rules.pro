@@ -90,3 +90,6 @@
 # 这部分是加上不混淆 ktor 后冒出来的 missing rules
 -dontwarn java.lang.management.ManagementFactory
 -dontwarn java.lang.management.RuntimeMXBean
+
+# LibVLC
+-keep class org.videolan.libvlc.** { *; }

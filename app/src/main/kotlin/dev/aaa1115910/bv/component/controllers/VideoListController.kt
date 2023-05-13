@@ -72,7 +72,7 @@ fun VideoListController(
                     }
                     MenuListItem(
                         modifier = itemModifier,
-                        text = "P${video.index} ${video.title}",
+                        text = "P${video.index + 1} ${video.title}",
                         selected = isSelected,
                         textAlign = TextAlign.Start
                     ) { onVideoSwitch(video) }

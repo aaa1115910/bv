@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,14 +37,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import androidx.tv.foundation.lazy.list.TvLazyListState
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.Border
@@ -69,20 +73,40 @@ import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AnimeScreen(
     modifier: Modifier = Modifier,
+    tvLazyListState: TvLazyListState,
+    onBackNav: () -> Unit,
     animeViewModel: AnimeViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val carouselItems = animeViewModel.carouselItems
     val animeFeeds = animeViewModel.feedItems
 
     TvLazyColumn(
         modifier = modifier
+            .onPreviewKeyEvent {
+                when (it.key) {
+                    Key.Back -> {
+                        if (it.type == KeyEventType.KeyUp) {
+                            scope.launch(Dispatchers.Main) {
+                                tvLazyListState.animateScrollToItem(0)
+                            }
+                            onBackNav()
+                        }
+                        return@onPreviewKeyEvent true
+                    }
+                }
+                return@onPreviewKeyEvent false
+            },
+        state = tvLazyListState
     ) {
         item {
             AnimeCarousel(

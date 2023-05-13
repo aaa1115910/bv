@@ -45,6 +45,17 @@ android {
         }
     }
 
+    flavorDimensions.add("channel")
+
+    productFlavors {
+        create("lite") {
+            dimension = "channel"
+        }
+        create("default") {
+            dimension = "channel"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -77,7 +88,7 @@ android {
                 mappingFileUploadEnabled = false
             }
         }
-        create("alpha"){
+        create("alpha") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -88,8 +99,8 @@ android {
     }
     // https://issuetracker.google.com/issues/260059413
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -101,16 +112,37 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+
+        if (gradle.startParameter.taskNames.find { it.startsWith("assembleLite") } != null) {
+            jniLibs {
+                val vlcLibs = listOf("libvlc", "libc++_shared", "libvlcjni")
+                val abis = listOf("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
+                vlcLibs.forEach { vlcLibName -> abis.forEach { abi -> excludes.add("lib/$abi/$vlcLibName.so") } }
+            }
+        }
+    }
+
+    splits {
+        if (gradle.startParameter.taskNames.find { it.startsWith("assembleDefault") } != null) {
+            abi {
+                isEnable = true
+                reset()
+                include("x86_64", "x86", "arm64-v8a", "armeabi-v7a")
+                isUniversalApk = true
+            }
+        }
     }
 
     applicationVariants.configureEach {
         val variant = this
         outputs.configureEach {
             (this as ApkVariantOutputImpl).apply {
+                val abi = this.filters.find { it.filterType == "ABI" }?.identifier ?: "universal"
                 outputFileName =
-                    "BV-${AppConfiguration.versionCode}-${AppConfiguration.versionName}.${variant.buildType.name}.apk"
+                    "BV_${AppConfiguration.versionCode}_${AppConfiguration.versionName}.${variant.buildType.name}_${variant.flavorName}_$abi.apk"
                 versionNameOverride =
                     "${variant.versionName}.${variant.buildType.name}"
+                variant.buildConfigField("String", "ABI_TYPE", "\"$abi\"")
             }
         }
     }
@@ -120,9 +152,9 @@ android {
     }
 }
 
-java{
+java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -173,7 +205,7 @@ dependencies {
     implementation(libs.slf4j.android.mvysny)
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
-    implementation(files("libs/lib-decoder-av1-release.aar"))
+    implementation(project(mapOf("path" to ":bv-player")))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(androidx.compose.ui.test.junit4)

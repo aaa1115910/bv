@@ -68,7 +68,7 @@ fun UISetting(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = SettingsMenuNavItem.Resolution.getDisplayName(context),
+                text = SettingsMenuNavItem.UI.getDisplayName(context),
                 style = MaterialTheme.typography.displaySmall
             )
             Spacer(modifier = Modifier.height(12.dp))
