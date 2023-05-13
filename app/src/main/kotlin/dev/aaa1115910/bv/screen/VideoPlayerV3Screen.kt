@@ -209,7 +209,7 @@ fun VideoPlayerV3Screen(
             isPlaying = true
             isBuffering = false
 
-            if (playerViewModel.lastPlayed != 0 && hideBackToHistoryTimer == null) {
+            if (playerViewModel.lastPlayed > 0 && hideBackToHistoryTimer == null) {
                 showBackToHistory = true
                 hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
                     showBackToHistory = false
