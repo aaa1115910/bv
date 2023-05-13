@@ -183,6 +183,18 @@ fun VideoPlayerV3Screen(
         logger.info { "Update video player aspectRatio: $aspectRatio" }
     }
 
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.IO) {
+            val time = withContext(Dispatchers.Main) {
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
+    }
+
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: Exception) {
             logger.info { "onError: $error" }
@@ -235,6 +247,22 @@ fun VideoPlayerV3Screen(
             logger.info { "onEnd" }
             playerViewModel.danmakuPlayer?.pause()
             isPlaying = false
+            if (!Prefs.incognitoMode) sendHeartbeat()
+
+            val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+                it.cid == playerViewModel.currentCid
+            }
+            if (videoListIndex + 1 < playerViewModel.availableVideoList.size) {
+                val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+                logger.info { "Play next video: $nextVideo" }
+                playerViewModel.partTitle = nextVideo.title
+                playerViewModel.loadPlayUrl(
+                    avid = nextVideo.aid,
+                    cid = nextVideo.cid,
+                    epid = nextVideo.epid,
+                    seasonId = nextVideo.seasonId
+                )
+            }
         }
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
@@ -243,18 +271,6 @@ fun VideoPlayerV3Screen(
 
         override fun onSeekForward(seekForwardIncrementMs: Long) {
             playerViewModel.danmakuPlayer?.seekTo(currentPosition)
-        }
-    }
-
-    val sendHeartbeat: () -> Unit = {
-        scope.launch(Dispatchers.IO) {
-            val time = withContext(Dispatchers.Main) {
-                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
-                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
-                //播放完后上报的时间应为 -1
-                if (currentTime >= totalTime) -1 else currentTime
-            }
-            playerViewModel.uploadHistory(time)
         }
     }
 
