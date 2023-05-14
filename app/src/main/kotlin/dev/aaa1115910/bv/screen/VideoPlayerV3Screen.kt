@@ -328,6 +328,7 @@ fun VideoPlayerV3Screen(
             millisInFuture = Long.MAX_VALUE,
             countDownInterval = 1000,
             tag = "clockRefreshTimer",
+            showLogs = false,
             onTick = {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
