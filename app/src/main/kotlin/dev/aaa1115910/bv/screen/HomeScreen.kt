@@ -76,7 +76,7 @@ fun HomeScreen(
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
-    var lastPressBack: Long by remember { mutableStateOf(0) }
+    var lastPressBack: Long by remember { mutableStateOf(0L) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
     val navFocusRequester = remember { FocusRequester() }
