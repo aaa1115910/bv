@@ -513,7 +513,8 @@ fun VideoPlayerV3Screen(
                 logger.info { "On subtitle bottom padding change: $padding" }
                 Prefs.defaultSubtitleBottomPadding = padding
                 playerViewModel.currentSubtitleBottomPadding = padding
-            }
+            },
+            onRequestFocus = { focusRequester.requestFocus() },
         ) {
             Box(
                 modifier = Modifier.background(Color.Black),
