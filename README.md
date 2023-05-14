@@ -30,6 +30,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - :children_crossing: 反人类设计
 - :zap: 卡卡卡卡卡
 - :art: 异样审美
+- :disappointed: 巨难用
 
 ## 安装
 
@@ -61,3 +62,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - `dev.aaa1115910.bv`
 - `dev.aaa1115910.bv.debug`
 - `dev.aaa1115910.bv.r8Test`
+
+## License
+
+[MIT](LICENSE) © aaa1115910
