@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.screen
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
@@ -26,11 +27,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
@@ -122,10 +118,9 @@ fun HomeScreen(
         }
     }
 
-    // FocusGroup 会导致 BackHandler 失效
-    //BackHandler(!showUserPanel) {
-    //    handleBack()
-    //}
+    BackHandler(!showUserPanel) {
+        handleBack()
+    }
 
     Box(
         modifier = modifier
@@ -134,15 +129,7 @@ fun HomeScreen(
             modifier = Modifier,
             topBar = {
                 TopNav(
-                    modifier = Modifier
-                        .focusRequester(navFocusRequester)
-                        // FocusGroup 会导致 BackHandler 失效，所以在这里直接监听返回键事件
-                        .onKeyEvent {
-                            if (it.key == Key.Back && it.type == KeyEventType.KeyUp) {
-                                handleBack()
-                            }
-                            false
-                        },
+                    modifier = Modifier.focusRequester(navFocusRequester),
                     isLogin = userViewModel.isLogin,
                     username = userViewModel.username,
                     face = userViewModel.face,
