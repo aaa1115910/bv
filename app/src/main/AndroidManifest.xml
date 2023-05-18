@@ -141,6 +141,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <activity
+            android:name=".mobile.activities.VideoPlayerActivity"
+            android:exported="true"
+            android:label="@string/title_mobile_activity_video_player"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>

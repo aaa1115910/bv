@@ -23,9 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
-import dev.aaa1115910.bv.mobile.componment.home.HomeSearchTopBarCompact
-import dev.aaa1115910.bv.mobile.componment.home.HomeSearchTopBarExpanded
-import dev.aaa1115910.bv.mobile.componment.videocard.SmallVideoCard
+import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarCompact
+import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarExpanded
+import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

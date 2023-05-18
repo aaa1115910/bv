@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.mobile.componment.videocard
+package dev.aaa1115910.bv.mobile.component.videocard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

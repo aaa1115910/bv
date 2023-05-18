@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.mobile.componment.home
+package dev.aaa1115910.bv.mobile.component.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
