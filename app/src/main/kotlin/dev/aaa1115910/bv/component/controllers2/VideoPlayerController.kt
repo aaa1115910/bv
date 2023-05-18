@@ -6,7 +6,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,8 +89,9 @@ fun VideoPlayerController(
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(showSeekController) {
-        if (showSeekController) goTime = data.infoData.currentTime
+    val openSeekController = {
+        if (!showSeekController) goTime = data.infoData.currentTime
+        showSeekController = true
     }
 
     val calCoefficient = {
@@ -109,11 +109,13 @@ fun VideoPlayerController(
         goTime =
             if (targetTime > data.infoData.totalDuration) data.infoData.totalDuration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        logger.info { "onTimeForward: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
     val onTimeBack = {
         val targetTime = goTime - (5000 + calCoefficient() * 5000)
         goTime = if (targetTime < 0) 0 else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
 
     Box(
@@ -259,28 +261,28 @@ fun VideoPlayerController(
                     Key.MediaFastForward -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeForward()
                     }
 
                     Key.MediaRewind -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeBack()
                     }
 
                     Key.DirectionLeft -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeBack()
                     }
 
                     Key.DirectionRight -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeForward()
                     }
                 }
