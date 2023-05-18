@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.network
 
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.util.Prefs
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -42,10 +43,6 @@ import java.util.UUID
 
 private const val OWNER_NAME = "aaa1115910-gmail.com"
 private const val APP_NAME = "bv"
-private const val GROUP_NAME_RELEASE = "public"
-private const val GROUP_NAME_ALPHA = "alpha"
-private const val GROUP_ID_RELEASE = "9259f371-d475-4088-b9fe-e5adfac1b563"
-private const val GROUP_ID_ALPHA = "d867ff94-66f2-4338-8aa2-ce86e2acd649"
 
 object AppCenterApi {
     private var endPoint = "install.appcenter.ms"
@@ -131,8 +128,8 @@ object AppCenterApi {
         }
     }
 
-    private fun getGroupName() = if (Prefs.updateAlpha) GROUP_NAME_ALPHA else GROUP_NAME_RELEASE
-    private fun getGroupId() = if (Prefs.updateAlpha) GROUP_ID_ALPHA else GROUP_ID_RELEASE
+    private fun getGroupName() = GroupData(BuildConfig.FLAVOR, BuildConfig.ABI_TYPE).getGroupName()
+    private fun getGroupId() = GroupData(BuildConfig.FLAVOR, BuildConfig.ABI_TYPE).getGroupId()
 
     suspend fun getPackageList() = getPackageList(
         ownerName = OWNER_NAME,
@@ -359,5 +356,43 @@ object DateSerializer : KSerializer<Date?> {
 
     override fun serialize(encoder: Encoder, value: Date?) {
         encoder.encodeString(sdf.format(value ?: Date(0)))
+    }
+}
+
+private data class GroupData(
+    val flavor: String,
+    val abiType: String
+) {
+    fun getGroupName(): String {
+        val prefix = if (Prefs.updateAlpha) "Alpha" else "Public"
+        return if (flavor == "lite") prefix else "$prefix-$abiType"
+    }
+
+    fun getGroupId(): String {
+        return if (Prefs.updateAlpha) {
+            if (flavor == "lite") {
+                "d867ff94-66f2-4338-8aa2-ce86e2acd649"
+            } else {
+                when (abiType) {
+                    "armeabi-v7a" -> "8796ecb5-a6f0-4194-a7d9-73ada5be7f66"
+                    "arm64-v8a" -> "136d3a56-e052-449b-b493-a8ba5c024711"
+                    "x86" -> "e62422ae-1439-462e-ac41-cd83fe17fa14"
+                    "x86_64" -> "147899f9-8d07-4414-96de-0dd52cfed7e7"
+                    else -> "9954160d-6a3d-4ea3-965c-7245832dfb8d"
+                }
+            }
+        } else {
+            if (flavor == "lite") {
+                "9259f371-d475-4088-b9fe-e5adfac1b563"
+            } else {
+                when (abiType) {
+                    "armeabi-v7a" -> "8cc6402a-4129-4009-84d2-16a1fe2ef039"
+                    "arm64-v8a" -> "b4fc8b5b-735c-4e71-aa70-cd3b36b68adc"
+                    "x86" -> "c63e16ca-88d1-48fb-bf2b-6b614b14bc09"
+                    "x86_64" -> "e9a1ae2f-3158-4074-9c97-59627f8d67ec"
+                    else -> "a450d9a9-44c9-40d3-94e4-ab2e1f1cb26f"
+                }
+            }
+        }
     }
 }

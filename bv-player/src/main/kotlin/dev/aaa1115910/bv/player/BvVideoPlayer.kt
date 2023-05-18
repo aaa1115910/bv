@@ -14,16 +14,15 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import dev.aaa1115910.bv.player.impl.exo.ExoMediaPlayer
-import dev.aaa1115910.bv.player.impl.vlc.VlcMediaPlayer
-import org.videolan.libvlc.MediaPlayer
-import org.videolan.libvlc.util.VLCVideoLayout
 
 @OptIn(UnstableApi::class)
 @Composable
 fun BvVideoPlayer(
     modifier: Modifier = Modifier,
     videoPlayer: AbstractVideoPlayer,
-    playerListener: VideoPlayerListener
+    playerListener: VideoPlayerListener,
+    // LibVLC 要用，误删
+    isVerticalVideo: Boolean = false
 ) {
     DisposableEffect(Unit) {
         videoPlayer.setPlayerEventListener(playerListener)
@@ -43,20 +42,6 @@ fun BvVideoPlayer(
                         player = videoPlayer.mPlayer
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                         useController = false
-                    }
-                    videoPlayerView!!
-                }
-            )
-        }
-
-        is VlcMediaPlayer -> {
-            var videoPlayerView: VLCVideoLayout? by remember { mutableStateOf(null) }
-            AndroidView(
-                modifier = modifier.fillMaxSize(),
-                factory = { ctx ->
-                    videoPlayerView = VLCVideoLayout(ctx).apply {
-                        videoPlayer.mPlayer?.attachViews(this, null, false, false)
-                        videoPlayer.mPlayer?.videoScale = MediaPlayer.ScaleType.SURFACE_FILL
                     }
                     videoPlayerView!!
                 }

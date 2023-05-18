@@ -10,7 +10,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
-import dev.aaa1115910.bv.player.impl.vlc.VlcPlayerFactory
 import dev.aaa1115910.bv.screen.VideoPlayerV3Screen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
@@ -32,7 +31,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
             fromSeason: Boolean,
             subType: Int? = null,
             epid: Int? = null,
-            seasonId: Int? = null
+            seasonId: Int? = null,
+            isVerticalVideo: Boolean = false
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerV3Activity::class.java).apply {
@@ -45,6 +45,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("subType", subType)
                     putExtra("epid", epid)
                     putExtra("seasonId", seasonId)
+                    putExtra("isVerticalVideo", isVerticalVideo)
                 }
             )
         }
@@ -54,12 +55,6 @@ class VideoPlayerV3Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (Prefs.useOldPlayer) {
-            launchOldPlayer()
-            finish()
-        }
-
         initVideoPlayer()
         //initDanmakuPlayer()
         getParamsFromIntent()
@@ -90,7 +85,6 @@ class VideoPlayerV3Activity : ComponentActivity() {
         )
         val videoPlayer = when (Prefs.playerType) {
             PlayerType.Media3 -> ExoPlayerFactory().create(this, options)
-            PlayerType.LibVLC -> VlcPlayerFactory().create(this, options)
         }
         playerViewModel.videoPlayer = videoPlayer
     }
@@ -111,6 +105,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val subType = intent.getIntExtra("subType", 0)
             val epid = intent.getIntExtra("epid", 0)
             val seasonId = intent.getIntExtra("seasonId", 0)
+            val isVerticalVideo = intent.getBooleanExtra("isVerticalVideo", false)
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(aid, cid)
@@ -121,24 +116,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.subType = subType
                 this.epid = epid
                 this.seasonId = seasonId
+                this.isVerticalVideo = isVerticalVideo
             }
         } else {
             logger.fInfo { "Null launch parameter" }
         }
-    }
-
-    private fun launchOldPlayer() {
-        VideoPlayerActivity.actionStart(
-            context = this,
-            avid = intent.getIntExtra("avid", 170001),
-            cid = intent.getIntExtra("cid", 170001),
-            title = intent.getStringExtra("title") ?: "Unknown Title",
-            partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title",
-            played = intent.getIntExtra("played", 0),
-            fromSeason = intent.getBooleanExtra("fromSeason", false),
-            subType = intent.getIntExtra("subType", 0),
-            epid = intent.getIntExtra("epid", 0),
-            seasonId = intent.getIntExtra("seasonId", 0)
-        )
     }
 }

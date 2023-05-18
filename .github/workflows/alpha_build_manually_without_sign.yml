@@ -1,9 +1,11 @@
-name: Feature Build
+name: Alpha Build Manually (Without sign)
 
 on:
-  push:
-    branches:
-      - 'feature/**'
+  workflow_dispatch:
+    inputs:
+      google_services_json:
+        description: "google-services.json"
+        required: true
 
 jobs:
   build-alpha:
@@ -14,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: develop
           fetch-depth: 0
           submodules: 'true'
 
@@ -26,23 +28,11 @@ jobs:
 
       - name: Write google-services.json
         env:
-          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          DATA: ${{ github.event.inputs.google_services_json }}
         run: echo $DATA > app/google-services.json
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Add signing properties
-        env:
-          SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
-        run: |
-          echo ${{ secrets.SIGNING_PROPERTIES }} > encoded_signing_properties
-          base64 -d encoded_signing_properties > signing.properties
-
-      - name: Add jks file
-        run: |
-          echo ${{ secrets.SIGN_KEY }} > ./encoded_key
-          base64 -d encoded_key > key.jks
 
       - name: Build lite apk
         run: ./gradlew assembleLiteAlpha assembleLiteDebug
@@ -179,4 +169,3 @@ jobs:
         with:
           name: Default alpha build artifact (x86_64)
           path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk
-

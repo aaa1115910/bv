@@ -47,8 +47,8 @@ fun UpdateDialog(
 
     var updateStatus by remember { mutableStateOf(UpdateStatus.UpdatingInfo) }
 
-    var bytesSentTotal: Long by remember { mutableStateOf(0) }
-    var contentLength: Long by remember { mutableStateOf(0) }
+    var bytesSentTotal: Long by remember { mutableStateOf(0L) }
+    var contentLength: Long by remember { mutableStateOf(0L) }
     var targetProgress by remember { mutableStateOf(0f) }
     val progress by animateFloatAsState(targetValue = targetProgress)
 

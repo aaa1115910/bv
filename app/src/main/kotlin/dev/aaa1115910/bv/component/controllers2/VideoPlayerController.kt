@@ -68,6 +68,7 @@ fun VideoPlayerController(
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
 
+    onRequestFocus: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -129,6 +130,7 @@ fun VideoPlayerController(
                             showListController = false
                             showSeekController = false
                         }
+                        onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
                     return@onPreviewKeyEvent false
@@ -143,6 +145,7 @@ fun VideoPlayerController(
                         ).contains(it.key)
                     ) {
                         if (it.type != KeyEventType.KeyDown) showSeekController = false
+                        onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
                 }
@@ -207,6 +210,7 @@ fun VideoPlayerController(
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
                         showMenuController = !showMenuController
+                        onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
 

@@ -3,11 +3,11 @@ package dev.aaa1115910.bv.screen
 import android.app.Activity
 import android.os.CountDownTimer
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -24,8 +24,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
@@ -37,7 +35,6 @@ import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
-import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
@@ -92,10 +89,9 @@ fun VideoPlayerV3Screen(
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var videoPlayerHeight by remember { mutableStateOf(0.dp) }
-    var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var currentPosition by remember { mutableStateOf(0L) }
     var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
+    var aspectRatio by remember { mutableStateOf(16f / 9f) }
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
@@ -174,20 +170,29 @@ fun VideoPlayerV3Screen(
     }
 
     val updateVideoAspectRatio: () -> Unit = {
-        videoPlayerWidth = when (currentVideoAspectRatio) {
+        aspectRatio = when (currentVideoAspectRatio) {
             VideoAspectRatio.Default -> {
-                (playerViewModel.currentVideoWidth / playerViewModel.currentVideoHeight.toFloat()) * videoPlayerHeight
+                val aspectRatioValue =
+                    playerViewModel.currentVideoWidth / playerViewModel.currentVideoHeight.toFloat()
+                if (aspectRatioValue > 0) aspectRatioValue else 16 / 9f
             }
 
-            VideoAspectRatio.FourToThree -> {
-                videoPlayerHeight * (4 / 3f)
-            }
-
-            VideoAspectRatio.SixteenToNine -> {
-                videoPlayerHeight * (16 / 9f)
-            }
+            VideoAspectRatio.FourToThree -> 4 / 3f
+            VideoAspectRatio.SixteenToNine -> 16 / 9f
         }
-        logger.info { "Update video player size: $videoPlayerWidth x $videoPlayerHeight" }
+        logger.info { "Update video player aspectRatio: $aspectRatio" }
+    }
+
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.IO) {
+            val time = withContext(Dispatchers.Main) {
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
     }
 
     val videoPlayerListener = object : VideoPlayerListener {
@@ -216,7 +221,7 @@ fun VideoPlayerV3Screen(
             isPlaying = true
             isBuffering = false
 
-            if (playerViewModel.lastPlayed != 0 && hideBackToHistoryTimer == null) {
+            if (playerViewModel.lastPlayed > 0 && hideBackToHistoryTimer == null) {
                 showBackToHistory = true
                 hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
                     showBackToHistory = false
@@ -242,6 +247,22 @@ fun VideoPlayerV3Screen(
             logger.info { "onEnd" }
             playerViewModel.danmakuPlayer?.pause()
             isPlaying = false
+            if (!Prefs.incognitoMode) sendHeartbeat()
+
+            val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+                it.cid == playerViewModel.currentCid
+            }
+            if (videoListIndex + 1 < playerViewModel.availableVideoList.size) {
+                val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+                logger.info { "Play next video: $nextVideo" }
+                playerViewModel.partTitle = nextVideo.title
+                playerViewModel.loadPlayUrl(
+                    avid = nextVideo.aid,
+                    cid = nextVideo.cid,
+                    epid = nextVideo.epid,
+                    seasonId = nextVideo.seasonId
+                )
+            }
         }
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
@@ -253,22 +274,7 @@ fun VideoPlayerV3Screen(
         }
     }
 
-    val sendHeartbeat: () -> Unit = {
-        scope.launch(Dispatchers.IO) {
-            val time = withContext(Dispatchers.Main) {
-                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
-                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
-                //播放完后上报的时间应为 -1
-                if (currentTime >= totalTime) -1 else currentTime
-            }
-            playerViewModel.uploadHistory(time)
-        }
-    }
-
     LaunchedEffect(Unit) {
-        // LibVLC 需要提前初始化播放器的宽高，才能正常播放
-        if (Prefs.playerType == PlayerType.LibVLC) updateVideoAspectRatio()
-
         focusRequester.requestFocus()
     }
 
@@ -322,6 +328,7 @@ fun VideoPlayerV3Screen(
             millisInFuture = Long.MAX_VALUE,
             countDownInterval = 1000,
             tag = "clockRefreshTimer",
+            showLogs = false,
             onTick = {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -406,6 +413,7 @@ fun VideoPlayerV3Screen(
             },
             onPlayNewVideo = {
                 if (!Prefs.incognitoMode) sendHeartbeat()
+                playerViewModel.partTitle = it.title
                 playerViewModel.loadPlayUrl(
                     avid = it.aid,
                     cid = it.cid,
@@ -505,14 +513,13 @@ fun VideoPlayerV3Screen(
                 logger.info { "On subtitle bottom padding change: $padding" }
                 Prefs.defaultSubtitleBottomPadding = padding
                 playerViewModel.currentSubtitleBottomPadding = padding
-            }
+            },
+            onRequestFocus = { focusRequester.requestFocus() },
         ) {
-            BoxWithConstraints(
+            Box(
                 modifier = Modifier.background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                videoPlayerHeight = this.maxHeight
-
                 LaunchedEffect(Unit) {
                     videoPlayer.setOptions()
                 }
@@ -520,9 +527,10 @@ fun VideoPlayerV3Screen(
                 BvVideoPlayer(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(videoPlayerWidth),
+                        .aspectRatio(aspectRatio),
                     videoPlayer = videoPlayer,
-                    playerListener = videoPlayerListener
+                    playerListener = videoPlayerListener,
+                    isVerticalVideo = playerViewModel.isVerticalVideo
                 )
 
                 DanmakuPlayerCompose(

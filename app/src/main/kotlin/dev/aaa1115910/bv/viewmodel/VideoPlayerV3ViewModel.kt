@@ -87,6 +87,7 @@ class VideoPlayerV3ViewModel(
     var subType by mutableStateOf(0)
     var epid by mutableStateOf(0)
     var seasonId by mutableStateOf(0)
+    var isVerticalVideo by mutableStateOf(false)
 
     var needPay by mutableStateOf(false)
 
