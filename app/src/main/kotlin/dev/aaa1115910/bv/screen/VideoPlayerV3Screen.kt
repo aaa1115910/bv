@@ -184,6 +184,18 @@ fun VideoPlayerV3Screen(
         logger.info { "Update video player aspectRatio: $aspectRatio" }
     }
 
+    val sendHeartbeat: () -> Unit = {
+        scope.launch(Dispatchers.IO) {
+            val time = withContext(Dispatchers.Main) {
+                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
+                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
+                //播放完后上报的时间应为 -1
+                if (currentTime >= totalTime) -1 else currentTime
+            }
+            playerViewModel.uploadHistory(time)
+        }
+    }
+
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: Exception) {
             logger.info { "onError: $error" }
@@ -210,7 +222,7 @@ fun VideoPlayerV3Screen(
             isPlaying = true
             isBuffering = false
 
-            if (playerViewModel.lastPlayed != 0 && hideBackToHistoryTimer == null) {
+            if (playerViewModel.lastPlayed > 0 && hideBackToHistoryTimer == null) {
                 showBackToHistory = true
                 hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
                     showBackToHistory = false
@@ -236,6 +248,22 @@ fun VideoPlayerV3Screen(
             logger.info { "onEnd" }
             playerViewModel.danmakuPlayer?.pause()
             isPlaying = false
+            if (!Prefs.incognitoMode) sendHeartbeat()
+
+            val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+                it.cid == playerViewModel.currentCid
+            }
+            if (videoListIndex + 1 < playerViewModel.availableVideoList.size) {
+                val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+                logger.info { "Play next video: $nextVideo" }
+                playerViewModel.partTitle = nextVideo.title
+                playerViewModel.loadPlayUrl(
+                    avid = nextVideo.aid,
+                    cid = nextVideo.cid,
+                    epid = nextVideo.epid,
+                    seasonId = nextVideo.seasonId
+                )
+            }
         }
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
@@ -244,18 +272,6 @@ fun VideoPlayerV3Screen(
 
         override fun onSeekForward(seekForwardIncrementMs: Long) {
             playerViewModel.danmakuPlayer?.seekTo(currentPosition)
-        }
-    }
-
-    val sendHeartbeat: () -> Unit = {
-        scope.launch(Dispatchers.IO) {
-            val time = withContext(Dispatchers.Main) {
-                val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
-                val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
-                //播放完后上报的时间应为 -1
-                if (currentTime >= totalTime) -1 else currentTime
-            }
-            playerViewModel.uploadHistory(time)
         }
     }
 
@@ -316,6 +332,7 @@ fun VideoPlayerV3Screen(
             millisInFuture = Long.MAX_VALUE,
             countDownInterval = 1000,
             tag = "clockRefreshTimer",
+            showLogs = false,
             onTick = {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -400,6 +417,7 @@ fun VideoPlayerV3Screen(
             },
             onPlayNewVideo = {
                 if (!Prefs.incognitoMode) sendHeartbeat()
+                playerViewModel.partTitle = it.title
                 playerViewModel.loadPlayUrl(
                     avid = it.aid,
                     cid = it.cid,
@@ -499,7 +517,8 @@ fun VideoPlayerV3Screen(
                 logger.info { "On subtitle bottom padding change: $padding" }
                 Prefs.defaultSubtitleBottomPadding = padding
                 playerViewModel.currentSubtitleBottomPadding = padding
-            }
+            },
+            onRequestFocus = { focusRequester.requestFocus() },
         ) {
             Box(
                 modifier = Modifier.background(Color.Black),
