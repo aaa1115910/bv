@@ -280,6 +280,7 @@ fun VideoInfoScreen(
             runCatching {
                 require(favoriteFolders.isNotEmpty()) { "Not found favorite folder" }
                 require(videoInfo?.aid != null) { "Video info is null" }
+                logger.info { "Update video av${videoInfo?.aid} to favorite folder $folderIds" }
 
                 BiliApi.setVideoToFavorite(
                     avid = videoInfo!!.aid,
@@ -294,14 +295,8 @@ fun VideoInfoScreen(
                     it.message ?: "unknown error".toast(context)
                 }
             }.onSuccess {
+                logger.fInfo { "Add video to favorite folder success" }
                 videoInFavoriteFolderIds.swapList(folderIds)
-                withContext(Dispatchers.Main) {
-                    if (folderIds.isEmpty()) {
-                        "已移除收藏夹".toast(context)
-                    } else {
-                        "已添加到收藏夹".toast(context)
-                    }
-                }
             }
         }
     }
