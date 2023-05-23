@@ -363,6 +363,7 @@ data class SearchTopicResult(
  * @param recReason
  * @param danmaku
  * @param bizData
+ * @param isChargeVideo
  */
 @Serializable
 data class SearchVideoResult(
@@ -420,5 +421,7 @@ data class SearchVideoResult(
     val recReason: String,
     val danmaku: Int,
     @SerialName("biz_data")
-    val bizData: JsonElement? = null
+    val bizData: JsonElement? = null,
+    @SerialName("is_charge_video")
+    val isChargeVideo: Int = 0
 ) : SearchResultItem()
