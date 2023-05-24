@@ -11,7 +11,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.dao.AppDatabase
-import dev.aaa1115910.bv.mobile.activities.MobileVideoPlayerViewModel
+import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.viewmodel.LoginViewModel

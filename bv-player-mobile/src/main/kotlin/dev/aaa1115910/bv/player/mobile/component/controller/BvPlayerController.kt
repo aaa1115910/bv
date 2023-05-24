@@ -22,8 +22,14 @@ import kotlin.math.absoluteValue
 fun BvPlayerController(
     modifier: Modifier = Modifier,
     isLandscape: Boolean,
+    currentTime: Long,
+    totalTime: Long,
+    currentSeekPosition: Float,
+    bufferedSeekPosition: Float,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
+    onSeekToPosition: (Long) -> Unit,
+    onSeekMove: (Long) -> Unit,
     content: @Composable () -> Unit
 ) {
     var showUi by remember { mutableStateOf(false) }
@@ -65,6 +71,17 @@ fun BvPlayerController(
                                 "BvPlayerController",
                                 "Left screen drag end: [x=$verticalMove, y=$horizontalMove]"
                             )
+                            if (verticalMove != 0f) {
+
+                            } else {
+                                //不知道为什么获取到的 currentTime 始终为 0
+                                val seekMoveMs = horizontalMove.toLong() * 50
+                                onSeekMove(seekMoveMs)
+                                Log.i(
+                                    "BvPlayerController",
+                                    "Seek move $seekMoveMs"
+                                )
+                            }
                         }
                     )
             ) {}
@@ -84,6 +101,17 @@ fun BvPlayerController(
                                 "BvPlayerController",
                                 "Right screen drag end: [x=$verticalMove, y=$horizontalMove]"
                             )
+                            if (verticalMove != 0f) {
+
+                            } else {
+                                //不知道为什么获取到的 currentTime 始终为 0
+                                val seekMoveMs = horizontalMove.toLong() * 50
+                                onSeekMove(seekMoveMs)
+                                Log.i(
+                                    "BvPlayerController",
+                                    "Seek move $seekMoveMs"
+                                )
+                            }
                         }
                     )
             ) {}
@@ -92,12 +120,22 @@ fun BvPlayerController(
         if (showUi) {
             if (isLandscape) {
                 LandscapeControllers(
-                    onExitFullScreen = onExitFullScreen
+                    currentTime = currentTime,
+                    totalTime = totalTime,
+                    currentSeekPosition = currentSeekPosition,
+                    bufferedSeekPosition = bufferedSeekPosition,
+                    onExitFullScreen = onExitFullScreen,
+                    onSeekToPosition = onSeekToPosition
                 )
             } else {
                 PortraitControllers(
+                    currentTime = currentTime,
+                    totalTime = totalTime,
+                    currentSeekPosition = currentSeekPosition,
+                    bufferedSeekPosition = bufferedSeekPosition,
                     onBack = {},
-                    onEnterFullScreen = onEnterFullScreen
+                    onEnterFullScreen = onEnterFullScreen,
+                    onSeekToPosition = onSeekToPosition
                 )
             }
         }

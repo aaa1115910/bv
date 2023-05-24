@@ -1,26 +1,46 @@
 package dev.aaa1115910.bv.player.mobile.component.controller
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.rounded.FullscreenExit
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 
 @Composable
 fun LandscapeControllers(
     modifier: Modifier = Modifier,
-    onExitFullScreen: () -> Unit
+    currentTime: Long,
+    totalTime: Long,
+    currentSeekPosition: Float,
+    bufferedSeekPosition: Float,
+    onExitFullScreen: () -> Unit,
+    onSeekToPosition: (Long) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -35,7 +55,12 @@ fun LandscapeControllers(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
-            onExitFullScreen = onExitFullScreen
+            currentTime = currentTime,
+            totalTime = totalTime,
+            currentSeekPosition = currentSeekPosition,
+            bufferedSeekPosition = bufferedSeekPosition,
+            onExitFullScreen = onExitFullScreen,
+            onSeekToPosition = onSeekToPosition
         )
     }
 }
@@ -46,12 +71,18 @@ private fun TopControllers(
 ) {
     Box(
         modifier = modifier
+            .background(Color.Black.copy(alpha = 0.3f))
     ) {
-        Row {
+        Row(
+            modifier = Modifier.height(60.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
+                modifier = Modifier.padding(start = 24.dp),
                 text = "这是一个标题",
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = Color.White
             )
         }
     }
@@ -60,23 +91,121 @@ private fun TopControllers(
 @Composable
 private fun BottomControllers(
     modifier: Modifier = Modifier,
-    onExitFullScreen: () -> Unit
+    currentTime: Long,
+    totalTime: Long,
+    currentSeekPosition: Float,
+    bufferedSeekPosition: Float,
+    onExitFullScreen: () -> Unit,
+    onSeekToPosition: (Long) -> Unit
 ) {
     Box(
         modifier = modifier
+            .background(Color.Black.copy(alpha = 0.3f))
     ) {
         Column {
-            Text(text = "进度条")
-            Row(
+            ConstraintLayout(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier)
-                IconButton(onClick = onExitFullScreen) {
-                    Icon(imageVector = Icons.Default.AddCircle, contentDescription = null)
+                val (positionTimeText, seekSlider, totalTimeText) = createRefs()
+
+                Text(
+                    modifier = Modifier
+                        .constrainAs(positionTimeText) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .width(80.dp),
+                    text = currentTime.formatMinSec(),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                SeekSlider(
+                    modifier = Modifier.constrainAs(seekSlider) {
+                        top.linkTo(parent.top)
+                        start.linkTo(positionTimeText.end)
+                        bottom.linkTo(parent.bottom)
+                        end.linkTo(totalTimeText.start)
+                        width = Dimension.preferredWrapContent
+                    },
+                    currentSeekPosition = currentSeekPosition,
+                    bufferedSeekPosition = bufferedSeekPosition,
+                    onSeekChange = { onSeekToPosition((it * totalTime).toLong()) }
+                )
+                Text(
+                    modifier = Modifier
+                        .constrainAs(totalTimeText) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .width(80.dp),
+                    text = totalTime.formatMinSec(),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            ProvideTextStyle(TextStyle(color = Color.White)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Rounded.PlayArrow,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "弹幕开关")
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "弹幕设置")
+                        }
+                    }
+
+                    Row {
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "字幕")
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "选集")
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "倍速")
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "1080P")
+                        }
+                        IconButton(onClick = onExitFullScreen) {
+                            Icon(
+                                imageVector = Icons.Rounded.FullscreenExit,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Preview(device = "spec:width=1920px,height=1080px")
+@Composable
+fun LandscapeControllerPreview() {
+    MaterialTheme {
+        LandscapeControllers(
+            currentTime = 12345,
+            totalTime = 123456,
+            currentSeekPosition = 0.3f,
+            bufferedSeekPosition = 0.6f,
+            onExitFullScreen = {},
+            onSeekToPosition = {}
+        )
     }
 }

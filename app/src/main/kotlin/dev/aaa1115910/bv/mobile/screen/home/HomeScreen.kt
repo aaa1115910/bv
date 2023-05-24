@@ -21,8 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarCompact
 import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarExpanded
 import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
@@ -38,6 +40,7 @@ fun HomeScreen(
     windowSize: WindowWidthSizeClass,
     onSearchActiveChange: (Boolean) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -100,7 +103,12 @@ fun HomeScreen(
                             upName = video.owner.name,
                             time = video.duration * 1000L
                         ),
-                        onClick = { },
+                        onClick = {
+                            VideoPlayerActivity.actionStart(
+                                context = context,
+                                aid = video.aid
+                            )
+                        }
                     )
                 }
             }
