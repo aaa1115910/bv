@@ -59,15 +59,16 @@ java {
 }
 
 dependencies {
-
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
     implementation(androidx.compose.ui)
+    implementation(androidx.compose.constraintlayout)
     implementation(androidx.compose.ui.util)
     implementation(androidx.compose.ui.tooling.preview)
     implementation(androidx.compose.tv.foundation)
     implementation(androidx.compose.tv.material)
     implementation(androidx.compose.material)
+    implementation(androidx.compose.material.icons)
     implementation(androidx.compose.material3)
     implementation(androidx.media3.common)
     implementation(androidx.media3.decoder)
