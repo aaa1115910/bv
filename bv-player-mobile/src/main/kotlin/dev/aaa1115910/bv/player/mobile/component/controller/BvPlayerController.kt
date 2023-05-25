@@ -21,7 +21,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun BvPlayerController(
     modifier: Modifier = Modifier,
-    isLandscape: Boolean,
+    isFullScreen: Boolean,
     currentTime: Long,
     totalTime: Long,
     currentSeekPosition: Float,
@@ -118,8 +118,8 @@ fun BvPlayerController(
         }
 
         if (showUi) {
-            if (isLandscape) {
-                LandscapeControllers(
+            if (isFullScreen) {
+                FullscreenControllers(
                     currentTime = currentTime,
                     totalTime = totalTime,
                     currentSeekPosition = currentSeekPosition,
@@ -128,7 +128,7 @@ fun BvPlayerController(
                     onSeekToPosition = onSeekToPosition
                 )
             } else {
-                PortraitControllers(
+                MiniControllers(
                     currentTime = currentTime,
                     totalTime = totalTime,
                     currentSeekPosition = currentSeekPosition,

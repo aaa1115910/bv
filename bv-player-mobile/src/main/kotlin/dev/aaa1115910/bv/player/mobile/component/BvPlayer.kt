@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun BvPlayer(
     modifier: Modifier = Modifier,
-    isLandscape: Boolean,
+    isFullScreen: Boolean,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
     videoPlayer: ExoPlayer
@@ -40,7 +40,7 @@ fun BvPlayer(
 
     BvPlayerController(
         modifier = modifier,
-        isLandscape = isLandscape,
+        isFullScreen = isFullScreen,
         currentTime = currentTime,
         totalTime = totalTime,
         currentSeekPosition = currentSeekPosition,

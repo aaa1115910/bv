@@ -33,7 +33,7 @@ import androidx.constraintlayout.compose.Dimension
 import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 
 @Composable
-fun LandscapeControllers(
+fun FullscreenControllers(
     modifier: Modifier = Modifier,
     currentTime: Long,
     totalTime: Long,
@@ -197,9 +197,9 @@ private fun BottomControllers(
 
 @Preview(device = "spec:width=1920px,height=1080px")
 @Composable
-fun LandscapeControllerPreview() {
+fun FullscreenControllerPreview() {
     MaterialTheme {
-        LandscapeControllers(
+        FullscreenControllers(
             currentTime = 12345,
             totalTime = 123456,
             currentSeekPosition = 0.3f,

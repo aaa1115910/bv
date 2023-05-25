@@ -24,7 +24,7 @@ import androidx.constraintlayout.compose.Dimension
 import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 
 @Composable
-fun PortraitControllers(
+fun MiniControllers(
     modifier: Modifier = Modifier,
     currentTime: Long,
     totalTime: Long,
@@ -163,9 +163,9 @@ private fun BottomControllers(
 
 @Preview(device = "spec:width=1080px,height=600px")
 @Composable
-fun PortraitControllerPreview() {
+fun MiniControllerPreview() {
     MaterialTheme {
-        PortraitControllers(
+        MiniControllers(
             currentTime = 12345,
             totalTime = 123456,
             currentSeekPosition = 0.3f,

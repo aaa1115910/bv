@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.exoplayer.ExoPlayer
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
@@ -31,12 +33,16 @@ class VideoPlayerActivity : ComponentActivity() {
     private val playerViewModel: MobileVideoPlayerViewModel by viewModel()
     private val logger = KotlinLogging.logger {}
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initVideoPlayer()
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             BVMobileTheme {
-                VideoPlayerScreen()
+                VideoPlayerScreen(
+                    windowSizeClass = windowSizeClass
+                )
             }
         }
     }
@@ -55,5 +61,10 @@ class VideoPlayerActivity : ComponentActivity() {
             playerViewModel.updateVideoInfo(aid)
             playerViewModel.playFirstPartVideo()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        playerViewModel.videoPlayer?.release()
     }
 }
