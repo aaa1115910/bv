@@ -50,6 +50,6 @@ fun BvPlayer(
         onSeekToPosition = videoPlayer::seekTo,
         onSeekMove = { videoPlayer.seekTo(videoPlayer.currentPosition + it) }
     ) {
-        BvVideoPlayer(videoPlayer = videoPlayer)
+        Media3VideoPlayer(videoPlayer = videoPlayer)
     }
 }
