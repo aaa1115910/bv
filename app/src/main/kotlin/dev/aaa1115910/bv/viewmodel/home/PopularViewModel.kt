@@ -2,8 +2,8 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.video.VideoInfo
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fError
@@ -31,7 +31,7 @@ class PopularViewModel : ViewModel() {
         logger.fInfo { "Load more popular videos" }
         runCatching {
             val responseData = runBlocking {
-                BiliApi.getPopularVideoData(
+                BiliHttpApi.getPopularVideoData(
                     pageNumber = ++currentPage,
                     pageSize = pageSize,
                     sessData = Prefs.sessData

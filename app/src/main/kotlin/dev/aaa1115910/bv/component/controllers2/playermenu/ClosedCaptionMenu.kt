@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData

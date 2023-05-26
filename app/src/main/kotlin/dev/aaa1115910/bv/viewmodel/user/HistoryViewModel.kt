@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -46,7 +46,7 @@ class HistoryViewModel(
         logger.fInfo { "Updating histories with params [max=$max, viewAt=$viewAt]" }
         updating = true
         runCatching {
-            val responseData = BiliApi.getHistories(
+            val responseData = BiliHttpApi.getHistories(
                 max = max,
                 viewAt = viewAt,
                 pageSize = 30,

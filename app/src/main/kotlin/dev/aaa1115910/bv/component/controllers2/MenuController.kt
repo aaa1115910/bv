@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData

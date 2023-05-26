@@ -1,8 +1,8 @@
 package dev.aaa1115910.bv.util
 
 import android.content.Context
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.R
 
 fun FollowingSeasonStatus.getDisplayName(context: Context) = when (this) {

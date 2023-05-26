@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.user.UserFollowData
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.user.UserFollowData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
@@ -36,7 +36,7 @@ class FollowViewModel : ViewModel() {
     private suspend fun initFollowedUsers() {
         runCatching {
             logger.fInfo { "Init followed users" }
-            val response = BiliApi.getUserFollow(
+            val response = BiliHttpApi.getUserFollow(
                 mid = Prefs.uid,
                 sessData = Prefs.sessData
             ).getResponseData()
@@ -66,7 +66,7 @@ class FollowViewModel : ViewModel() {
             runCatching {
                 logger.info { "Loading followed users, page number: ${index + 1}" }
                 if (!done) {
-                    val response = BiliApi.getUserFollow(
+                    val response = BiliHttpApi.getUserFollow(
                         mid = Prefs.uid,
                         pageNumber = index + 1,
                         sessData = Prefs.sessData

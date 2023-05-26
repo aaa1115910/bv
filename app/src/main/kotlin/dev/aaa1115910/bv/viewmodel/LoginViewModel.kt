@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliPassportApi
+import dev.aaa1115910.biliapi.http.BiliPassportHttpApi
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.fError
@@ -44,7 +44,7 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
                 state = LoginState.RequestingQRCode
-                val responseData = BiliPassportApi.getQRUrl().getResponseData()
+                val responseData = BiliPassportHttpApi.getQRUrl().getResponseData()
                 loginUrl = responseData.url
                 key = responseData.qrcodeKey
                 logger.fInfo { "Get login request code url" }
@@ -73,7 +73,7 @@ class LoginViewModel(
     suspend fun checkLoginResult() {
         logger.fInfo { "Check for login result" }
         runCatching {
-            val (response, cookies) = BiliPassportApi.loginWithQR(key)
+            val (response, cookies) = BiliPassportHttpApi.loginWithQR(key)
             val responseData = response.getResponseData()
             when (responseData.code) {
                 0 -> {

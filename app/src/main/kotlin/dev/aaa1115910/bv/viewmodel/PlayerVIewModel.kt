@@ -19,10 +19,10 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.video.Dash
-import dev.aaa1115910.biliapi.entity.video.PlayUrlData
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.video.Dash
+import dev.aaa1115910.biliapi.http.entity.video.PlayUrlData
+import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
@@ -156,7 +156,7 @@ class PlayerViewModel(
         logger.fInfo { "Set request state: ready" }
         runCatching {
             val responseData = (
-                    if (!fromSeason) BiliApi.getVideoPlayUrl(
+                    if (!fromSeason) BiliHttpApi.getVideoPlayUrl(
                         av = avid,
                         cid = cid,
                         fnval = fnval,
@@ -164,7 +164,7 @@ class PlayerViewModel(
                         fnver = fnver,
                         fourk = fourk,
                         sessData = Prefs.sessData
-                    ) else BiliApi.getPgcVideoPlayUrl(
+                    ) else BiliHttpApi.getPgcVideoPlayUrl(
                         av = avid,
                         cid = cid,
                         fnval = fnval,
@@ -294,7 +294,7 @@ class PlayerViewModel(
 
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
-            val danmakuXmlData = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+            val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 
             danmakuData.clear()
             danmakuData.addAll(danmakuXmlData.data.map {
@@ -326,7 +326,7 @@ class PlayerViewModel(
         currentSubtitleData.clear()
 
         val responseData = runCatching {
-            BiliApi.getVideoMoreInfo(
+            BiliHttpApi.getVideoMoreInfo(
                 avid = currentAid,
                 cid = currentCid,
                 sessData = Prefs.sessData
@@ -354,7 +354,7 @@ class PlayerViewModel(
         runCatching {
             if (!fromSeason) {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
-                BiliApi.sendHeartbeat(
+                BiliHttpApi.sendHeartbeat(
                     avid = currentAid.toLong(),
                     cid = currentCid,
                     playedTime = time,
@@ -363,7 +363,7 @@ class PlayerViewModel(
                 )
             } else {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
-                BiliApi.sendHeartbeat(
+                BiliHttpApi.sendHeartbeat(
                     avid = currentAid.toLong(),
                     cid = currentCid,
                     playedTime = time,

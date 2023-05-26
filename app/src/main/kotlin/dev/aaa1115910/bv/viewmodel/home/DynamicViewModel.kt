@@ -2,9 +2,9 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
-import dev.aaa1115910.biliapi.entity.dynamic.DynamicItem
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -40,7 +40,7 @@ class DynamicViewModel(
         logger.fInfo { "Load more dynamic videos" }
         runCatching {
             val responseData = runBlocking {
-                BiliApi.getDynamicList(
+                BiliHttpApi.getDynamicList(
                     page = ++currentPage,
                     type = "video",
                     offset = offset,

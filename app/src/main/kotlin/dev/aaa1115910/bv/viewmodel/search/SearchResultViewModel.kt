@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.SearchResultData
-import dev.aaa1115910.biliapi.entity.search.SearchResultItem
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
+import dev.aaa1115910.biliapi.http.entity.search.SearchResultItem
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.search.SearchResultFilterDuration
 import dev.aaa1115910.bv.screen.search.SearchResultFilterOrderType
@@ -77,7 +77,7 @@ class SearchResultViewModel : ViewModel() {
             logger.fInfo { "Load search result: [keyword=$keyword, type=$searchType, pageNumber=${currentPage.pageNumber}]" }
             runCatching {
                 val searchResultResponse =
-                    BiliApi.searchType(
+                    BiliHttpApi.searchType(
                         keyword = keyword,
                         type = searchType.type,
                         page = currentPage.pageNumber,

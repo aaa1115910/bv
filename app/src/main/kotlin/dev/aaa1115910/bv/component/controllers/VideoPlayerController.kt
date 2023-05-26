@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R

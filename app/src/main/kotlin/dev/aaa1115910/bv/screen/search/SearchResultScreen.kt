@@ -43,10 +43,10 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.search.SearchBiliUserResult
-import dev.aaa1115910.biliapi.entity.search.SearchMediaResult
-import dev.aaa1115910.biliapi.entity.search.SearchResultItem
-import dev.aaa1115910.biliapi.entity.search.SearchVideoResult
+import dev.aaa1115910.biliapi.http.entity.search.SearchBiliUserResult
+import dev.aaa1115910.biliapi.http.entity.search.SearchMediaResult
+import dev.aaa1115910.biliapi.http.entity.search.SearchResultItem
+import dev.aaa1115910.biliapi.http.entity.search.SearchVideoResult
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity

@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.Hotword
-import dev.aaa1115910.biliapi.entity.search.KeywordSuggest
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.search.Hotword
+import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.db.SearchHistoryDB
@@ -39,7 +39,7 @@ class SearchInputViewModel(
         logger.fInfo { "Update hotwords" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
-                val hotwordData = BiliApi.getHotwords(
+                val hotwordData = BiliHttpApi.getHotwords(
                     limit = 50
                 ).getResponseData()
                 logger.debug { "Find hotwords: ${hotwordData.trending.list}" }
@@ -56,7 +56,7 @@ class SearchInputViewModel(
         logger.fInfo { "Update search suggests with '$keyword'" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
-                val keywordSuggest = BiliApi.getKeywordSuggest(keyword)
+                val keywordSuggest = BiliHttpApi.getKeywordSuggest(keyword)
                 logger.debug { "Find suggests: ${keywordSuggest.result}" }
                 suggests.clear()
                 suggests.addAll(keywordSuggest.suggests)

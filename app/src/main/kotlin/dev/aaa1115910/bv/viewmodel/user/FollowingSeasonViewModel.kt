@@ -6,10 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.season.FollowingSeason
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeason
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +55,7 @@ class FollowingSeasonViewModel : ViewModel() {
         updating = true
         runCatching {
             logger.fInfo { "Init following seasons" }
-            val response = BiliApi.getFollowingSeasons(
+            val response = BiliHttpApi.getFollowingSeasons(
                 type = followingSeasonType,
                 status = followingSeasonStatus,
                 pageNumber = pageNumber,

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.Button
 import dev.aaa1115910.bv.ui.theme.BVTheme

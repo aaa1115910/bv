@@ -60,11 +60,11 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.entity.user.RelationStat
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.http.entity.user.RelationStat
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -122,7 +122,7 @@ fun UserInfoScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 logger.fInfo { "Get relation stat with user ${Prefs.uid}" }
-                relationStat = BiliApi.getRelationStat(mid = Prefs.uid).getResponseData()
+                relationStat = BiliHttpApi.getRelationStat(mid = Prefs.uid).getResponseData()
             }.onFailure {
                 logger.fInfo { "Get relation stat failed: ${it.stackTraceToString()}" }
             }
@@ -136,7 +136,8 @@ fun UserInfoScreen(
         //update histories
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val responseData = BiliApi.getHistories(sessData = Prefs.sessData).getResponseData()
+                val responseData =
+                    BiliHttpApi.getHistories(sessData = Prefs.sessData).getResponseData()
                 responseData.list.forEach { historyItem ->
                     val supportedBusinessList = listOf("archive", "pgc")
                     if (!supportedBusinessList.contains(historyItem.history.business)) return@forEach
@@ -174,7 +175,7 @@ fun UserInfoScreen(
         //update followed animes
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val followedSeasons = BiliApi.getFollowingSeasons(
+                val followedSeasons = BiliHttpApi.getFollowingSeasons(
                     type = FollowingSeasonType.Bangumi,
                     status = FollowingSeasonStatus.All,
                     pageNumber = 1,
@@ -212,7 +213,7 @@ fun UserInfoScreen(
         scope.launch(Dispatchers.Default) {
             var folderId: Long = 0
             runCatching {
-                val foldersInfo = BiliApi.getAllFavoriteFoldersInfo(
+                val foldersInfo = BiliHttpApi.getAllFavoriteFoldersInfo(
                     mid = Prefs.uid,
                     type = 2,
                     sessData = Prefs.sessData
@@ -227,7 +228,7 @@ fun UserInfoScreen(
                 logger.fException(it) { "Load favorite folders failed" }
             }
             runCatching {
-                val favoriteItems = BiliApi.getFavoriteList(
+                val favoriteItems = BiliHttpApi.getFavoriteList(
                     mediaId = folderId,
                     sessData = Prefs.sessData
                 ).getResponseData().medias

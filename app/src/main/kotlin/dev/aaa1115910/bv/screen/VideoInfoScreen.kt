@@ -85,17 +85,17 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.user.FollowAction
-import dev.aaa1115910.biliapi.entity.user.FollowActionSource
-import dev.aaa1115910.biliapi.entity.user.RelationData
-import dev.aaa1115910.biliapi.entity.user.RelationType
-import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
-import dev.aaa1115910.biliapi.entity.video.Dimension
-import dev.aaa1115910.biliapi.entity.video.Tag
-import dev.aaa1115910.biliapi.entity.video.UgcSeason
-import dev.aaa1115910.biliapi.entity.video.VideoInfo
-import dev.aaa1115910.biliapi.entity.video.VideoPage
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.user.FollowAction
+import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.http.entity.user.RelationData
+import dev.aaa1115910.biliapi.http.entity.user.RelationType
+import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.http.entity.video.Dimension
+import dev.aaa1115910.biliapi.http.entity.video.Tag
+import dev.aaa1115910.biliapi.http.entity.video.UgcSeason
+import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoPage
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
@@ -166,7 +166,7 @@ fun VideoInfoScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 logger.fInfo { "Get video more info" }
-                val moreInfoResponse = BiliApi.getVideoMoreInfo(
+                val moreInfoResponse = BiliHttpApi.getVideoMoreInfo(
                     avid = videoInfo!!.aid, cid = videoInfo!!.cid, sessData = Prefs.sessData
                 ).getResponseData()
                 lastPlayedCid = moreInfoResponse.lastPlayCid
@@ -180,7 +180,7 @@ fun VideoInfoScreen(
     val updateRelationVideos: (avid: Long) -> Unit = { avid ->
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val response = BiliApi.getRelatedVideos(avid = avid)
+                val response = BiliHttpApi.getRelatedVideos(avid = avid)
                 relatedVideos.swapList(response.data.map {
                     VideoCardData(
                         avid = it.aid,
@@ -205,7 +205,7 @@ fun VideoInfoScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 logger.fInfo { "Get relation data with user ${videoInfo?.owner?.mid}" }
-                relations = BiliApi.getRelations(
+                relations = BiliHttpApi.getRelations(
                     mid = videoInfo?.owner?.mid ?: -1, sessData = Prefs.sessData
                 ).getResponseData()
             }.onFailure {
@@ -218,7 +218,7 @@ fun VideoInfoScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 logger.fInfo { "Getting tags" }
-                tags.swapList(BiliApi.getVideoTags(avid = avid).getResponseData())
+                tags.swapList(BiliHttpApi.getVideoTags(avid = avid).getResponseData())
             }.onFailure {
                 logger.fInfo { "Get tags failed: ${it.stackTraceToString()}" }
             }
@@ -230,7 +230,7 @@ fun VideoInfoScreen(
             scope.launch(Dispatchers.Default) {
                 runCatching {
                     logger.fInfo { "Modify relation: $action" }
-                    BiliApi.modifyFollow(
+                    BiliHttpApi.modifyFollow(
                         mid = videoInfo?.owner?.mid ?: -1,
                         action = action,
                         actionSource = FollowActionSource.Video,
@@ -247,14 +247,17 @@ fun VideoInfoScreen(
     val updateFavoriteData: (Int) -> Unit = { avid ->
         scope.launch(Dispatchers.IO) {
             runCatching {
-                favorited = BiliApi.checkVideoFavoured(avid = avid, sessData = Prefs.sessData)
+                favorited = BiliHttpApi.checkVideoFavoured(avid = avid, sessData = Prefs.sessData)
                 logger.fDebug { "Update video is favorite: $favorited" }
             }
         }
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val userFavoriteFoldersDataBiliResponse =
-                    BiliApi.getAllFavoriteFoldersInfo(mid = Prefs.uid, sessData = Prefs.sessData)
+                    BiliHttpApi.getAllFavoriteFoldersInfo(
+                        mid = Prefs.uid,
+                        sessData = Prefs.sessData
+                    )
                 favoriteFolders.swapList(userFavoriteFoldersDataBiliResponse.getResponseData().list)
                 logger.fDebug { "Update favoriteFolders: ${userFavoriteFoldersDataBiliResponse.getResponseData().list.map { it.title }}" }
             }
@@ -262,7 +265,7 @@ fun VideoInfoScreen(
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val favoriteFoldersResponse =
-                    BiliApi.getAllFavoriteFoldersInfo(
+                    BiliHttpApi.getAllFavoriteFoldersInfo(
                         mid = Prefs.uid,
                         rid = avid,
                         sessData = Prefs.sessData
@@ -282,7 +285,7 @@ fun VideoInfoScreen(
                 require(videoInfo?.aid != null) { "Video info is null" }
                 logger.info { "Update video av${videoInfo?.aid} to favorite folder $folderIds" }
 
-                BiliApi.setVideoToFavorite(
+                BiliHttpApi.setVideoToFavorite(
                     avid = videoInfo!!.aid,
                     addMediaIds = folderIds,
                     delMediaIds = favoriteFolders.map { it.id } - folderIds.toSet(),
@@ -319,7 +322,7 @@ fun VideoInfoScreen(
             //获取视频信息
             scope.launch(Dispatchers.Default) {
                 runCatching {
-                    val response = BiliApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
+                    val response = BiliHttpApi.getVideoInfo(av = aid, sessData = Prefs.sessData)
                     videoInfo = response.getResponseData()
                     updateV2Data()
                     if (Prefs.isLogin) updateFavoriteData(aid)

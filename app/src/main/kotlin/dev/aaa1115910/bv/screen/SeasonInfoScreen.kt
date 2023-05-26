@@ -72,10 +72,10 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.season.Episode
-import dev.aaa1115910.biliapi.entity.season.SeasonData
-import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.season.Episode
+import dev.aaa1115910.biliapi.http.entity.season.SeasonData
+import dev.aaa1115910.biliapi.http.entity.video.Dimension
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
@@ -146,7 +146,7 @@ fun SeasonInfoScreen(
     val updateUserStatus: () -> Unit = {
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val userStatus = BiliApi.getSeasonUserStatus(
+                val userStatus = BiliHttpApi.getSeasonUserStatus(
                     seasonId = seasonData!!.seasonId,
                     sessData = Prefs.sessData
                 ).getResponseData()
@@ -166,7 +166,7 @@ fun SeasonInfoScreen(
         if (epId > 0 || seasonId > 0) {
             scope.launch(Dispatchers.Default) {
                 runCatching {
-                    val seasonResponse = BiliApi.getSeasonInfo(
+                    val seasonResponse = BiliHttpApi.getSeasonInfo(
                         seasonId = if (seasonId > 0) seasonId else null,
                         epId = if (epId > 0) epId else null,
                         sessData = Prefs.sessData
@@ -319,7 +319,7 @@ fun SeasonInfoScreen(
                             if (isFollowing) {
                                 scope.launch(Dispatchers.Default) {
                                     runCatching {
-                                        val resultToast = BiliApi.delSeasonFollow(
+                                        val resultToast = BiliHttpApi.delSeasonFollow(
                                             seasonId = seasonData?.seasonId ?: return@launch,
                                             csrf = Prefs.biliJct,
                                             sessData = Prefs.sessData
@@ -338,7 +338,7 @@ fun SeasonInfoScreen(
                             } else {
                                 scope.launch(Dispatchers.Default) {
                                     runCatching {
-                                        val resultToast = BiliApi.addSeasonFollow(
+                                        val resultToast = BiliHttpApi.addSeasonFollow(
                                             seasonId = seasonData?.seasonId ?: return@launch,
                                             csrf = Prefs.biliJct,
                                             sessData = Prefs.sessData

@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -44,7 +44,7 @@ class FavoriteViewModel : ViewModel() {
         logger.fInfo { "Updating favorite folders" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
-                val responseData = BiliApi.getAllFavoriteFoldersInfo(
+                val responseData = BiliHttpApi.getAllFavoriteFoldersInfo(
                     mid = Prefs.uid,
                     sessData = Prefs.sessData
                 ).getResponseData()
@@ -67,7 +67,7 @@ class FavoriteViewModel : ViewModel() {
         logger.fInfo { "Updating favorite folder items with media id: ${currentFavoriteFolder?.id}" }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching {
-                val responseData = BiliApi.getFavoriteList(
+                val responseData = BiliHttpApi.getFavoriteList(
                     mediaId = currentFavoriteFolder!!.id,
                     pageSize = pageSize,
                     pageNumber = pageNumber,

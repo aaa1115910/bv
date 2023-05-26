@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.video.Timeline
-import dev.aaa1115910.biliapi.entity.video.TimelineType
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.video.Timeline
+import dev.aaa1115910.biliapi.http.entity.video.TimelineType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
@@ -71,7 +71,7 @@ fun AnimeTimelineScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 timelines.addAll(
-                    BiliApi.getTimeline(
+                    BiliHttpApi.getTimeline(
                         type = TimelineType.Anime,
                         before = 0,
                         after = 7

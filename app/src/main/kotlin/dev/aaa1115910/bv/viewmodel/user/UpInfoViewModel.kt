@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -40,7 +40,7 @@ class UpInfoViewModel : ViewModel() {
         logger.fInfo { "Updating up space videos from page $pageNumber" }
         updating = true
         runCatching {
-            val responseData = BiliApi.getUserSpaceVideos(
+            val responseData = BiliHttpApi.getUserSpaceVideos(
                 mid = upMid,
                 pageNumber = pageNumber,
                 pageSize = pageSize,

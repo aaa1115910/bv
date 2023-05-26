@@ -35,8 +35,8 @@ import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
