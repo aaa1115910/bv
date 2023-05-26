@@ -1,5 +1,9 @@
 package dev.aaa1115910.bv.player.mobile.component.controller
 
+import android.app.Activity
+import android.content.Context
+import android.media.AudioManager
+import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -8,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,11 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @Composable
 fun BvPlayerController(
     modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     isFullScreen: Boolean,
     currentTime: Long,
     totalTime: Long,
@@ -28,23 +36,93 @@ fun BvPlayerController(
     bufferedSeekPosition: Float,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
+    onBack: () -> Unit,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
-    onSeekMove: (Long) -> Unit,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     var showUi by remember { mutableStateOf(false) }
 
+    //在手势触发的事件中，直接读取 isPlaying currentTime 参数都只会读取到错误的值，原因未知
+    var isPlaying2 by remember { mutableStateOf(isPlaying) }
+    LaunchedEffect(isPlaying) { isPlaying2 = isPlaying }
+    var currentTime2 by remember { mutableStateOf(currentTime) }
+    LaunchedEffect(currentTime) { currentTime2 = currentTime }
+
+
+    var isMovingSeek by remember { mutableStateOf(false) }
+    var moveStartTime by remember { mutableStateOf(0L) }
+    var moveMs by remember { mutableStateOf(0L) }
+
+    var isMovingBrightness by remember { mutableStateOf(false) }
+    var moveStartBrightness by remember { mutableStateOf(0f) }
+    var currentBrightnessProgress by remember { mutableStateOf(0f) }
+
+    var isMovingVolume by remember { mutableStateOf(false) }
+    var moveStartVolume by remember { mutableStateOf(0) }
+    var currentVolumeProgress by remember { mutableStateOf(0f) }
+
     val onTap: () -> Unit = {
-        Log.i("BvPlayerController", "Left screen tap")
+        Log.i("BvPlayerController", "Screen tap")
         showUi = !showUi
     }
 
     val onLongPress: () -> Unit = {
-        Log.i("BvPlayerController", "Left screen long press")
+        Log.i("BvPlayerController", "Screen long press")
+    }
+
+    val onDoubleTap: () -> Unit = {
+        Log.i("BvPlayerController", "Screen double tap, isPlaying: $isPlaying")
+        if (isPlaying2) onPause() else onPlay()
     }
 
     val onHorizontalDrag: (Float) -> Unit = { move ->
         Log.i("BvPlayerController", "Screen horizontal drag: $move")
+        isMovingSeek = true
+        moveMs = move.toLong() * 50
+    }
+
+    val onMovingBrightness: (Float) -> Unit = { move ->
+        Log.i("BvPlayerController", "Left screen vertical drag: $move")
+        val window = (context as Activity).window
+        if (isMovingBrightness.not()) {
+            val oldBrightness = Settings.System.getInt(
+                context.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS
+            ) / 255f
+            //moveStartBrightness = window.attributes.screenBrightness
+            moveStartBrightness = oldBrightness
+            isMovingBrightness = true
+        }
+        val newBrightness = (moveStartBrightness - move / 600).coerceIn(0f, 1f)
+        Log.i("BvPlayerController", "Brightness: $moveStartBrightness -> $newBrightness")
+        val attr = window.attributes
+        attr.screenBrightness = newBrightness
+        window.attributes = attr
+        //window.attributes.screenBrightness = newBrightness
+        currentBrightnessProgress = newBrightness
+    }
+
+    val onMovingVolume: (Float) -> Unit = { move ->
+        Log.i("BvPlayerController", "Right screen vertical drag: $move")
+        val audioManager =
+            (context as Activity).getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        if (isMovingVolume.not()) {
+            moveStartVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            isMovingVolume = true
+        }
+        val step = maxVolume.toFloat() / 600f
+        val newVolume = ((moveStartVolume - move * step).roundToInt()).coerceIn(0, maxVolume)
+        Log.i("BvPlayerController", "Volume: $moveStartVolume -> $newVolume")
+        currentVolumeProgress = newVolume / maxVolume.toFloat()
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+    }
+
+    LaunchedEffect(isMovingSeek) {
+        if (isMovingSeek) moveStartTime = currentTime
     }
 
     Box(
@@ -52,6 +130,16 @@ fun BvPlayerController(
             .background(Color.Black)
     ) {
         content()
+
+        SeekMoveTip(
+            show = isMovingSeek,
+            startTime = moveStartTime,
+            move = moveMs,
+            totalTime = totalTime
+        )
+        BrightnessTip(show = isMovingBrightness, progress = currentBrightnessProgress)
+        VolumeTip(show = isMovingVolume, progress = currentVolumeProgress)
+
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -62,9 +150,8 @@ fun BvPlayerController(
                     .detectTapAndDragGestures(
                         onTap = onTap,
                         onLongPress = onLongPress,
-                        onVerticalDrag = { move ->
-                            Log.i("BvPlayerController", "Left screen vertical drag: $move")
-                        },
+                        onDoubleTap = onDoubleTap,
+                        onVerticalDrag = onMovingBrightness,
                         onHorizontalDrag = onHorizontalDrag,
                         onDragEnd = { verticalMove, horizontalMove ->
                             Log.i(
@@ -72,15 +159,12 @@ fun BvPlayerController(
                                 "Left screen drag end: [x=$verticalMove, y=$horizontalMove]"
                             )
                             if (verticalMove != 0f) {
-
+                                isMovingBrightness = false
                             } else {
-                                //不知道为什么获取到的 currentTime 始终为 0
+                                isMovingSeek = false
                                 val seekMoveMs = horizontalMove.toLong() * 50
-                                onSeekMove(seekMoveMs)
-                                Log.i(
-                                    "BvPlayerController",
-                                    "Seek move $seekMoveMs"
-                                )
+                                onSeekToPosition(moveStartTime + seekMoveMs)
+                                Log.i("BvPlayerController", "Seek move $seekMoveMs")
                             }
                         }
                     )
@@ -92,9 +176,8 @@ fun BvPlayerController(
                     .detectTapAndDragGestures(
                         onTap = onTap,
                         onLongPress = onLongPress,
-                        onVerticalDrag = { move ->
-                            Log.i("BvPlayerController", "Right screen vertical drag: $move")
-                        },
+                        onDoubleTap = onDoubleTap,
+                        onVerticalDrag = onMovingVolume,
                         onHorizontalDrag = onHorizontalDrag,
                         onDragEnd = { verticalMove, horizontalMove ->
                             Log.i(
@@ -102,15 +185,12 @@ fun BvPlayerController(
                                 "Right screen drag end: [x=$verticalMove, y=$horizontalMove]"
                             )
                             if (verticalMove != 0f) {
-
+                                isMovingVolume = false
                             } else {
-                                //不知道为什么获取到的 currentTime 始终为 0
+                                isMovingSeek = false
                                 val seekMoveMs = horizontalMove.toLong() * 50
-                                onSeekMove(seekMoveMs)
-                                Log.i(
-                                    "BvPlayerController",
-                                    "Seek move $seekMoveMs"
-                                )
+                                onSeekToPosition(moveStartTime + seekMoveMs)
+                                Log.i("BvPlayerController", "Seek move $seekMoveMs")
                             }
                         }
                     )
@@ -120,20 +200,26 @@ fun BvPlayerController(
         if (showUi) {
             if (isFullScreen) {
                 FullscreenControllers(
+                    isPlaying = isPlaying,
                     currentTime = currentTime,
                     totalTime = totalTime,
                     currentSeekPosition = currentSeekPosition,
                     bufferedSeekPosition = bufferedSeekPosition,
+                    onPlay = onPlay,
+                    onPause = onPause,
                     onExitFullScreen = onExitFullScreen,
                     onSeekToPosition = onSeekToPosition
                 )
             } else {
                 MiniControllers(
+                    isPlaying = isPlaying,
                     currentTime = currentTime,
                     totalTime = totalTime,
                     currentSeekPosition = currentSeekPosition,
                     bufferedSeekPosition = bufferedSeekPosition,
-                    onBack = {},
+                    onBack = onBack,
+                    onPlay = onPlay,
+                    onPause = onPause,
                     onEnterFullScreen = onEnterFullScreen,
                     onSeekToPosition = onSeekToPosition
                 )
@@ -145,6 +231,7 @@ fun BvPlayerController(
 private fun Modifier.detectTapAndDragGestures(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onDoubleTap: () -> Unit,
     onVerticalDrag: (move: Float) -> Unit,
     onHorizontalDrag: (move: Float) -> Unit,
     onDragEnd: (verticalMove: Float, horizontalMove: Float) -> Unit,
@@ -158,7 +245,8 @@ private fun Modifier.detectTapAndDragGestures(
     pointerInput(Unit) {
         detectTapGestures(
             onTap = { onTap() },
-            onLongPress = { onLongPress() }
+            onLongPress = { onLongPress() },
+            onDoubleTap = { onDoubleTap() }
         )
     }
         .pointerInput(Unit) {

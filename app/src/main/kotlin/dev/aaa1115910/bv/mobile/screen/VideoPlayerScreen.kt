@@ -130,7 +130,8 @@ fun VideoPlayerScreen(
                     isVideoFullscreen = false
                     //@SuppressLint("SourceLockedOrientationActivity")
                     //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                }
+                },
+                onBack = { (context as Activity).finish() }
             )
         }
     }
@@ -162,7 +163,8 @@ fun VideoPlayerScreen(
                         },
                         onExitFullScreen = {
                             isVideoFullscreen = false
-                        }
+                        },
+                        onBack = { (context as Activity).finish() }
                     )
                 }
                 val titles = listOf("简介", "评论")

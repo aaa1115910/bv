@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Fullscreen
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,11 +25,14 @@ import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 @Composable
 fun MiniControllers(
     modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     currentTime: Long,
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
     onBack: () -> Unit,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
     onEnterFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
 ) {
@@ -48,10 +50,13 @@ fun MiniControllers(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
+            isPlaying = isPlaying,
             currentTime = currentTime,
             totalTime = totalTime,
             currentSeekPosition = currentSeekPosition,
             bufferedSeekPosition = bufferedSeekPosition,
+            onPlay = onPlay,
+            onPause = onPause,
             onEnterFullScreen = onEnterFullScreen,
             onSeekToPosition = onSeekToPosition
         )
@@ -90,10 +95,13 @@ private fun TopControllers(
 @Composable
 private fun BottomControllers(
     modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     currentTime: Long,
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
     onEnterFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit
 ) {
@@ -104,21 +112,17 @@ private fun BottomControllers(
         ConstraintLayout {
             val (playButton, seekSlider, positionText, fullscreenButton) = createRefs()
 
-            IconButton(
+            PlayPauseButton(
                 modifier = Modifier
                     .constrainAs(playButton) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         bottom.linkTo(parent.bottom)
                     },
-                onClick = { }
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.PlayArrow,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            }
+                isPlaying = isPlaying,
+                onPlay = onPlay,
+                onPause = onPause
+            )
 
             SeekSlider(
                 modifier = Modifier.constrainAs(seekSlider) {
@@ -166,11 +170,14 @@ private fun BottomControllers(
 fun MiniControllerPreview() {
     MaterialTheme {
         MiniControllers(
+            isPlaying = true,
             currentTime = 12345,
             totalTime = 123456,
             currentSeekPosition = 0.3f,
             bufferedSeekPosition = 0.6f,
             onBack = {},
+            onPlay = {},
+            onPause = {},
             onEnterFullScreen = {},
             onSeekToPosition = {},
         )

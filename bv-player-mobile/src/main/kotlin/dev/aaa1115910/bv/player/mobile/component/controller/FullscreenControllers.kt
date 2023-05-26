@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FullscreenExit
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,10 +34,13 @@ import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 @Composable
 fun FullscreenControllers(
     modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     currentTime: Long,
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit
 ) {
@@ -55,10 +57,13 @@ fun FullscreenControllers(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
+            isPlaying = isPlaying,
             currentTime = currentTime,
             totalTime = totalTime,
             currentSeekPosition = currentSeekPosition,
             bufferedSeekPosition = bufferedSeekPosition,
+            onPlay = onPlay,
+            onPause = onPause,
             onExitFullScreen = onExitFullScreen,
             onSeekToPosition = onSeekToPosition
         )
@@ -91,10 +96,13 @@ private fun TopControllers(
 @Composable
 private fun BottomControllers(
     modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     currentTime: Long,
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit
 ) {
@@ -153,13 +161,11 @@ private fun BottomControllers(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Rounded.PlayArrow,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
+                        PlayPauseButton(
+                            isPlaying = isPlaying,
+                            onPlay = onPlay,
+                            onPause = onPause
+                        )
                         TextButton(onClick = { /*TODO*/ }) {
                             Text(text = "弹幕开关")
                         }
@@ -200,10 +206,13 @@ private fun BottomControllers(
 fun FullscreenControllerPreview() {
     MaterialTheme {
         FullscreenControllers(
+            isPlaying = true,
             currentTime = 12345,
             totalTime = 123456,
             currentSeekPosition = 0.3f,
             bufferedSeekPosition = 0.6f,
+            onPlay = {},
+            onPause = {},
             onExitFullScreen = {},
             onSeekToPosition = {}
         )

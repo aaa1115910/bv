@@ -2,11 +2,14 @@ package dev.aaa1115910.bv.player.mobile.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import dev.aaa1115910.bv.player.mobile.component.controller.BvPlayerController
 import kotlinx.coroutines.delay
@@ -17,8 +20,11 @@ fun BvPlayer(
     isFullScreen: Boolean,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
+    onBack: () -> Unit,
     videoPlayer: ExoPlayer
 ) {
+    var isPlaying by rememberSaveable { mutableStateOf(false) }
+
     var currentTime by remember { mutableStateOf(0L) }
     var totalTime by remember { mutableStateOf(0L) }
     var currentSeekPosition by remember { mutableStateOf(0f) }
@@ -38,8 +44,17 @@ fun BvPlayer(
         }
     }
 
+    SideEffect {
+        videoPlayer.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(playing: Boolean) {
+                isPlaying = playing
+            }
+        })
+    }
+
     BvPlayerController(
         modifier = modifier,
+        isPlaying = isPlaying,
         isFullScreen = isFullScreen,
         currentTime = currentTime,
         totalTime = totalTime,
@@ -47,8 +62,10 @@ fun BvPlayer(
         bufferedSeekPosition = bufferedSeekPosition,
         onEnterFullScreen = onEnterFullScreen,
         onExitFullScreen = onExitFullScreen,
-        onSeekToPosition = videoPlayer::seekTo,
-        onSeekMove = { videoPlayer.seekTo(videoPlayer.currentPosition + it) }
+        onBack = onBack,
+        onPlay = { videoPlayer.play() },
+        onPause = { videoPlayer.pause() },
+        onSeekToPosition = videoPlayer::seekTo
     ) {
         Media3VideoPlayer(videoPlayer = videoPlayer)
     }
