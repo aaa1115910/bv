@@ -4,6 +4,7 @@ firebase-crashlytics = "2.9.5"
 gms = "4.3.15"
 kotlin = "1.8.21"
 ksp = "1.8.21-1.0.11"
+protobuf = "0.9.3"
 versions = "0.46.0"
 
 [plugins]
@@ -21,6 +22,9 @@ google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # https://developers.google.com/android/guides/google-services-plugin
 google-services = { id = "com.google.gms.google-services", version.ref = "gms" }
+
+# https://github.com/google/protobuf-gradle-plugin
+google-protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 
 # https://github.com/ben-manes/gradle-versions-plugin
 versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
