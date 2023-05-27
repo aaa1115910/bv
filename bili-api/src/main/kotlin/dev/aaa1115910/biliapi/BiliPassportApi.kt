@@ -13,6 +13,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.Cookie
+import io.ktor.http.URLProtocol
 import io.ktor.http.setCookie
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -39,7 +40,10 @@ object BiliPassportApi {
                 gzip(0.9F)
             }
             defaultRequest {
-                host = "passport.bilibili.com"
+                url {
+                    host = "passport.bilibili.com"
+                    protocol = URLProtocol.HTTPS
+                }
             }
         }
     }

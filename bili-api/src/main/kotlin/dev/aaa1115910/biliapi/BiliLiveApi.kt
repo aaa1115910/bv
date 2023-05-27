@@ -13,6 +13,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
@@ -41,7 +42,10 @@ object BiliLiveApi {
                 gzip(0.9F)
             }
             defaultRequest {
-                host = "api.live.bilibili.com"
+                url {
+                    host = "api.live.bilibili.com"
+                    protocol = URLProtocol.HTTPS
+                }
             }
         }
     }
