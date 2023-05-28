@@ -1,8 +1,12 @@
 package dev.aaa1115910.biliapi.http
 
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
+import dev.aaa1115910.biliapi.http.entity.login.CaptchaData
 import dev.aaa1115910.biliapi.http.entity.login.qr.QRLoginData
 import dev.aaa1115910.biliapi.http.entity.login.qr.RequestQRData
+import dev.aaa1115910.biliapi.http.entity.login.sms.SendSmsResponse
+import dev.aaa1115910.biliapi.http.entity.login.sms.SmsLoginResponse
+import dev.aaa1115910.biliapi.http.util.encAppPost
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -10,9 +14,13 @@ import io.ktor.client.plugins.BrowserUserAgent
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.Cookie
+import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.http.setCookie
 import io.ktor.serialization.kotlinx.json.json
@@ -64,4 +72,76 @@ object BiliPassportHttpApi {
         return Pair(loginResponse.body(), loginResponse.setCookie())
     }
 
+    /**
+     * 申请 captcha 验证码
+     *
+     * @param source 获取来源 已知：main_web
+     */
+    suspend fun getCaptcha(
+        source: String? = null
+    ): BiliResponse<CaptchaData> =
+        client.get("/x/passport-login/captcha") {
+            source?.let { parameter("source", it) }
+        }.body()
+
+    /**
+     * 发送短信验证码
+     *
+     * @param cid 国际冠字码
+     * @param tel 手机号码
+     * @param loginSessionId 登录标识 uuid去掉'-'后得到
+     * @param channel 一般固定值为"bili"
+     * @param buvid
+     * @param statistics 一般固定为{"appId":1,"platform":3,"version":"7.27.0","abtest":""}
+     */
+    suspend fun sendSms(
+        cid: Int,
+        tel: Long,
+        loginSessionId: String,
+        recaptchaToken: String? = null,
+        geeChallenge: String? = null,
+        geeValidate: String? = null,
+        geeSeccode: String? = null,
+        channel: String,
+        buvid: String,
+        statistics: String,
+        ts: Long
+    ): BiliResponse<SendSmsResponse> = client.post("/x/passport-login/sms/send") {
+        setBody(FormDataContent(
+            Parameters.build {
+                append("cid", "$cid")
+                append("tel", "$tel")
+                append("login_session_id", loginSessionId)
+                recaptchaToken?.let { append("recaptcha_token", it) }
+                geeChallenge?.let { append("gee_challenge", it) }
+                geeValidate?.let { append("gee_validate", it) }
+                geeSeccode?.let { append("gee_seccode", it) }
+                append("channel", channel)
+                append("buvid", buvid)
+                append("statistics", statistics)
+                append("ts", "$ts")
+            }
+        ))
+        encAppPost()
+    }.body()
+
+    suspend fun loginWithSms(
+        cid: Int,
+        tel: Long,
+        loginSessionId: String,
+        code: Int,
+        captchaKey: String
+    ): BiliResponse<SmsLoginResponse> = client.post("/x/passport-login/login/sms") {
+        setBody(FormDataContent(
+            Parameters.build {
+                append("cid", "$cid")
+                append("tel", "$tel")
+                append("login_session_id", loginSessionId)
+                append("code", "$code")
+                append("captcha_key", captchaKey)
+                append("ts", "0")
+            }
+        ))
+        encAppPost()
+    }.body()
 }

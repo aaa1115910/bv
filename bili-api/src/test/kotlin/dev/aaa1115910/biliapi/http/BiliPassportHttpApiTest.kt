@@ -50,4 +50,64 @@ class BiliPassportHttpApiTest {
             }
         }
     }
+
+    @Test
+    fun `get captcha`() = runBlocking {
+        println(BiliPassportHttpApi.getCaptcha())
+    }
+
+    // this is a random phone number
+    val tel = 13300000001L
+    val loginSessionId = "144525a8fd2811edbe560242ac120002"
+    val recaptchaToken = "766877c778b2425eb2c6fbc4791e2b43"
+    val geeChallenge = "5ccbb4431fa57f5476e65facd9f2b111"
+    val geeValidate = "04721095469a0a08c3f124a71c7b3c49"
+    val buvid = "XYaa24a8d76a1140a332c16e1e2d4d66318ff"
+
+    @Test
+    fun `send sms`() = runBlocking {
+        println(
+            BiliPassportHttpApi.sendSms(
+                cid = 86,
+                tel = tel,
+                loginSessionId = loginSessionId,
+                channel = "bili",
+                buvid = buvid,
+                statistics = """{"appId":1,"platform":3,"version":"7.27.0","abtest":""}""",
+                ts = System.currentTimeMillis() / 1000
+            )
+        )
+    }
+
+    @Test
+    fun `send sms with captcha`() = runBlocking {
+        println(
+            BiliPassportHttpApi.sendSms(
+                cid = 86,
+                tel = tel,
+                loginSessionId = loginSessionId,
+                recaptchaToken = recaptchaToken,
+                geeChallenge = geeChallenge,
+                geeValidate = geeValidate,
+                geeSeccode = "$geeValidate|jordan",
+                channel = "bili",
+                buvid = buvid,
+                statistics = """{"appId":1,"platform":3,"version":"7.27.0","abtest":""}""",
+                ts = System.currentTimeMillis() / 1000
+            )
+        )
+    }
+
+    @Test
+    fun `login with sms`() = runBlocking {
+        println(
+            BiliPassportHttpApi.loginWithSms(
+                cid = 86,
+                tel = tel,
+                loginSessionId = loginSessionId,
+                code = 23,
+                captchaKey = ""
+            )
+        )
+    }
 }
