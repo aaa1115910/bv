@@ -108,6 +108,8 @@ class BvLoginRepositoryTest {
                     }
                 }
             }
+
+            else -> {}
         }
     }
 

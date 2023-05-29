@@ -9,10 +9,10 @@ data class SmsLoginResponse(
     val message: String,
     val url: String,
     @SerialName("token_info")
-    val tokenInfo: TokenInfo,
+    val tokenInfo: TokenInfo? = null,
     @SerialName("cookie_info")
-    val cookieInfo: CookieInfo,
-    val sso: List<String>,
+    val cookieInfo: CookieInfo? = null,
+    val sso: List<String> = emptyList(),
     @SerialName("is_new")
     val isNew: Boolean,
     @SerialName("is_tourist")

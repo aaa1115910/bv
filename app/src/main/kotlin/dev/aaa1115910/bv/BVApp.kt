@@ -10,10 +10,10 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
+import dev.aaa1115910.biliapi.repositories.BvLoginRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
-import dev.aaa1115910.bv.viewmodel.LoginViewModel
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -21,6 +21,8 @@ import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
+import dev.aaa1115910.bv.viewmodel.login.QrLoginViewModel
+import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
@@ -62,10 +64,12 @@ class BVApp : Application() {
 
 val appModule = module {
     single { UserRepository() }
+    single { BvLoginRepository() }
     single { VideoInfoRepository() }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
-    viewModel { LoginViewModel(get()) }
+    viewModel { QrLoginViewModel(get(), get()) }
+    viewModel { SmsLoginViewModel(get(), get()) }
     viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get()) }

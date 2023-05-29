@@ -4,6 +4,7 @@ import dev.aaa1115910.biliapi.entity.login.Captcha
 import dev.aaa1115910.biliapi.entity.login.QrLoginData
 import dev.aaa1115910.biliapi.entity.login.QrLoginResult
 import dev.aaa1115910.biliapi.entity.login.QrLoginState
+import dev.aaa1115910.biliapi.entity.login.SmsLoginResult
 import dev.aaa1115910.biliapi.entity.login.WebCookies
 import dev.aaa1115910.biliapi.http.BiliPassportHttpApi
 import io.ktor.util.date.toJvmDate
@@ -71,6 +72,9 @@ class BvLoginRepository {
 
     fun generateLoginSessionId() = UUID.randomUUID().toString().replace("-", "")
 
+    /**
+     * 请求验证码
+     */
     suspend fun requestSms(
         phone: Long,
         loginSessionId: String,
@@ -92,8 +96,8 @@ class BvLoginRepository {
             statistics = """{"appId":1,"platform":3,"version":"7.27.0","abtest":""}""",
             ts = System.currentTimeMillis() / 1000
         )
-        if (response.code == 0 && response.data != null) {
-            return if (response.data.captchaKey != "") {
+        return if (response.code == 0 && response.data != null) {
+            if (response.data.captchaKey != "") {
                 SendSmsResult(
                     state = SendSmsState.Success,
                     captchaKey = response.data.captchaKey
@@ -105,18 +109,42 @@ class BvLoginRepository {
                 )
             }
         } else {
-            throw IllegalStateException(response.message)
+            SendSmsResult(
+                state = SendSmsState.Error,
+                message = response.message
+            )
         }
+    }
+
+    /**
+     * 验证码登录
+     */
+    suspend fun loginWithSms(
+        phone: Long,
+        loginSessionId: String,
+        code: Int,
+        captchaKey: String
+    ): SmsLoginResult {
+        val response = BiliPassportHttpApi.loginWithSms(
+            cid = 86,
+            tel = phone,
+            loginSessionId = loginSessionId,
+            code = code,
+            captchaKey = captchaKey
+        ).getResponseData()
+        return SmsLoginResult.fromSmsLoginResponse(response)
     }
 }
 
 data class SendSmsResult(
     val state: SendSmsState,
+    val message: String = "",
     val captchaKey: String? = null,
     val recaptchaUrl: String? = null
 )
 
 enum class SendSmsState {
+    Ready,
     Error,
     Success,
     RecaptchaRequire

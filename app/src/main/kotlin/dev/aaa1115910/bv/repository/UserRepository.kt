@@ -20,6 +20,9 @@ class UserRepository {
     var biliJct by mutableStateOf(Prefs.biliJct)
     var expiredDate by mutableStateOf(Prefs.tokenExpiredData)
 
+    var accessToken by mutableStateOf(Prefs.accessToken)
+    var refreshToken by mutableStateOf(Prefs.refreshToken)
+
     var username by mutableStateOf("")
     var face by mutableStateOf("")
 
@@ -31,6 +34,8 @@ class UserRepository {
         biliJct = Prefs.biliJct
         isLogin = Prefs.isLogin
         expiredDate = Prefs.tokenExpiredData
+        accessToken = Prefs.accessToken
+        refreshToken = Prefs.refreshToken
     }
 
     fun saveToPrefs() {
@@ -41,9 +46,11 @@ class UserRepository {
         Prefs.biliJct = biliJct
         Prefs.isLogin = isLogin
         Prefs.tokenExpiredData = expiredDate
+        Prefs.accessToken = accessToken
+        Prefs.refreshToken = refreshToken
     }
 
-    fun setLoginData(
+    fun setCookies(
         uid: Long,
         uidCkMd5: String,
         sid: String,
@@ -58,6 +65,15 @@ class UserRepository {
         this.biliJct = biliJct
         this.isLogin = true
         this.expiredDate = expiredDate
+        saveToPrefs()
+    }
+
+    fun setAppToken(
+        accessToken: String,
+        refreshToken: String
+    ) {
+        this.accessToken = accessToken
+        this.refreshToken = refreshToken
         saveToPrefs()
     }
 

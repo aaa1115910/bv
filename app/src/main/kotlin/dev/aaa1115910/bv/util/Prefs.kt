@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
@@ -221,6 +222,20 @@ object Prefs {
     var updateAlpha: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAlphaRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefAlphaKey, value) }
+
+    var accessToken: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAccessTokenRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefAccessTokenKey, value) }
+
+    var refreshToken: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefRefreshTokenRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefRefreshTokenKey, value) }
+
+    var apiType: ApiType
+        get() = runBlocking {
+            ApiType.values()[dsm.getPreferenceFlow(PrefKeys.prefApiTypeRequest).first()]
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefApiTypeKey, value.ordinal) }
 }
 
 private object PrefKeys {
@@ -253,6 +268,9 @@ private object PrefKeys {
     val prefDensityKey = floatPreferencesKey("density")
     val prefUseOldPlayerKey = booleanPreferencesKey("uop")
     val prefAlphaKey = booleanPreferencesKey("alpha")
+    val prefAccessTokenKey = stringPreferencesKey("access_token")
+    val prefRefreshTokenKey = stringPreferencesKey("refresh_token")
+    val prefApiTypeKey = intPreferencesKey("api_type")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -292,4 +310,7 @@ private object PrefKeys {
 
     @Suppress("KotlinConstantConditions")
     val prefAlphaRequest = PreferenceRequest(prefAlphaKey, BuildConfig.BUILD_TYPE == "alpha")
+    val prefAccessTokenRequest = PreferenceRequest(prefAccessTokenKey, "")
+    val prefRefreshTokenRequest = PreferenceRequest(prefRefreshTokenKey, "")
+    val prefApiTypeRequest = PreferenceRequest(prefApiTypeKey, 0)
 }

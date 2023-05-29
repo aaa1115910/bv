@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
-import dev.aaa1115910.bv.screen.QRLoginScreen
+import dev.aaa1115910.bv.screen.login.LoginScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 class LoginActivity : ComponentActivity() {
@@ -21,7 +21,7 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(0xFFE9487F)
                 ) {
-                    QRLoginScreen()
+                    LoginScreen()
                 }
             }
         }
