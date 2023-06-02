@@ -176,6 +176,12 @@
     <string name="settings_version_current_version">当前版本: %1$s</string>
     <string name="settings_version_latest_version">最新版本: %1$s</string>
 
+    <string name="sms_login_button_login">登录</string>
+    <string name="sms_login_button_send_sms">发送短信</string>
+    <string name="sms_login_code">验证码</string>
+    <string name="sms_login_phone_number">手机号</string>
+    <string name="sms_login_toast_send_sms_first">请先发送验证码</string>
+
     <string name="title_activity_anime_index">番剧索引</string>
     <string name="title_activity_anime_timeline">番剧放送时间表</string>
     <string name="title_activity_favorite">个人收藏</string>

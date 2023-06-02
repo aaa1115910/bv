@@ -147,6 +147,13 @@ class SmsLoginViewModel(
             }
         }
     }
+
+    fun clearCaptchaData() {
+        logger.info { "Clear captcha data" }
+        geetestChallenge = null
+        geetestValidate = null
+        sendSmsState = SendSmsState.Ready
+    }
 }
 
 @Serializable

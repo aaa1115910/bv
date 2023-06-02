@@ -6,14 +6,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,20 +22,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.tv.material3.Button
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.repositories.SendSmsState
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SmsLoginContent(
     modifier: Modifier = Modifier,
@@ -42,47 +55,93 @@ fun SmsLoginContent(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var phoneNumberText by remember { mutableStateOf("") }
     var codeText by remember { mutableStateOf("") }
+
+    val sendSms = {
+        keyboardController?.hide()
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                smsLoginViewModel.sendSms(phoneNumberText.toLong())
+            }
+        }
+    }
+
+    val loginWithSms = {
+        keyboardController?.hide()
+        if (smsLoginViewModel.sendSmsState != SendSmsState.Success) {
+            R.string.sms_login_toast_send_sms_first.toast(context)
+        } else {
+            scope.launch(Dispatchers.IO) {
+                runCatching {
+                    smsLoginViewModel.loginWithSms(codeText.toInt()) {
+                        (context as Activity).finish()
+                    }
+                }
+            }
+        }
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column {
-            OutlinedTextField(
-                value = phoneNumberText,
-                onValueChange = { phoneNumberText = it },
-                label = { Text(text = "Phone number") },
-                maxLines = 1
-            )
-            OutlinedTextField(
-                value = codeText,
-                onValueChange = { codeText = it },
-                label = { Text(text = "Code") },
-                maxLines = 1
-            )
-            Button(onClick = {
-                scope.launch(Dispatchers.IO) {
-                    runCatching {
-                        smsLoginViewModel.sendSms(phoneNumberText.toLong())
-                    }
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = phoneNumberText,
+                    onValueChange = {
+                        phoneNumberText = it
+                        // Clear captcha data when phone number changed
+                        smsLoginViewModel.clearCaptchaData()
+                    },
+                    label = { Text(text = stringResource(R.string.sms_login_phone_number)) },
+                    maxLines = 1,
+                    shape = MaterialTheme.shapes.large,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Send
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = { sendSms() }
+                    )
+                )
+                Button(onClick = { sendSms() }) {
+                    Text(text = stringResource(R.string.sms_login_button_send_sms))
                 }
-            }) {
-                Text(text = "Send sms")
             }
-            Button(onClick = {
-                scope.launch(Dispatchers.IO) {
-                    runCatching {
-                        smsLoginViewModel.loginWithSms(codeText.toInt()) {
-                            (context as Activity).finish()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = codeText,
+                    onValueChange = { codeText = it },
+                    label = { Text(text = stringResource(R.string.sms_login_code)) },
+                    maxLines = 1,
+                    shape = MaterialTheme.shapes.large,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            loginWithSms()
                         }
-                    }
+                    )
+                )
+                Button(onClick = { loginWithSms() }) {
+                    Text(text = stringResource(R.string.sms_login_button_login))
                 }
-            }) {
-                Text(text = "Login")
             }
         }
 
