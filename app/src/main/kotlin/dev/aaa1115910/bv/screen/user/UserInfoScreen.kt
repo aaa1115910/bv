@@ -292,7 +292,16 @@ fun UserInfoScreen(
                         uid = userViewModel.responseData?.mid ?: 0,
                         level = userViewModel.responseData?.level ?: 0,
                         currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
-                        nextLevelExp = userViewModel.responseData?.levelExp?.currentMin ?: 1,
+                        nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
+                            if (this == null) {
+                                1
+                            } else if (this <= 0) {
+                                userViewModel.responseData?.levelExp?.currentExp ?: 1
+                            } else {
+                                (userViewModel.responseData?.levelExp?.currentExp ?: 1)
+                                +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
+                            }
+                        },
                         showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
                         labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic
                             ?: "",
