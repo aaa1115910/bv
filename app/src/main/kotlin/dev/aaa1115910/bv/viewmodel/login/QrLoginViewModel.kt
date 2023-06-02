@@ -68,6 +68,10 @@ class QrLoginViewModel(
         }
     }
 
+    fun cancelCheckLoginResultTimer() {
+        timer.cancel()
+    }
+
     private suspend fun checkLoginResult() {
         logger.fInfo { "Check for login result" }
         runCatching {

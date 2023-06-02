@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,12 @@ fun QRLoginContent(
         if (qrLoginViewModel.state == QrLoginState.Success) {
             R.string.login_success.toast(context)
             (context as Activity).finish()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            qrLoginViewModel.cancelCheckLoginResultTimer()
         }
     }
 
