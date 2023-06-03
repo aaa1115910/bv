@@ -9,10 +9,11 @@ plugins {
 group = "dev.aaa1115910"
 
 dependencies {
-    api(libs.grpc.stub)
-    api(libs.grpc.protobuf.lite)
     api(libs.grpc.kotlin.stub)
-    api(libs.protobuf.kotlin.lite)
+    api(libs.grpc.okhttp)
+    api(libs.grpc.protobuf)
+    api(libs.grpc.stub)
+    api(libs.protobuf.kotlin)
     implementation(libs.jsoup)
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktor.content.negotiation)
@@ -53,10 +54,10 @@ protobuf {
         all().forEach {
             it.builtins {
                 named("java") {
-                    option("lite")
+                    //option("lite")
                 }
                 create("kotlin") {
-                    option("lite")
+                    //option("lite")
                 }
             }
             it.plugins {
