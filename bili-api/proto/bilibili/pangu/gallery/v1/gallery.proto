@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.pangu.gallery.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/empty.proto";
 
 //
 service GalleryInterface {
-    //
-    rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
-    //
-    rpc UserInfo (GetUserInfoReq) returns (GetUserInfoReply);
-    //
+  //
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+  //
+  rpc UserInfo (GetUserInfoReq) returns (GetUserInfoReply);
+  //
     rpc ListNFTByMid (ListNFTByMidReq) returns (ListNFTByMidReply);
     //
     rpc ListOrderByMid (ListOrderByMidReq) returns (ListOrderByMidReply);

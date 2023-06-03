@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.card.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/card/v1/common.proto";
 
 //
 message DoubleCards {
-    oneof Card {
-        //
-        SmallCoverV2 small_cover_v2 = 1;
-        //
-        OnePicV2 one_pic_v2 = 2;
+  oneof Card {
+    //
+    SmallCoverV2 small_cover_v2 = 1;
+    //
+    OnePicV2 one_pic_v2 = 2;
         //
         ThreePicV2 three_pic_v2 = 3;
     }

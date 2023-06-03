@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.broadcast.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/rpc/status.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";
 
 // broadcast操作，对应每个target_path
 service Broadcast {
-    // 用户鉴权
-    rpc Auth(AuthReq) returns (AuthResp);
-    // 心跳保活：成功心跳为4分45秒，重试心跳为30s，三次收不到进行重连（不超过5分45）
+  // 用户鉴权
+  rpc Auth(AuthReq) returns (AuthResp);
+  // 心跳保活：成功心跳为4分45秒，重试心跳为30s，三次收不到进行重连（不超过5分45）
     rpc Heartbeat(HeartbeatReq) returns (HeartbeatResp);
     // 订阅target_path
     rpc Subscribe(TargetPath) returns (google.protobuf.Empty);

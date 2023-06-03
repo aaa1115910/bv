@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.api.probe.v1;
 
+option java_multiple_files = true;
+
 // 服务可用性探针
 service Probe {
-    //
-    rpc TestCode (CodeReq) returns (CodeReply);
-    //
-    rpc TestReq (ProbeReq) returns (ProbeReply);
-    // 
-    rpc TestStream (ProbeStreamReq) returns (ProbeStreamReply);
-    //
+  //
+  rpc TestCode (CodeReq) returns (CodeReply);
+  //
+  rpc TestReq (ProbeReq) returns (ProbeReply);
+  //
+  rpc TestStream (ProbeStreamReq) returns (ProbeStreamReply);
+  //
     rpc TestSub (ProbeSubReq) returns (ProbeSubReply);
 }
 

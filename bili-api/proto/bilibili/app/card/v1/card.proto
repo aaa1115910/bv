@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bilibili.app.card.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/card/v1/single.proto";
 
 // 卡片信息

@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.polymer.app.search.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/archive/middleware/v1/preload.proto";
 import "bilibili/pagination/pagination.proto";
 
 //
 service Search {
-    // 搜索所有类型结果
-    rpc SearchAll(SearchAllRequest) returns (SearchAllResponse);
-    // 搜索指定类型结果
-    rpc SearchByType(SearchByTypeRequest) returns (SearchByTypeResponse);
+  // 搜索所有类型结果
+  rpc SearchAll(SearchAllRequest) returns (SearchAllResponse);
+  // 搜索指定类型结果
+  rpc SearchByType(SearchByTypeRequest) returns (SearchByTypeResponse);
     //
     rpc SearchComic(SearchComicRequest) returns (SearchComicResponse);
 }

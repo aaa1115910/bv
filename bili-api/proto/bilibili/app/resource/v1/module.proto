@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.resource.v1;
 
+option java_multiple_files = true;
+
 //
 service Module {
-    //
-    rpc List(ListReq) returns (ListReply);
+  //
+  rpc List(ListReq) returns (ListReply);
 }
 
 //
 enum CompressType {
-    Unzip    = 0; // unzip
+  Unzip = 0; // unzip
     Original = 1; // 不操作
 }
 

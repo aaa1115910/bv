@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.app.show.gateway.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/broadcast/message/main/native.proto";
 
 //
 service AppShow {
-    // 获取Native页进度数据
-    rpc GetActProgress (GetActProgressReq) returns (GetActProgressReply);
+  // 获取Native页进度数据
+  rpc GetActProgress (GetActProgressReq) returns (GetActProgressReply);
 }
 
 // 获取Native页进度数据-请求

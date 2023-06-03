@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.topic.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/dynamic/v2/dynamic.proto";
 import "bilibili/app/card/v1/common.proto";
 import "bilibili/app/archive/middleware/v1/preload.proto";
 
 //
 service Topic {
-    //
-    rpc TopicDetailsAll(TopicDetailsAllReq) returns (TopicDetailsAllReply);
-    //
+  //
+  rpc TopicDetailsAll(TopicDetailsAllReq) returns (TopicDetailsAllReply);
+  //
     rpc TopicDetailsFold(TopicDetailsFoldReq) returns (TopicDetailsFoldReply);
     //
     rpc TopicSetDetails(TopicSetDetailsReq) returns (TopicSetDetailsReply);

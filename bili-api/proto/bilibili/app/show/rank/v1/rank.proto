@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.app.show.v1;
 
+option java_multiple_files = true;
+
 // 排行榜
 service Rank {
-    // 全站排行榜
-    rpc RankAll (RankAllResultReq) returns (RankListReply);
-    // 分区排行榜
-    rpc RankRegion (RankRegionResultReq) returns (RankListReply);
+  // 全站排行榜
+  rpc RankAll (RankAllResultReq) returns (RankListReply);
+  // 分区排行榜
+  rpc RankRegion (RankRegionResultReq) returns (RankListReply);
 }
 
 // 排行榜列表项

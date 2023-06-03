@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.space.v1;
 
+option java_multiple_files = true;
+
 //
 service Space {
-    //
-    rpc Archive (ArchiveReq) returns (ArchiveReply);
+  //
+  rpc Archive (ArchiveReq) returns (ArchiveReply);
 }
 
 //-响应
 message ArchiveReply {
-    //
+  //
     repeated BiliSpaceVideo item = 1;
     //
     int32 count = 2;

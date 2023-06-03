@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.card.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/card/v1/common.proto";
 
 //
 message SmallCoverV5 {
-    // 条目基本信息
-    Base base = 1;
-    //
-    string cover_gif = 2;
-    //
+  // 条目基本信息
+  Base base = 1;
+  //
+  string cover_gif = 2;
+  //
     Up up = 3;
     // 封面右下角标文案
     string cover_right_text_1 = 4;

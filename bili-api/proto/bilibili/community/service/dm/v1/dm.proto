@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.community.service.dm.v1;
 
+option java_multiple_files = true;
+
 //弹幕
 service DM {
-    // 获取分段弹幕
-    rpc DmSegMobile (DmSegMobileReq) returns (DmSegMobileReply);
-    // 客户端弹幕元数据 字幕、分段、防挡蒙版等
-    rpc DmView(DmViewReq) returns (DmViewReply);
-    // 修改弹幕配置
-    rpc DmPlayerConfig (DmPlayerConfigReq) returns (Response);
-    // ott弹幕列表
+  // 获取分段弹幕
+  rpc DmSegMobile (DmSegMobileReq) returns (DmSegMobileReply);
+  // 客户端弹幕元数据 字幕、分段、防挡蒙版等
+  rpc DmView(DmViewReq) returns (DmViewReply);
+  // 修改弹幕配置
+  rpc DmPlayerConfig (DmPlayerConfigReq) returns (Response);
+  // ott弹幕列表
     rpc DmSegOtt(DmSegOttReq) returns(DmSegOttReply);
     // SDK弹幕列表
     rpc DmSegSDK(DmSegSDKReq) returns(DmSegSDKReply);

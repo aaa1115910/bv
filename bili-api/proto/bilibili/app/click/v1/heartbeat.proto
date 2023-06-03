@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.app.click.v1;
 
+option java_multiple_files = true;
+
 service Click {
 
 }
 
 // 账户信息
 message AccountInfo {
-    // 
-    uint64 mid = 1;
+  //
+  uint64 mid = 1;
 }
 
 // 

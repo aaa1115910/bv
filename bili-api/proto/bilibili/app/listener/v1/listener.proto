@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bilibili.app.listener.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/empty.proto";
 import "bilibili/app/archive/middleware/v1/preload.proto";
 import "bilibili/app/interfaces/v1/history.proto";
@@ -9,8 +11,8 @@ import "bilibili/app/playurl/v1/playurl.proto";
 
 // 听视频
 service Listener {
-    //
-    rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+  //
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
     // 获取音频URL
     rpc PlayUrl (PlayURLReq) returns (PlayURLResp);
     //

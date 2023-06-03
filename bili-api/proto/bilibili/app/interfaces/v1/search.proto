@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.app.interfaces.v1;
 
+option java_multiple_files = true;
+
 // 搜索
 service Search {
-    // 获取搜索建议
-    rpc Suggest3 (SuggestionResult3Req) returns (SuggestionResult3Reply);
-    //
-    rpc DefaultWords(DefaultWordsReq) returns (DefaultWordsReply);
+  // 获取搜索建议
+  rpc Suggest3 (SuggestionResult3Req) returns (SuggestionResult3Reply);
+  //
+  rpc DefaultWords(DefaultWordsReq) returns (DefaultWordsReply);
 }
 
 //

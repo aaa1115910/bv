@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bilibili.rpc;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 // 响应gRPC Status

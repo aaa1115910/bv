@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.broadcast.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/empty.proto";
 
 // ModManager
 service ModManager {
-    //
-    rpc WatchResource(google.protobuf.Empty) returns (stream ModResourceResp);
+  //
+  rpc WatchResource(google.protobuf.Empty) returns (stream ModResourceResp);
 }
 
 //

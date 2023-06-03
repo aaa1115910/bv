@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package bilibili.relation.interface.v1;
 
+option java_multiple_files = true;
 option java_package = "bilibili.relation.interface1.v1";
 
 service RelationInterface {

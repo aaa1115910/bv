@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.pagination;
 
+option java_multiple_files = true;
+
 // 分页信息
 message FeedPagination {
-    //
-    int32 page_size = 1;
-    //
-    string offset = 2;
-    //
-    bool is_refresh = 3;
+  //
+  int32 page_size = 1;
+  //
+  string offset = 2;
+  //
+  bool is_refresh = 3;
 }
 
 // 分页信息

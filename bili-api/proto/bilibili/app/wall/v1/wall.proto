@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.wall.v1;
 
+option java_multiple_files = true;
+
 // 免流规则
 service Wall {
-    // 获取免流规则信息
-    rpc RuleInfo (RuleRequest) returns (RulesReply);
+  // 获取免流规则信息
+  rpc RuleInfo (RuleRequest) returns (RulesReply);
 }
 
 // 免流规则信息
 message RuleInfo {
-    // 是否支持免流
+  // 是否支持免流
     bool tf = 1;
     // 操作模式
     // break:无 replace:替换 proxy:代理

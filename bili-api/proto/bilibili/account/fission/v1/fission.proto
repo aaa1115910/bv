@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.account.fission.v1;
 
+option java_multiple_files = true;
+
 // Fission裂变
 service Fission {
-    // 活动入口
-    rpc Entrance (EntranceReq) returns (EntranceReply);
-    // 首页弹窗
-    rpc Window (WindowReq) returns (WindowReply);
-    // 
-    rpc Privacy (PrivacyReq) returns (PrivacyReply);
+  // 活动入口
+  rpc Entrance (EntranceReq) returns (EntranceReply);
+  // 首页弹窗
+  rpc Window (WindowReq) returns (WindowReply);
+  //
+  rpc Privacy (PrivacyReq) returns (PrivacyReply);
 }
 
 // 动画效果

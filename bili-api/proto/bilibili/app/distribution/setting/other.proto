@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.distribution.setting.other;
 
+option java_multiple_files = true;
+
 import "bilibili/app/distribution/v1/distribution.proto";
 
 // 
 message OtherSettingsConfig {
-    // 
-    bilibili.app.distribution.v1.Int64Value watermark_type = 1;
-    // 
-    bilibili.app.distribution.v1.Int64Value web_image_quality_type = 2;
-    // 
+  //
+  bilibili.app.distribution.v1.Int64Value watermark_type = 1;
+  //
+  bilibili.app.distribution.v1.Int64Value web_image_quality_type = 2;
+  //
     bilibili.app.distribution.v1.BoolValue enable_read_pasteboard = 3;
     // 
     bilibili.app.distribution.v1.BoolValue paste_auto_jump = 4;

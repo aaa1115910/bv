@@ -4,14 +4,16 @@ import "google/protobuf/any.proto";
 
 package bilibili.app.distribution.v1;
 
+option java_multiple_files = true;
+
 // APP配置
 service Distribution {
-    // 获取云端储存的用户偏好
-    rpc GetUserPreference (GetUserPreferenceReq) returns (GetUserPreferenceReply);
-    // 设定用户偏好
-    rpc SetUserPreference (SetUserPreferenceReq) returns (SetUserPreferenceReply);
-    // 获取云控配置
-    rpc UserPreference (UserPreferenceReq) returns (UserPreferenceReply);
+  // 获取云端储存的用户偏好
+  rpc GetUserPreference (GetUserPreferenceReq) returns (GetUserPreferenceReply);
+  // 设定用户偏好
+  rpc SetUserPreference (SetUserPreferenceReq) returns (SetUserPreferenceReply);
+  // 获取云控配置
+  rpc UserPreference (UserPreferenceReq) returns (UserPreferenceReply);
 }
 
 // 

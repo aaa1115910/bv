@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.interfaces.v1;
 
+option java_multiple_files = true;
+
 //
 service Media {
-    //
-    rpc MediaTab(MediaTabReq) returns (MediaTabReply);
-    //
-    rpc MediaDetail(MediaDetailReq) returns (MediaDetailReply);
-    //
-    rpc MediaVideo(MediaVideoReq) returns (MediaVideoReply);
-    //
+  //
+  rpc MediaTab(MediaTabReq) returns (MediaTabReply);
+  //
+  rpc MediaDetail(MediaDetailReq) returns (MediaDetailReply);
+  //
+  rpc MediaVideo(MediaVideoReq) returns (MediaVideoReply);
+  //
     rpc MediaRelation(MediaRelationReq) returns (MediaRelationReply);
     //
     rpc MediaFollow(MediaFollowReq) returns (MediaFollowReply);

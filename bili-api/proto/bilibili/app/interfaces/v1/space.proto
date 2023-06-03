@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.interfaces.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/archive/middleware/v1/preload.proto";
 import "bilibili/app/archive/v1/archive.proto";
 import "bilibili/app/dynamic/v2/dynamic.proto";
 
 //
 service Space {
-    //
-    rpc SearchTab(SearchTabReq) returns (SearchTabReply);
-    //
+  //
+  rpc SearchTab(SearchTabReq) returns (SearchTabReply);
+  //
     rpc SearchArchive(SearchArchiveReq) returns (SearchArchiveReply);
     //
     rpc SearchDynamic(SearchDynamicReq) returns (SearchDynamicReply);

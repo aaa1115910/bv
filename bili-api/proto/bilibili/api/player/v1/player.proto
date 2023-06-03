@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.api.player.v1;
 
+option java_multiple_files = true;
+
 // 心跳上报
 service Heartbeat {
-    // 客户端心跳上报
-    rpc Mobile(HeartbeatReq) returns (HeartbeatReply);
+  // 客户端心跳上报
+  rpc Mobile(HeartbeatReq) returns (HeartbeatReply);
 }
 
 // 客户端心跳上报-响应
 message HeartbeatReply {
-    // 时间戳
+  // 时间戳
     int64 ts = 1;
 }
 

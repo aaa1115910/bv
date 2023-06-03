@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.card.v1;
 
+option java_multiple_files = true;
+
 //
 message AdInfo {
-    //
-    int64 creative_id = 1;
-    //
-    int32 creative_type = 2;
-    //
-    int32 card_type = 3;
-    //
+  //
+  int64 creative_id = 1;
+  //
+  int32 creative_type = 2;
+  //
+  int32 card_type = 3;
+  //
     CreativeContent creative_content = 4;
     //
     string ad_cb = 5;

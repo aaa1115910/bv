@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.interfaces.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/archive/middleware/v1/preload.proto";
 
 // 历史记录
 service History {
-    // 获取历史记录tab
-    rpc HistoryTab (HistoryTabReq) returns (HistoryTabReply);
-    // 获取历史记录列表(旧版)
-    rpc Cursor (CursorReq) returns (CursorReply);
-    // 获取历史记录列表
+  // 获取历史记录tab
+  rpc HistoryTab (HistoryTabReq) returns (HistoryTabReply);
+  // 获取历史记录列表(旧版)
+  rpc Cursor (CursorReq) returns (CursorReply);
+  // 获取历史记录列表
     rpc CursorV2 (CursorV2Req) returns (CursorV2Reply);
     // 删除历史记录
     rpc Delete (DeleteReq) returns (NoReply);

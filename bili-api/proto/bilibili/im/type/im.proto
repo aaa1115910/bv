@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.im.type;
 
+option java_multiple_files = true;
+
 //
 message AccountInfo {
-    //
-    string name = 1;
-    //
-    string pic_url = 2;
+  //
+  string name = 1;
+  //
+  string pic_url = 2;
 }
 
 //

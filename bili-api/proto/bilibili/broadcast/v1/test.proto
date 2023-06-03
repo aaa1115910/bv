@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bilibili.broadcast.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";
 
@@ -10,7 +12,7 @@ import "google/protobuf/empty.proto";
 
 // Test
 service Test {
-    // 监听上报事件
+  // 监听上报事件
     rpc WatchTestEvent(google.protobuf.Empty) returns (stream TestResp);
 }
 

@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.polymer.list;
 
+option java_multiple_files = true;
+
 //
 service List {
-    //
-    rpc FavoriteTab(FavoriteTabReq) returns (FavoriteTabReply);
-    //
-    rpc CheckAccount(CheckAccountReq) returns (CheckAccountReply);
+  //
+  rpc FavoriteTab(FavoriteTabReq) returns (FavoriteTabReply);
+  //
+  rpc CheckAccount(CheckAccountReq) returns (CheckAccountReply);
 }
 
 //

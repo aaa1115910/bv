@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.web.space.v1;
 
+option java_multiple_files = true;
+
 //
 message NoReply {}
 
 //
 message OfficialReply {
-    //
-    int64 id = 1;
-    //
-    int64 uid = 2;
+  //
+  int64 id = 1;
+  //
+  int64 uid = 2;
     //
     string name = 3;
     //

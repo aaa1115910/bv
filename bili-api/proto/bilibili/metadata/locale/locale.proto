@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.metadata.locale;
 
+option java_multiple_files = true;
+
 // 区域标识
 // gRPC头部:x-bili-locale-bin
 message Locale {
-    // App设置的locale
-    LocaleIds c_locale = 1;
-    // 系统默认的locale
-    LocaleIds s_locale = 2;
-    // sim卡的国家码+运营商码
-    string sim_code = 3;
+  // App设置的locale
+  LocaleIds c_locale = 1;
+  // 系统默认的locale
+  LocaleIds s_locale = 2;
+  // sim卡的国家码+运营商码
+  string sim_code = 3;
     // 时区
     string timezone = 4;
 }

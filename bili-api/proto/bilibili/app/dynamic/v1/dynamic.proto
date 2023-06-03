@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.dynamic.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/archive/middleware/v1/preload.proto";
 
 // v1动态
 service Dynamic {
-    // 动态视频页
-    rpc DynVideo (DynVideoReq) returns (DynVideoReqReply);
-    // 批量动态id获取动态详情
-    rpc DynDetails (DynDetailsReq) returns (DynDetailsReply);
-    // 小视频连播页
+  // 动态视频页
+  rpc DynVideo (DynVideoReq) returns (DynVideoReqReply);
+  // 批量动态id获取动态详情
+  rpc DynDetails (DynDetailsReq) returns (DynDetailsReply);
+  // 小视频连播页
     rpc SVideo (SVideoReq) returns (SVideoReply);
     // 动态tab页
     rpc DynTab (DynTabReq) returns (DynTabReply);

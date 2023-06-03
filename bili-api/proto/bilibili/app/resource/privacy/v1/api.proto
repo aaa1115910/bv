@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.app.resource.privacy.v1;
 
+option java_multiple_files = true;
+
 // 隐私
 service Privacy {
-    // 获取隐私设置
-    rpc PrivacyConfig(NoArgRequest) returns(PrivacyConfigReply);
-    // 修改隐私设置
-    rpc SetPrivacyConfig(SetPrivacyConfigRequest) returns(NoReply);
+  // 获取隐私设置
+  rpc PrivacyConfig(NoArgRequest) returns(PrivacyConfigReply);
+  // 修改隐私设置
+  rpc SetPrivacyConfig(SetPrivacyConfigRequest) returns(NoReply);
 }
 
 // 空请求

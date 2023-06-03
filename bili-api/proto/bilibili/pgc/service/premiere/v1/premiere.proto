@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.pgc.service.premiere.v1;
 
+option java_multiple_files = true;
+
 // 首播服务
 service Premiere {
-    // 获取首播状态
-    rpc Status (PremiereStatusReq) returns (PremiereStatusReply);
+  // 获取首播状态
+  rpc Status (PremiereStatusReq) returns (PremiereStatusReply);
 }
 
 // 获取首播状态-请求
 message PremiereStatusReq {
-    // 剧集epid
+  // 剧集epid
     int64 ep_id = 1;
 }
 

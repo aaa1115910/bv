@@ -4,15 +4,17 @@ package bilibili.broadcast.message.main;
 
 import "google/protobuf/empty.proto";
 
+option java_multiple_files = true;
+
 //
 service Resource {
-    //
-    rpc TopActivity(google.protobuf.Empty) returns (stream TopActivityReply);
+  //
+  rpc TopActivity(google.protobuf.Empty) returns (stream TopActivityReply);
 }
 
 //
 message TopActivityReply {
-    // 当前生效的资源
+  // 当前生效的资源
     TopOnline online = 1;
     // 对online内容进行hash和上次结果一样则不重新加载
     string hash = 2;

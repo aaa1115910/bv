@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.main.community.reply.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 // 评论区
 service Reply {
-    // 主评论列表接口
-    rpc MainList(MainListReq) returns (MainListReply);
-    // 二级评论明细接口
-    rpc DetailList(DetailListReq) returns (DetailListReply);
-    // 对话评论树接口
+  // 主评论列表接口
+  rpc MainList(MainListReq) returns (MainListReply);
+  // 二级评论明细接口
+  rpc DetailList(DetailListReq) returns (DetailListReply);
+  // 对话评论树接口
     rpc DialogList(DialogListReq) returns (DialogListReply);
     // 评论预览接口
     rpc PreviewList(PreviewListReq) returns (PreviewListReply);

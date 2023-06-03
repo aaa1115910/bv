@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.metadata.device;
 
+option java_multiple_files = true;
+
 // 设备信息
 // gRPC头部:x-bili-device-bin
 message Device {
-    // 产品id
-    // 粉 白 蓝 直播姬 HD 海外 OTT 漫画 TV野版 小视频 网易漫画 网易漫画 网易漫画HD 国际版 东南亚版
-    // 1  2  3    4    5   6    7   8     9     10      11       12       13       14       30
-    int32 app_id = 1;
-    // 构建id
-    int32 build = 2;
+  // 产品id
+  // 粉 白 蓝 直播姬 HD 海外 OTT 漫画 TV野版 小视频 网易漫画 网易漫画 网易漫画HD 国际版 东南亚版
+  // 1  2  3    4    5   6    7   8     9     10      11       12       13       14       30
+  int32 app_id = 1;
+  // 构建id
+  int32 build = 2;
     // 设备buvid
     string buvid = 3;
     // 包类型

@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.playurl.v1;
 
+option java_multiple_files = true;
+
 // 视频url
 service PlayURL {
-    // 视频地址
-    rpc PlayURL (PlayURLReq) returns (PlayURLReply);
-    // 投屏地址
-    rpc Project (ProjectReq) returns (ProjectReply);
-    // 播放页信息
-    rpc PlayView (PlayViewReq) returns (PlayViewReply);
-    // 编辑播放界面配置
+  // 视频地址
+  rpc PlayURL (PlayURLReq) returns (PlayURLReply);
+  // 投屏地址
+  rpc Project (ProjectReq) returns (ProjectReply);
+  // 播放页信息
+  rpc PlayView (PlayViewReq) returns (PlayViewReply);
+  // 编辑播放界面配置
     rpc PlayConfEdit (PlayConfEditReq) returns (PlayConfEditReply);
     // 获取播放界面配置
     rpc PlayConf (PlayConfReq) returns (PlayConfReply);

@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.render;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 // 
 message Render {
-    // 
-    int64 code = 1;
-    // 
-    string message = 2;
-    // 
+  //
+  int64 code = 1;
+  //
+  string message = 2;
+  //
     string ttl = 3;
     // 
     google.protobuf.Any data = 4;

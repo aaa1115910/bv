@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.cheese.gateway.player.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/playurl/v1/playurl.proto";
 
 // 课程视频url
 service PlayURL {
-    // 播放页信息
-    rpc PlayView (PlayViewReq) returns (PlayViewReply);
-    // 投屏地址
-    rpc Project (ProjectReq) returns (ProjectReply);
+  // 播放页信息
+  rpc PlayView (PlayViewReq) returns (PlayViewReply);
+  // 投屏地址
+  rpc Project (ProjectReq) returns (ProjectReply);
 }
 
 // 播放页信息-请求

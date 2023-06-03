@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.polymer.app.govern.v1;
 
+option java_multiple_files = true;
+
 // 反骚扰
 service AntiHarassmentService {
-    //
-    rpc StoreAntiHarassmentSettings(StoreAntiHarassmentSettingsReq) returns (StoreAntiHarassmentSettingsRsp);
-    //
-    rpc LoadAntiHarassmentSettings(LoadAntiHarassmentSettingsReq) returns (LoadAntiHarassmentSettingsRsp);
+  //
+  rpc StoreAntiHarassmentSettings(StoreAntiHarassmentSettingsReq) returns (StoreAntiHarassmentSettingsRsp);
+  //
+  rpc LoadAntiHarassmentSettings(LoadAntiHarassmentSettingsReq) returns (LoadAntiHarassmentSettingsRsp);
 }
 
 //

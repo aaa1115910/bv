@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.metadata.fawkes;
 
+option java_multiple_files = true;
+
 //
 message FawkesReply {
-    // 客户端在fawkes系统中对应的已发布最新的config版本号
-    string config = 1;
-    // 客户端在fawkes系统中对应的已发布最新的ff版本号
-    string ff = 2;
+  // 客户端在fawkes系统中对应的已发布最新的config版本号
+  string config = 1;
+  // 客户端在fawkes系统中对应的已发布最新的ff版本号
+  string ff = 2;
 }
 
 //

@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.show.mixture.v1;
 
+option java_multiple_files = true;
+
 // 
 service Mixture {
-    // 
-    rpc Widget(WidgetReq) returns (WidgetReply);
+  //
+  rpc Widget(WidgetReq) returns (WidgetReply);
 }
 
 // 
 message RcmdReason {
-    // 
+  //
     string content = 1;
     // 
     uint32 corner_mark = 2;

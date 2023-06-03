@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package bilibili.main.dynamic.feed.v1;
 
+option java_multiple_files = true;
 option java_package = "bilibili.main.dynamic.feed.v1";
 
 import "bilibili/dynamic/common/dynamic.proto";

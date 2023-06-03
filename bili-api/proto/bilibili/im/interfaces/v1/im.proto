@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package bilibili.im.interface.v1;
 
+option java_multiple_files = true;
 option java_package = "bilibili.im.interface1.v1";
 
 import "bilibili/im/type/im.proto";

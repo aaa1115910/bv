@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.app.playeronline.v1;
 
+option java_multiple_files = true;
+
 // 在线人数
 service PlayerOnline {
-    // 获取在线人数
-    rpc PlayerOnline (PlayerOnlineReq) returns (PlayerOnlineReply);
-    //
-    rpc PremiereInfo(PremiereInfoReq) returns (PremiereInfoReply);
-    //
-    rpc ReportWatch(ReportWatchReq) returns (NoReply);
+  // 获取在线人数
+  rpc PlayerOnline (PlayerOnlineReq) returns (PlayerOnlineReply);
+  //
+  rpc PremiereInfo(PremiereInfoReq) returns (PremiereInfoReply);
+  //
+  rpc ReportWatch(ReportWatchReq) returns (NoReply);
 }
 
 // 空回复

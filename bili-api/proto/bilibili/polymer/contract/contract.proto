@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.polymer.contract;
 
+option java_multiple_files = true;
+
 import "google/protobuf/empty.proto";
 
 // 契约
 service Contract {
-    //
-    rpc AddContract(AddContractReq) returns (google.protobuf.Empty);
-    //
-    rpc AddContractV2(AddContractReq) returns (AddContractReply);
-    //
+  //
+  rpc AddContract(AddContractReq) returns (google.protobuf.Empty);
+  //
+  rpc AddContractV2(AddContractReq) returns (AddContractReply);
+  //
     rpc ContractConfig(ContractConfigReq) returns (ContractConfigReply);
 }
 

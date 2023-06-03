@@ -2,13 +2,15 @@ syntax = "proto3";
 
 package bilibili.app.show.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/app/card/v1/card.proto";
 import "bilibili/app/archive/middleware/v1/preload.proto";
 
 // 热门
 service Popular {
-    // 热门列表
-    rpc Index (PopularResultReq) returns (PopularReply);
+  // 热门列表
+  rpc Index (PopularResultReq) returns (PopularReply);
 }
 
 // 气泡信息

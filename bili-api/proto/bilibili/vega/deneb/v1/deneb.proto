@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.vega.deneb.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 //
 service VegaDenebRPC {
-    //
-    rpc MessagePulls (MessagePullsReq) returns (MessagePullsReply);
+  //
+  rpc MessagePulls (MessagePullsReq) returns (MessagePullsReply);
 }
 
 //

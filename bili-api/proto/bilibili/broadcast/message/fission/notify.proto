@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.broadcast.message.fission;
 
+option java_multiple_files = true;
+
 import "google/protobuf/empty.proto";
 
 //
 service Fission {
-    //
-    rpc GameNotify(google.protobuf.Empty) returns (stream GameNotifyReply);
+  //
+  rpc GameNotify(google.protobuf.Empty) returns (stream GameNotifyReply);
 }
 
 message GameNotifyReply {

@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.app.archive.v1;
 
+option java_multiple_files = true;
+
 // 稿件基本信息
 message Arc {
-	// 稿件avid
-	int64 aid = 1;
-	// 稿件分P数
-	int64 videos = 2;
-	// 分区id
-	int32 type_id = 3;
-	// 二级分区名
+  // 稿件avid
+  int64 aid = 1;
+  // 稿件分P数
+  int64 videos = 2;
+  // 分区id
+  int32 type_id = 3;
+  // 二级分区名
 	string type_name = 4;
 	// 稿件类型
 	// 1:原创 2:转载

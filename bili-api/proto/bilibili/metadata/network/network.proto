@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.metadata.network;
 
+option java_multiple_files = true;
+
 // 网络类型标识
 // gRPC头部:x-bili-network-bin
 message Network {
-    // 网络类型
-    NetworkType type = 1;
-    // 免流类型
-    TFType tf = 2;
-    // 运营商
-    string oid = 3;
+  // 网络类型
+  NetworkType type = 1;
+  // 免流类型
+  TFType tf = 2;
+  // 运营商
+  string oid = 3;
 }
 
 // 网络类型

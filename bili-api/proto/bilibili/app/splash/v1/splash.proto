@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package bilibili.app.splash.v1;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 //
 service Splash {
-    //
-    rpc List (SplashReq) returns (SplashReply);
+  //
+  rpc List (SplashReq) returns (SplashReply);
 }
 
 //

@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.dynamic.gateway;
 
+option java_multiple_files = true;
+
 import "google/protobuf/any.proto";
 
 // 综合页请求广告所需字段，由客户端-网关透传
 message AdParam {
-    // 综合页请求广告所需字段，由客户端-网关透传
-    string ad_extra = 1;
-    // request_id
-    string request_id = 2;
+  // 综合页请求广告所需字段，由客户端-网关透传
+  string ad_extra = 1;
+  // request_id
+  string request_id = 2;
 }
 
 //

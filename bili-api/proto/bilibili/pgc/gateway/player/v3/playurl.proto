@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.pgc.gateway.player.v3;
 
+option java_multiple_files = true;
+
 import "bilibili/playershared/playershared.proto";
 
 import "google/protobuf/any.proto";
 
 // 播放页信息-请求
 message PlayViewReq {
-    // 视频信息
-    bilibili.playershared.VideoVod vod = 1;
-    // 当前页spm
+  // 视频信息
+  bilibili.playershared.VideoVod vod = 1;
+  // 当前页spm
     string spmid = 2;
     // 上一页spm
     string from_spmid = 3;

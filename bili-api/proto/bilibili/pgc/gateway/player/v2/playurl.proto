@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.pgc.gateway.player.v2;
 
+option java_multiple_files = true;
+
 import "google/protobuf/timestamp.proto";
 
 // 视频url
 service PlayURL {
-    // 播放页信息
-    rpc PlayView (PlayViewReq) returns (PlayViewReply);
-    //
-    rpc PlayViewComic(PlayViewReq) returns (PlayViewReply);
+  // 播放页信息
+  rpc PlayView (PlayViewReq) returns (PlayViewReply);
+  //
+  rpc PlayViewComic(PlayViewReq) returns (PlayViewReply);
 }
 
 // 角标信息

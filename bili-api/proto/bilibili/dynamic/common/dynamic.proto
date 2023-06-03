@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package bilibili.dynamic;
 
+option java_multiple_files = true;
+
 import "bilibili/app/dynamic/v2/dynamic.proto";
 
 // at分组信息
 message AtGroup {
-    // 分组类型
-    AtGroupType group_type = 1;
-    // 分组名称
-    string group_name = 2;
-    // items
+  // 分组类型
+  AtGroupType group_type = 1;
+  // 分组名称
+  string group_name = 2;
+  // items
     repeated AtItem items = 3;
 }
 

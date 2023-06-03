@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.main.common.arch.doll.v1;
 
+option java_multiple_files = true;
+
 //
 service Echo {
-    //
-    rpc Ping(PingRequest) returns(PingResponse);
-    //
-    rpc Say(SayRequest) returns(SayResponse);
-    //
-    rpc Error(ErrorRequest) returns(ErrorResponse);
+  //
+  rpc Ping(PingRequest) returns(PingResponse);
+  //
+  rpc Say(SayRequest) returns(SayResponse);
+  //
+  rpc Error(ErrorRequest) returns(ErrorResponse);
 }
 
 //

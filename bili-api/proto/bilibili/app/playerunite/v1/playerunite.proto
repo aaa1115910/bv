@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package bilibili.app.playerunite.v1;
 
+option java_multiple_files = true;
+
 import "bilibili/playershared/playershared.proto";
 
 import "google/protobuf/any.proto";
 
 // 统一视频url
 service Player {
-    // 视频地址
-    rpc PlayViewUnite (PlayViewUniteReq) returns (PlayViewUniteReply);
+  // 视频地址
+  rpc PlayViewUnite (PlayViewUniteReq) returns (PlayViewUniteReply);
 }
 
 // 
