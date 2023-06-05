@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
@@ -38,6 +39,7 @@ import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.util.Prefs
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalTvFoundationApi::class)
@@ -159,7 +161,13 @@ fun PictureMenuList(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(8.dp)
             ) {
-                itemsIndexed(VideoPlayerPictureMenuItem.values()) { index, item ->
+                val menuList = when (Prefs.apiType) {
+                    ApiType.Http -> VideoPlayerPictureMenuItem.values().toMutableList()
+                    ApiType.GRPC -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
+                        this.remove(VideoPlayerPictureMenuItem.Codec)
+                    }
+                }
+                itemsIndexed(menuList) { index, item ->
                     val buttonModifier =
                         if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
                     MenuListItem(

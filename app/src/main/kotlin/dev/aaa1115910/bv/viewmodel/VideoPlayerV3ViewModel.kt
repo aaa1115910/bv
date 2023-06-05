@@ -12,15 +12,17 @@ import androidx.lifecycle.viewModelScope
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.PlayData
 import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.entity.video.Dash
-import dev.aaa1115910.biliapi.http.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
+import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -40,7 +42,8 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 class VideoPlayerV3ViewModel(
-    private val videoInfoRepository: VideoInfoRepository
+    private val videoInfoRepository: VideoInfoRepository,
+    private val videoPlayRepository: VideoPlayRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger { }
 
@@ -51,9 +54,8 @@ class VideoPlayerV3ViewModel(
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")
 
-    private var playUrlResponse: PlayUrlData? by mutableStateOf(null)
+    private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
-    var dashData: Dash? = null
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
@@ -97,6 +99,7 @@ class VideoPlayerV3ViewModel(
 
     private var currentAid = 0
     var currentCid = 0
+    private var currentEpid = 0
 
     private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
@@ -114,6 +117,7 @@ class VideoPlayerV3ViewModel(
     ) {
         currentAid = avid
         currentCid = cid
+        currentEpid = epid ?: 0
         epid?.let { this.epid = it }
         seasonId?.let { this.seasonId = it }
         addLogs("加载视频中")
@@ -127,7 +131,7 @@ class VideoPlayerV3ViewModel(
                 addLogs("av$avid，cid:$cid")
             }
             updateSubtitle()
-            loadPlayUrl(avid, cid, 4048)
+            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
         }
@@ -136,48 +140,45 @@ class VideoPlayerV3ViewModel(
     private suspend fun loadPlayUrl(
         avid: Int,
         cid: Int,
-        fnval: Int = 4048,
-        qn: Int = 80,
-        fnver: Int = 0,
-        fourk: Int = 0
+        epid: Int = 0,
+        preferApi: ApiType = Prefs.apiType
     ) {
-        logger.fInfo { "Load play url: [av=$avid, cid=$cid, fnval=$fnval, qn=$qn, fnver=$fnver, fourk=$fourk]" }
+        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi]" }
         loadState = RequestState.Ready
         logger.fInfo { "Set request state: ready" }
         runCatching {
-            val responseData = (
-                    if (!fromSeason) BiliHttpApi.getVideoPlayUrl(
-                        av = avid,
-                        cid = cid,
-                        fnval = fnval,
-                        qn = qn,
-                        fnver = fnver,
-                        fourk = fourk,
-                        sessData = Prefs.sessData
-                    ) else BiliHttpApi.getPgcVideoPlayUrl(
-                        av = avid,
-                        cid = cid,
-                        fnval = fnval,
-                        qn = qn,
-                        fnver = fnver,
-                        fourk = fourk,
-                        sessData = Prefs.sessData
-                    )).getResponseData()
+            val playData = if (fromSeason) {
+                videoPlayRepository.getPgcPlayData(
+                    aid = avid,
+                    cid = cid,
+                    epid = epid,
+                    preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
+                    preferApiType = Prefs.apiType
+                )
+            } else {
+                videoPlayRepository.getPlayData(
+                    aid = avid,
+                    cid = cid,
+                    preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
+                    preferApiType = Prefs.apiType
+                )
+            }
 
             //检查是否需要购买，如果未购买，则正片返回的dash为null，非正片例如可以免费观看的预告片等则会返回数据，此时不做提示
-            needPay = !responseData.hasPaid && fromSeason && responseData.dash == null
+            needPay = playData.needPay
             if (needPay) return@runCatching
 
-            playUrlResponse = responseData
-            logger.fInfo { "Load play url response success" }
-            //logger.info { "Play url response: $responseData" }
+            this.playData = playData
+            logger.fInfo { "Load play data response success" }
+            //logger.info { "Play data: $playData" }
 
             //读取清晰度
             val resolutionMap = mutableMapOf<Int, String>()
-            responseData.dash?.video?.forEach {
-                if (!resolutionMap.containsKey(it.id)) {
-                    val index = responseData.acceptQuality.indexOf(it.id)
-                    resolutionMap[it.id] = responseData.acceptDescription[index]
+            playData.dashVideos.forEach {
+                if (!resolutionMap.containsKey(it.quality)) {
+                    val name = Resolution.fromCode(it.quality)?.getShortDisplayName(BVApp.context)
+                        ?: "Unknown"
+                    resolutionMap[it.quality] = name
                 }
             }
 
@@ -186,19 +187,19 @@ class VideoPlayerV3ViewModel(
 
             //读取音频
             val audioList = mutableListOf<Audio>()
-            responseData.dash?.audio?.forEach {
-                Audio.fromCode(it.id)?.let { audio ->
+            playData.dashAudios.forEach {
+                Audio.fromCode(it.codecId)?.let { audio ->
                     if (!audioList.contains(audio)) audioList.add(audio)
                 }
             }
-            responseData.dash?.dolby?.audio?.forEach {
-                Audio.fromCode(it.id)?.let { audio ->
-                    if (!audioList.contains(audio)) audioList.add(audio)
+            playData.dolby?.let {
+                Audio.fromCode(it.codecId)?.let { audio ->
+                    audioList.add(audio)
                 }
             }
-            responseData.dash?.flac?.audio?.let {
-                Audio.fromCode(it.id)?.let { audio ->
-                    if (!audioList.contains(audio)) audioList.add(audio)
+            playData.flac?.let {
+                Audio.fromCode(it.codecId)?.let { audio ->
+                    audioList.add(audio)
                 }
             }
 
@@ -233,8 +234,6 @@ class VideoPlayerV3ViewModel(
             //再确认最终所选视频编码
             updateAvailableCodec()
 
-            dashData = responseData.dash!!
-
             playQuality(qn = currentQuality, codec = currentVideoCodec)
 
         }.onFailure {
@@ -250,10 +249,11 @@ class VideoPlayerV3ViewModel(
     }
 
     fun updateAvailableCodec() {
-        val currentResolutionInfo =
-            playUrlResponse!!.supportFormats.find { it.quality == currentQuality }
-        val codecList = currentResolutionInfo!!.codecs!!
-            .mapNotNull { VideoCodec.fromCodecString(it) }
+        if (Prefs.apiType == ApiType.GRPC) return
+        val supportedCodec = playData!!.codec
+        val codecList =
+            supportedCodec[currentQuality]!!.mapNotNull { VideoCodec.fromCodecString(it) }
+
         availableVideoCodec.swapList(codecList)
         logger.fInfo { "Video available codec: ${availableVideoCodec.toList()}" }
 
@@ -274,22 +274,29 @@ class VideoPlayerV3ViewModel(
         logger.fInfo { "Select resolution: $qn, codec: $codec, audio: $audio" }
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
-        val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
-        val videoUrl = videoItem?.baseUrl ?: dashData!!.video[0].baseUrl
+        val videoItem = playData!!.dashVideos.find {
+            when (Prefs.apiType) {
+                ApiType.Http -> it.quality == qn && it.codecs!!.startsWith(codec.prefix)
+                ApiType.GRPC -> it.quality == qn
+            }
+        }
+        val videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
 
-        val audioItem = dashData?.audio?.find { it.id == audio.code }
-            ?: dashData?.dolby?.audio?.find { it.id == audio.code }
-            ?: dashData?.flac?.audio?.let { if (it.id == audio.code) dashData?.flac?.audio else null }
-            ?: dashData?.audio?.minByOrNull { it.codecs }
-        val audioUrl = audioItem?.baseUrl ?: dashData?.audio?.first()?.baseUrl
+        val audioItem = playData!!.dashAudios.find { it.codecId == audio.code }
+            ?: playData!!.dolby.takeIf { it?.codecId == audio.code }
+            ?: playData!!.flac.takeIf { it?.codecId == audio.code }
+            ?: playData!!.dashAudios.minByOrNull { it.codecId }
+        val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
 
         logger.fInfo { "Select audio: $audioItem" }
-        addLogs("音频编码：${(Audio.fromCode(audioItem?.id ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
+        addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
         currentVideoHeight = videoItem?.height ?: 0
         currentVideoWidth = videoItem?.width ?: 0
 
         withContext(Dispatchers.Main) {
+            logger.info { "Video url: $videoUrl" }
+            logger.info { "Audio url: $audioUrl" }
             videoPlayer!!.playUrl(videoUrl, audioUrl)
             videoPlayer!!.prepare()
             showBuffering = true

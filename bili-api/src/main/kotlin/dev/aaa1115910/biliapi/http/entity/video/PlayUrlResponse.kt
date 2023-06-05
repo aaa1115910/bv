@@ -145,6 +145,7 @@ data class DashData(
     val id: Int,
     val baseUrl: String,
     val backupUrl: List<String> = emptyList(),
+    val bandwidth: Int,
     val mimeType: String,
     val codecs: String,
     val width: Int,

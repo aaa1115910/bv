@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.player.VideoPlayerOptions
@@ -80,8 +81,14 @@ class VideoPlayerV3Activity : ComponentActivity() {
     private fun initVideoPlayer() {
         logger.info { "Init video player: ${Prefs.playerType.name}" }
         val options = VideoPlayerOptions(
-            userAgent = getString(R.string.video_player_user_agent),
-            referer = getString(R.string.video_player_referer)
+            userAgent = when (Prefs.apiType) {
+                ApiType.Http -> getString(R.string.video_player_user_agent_http)
+                ApiType.GRPC -> getString(R.string.video_player_user_agent_client)
+            },
+            referer = when (Prefs.apiType) {
+                ApiType.Http -> getString(R.string.video_player_referer)
+                ApiType.GRPC -> null
+            }
         )
         val videoPlayer = when (Prefs.playerType) {
             PlayerType.Media3 -> ExoPlayerFactory().create(this, options)

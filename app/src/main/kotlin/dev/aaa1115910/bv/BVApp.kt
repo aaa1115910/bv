@@ -11,9 +11,12 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.repositories.BvLoginRepository
+import dev.aaa1115910.biliapi.repositories.ChannelRepository
+import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -59,6 +62,13 @@ class BVApp : Application() {
             modules(appModule)
         }
         firebaseAnalytics = Firebase.analytics
+        initChannelRepository()
+    }
+
+    private fun initChannelRepository() {
+        val channelRepository by koinApplication.koin.inject<ChannelRepository>()
+        channelRepository.initDefaultChannel(Prefs.accessToken, Prefs.buvid)
+        channelRepository.sessionData = Prefs.sessData
     }
 }
 
@@ -66,6 +76,8 @@ val appModule = module {
     single { UserRepository() }
     single { BvLoginRepository() }
     single { VideoInfoRepository() }
+    single { ChannelRepository() }
+    single { VideoPlayRepository(get()) }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { QrLoginViewModel(get(), get()) }
@@ -81,7 +93,7 @@ val appModule = module {
     viewModel { AnimeViewModel() }
     viewModel { FollowingSeasonViewModel() }
     viewModel { TagViewModel() }
-    viewModel { VideoPlayerV3ViewModel(get()) }
+    viewModel { VideoPlayerV3ViewModel(get(), get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

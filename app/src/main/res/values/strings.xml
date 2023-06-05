@@ -145,7 +145,7 @@
     <string name="settings_info_storage">存储: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_system">系统: Android %1$s</string>
     <string name="settings_item_about">关于</string>
-    <string name="settings_item_api">接口设置</string>
+    <string name="settings_item_api">接口偏好</string>
     <string name="settings_item_audio">默认音频编码</string>
     <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
@@ -257,5 +257,6 @@
     <string name="video_player_menu_subtitle_switch">选择字幕</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
     <string name="video_player_referer">https://www.bilibili.com</string>
-    <string name="video_player_user_agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
+    <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
+    <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
 </resources>
