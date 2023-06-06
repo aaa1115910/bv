@@ -2,6 +2,7 @@
 akdanmaku = "1.0.3"
 coil = "2.3.0"
 firebase-bom = "32.0.0"
+geetest-sensebot = "4.3.10"
 grpc = "1.55.1"
 grpc-kotlin = "1.3.0"
 jsoup = "1.16.1"
@@ -33,6 +34,9 @@ coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+
+# https://docs.geetest.com/sensebot/deploy/client/android
+geetest-sensebot = { module = "com.geetest.sensebot:sensebot", version.ref = "geetest-sensebot" }
 
 # https://github.com/grpc/grpc-kotlin
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }

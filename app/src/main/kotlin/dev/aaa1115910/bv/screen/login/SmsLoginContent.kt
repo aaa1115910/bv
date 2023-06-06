@@ -1,21 +1,16 @@
 package dev.aaa1115910.bv.screen.login
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,27 +19,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.geetest.sdk.GT3ConfigBean
+import com.geetest.sdk.GT3ErrorBean
+import com.geetest.sdk.GT3GeetestUtils
+import com.geetest.sdk.GT3Listener
 import dev.aaa1115910.biliapi.repositories.SendSmsState
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.toast
+import dev.aaa1115910.bv.viewmodel.login.GeetestResult
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import mu.KotlinLogging
+import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -54,17 +52,34 @@ fun SmsLoginContent(
     smsLoginViewModel: SmsLoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val logger = KotlinLogging.logger { }
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    var gt3GeetestUtils: GT3GeetestUtils? by remember { mutableStateOf(null) }
+    val gt3ConfigBean by remember { mutableStateOf(GT3ConfigBean()) }
     var phoneNumberText by remember { mutableStateOf("") }
     var codeText by remember { mutableStateOf("") }
+
+    val setConfig: (challenge: String, gt: String) -> Unit = { challenge, gt ->
+        gt3GeetestUtils!!.startCustomFlow()
+        gt3ConfigBean.api1Json = JSONObject().apply {
+            put("success", 1)
+            put("gt", gt)
+            put("challenge", challenge)
+        }
+        gt3GeetestUtils!!.getGeetest()
+    }
 
     val sendSms = {
         keyboardController?.hide()
         scope.launch(Dispatchers.IO) {
             runCatching {
-                smsLoginViewModel.sendSms(phoneNumberText.toLong())
+                smsLoginViewModel.sendSms(phoneNumberText.toLong()) { challenge: String, gt: String ->
+                    scope.launch(Dispatchers.Main) {
+                        setConfig(challenge, gt)
+                    }
+                }
             }
         }
     }
@@ -81,6 +96,66 @@ fun SmsLoginContent(
                     }
                 }
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        gt3GeetestUtils = GT3GeetestUtils(context)
+        gt3ConfigBean.apply {
+            pattern = 1
+            isCanceledOnTouchOutside = false
+            lang = null
+            timeout = 10000
+            webviewTimeout = 10000
+            corners = 24
+            listener = object : GT3Listener() {
+                override fun onReceiveCaptchaCode(p0: Int) {
+                    logger.info { "Geetest - onReceiveCaptchaCode: $p0" }
+                }
+
+                override fun onStatistics(p0: String?) {
+                    logger.info { "Geetest - onStatistics: $p0" }
+                }
+
+                override fun onClosed(p0: Int) {
+                    logger.info { "Geetest - onClosed: $p0" }
+                    smsLoginViewModel.clearCaptchaData()
+                }
+
+                override fun onSuccess(p0: String?) {
+                    logger.info { "Geetest - onSuccess: $p0" }
+                }
+
+                override fun onFailed(p0: GT3ErrorBean?) {
+                    logger.info { "Geetest - onFailed: $p0" }
+                    smsLoginViewModel.clearCaptchaData()
+                }
+
+                override fun onButtonClick() {
+                    logger.info { "Geetest - onButtonClick" }
+                }
+
+                override fun onDialogResult(result: String) {
+                    logger.info { "Geetest - onDialogResult: $result" }
+                    runCatching {
+                        val geetestResult = Json.decodeFromString<GeetestResult>(result)
+                        smsLoginViewModel.geetestChallenge = geetestResult.geetestChallenge
+                        smsLoginViewModel.geetestValidate = geetestResult.geetestValidate
+                        smsLoginViewModel.sendSmsState = SendSmsState.Ready
+                        gt3GeetestUtils?.showSuccessDialog()
+                        scope.launch(Dispatchers.IO) {
+                            smsLoginViewModel.sendSms(phoneNumberText.toLong()) { _, _ -> }
+                        }
+                    }.onFailure {
+                        gt3GeetestUtils?.showFailedDialog()
+                    }
+                }
+            }
+        }
+        gt3GeetestUtils!!.init(gt3ConfigBean)
+
+        onDispose {
+            gt3GeetestUtils?.destory()
         }
     }
 
@@ -144,72 +219,5 @@ fun SmsLoginContent(
                 }
             }
         }
-
-        if (smsLoginViewModel.sendSmsState == SendSmsState.RecaptchaRequire) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(0.2f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CaptchaWebView(
-                    modifier = Modifier
-                        .size(300.dp)
-                        .clip(MaterialTheme.shapes.large),
-                    url = smsLoginViewModel.recaptchaUrl,
-                    onClose = { smsLoginViewModel.sendSmsState = SendSmsState.Ready }
-                )
-            }
-        }
-    }
-}
-
-@SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun CaptchaWebView(
-    modifier: Modifier = Modifier,
-    smsLoginViewModel: SmsLoginViewModel = koinViewModel(),
-    url: String,
-    onClose: () -> Unit
-) {
-    var mWebView: WebView? by remember { mutableStateOf(null) }
-
-    BackHandler {
-        onClose()
-    }
-
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            WebView(context).apply {
-                mWebView = this
-                loadUrl(url)
-                settings.javaScriptEnabled = true
-                addJavascriptInterface(smsLoginViewModel, "main")
-                webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        super.onPageFinished(view, url)
-                        //https://github.com/mos9527/bilibili-toolman/blob/23fad4a1028757fcf725923f5629a88b047f6bfc/bilibili_toolman/bilisession/client.py#LL306C11-L306C11
-                        //val js = """javascript:eval("Object._assign=Object.assign;Object.assign=(...args)=>{if(args[1]['geetest_challenge']){document.body.innerHTML=JSON.stringify(args[1]);}return Object._assign(...args)}")"""
-                        println("on page finished")
-                        val js =
-                            """javascript:eval("Object._assign=Object.assign;Object.assign=(...args)=>{if(args[1]['geetest_challenge']){window.main.parseCaptchaResult(JSON.stringify(args[1]));}return Object._assign(...args)}")"""
-                        loadUrl(js)
-                    }
-                }
-            }
-        }
-    )
-}
-
-@Preview
-@Composable
-fun AndroidWebViewPreview() {
-    BVTheme {
-        CaptchaWebView(
-            modifier = Modifier.fillMaxSize(),
-            url = "",
-            onClose = {}
-        )
     }
 }

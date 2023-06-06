@@ -1,11 +1,9 @@
 package dev.aaa1115910.bv.viewmodel.login
 
-import android.webkit.JavascriptInterface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.http.util.generateBuvid
 import dev.aaa1115910.biliapi.repositories.BvLoginRepository
 import dev.aaa1115910.biliapi.repositories.SendSmsState
@@ -14,11 +12,9 @@ import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import java.net.URL
 
@@ -28,18 +24,20 @@ class SmsLoginViewModel(
 ) : ViewModel() {
     private val logger = KotlinLogging.logger { }
     var sendSmsState by mutableStateOf(SendSmsState.Ready)
-    var recaptchaUrl by mutableStateOf("")
 
     private var phone: Long = 0
     private val loginSessionId = bvLoginRepository.generateLoginSessionId()
     private var recaptchaToken: String? = null
-    private var geetestChallenge: String? = null
-    private var geetestValidate: String? = null
+    var geetestChallenge: String? = null
+    var geetestValidate: String? = null
     private var geetestGt: String? = null
     private val buvid = generateBuvid()
     private var captchaKey: String? = null
 
-    suspend fun sendSms(phone: Long) {
+    suspend fun sendSms(
+        phone: Long,
+        onCaptcha: (challenge: String, gt: String) -> Unit
+    ) {
         this.phone = phone
         logger.info { "Send sms to $phone" }
         runCatching {
@@ -58,6 +56,7 @@ class SmsLoginViewModel(
                     withContext(Dispatchers.Main) {
                         "发送短信失败：${sendSmsResult.message}".toast(BVApp.context)
                     }
+                    clearCaptchaData()
                 }
 
                 SendSmsState.Success -> {
@@ -72,7 +71,6 @@ class SmsLoginViewModel(
                 SendSmsState.RecaptchaRequire -> {
                     logger.info { "Require manual recaptcha" }
                     logger.info { "recaptcha url: ${sendSmsResult.recaptchaUrl}" }
-                    recaptchaUrl = sendSmsResult.recaptchaUrl ?: ""
 
                     URL(sendSmsResult.recaptchaUrl).query.split("&").forEach {
                         val (key, value) = it.split("=")
@@ -86,6 +84,7 @@ class SmsLoginViewModel(
                     logger.info { "recaptchaToken: $recaptchaToken" }
                     logger.info { "geetestGt: $geetestGt" }
                     logger.info { "geetestChallenge: $geetestChallenge" }
+                    onCaptcha(geetestChallenge!!, geetestGt!!)
                     sendSmsState = sendSmsResult.state
                 }
             }
@@ -94,17 +93,8 @@ class SmsLoginViewModel(
             withContext(Dispatchers.Main) {
                 "发送短信失败：${it.message}".toast(BVApp.context)
             }
+            clearCaptchaData()
         }
-    }
-
-    @JavascriptInterface
-    fun parseCaptchaResult(arg: String) {
-        logger.info { "Get geetest result: $arg" }
-        val geetestResult = Json.decodeFromString<GeetestResult>(arg)
-        geetestChallenge = geetestResult.geetestChallenge
-        geetestValidate = geetestResult.geetestValidate
-        sendSmsState = SendSmsState.Ready
-        viewModelScope.launch(Dispatchers.IO) { sendSms(phone) }
     }
 
     suspend fun loginWithSms(code: Int, onSuccess: () -> Unit) {
@@ -134,6 +124,7 @@ class SmsLoginViewModel(
                 }
                 logger.info { "Login with sms success" }
                 logger.fDebug { "$loginResult" }
+                onSuccess()
             } else {
                 logger.warn { "Login with sms return a unknown response: [status=${loginResult.status}, message=${loginResult.message}]" }
                 withContext(Dispatchers.Main) {
@@ -150,6 +141,7 @@ class SmsLoginViewModel(
 
     fun clearCaptchaData() {
         logger.info { "Clear captcha data" }
+        recaptchaToken = null
         geetestChallenge = null
         geetestValidate = null
         sendSmsState = SendSmsState.Ready
