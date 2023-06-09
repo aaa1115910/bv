@@ -32,22 +32,22 @@ import dev.aaa1115910.biliapi.entity.login.QrLoginState
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.toast
-import dev.aaa1115910.bv.viewmodel.login.QrLoginViewModel
+import dev.aaa1115910.bv.viewmodel.login.AppQrLoginViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun QRLoginContent(
+fun AppQRLoginContent(
     modifier: Modifier = Modifier,
-    qrLoginViewModel: QrLoginViewModel = koinViewModel()
+    appQrLoginViewModel: AppQrLoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        qrLoginViewModel.requestQRCode()
+        appQrLoginViewModel.requestQRCode()
     }
 
-    LaunchedEffect(qrLoginViewModel.state) {
-        if (qrLoginViewModel.state == QrLoginState.Success) {
+    LaunchedEffect(appQrLoginViewModel.state) {
+        if (appQrLoginViewModel.state == QrLoginState.Success) {
             R.string.login_success.toast(context)
             (context as Activity).finish()
         }
@@ -55,13 +55,12 @@ fun QRLoginContent(
 
     DisposableEffect(Unit) {
         onDispose {
-            qrLoginViewModel.cancelCheckLoginResultTimer()
+            appQrLoginViewModel.cancelCheckLoginResultTimer()
         }
     }
 
     SurfaceWithoutClickable(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFE9487F)
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = modifier
@@ -70,9 +69,9 @@ fun QRLoginContent(
                 .onKeyEvent {
                     if (it.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
                         if (listOf(QrLoginState.Expired, QrLoginState.Error)
-                                .contains(qrLoginViewModel.state)
+                                .contains(appQrLoginViewModel.state)
                         ) {
-                            qrLoginViewModel.requestQRCode()
+                            appQrLoginViewModel.requestQRCode()
                         }
                         return@onKeyEvent true
                     }
@@ -86,7 +85,7 @@ fun QRLoginContent(
             ) {
                 AnimatedVisibility(
                     visible = listOf(QrLoginState.WaitingForScan, QrLoginState.WaitingForConfirm)
-                        .contains(qrLoginViewModel.state)
+                        .contains(appQrLoginViewModel.state)
                 ) {
                     Box(
                         modifier = Modifier
@@ -97,7 +96,7 @@ fun QRLoginContent(
                     ) {
                         Image(
                             modifier = Modifier.size(200.dp),
-                            bitmap = qrLoginViewModel.qrImage,
+                            bitmap = appQrLoginViewModel.qrImage,
                             contentDescription = null
                         )
                     }
@@ -108,7 +107,7 @@ fun QRLoginContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = when (qrLoginViewModel.state) {
+                        text = when (appQrLoginViewModel.state) {
                             QrLoginState.Ready, QrLoginState.RequestingQRCode -> stringResource(R.string.login_requesting)
                             QrLoginState.WaitingForScan -> stringResource(R.string.login_wait_for_scan)
                             QrLoginState.WaitingForConfirm -> stringResource(R.string.login_wait_for_confirm)
@@ -121,7 +120,7 @@ fun QRLoginContent(
                     )
                     AnimatedVisibility(
                         visible = listOf(QrLoginState.Expired, QrLoginState.Error)
-                            .contains(qrLoginViewModel.state)
+                            .contains(appQrLoginViewModel.state)
                     ) {
                         Text(
                             text = stringResource(R.string.login_retry),

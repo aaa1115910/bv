@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.login.QrLoginState
-import dev.aaa1115910.biliapi.repositories.BvLoginRepository
+import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.fError
@@ -27,9 +27,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Timer
 
-class QrLoginViewModel(
+class WebQrLoginViewModel(
     private val userRepository: UserRepository,
-    private val bvLoginRepository: BvLoginRepository
+    private val loginRepository: LoginRepository
 ) : ViewModel() {
     var state by mutableStateOf(QrLoginState.Ready)
     private val logger = KotlinLogging.logger { }
@@ -45,7 +45,7 @@ class QrLoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 state = QrLoginState.RequestingQRCode
-                val qrLoginData = bvLoginRepository.requestQrLogin()
+                val qrLoginData = loginRepository.requestWebQrLogin()
                 loginUrl = qrLoginData.url
                 key = qrLoginData.key
                 logger.fInfo { "Get login request code url" }
@@ -75,7 +75,7 @@ class QrLoginViewModel(
     private suspend fun checkLoginResult() {
         logger.fInfo { "Check for login result" }
         runCatching {
-            val qrLoginResult = bvLoginRepository.checkQrLoginState(key)
+            val qrLoginResult = loginRepository.checkWebQrLoginState(key)
             state = qrLoginResult.state
             when (state) {
                 QrLoginState.WaitingForScan -> {

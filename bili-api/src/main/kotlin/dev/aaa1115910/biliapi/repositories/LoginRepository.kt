@@ -8,14 +8,15 @@ import dev.aaa1115910.biliapi.entity.login.SmsLoginResult
 import dev.aaa1115910.biliapi.entity.login.WebCookies
 import dev.aaa1115910.biliapi.http.BiliPassportHttpApi
 import io.ktor.util.date.toJvmDate
+import java.util.Date
 import java.util.UUID
 
-class BvLoginRepository {
+class LoginRepository {
     /**
      * 请求扫码登录的二维码，仅支持 Http 接口使用
      */
-    suspend fun requestQrLogin(): QrLoginData {
-        val response = BiliPassportHttpApi.getQRUrl().getResponseData()
+    suspend fun requestWebQrLogin(): QrLoginData {
+        val response = BiliPassportHttpApi.getWebQRUrl().getResponseData()
         return QrLoginData(
             url = response.url,
             key = response.qrcodeKey
@@ -27,8 +28,8 @@ class BvLoginRepository {
      *
      * @param qrcodeKey 二维码内容
      */
-    suspend fun checkQrLoginState(qrcodeKey: String): QrLoginResult {
-        val (response, cookies) = BiliPassportHttpApi.loginWithQR(qrcodeKey)
+    suspend fun checkWebQrLoginState(qrcodeKey: String): QrLoginResult {
+        val (response, cookies) = BiliPassportHttpApi.loginWithWebQR(qrcodeKey)
         val responseData = response.getResponseData()
         var resultCookies: WebCookies? = null
         val resultState = when (responseData.code) {
@@ -51,6 +52,59 @@ class BvLoginRepository {
             }
 
             86101 -> QrLoginState.WaitingForScan
+            86090 -> QrLoginState.WaitingForConfirm
+            86038 -> QrLoginState.Expired
+            else -> QrLoginState.Unknown
+        }
+        return QrLoginResult(resultState, resultCookies)
+    }
+
+    /**
+     * 请求扫码登录的二维码，支持 Http+gRPC 接口使用
+     */
+    suspend fun requestAppQrLogin(): QrLoginData {
+        val response = BiliPassportHttpApi.getAppQRUrl(
+            localId = "0",
+            ts = (System.currentTimeMillis() / 1000).toInt(),
+            mobiApp = "android_hd"
+        ).getResponseData()
+        return QrLoginData(
+            url = response.url,
+            key = response.authCode
+        )
+    }
+
+    /**
+     * 检查扫码登录情况
+     *
+     * @param authCode 二维码内容
+     */
+    suspend fun checkAppQrLoginState(authCode: String): QrLoginResult {
+        val response = BiliPassportHttpApi.loginWithAppQR(
+            authCode = authCode,
+            localId = "0",
+            ts = (System.currentTimeMillis() / 1000).toInt(),
+        )
+        var resultCookies: WebCookies? = null
+        val resultState = when (response.code) {
+            0 -> {
+                resultCookies = WebCookies(
+                    dedeUserId = response.getResponseData().cookieInfo.cookies.find { it.name == "DedeUserID" }?.value?.toLong()
+                        ?: throw IllegalArgumentException("Cookie DedeUserID not found"),
+                    dedeUserIdCkMd5 = response.getResponseData().cookieInfo.cookies.find { it.name == "DedeUserID__ckMd5" }?.value
+                        ?: throw IllegalArgumentException("Cookie DedeUserID__ckMd5 not found"),
+                    sid = response.getResponseData().cookieInfo.cookies.find { it.name == "sid" }?.value
+                        ?: throw IllegalArgumentException("Cookie sid not found"),
+                    biliJct = response.getResponseData().cookieInfo.cookies.find { it.name == "bili_jct" }?.value
+                        ?: throw IllegalArgumentException("Cookie bili_jct not found"),
+                    sessData = response.getResponseData().cookieInfo.cookies.find { it.name == "SESSDATA" }?.value
+                        ?: throw IllegalArgumentException("Cookie SESSDATA not found"),
+                    expiredDate = Date(response.getResponseData().cookieInfo.cookies.first().expires * 1000L)
+                )
+                QrLoginState.Success
+            }
+
+            86039 -> QrLoginState.WaitingForScan
             86090 -> QrLoginState.WaitingForConfirm
             86038 -> QrLoginState.Expired
             else -> QrLoginState.Unknown

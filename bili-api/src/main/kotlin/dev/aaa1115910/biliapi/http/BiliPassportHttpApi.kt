@@ -2,8 +2,10 @@ package dev.aaa1115910.biliapi.http
 
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.login.CaptchaData
-import dev.aaa1115910.biliapi.http.entity.login.qr.QRLoginData
-import dev.aaa1115910.biliapi.http.entity.login.qr.RequestQRData
+import dev.aaa1115910.biliapi.http.entity.login.qr.AppQRDataRequest
+import dev.aaa1115910.biliapi.http.entity.login.qr.AppQRLoginData
+import dev.aaa1115910.biliapi.http.entity.login.qr.RequestWebQRData
+import dev.aaa1115910.biliapi.http.entity.login.qr.WebQRLoginData
 import dev.aaa1115910.biliapi.http.entity.login.sms.SendSmsResponse
 import dev.aaa1115910.biliapi.http.entity.login.sms.SmsLoginResponse
 import dev.aaa1115910.biliapi.http.util.encAppPost
@@ -59,18 +61,57 @@ object BiliPassportHttpApi {
     /**
      * 申请二维码（Web）
      */
-    suspend fun getQRUrl(): BiliResponse<RequestQRData> =
+    suspend fun getWebQRUrl(): BiliResponse<RequestWebQRData> =
         client.get("/x/passport-login/web/qrcode/generate").body()
 
     /**
      * 使用[qrcodeKey]进行二维码登录
      */
-    suspend fun loginWithQR(qrcodeKey: String): Pair<BiliResponse<QRLoginData>, List<Cookie>> {
+    suspend fun loginWithWebQR(qrcodeKey: String): Pair<BiliResponse<WebQRLoginData>, List<Cookie>> {
         val loginResponse = client.get("/x/passport-login/web/qrcode/poll") {
             parameter("qrcode_key", qrcodeKey)
         }
         return Pair(loginResponse.body(), loginResponse.setCookie())
     }
+
+    /**
+     * 申请二维码（App）
+     */
+    suspend fun getAppQRUrl(
+        localId: String? = null,
+        ts: Int,
+        mobiApp: String? = null
+    ): BiliResponse<AppQRDataRequest> =
+        client.post("/x/passport-tv-login/qrcode/auth_code") {
+            setBody(FormDataContent(
+                Parameters.build {
+                    localId?.let { append("local_id", it) }
+                    append("ts", "$ts")
+                    mobiApp?.let { append("mobi_app", it) }
+                }
+            ))
+            encAppPost()
+        }.body()
+
+
+    /**
+     * 使用[authCode]进行二维码登录
+     */
+    suspend fun loginWithAppQR(
+        authCode: String,
+        localId: String? = null,
+        ts: Int
+    ): BiliResponse<AppQRLoginData> =
+        client.post("/x/passport-tv-login/qrcode/poll") {
+            setBody(FormDataContent(
+                Parameters.build {
+                    append("auth_code", authCode)
+                    localId?.let { append("local_id", it) }
+                    append("ts", "$ts")
+                }
+            ))
+            encAppPost()
+        }.body()
 
     /**
      * 申请 captcha 验证码

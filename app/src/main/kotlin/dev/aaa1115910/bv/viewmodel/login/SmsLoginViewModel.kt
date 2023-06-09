@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.http.util.generateBuvid
-import dev.aaa1115910.biliapi.repositories.BvLoginRepository
+import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.SendSmsState
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
@@ -20,13 +20,13 @@ import java.net.URL
 
 class SmsLoginViewModel(
     private val userRepository: UserRepository,
-    private val bvLoginRepository: BvLoginRepository
+    private val loginRepository: LoginRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger { }
     var sendSmsState by mutableStateOf(SendSmsState.Ready)
 
     private var phone: Long = 0
-    private val loginSessionId = bvLoginRepository.generateLoginSessionId()
+    private val loginSessionId = loginRepository.generateLoginSessionId()
     private var recaptchaToken: String? = null
     var geetestChallenge: String? = null
     var geetestValidate: String? = null
@@ -41,7 +41,7 @@ class SmsLoginViewModel(
         this.phone = phone
         logger.info { "Send sms to $phone" }
         runCatching {
-            val sendSmsResult = bvLoginRepository.requestSms(
+            val sendSmsResult = loginRepository.requestSms(
                 phone, loginSessionId, buvid, recaptchaToken, geetestChallenge, geetestValidate
             )
             when (sendSmsResult.state) {
@@ -100,7 +100,7 @@ class SmsLoginViewModel(
     suspend fun loginWithSms(code: Int, onSuccess: () -> Unit) {
         logger.info { "Login with sms code: $code" }
         runCatching {
-            val loginResult = bvLoginRepository.loginWithSms(
+            val loginResult = loginRepository.loginWithSms(
                 phone = phone,
                 loginSessionId = loginSessionId,
                 code = code,

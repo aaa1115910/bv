@@ -8,8 +8,8 @@ import io.ktor.http.plus
 import java.net.URLEncoder
 import java.security.MessageDigest
 
-private const val APP_KEY = "783bbb7264451d82"
-private const val APP_SEC = "2653583c8873dea268ab9386918b1d65"
+private const val APP_KEY = "dfca71928277209b"
+private const val APP_SEC = "b5475a8825547a4fc26c7d518eaaa02e"
 
 fun HttpRequestBuilder.encAppPost() {
     var parameters = (body as FormDataContent).formData

@@ -2,17 +2,17 @@ package dev.aaa1115910.biliapi
 
 import dev.aaa1115910.biliapi.http.BiliPassportHttpApi
 import dev.aaa1115910.biliapi.http.util.generateBuvid
-import dev.aaa1115910.biliapi.repositories.BvLoginRepository
+import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.SendSmsResult
 import dev.aaa1115910.biliapi.repositories.SendSmsState
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 
 class BvLoginRepositoryTest {
-    private val bvLoginRepository = BvLoginRepository()
+    private val loginRepository = LoginRepository()
     private val phone = 16215705468L
     private val buvid = generateBuvid()
-    private val loginSessionId = bvLoginRepository.generateLoginSessionId()
+    private val loginSessionId = loginRepository.generateLoginSessionId()
     var captchaKey: String? = null
 
     fun `send sms`() = runBlocking {
@@ -32,7 +32,7 @@ class BvLoginRepositoryTest {
 
         var sendSmsResult: SendSmsResult? = null
         runCatching {
-            sendSmsResult = bvLoginRepository.requestSms(
+            sendSmsResult = loginRepository.requestSms(
                 phone = phone,
                 loginSessionId = loginSessionId,
                 buvid = buvid
@@ -82,7 +82,7 @@ class BvLoginRepositoryTest {
 
                 //retry send sms
                 runCatching {
-                    sendSmsResult = bvLoginRepository.requestSms(
+                    sendSmsResult = loginRepository.requestSms(
                         phone = phone,
                         loginSessionId = loginSessionId,
                         buvid = buvid,
