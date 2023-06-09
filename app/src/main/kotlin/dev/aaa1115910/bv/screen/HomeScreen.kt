@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,7 +73,7 @@ fun HomeScreen(
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
-    var lastPressBack: Long by remember { mutableStateOf(0L) }
+    var lastPressBack: Long by remember { mutableLongStateOf(0L) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
     val navFocusRequester = remember { FocusRequester() }

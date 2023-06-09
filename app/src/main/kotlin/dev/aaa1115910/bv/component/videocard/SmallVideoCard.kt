@@ -51,15 +51,10 @@ fun SmallVideoCard(
     Surface(
         modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
         onClick = onClick,
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.surface,
-            focusedColor = MaterialTheme.colorScheme.surface,
-            pressedColor = MaterialTheme.colorScheme.surface
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onSurface,
-            focusedColor = MaterialTheme.colorScheme.onSurface,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(

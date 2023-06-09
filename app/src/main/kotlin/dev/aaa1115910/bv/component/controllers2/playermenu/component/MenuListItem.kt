@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -64,30 +66,30 @@ fun MenuListItem(
             .onFocusChanged { if (it.hasFocus) onFocus() },
         checked = selected,
         onCheckedChange = { onClick() },
-        color = ToggleableSurfaceDefaults.color(
-            color = Color.Transparent,
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary,
-            selectedColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-            focusedSelectedColor = MaterialTheme.colorScheme.primary,
-            pressedSelectedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ToggleableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onPrimary,
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onPrimary,
-            selectedColor = MaterialTheme.colorScheme.onPrimary,
-            focusedSelectedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedSelectedColor = MaterialTheme.colorScheme.onPrimary
+        colors = ToggleableSurfaceDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+            focusedSelectedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedSelectedContainerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
+            pressedContentColor = MaterialTheme.colorScheme.onPrimary,
+            selectedContentColor = MaterialTheme.colorScheme.onPrimary,
+            focusedSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+            pressedSelectedContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         shape = ToggleableSurfaceDefaults.shape(MaterialTheme.shapes.small)
     ) {
         Row(
             modifier = Modifier
+                .fillMaxHeight()
                 .padding(
                     vertical = 6.dp,
                     horizontal = if (expanded) 24.dp else 6.dp
-                )
+                ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedVisibility(
                 visible = expanded,

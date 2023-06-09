@@ -20,6 +20,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -112,8 +113,8 @@ fun VideoPlayerController(
     val showingRightController: () -> Boolean = { showMenuController || showPartController }
 
     var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
-    var lastChangedSeek by remember { mutableStateOf(0L) }
-    var lastPressBack by remember { mutableStateOf(0L) }
+    var lastChangedSeek by remember { mutableLongStateOf(0L) }
+    var lastPressBack by remember { mutableLongStateOf(0L) }
 
     var hasFocus by remember { mutableStateOf(false) }
 

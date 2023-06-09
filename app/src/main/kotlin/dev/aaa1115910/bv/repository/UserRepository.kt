@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.repository
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.aaa1115910.bv.util.Prefs
@@ -13,7 +14,7 @@ class UserRepository {
     }
 
     var isLogin by mutableStateOf(Prefs.isLogin)
-    var uid by mutableStateOf(Prefs.uid)
+    var uid by mutableLongStateOf(Prefs.uid)
     var uidCkMd5 by mutableStateOf(Prefs.uidCkMd5)
     var sid by mutableStateOf(Prefs.sid)
     var sessData by mutableStateOf(Prefs.sessData)

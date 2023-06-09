@@ -2,6 +2,9 @@ package dev.aaa1115910.bv.viewmodel
 
 import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,13 +65,13 @@ class PlayerViewModel(
     var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
     val availableVideoList get() = videoInfoRepository.videoList
 
-    var currentQuality by mutableStateOf(Prefs.defaultQuality)
+    var currentQuality by mutableIntStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentDanmakuSize by mutableStateOf(DanmakuSize.fromOrdinal(Prefs.defaultDanmakuSize))
     var currentDanmakuTransparency by mutableStateOf(DanmakuTransparency.fromOrdinal(Prefs.defaultDanmakuTransparency))
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
-    var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
-    var currentSubtitleId by mutableStateOf(0L)
+    var currentDanmakuArea by mutableFloatStateOf(Prefs.defaultDanmakuArea)
+    var currentSubtitleId by mutableLongStateOf(0L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
     var currentSubtitleFontSize by mutableStateOf(Prefs.defaultSubtitleFontSize)
     var currentSubtitleBottomPadding by mutableStateOf(Prefs.defaultSubtitleBottomPadding)
@@ -78,11 +81,11 @@ class PlayerViewModel(
     var dashData: Dash? = null
     var title by mutableStateOf("")
     var partTitle by mutableStateOf("")
-    var lastPlayed by mutableStateOf(0)
+    var lastPlayed by mutableIntStateOf(0)
     var fromSeason by mutableStateOf(false)
-    var subType by mutableStateOf(0)
-    var epid by mutableStateOf(0)
-    var seasonId by mutableStateOf(0)
+    var subType by mutableIntStateOf(0)
+    var epid by mutableIntStateOf(0)
+    var seasonId by mutableIntStateOf(0)
 
     var needPay by mutableStateOf(false)
 

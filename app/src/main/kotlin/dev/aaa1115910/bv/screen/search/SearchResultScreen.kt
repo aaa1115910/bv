@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,8 +77,8 @@ fun SearchResultScreen(
     val logger = KotlinLogging.logger { }
     val tabRowFocusRequester = remember { FocusRequester() }
 
-    var rowSize by remember { mutableStateOf(4) }
-    var currentIndex by remember { mutableStateOf(0) }
+    var rowSize by remember { mutableIntStateOf(4) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < rowSize } }
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
 

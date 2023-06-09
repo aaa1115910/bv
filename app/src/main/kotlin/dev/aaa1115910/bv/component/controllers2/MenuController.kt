@@ -19,6 +19,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -298,21 +301,21 @@ fun MenuControllerPreview() {
 
     val defaultFocusRequester = remember { FocusRequester() }
 
-    var currentResolution by remember { mutableStateOf(1) }
+    var currentResolution by remember { mutableIntStateOf(1) }
     var currentCodec by remember { mutableStateOf(VideoCodec.HEVC) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var currentPlaySpeed by remember { mutableStateOf(1f) }
+    var currentPlaySpeed by remember { mutableFloatStateOf(1f) }
     var currentAudio by remember { mutableStateOf(Audio.A192K) }
 
     val currentDanmakuSwitch = remember { mutableStateListOf<DanmakuType>() }
-    var currentDanmakuSize by remember { mutableStateOf(1f) }
-    var currentDanmakuOpacity by remember { mutableStateOf(1f) }
-    var currentDanmakuArea by remember { mutableStateOf(1f) }
+    var currentDanmakuSize by remember { mutableFloatStateOf(1f) }
+    var currentDanmakuOpacity by remember { mutableFloatStateOf(1f) }
+    var currentDanmakuArea by remember { mutableFloatStateOf(1f) }
 
-    var currentSubtitleId by remember { mutableStateOf(-1L) }
+    var currentSubtitleId by remember { mutableLongStateOf(-1L) }
     val currentSubtitleList = remember { mutableStateListOf<VideoMoreInfo.SubtitleItem>() }
     var currentSubtitleFontSize by remember { mutableStateOf(24.sp) }
-    var currentSubtitleBackgroundOpacity by remember { mutableStateOf(0.4f) }
+    var currentSubtitleBackgroundOpacity by remember { mutableFloatStateOf(0.4f) }
     var currentSubtitleBottomPadding by remember { mutableStateOf(8.dp) }
 
     LaunchedEffect(Unit) {

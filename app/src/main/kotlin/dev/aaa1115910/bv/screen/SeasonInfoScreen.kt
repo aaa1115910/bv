@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -538,15 +539,10 @@ fun SeasonEpisodeButton(
 
     Surface(
         modifier = modifier,
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.primary,
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onPrimary,
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onPrimary
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         border = ClickableSurfaceDefaults.border(
@@ -626,8 +622,8 @@ fun SeasonEpisodesDialog(
 ) {
     val scope = rememberCoroutineScope()
 
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabCount by remember { mutableStateOf(ceil(episodes.size / 20.0).toInt()) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabCount by remember { mutableIntStateOf(ceil(episodes.size / 20.0).toInt()) }
     val selectedEpisodes = remember { mutableStateListOf<Episode>() }
 
     val tabRowFocusRequester = remember { FocusRequester() }
@@ -781,15 +777,10 @@ fun SeasonEpisodeRow(
             item {
                 Surface(
                     modifier = modifier.size(60.dp, 80.dp),
-                    color = ClickableSurfaceDefaults.color(
-                        color = MaterialTheme.colorScheme.primary,
-                        focusedColor = MaterialTheme.colorScheme.primary,
-                        pressedColor = MaterialTheme.colorScheme.primary
-                    ),
-                    contentColor = ClickableSurfaceDefaults.contentColor(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        focusedColor = MaterialTheme.colorScheme.onPrimary,
-                        pressedColor = MaterialTheme.colorScheme.onPrimary
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.primary,
+                        pressedContainerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
                     border = ClickableSurfaceDefaults.border(

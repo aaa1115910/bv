@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,8 +56,8 @@ fun AnimeTimelineScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var currentTimelineIndex by remember { mutableStateOf(0) }
-    var currentEpisodeIndex by remember { mutableStateOf(0) }
+    var currentTimelineIndex by remember { mutableIntStateOf(0) }
+    var currentEpisodeIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember {
         derivedStateOf {
             currentTimelineIndex == 0 && currentEpisodeIndex < 1

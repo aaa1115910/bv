@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -43,7 +43,7 @@ fun PopularScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var currentFocusedIndex by remember { mutableStateOf(0) }
+    var currentFocusedIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(currentFocusedIndex) {
         if (currentFocusedIndex + 24 > popularViewModel.popularVideoList.size) {

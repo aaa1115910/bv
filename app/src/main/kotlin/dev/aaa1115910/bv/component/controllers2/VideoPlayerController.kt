@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,12 +82,12 @@ fun VideoPlayerController(
     var showInfo by remember { mutableStateOf(false) }
     val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
 
-    var lastPressBack by remember { mutableStateOf(0L) }
+    var lastPressBack by remember { mutableLongStateOf(0L) }
     var hasFocus by remember { mutableStateOf(false) }
 
-    var goTime by remember { mutableStateOf(0L) }
-    var seekChangeCount by remember { mutableStateOf(0) }
-    var lastSeekChangeTime by remember { mutableStateOf(0L) }
+    var goTime by remember { mutableLongStateOf(0L) }
+    var seekChangeCount by remember { mutableIntStateOf(0) }
+    var lastSeekChangeTime by remember { mutableLongStateOf(0L) }
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -94,7 +95,7 @@ fun TopNav(
                             .padding(horizontal = 26.dp)
                     )
 
-                    var selectedTabIndex by remember { mutableStateOf(1) }
+                    var selectedTabIndex by remember { mutableIntStateOf(1) }
 
                     TabRow(
                         selectedTabIndex = selectedTabIndex,
