@@ -13,7 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,7 +43,7 @@ fun FavoriteScreen(
     favoriteViewModel: FavoriteViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
 

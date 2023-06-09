@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,7 +58,7 @@ fun FollowingSeasonScreen(
     val context = LocalContext.current
     val logger = KotlinLogging.logger { }
 
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 6 } }
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
     val subtitleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 36f else 24f)

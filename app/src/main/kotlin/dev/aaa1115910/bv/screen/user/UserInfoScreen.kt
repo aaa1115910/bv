@@ -438,15 +438,10 @@ private fun UserInfo(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(480.dp, 140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -551,15 +546,10 @@ fun IncognitoModeCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = backgroundColor,
-            focusedColor = backgroundColor,
-            pressedColor = backgroundColor
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = backgroundColor,
+            focusedContainerColor = backgroundColor,
+            pressedContainerColor = backgroundColor
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -605,15 +595,10 @@ fun FollowedUserCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(

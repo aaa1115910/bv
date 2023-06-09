@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.viewmodel.user
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,7 +21,7 @@ class UpInfoViewModel : ViewModel() {
     }
 
     var upName by mutableStateOf("")
-    var upMid by mutableStateOf(0L)
+    var upMid by mutableLongStateOf(0L)
     var spaceVideos = mutableStateListOf<VideoCardData>()
 
     private var pageNumber = 1

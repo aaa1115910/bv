@@ -11,6 +11,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,15 +45,15 @@ fun StorageSetting(
     val logger = KotlinLogging.logger { }
 
     var loading by remember { mutableStateOf(false) }
-    var imageCacheSize by remember { mutableStateOf(0L) }
-    var updateCacheSize by remember { mutableStateOf(0L) }
-    var libVLCCacheSize by remember { mutableStateOf(0L) }
-    var libVLCFileSize by remember { mutableStateOf(0L) }
+    var imageCacheSize by remember { mutableLongStateOf(0L) }
+    var updateCacheSize by remember { mutableLongStateOf(0L) }
+    var libVLCCacheSize by remember { mutableLongStateOf(0L) }
+    var libVLCFileSize by remember { mutableLongStateOf(0L) }
 
     var showConfirmDialog by remember { mutableStateOf(false) }
     var clearFun: (() -> Unit)? by remember { mutableStateOf(null) }
     var content by remember { mutableStateOf("") }
-    var size by remember { mutableStateOf(0L) }
+    var size by remember { mutableLongStateOf(0L) }
 
     val calSize = {
         val imageCacheDir = File(context.cacheDir, "image_cache")

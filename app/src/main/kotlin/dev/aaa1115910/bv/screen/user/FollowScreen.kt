@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -63,7 +63,7 @@ fun FollowScreen(
     val scope = rememberCoroutineScope()
     val defaultFocusRequester = remember { FocusRequester() }
 
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 3 } }
     val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
 
@@ -162,15 +162,10 @@ fun UpCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(280.dp, 80.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.surface,
-            focusedColor = MaterialTheme.colorScheme.surface,
-            pressedColor = MaterialTheme.colorScheme.surface
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onSurface,
-            focusedColor = MaterialTheme.colorScheme.onSurface,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
