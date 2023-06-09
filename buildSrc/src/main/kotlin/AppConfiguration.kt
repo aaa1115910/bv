@@ -1,8 +1,8 @@
 object AppConfiguration {
     const val appId = "dev.aaa1115910.bv"
-    const val compileSdk = 33
+    const val compileSdk = 34
     const val minSdk = 21
-    const val targetSdk = 33
+    const val targetSdk = 34
     private const val major = 0
     private const val minor = 2
     private const val patch = 1
