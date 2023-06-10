@@ -12,6 +12,7 @@ import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
+import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.repository.UserRepository
@@ -34,6 +35,7 @@ import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
+import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -79,6 +81,7 @@ val appModule = module {
     single { VideoInfoRepository() }
     single { ChannelRepository() }
     single { VideoPlayRepository(get()) }
+    single { VideoDetailRepository(get()) }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { WebQrLoginViewModel(get(), get()) }
@@ -96,6 +99,7 @@ val appModule = module {
     viewModel { FollowingSeasonViewModel() }
     viewModel { TagViewModel() }
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
+    viewModel { VideoDetailViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")
