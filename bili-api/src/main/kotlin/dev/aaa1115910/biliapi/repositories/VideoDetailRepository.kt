@@ -3,7 +3,7 @@ package dev.aaa1115910.biliapi.repositories
 import bilibili.app.view.v1.ViewGrpcKt
 import bilibili.app.view.v1.viewReq
 import dev.aaa1115910.biliapi.entity.ApiType
-import dev.aaa1115910.biliapi.entity.video.RelateVideo
+import dev.aaa1115910.biliapi.entity.video.RelatedVideo
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
@@ -31,7 +31,7 @@ class VideoDetailRepository(
                 }.onFailure { it.printStackTrace() }
                     .getOrNull() ?: emptyList()
                 VideoDetail.fromVideoInfo(videoInfoResponse).apply {
-                    this.relateVideos.addAll(relatedVideos.map { RelateVideo.fromRelate(it) })
+                    this.relatedVideos.addAll(relatedVideos.map { RelatedVideo.fromRelate(it) })
                 }
             }
 

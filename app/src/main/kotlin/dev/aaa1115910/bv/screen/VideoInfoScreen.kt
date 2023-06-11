@@ -105,13 +105,11 @@ import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
-import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fDebug
-import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
@@ -141,7 +139,6 @@ fun VideoInfoScreen(
     val intent = (context as Activity).intent
     val logger = KotlinLogging.logger { }
 
-    val relatedVideos = remember { mutableStateListOf<VideoCardData>() }
     var relations: RelationData? by remember { mutableStateOf(null) }
     val tags = remember { mutableStateListOf<Tag>() }
 
@@ -165,7 +162,7 @@ fun VideoInfoScreen(
     val videoInFavoriteFolderIds = remember { mutableStateListOf<Long>() }
 
     val updateV2Data: () -> Unit = {
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
                 logger.fInfo { "Get video more info" }
                 val moreInfoResponse = BiliHttpApi.getVideoMoreInfo(
@@ -177,30 +174,6 @@ fun VideoInfoScreen(
                 lastPlayedTime = moreInfoResponse.lastPlayTime
             }.onFailure {
                 logger.fInfo { "Get video more info failed: ${it.stackTraceToString()}" }
-            }
-        }
-    }
-
-    val updateRelationVideos: (avid: Long) -> Unit = { avid ->
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                val response = BiliHttpApi.getRelatedVideos(avid = avid)
-                relatedVideos.swapList(response.data.map {
-                    VideoCardData(
-                        avid = it.aid,
-                        title = it.title,
-                        cover = it.pic,
-                        upName = it.owner.name,
-                        time = it.duration * 1000L,
-                        play = it.stat.view,
-                        danmaku = it.stat.danmaku
-                    )
-                })
-            }.onFailure {
-                withContext(Dispatchers.Main) {
-                    "获取相关视频失败：${it.localizedMessage}".toast(context)
-                }
-                logger.fException(it) { "Get related videos failed" }
             }
         }
     }
@@ -381,7 +354,6 @@ fun VideoInfoScreen(
             }
             //如果是从剧集跳转过来的，就不需要获取相关视频等信息，因为页面一直都是 Loading
             if (!fromSeason) {
-                updateRelationVideos(aid.toLong())
                 updateTags(aid)
             }
         }
@@ -583,12 +555,14 @@ fun VideoInfoScreen(
                             )
                         }
                     }
-                    item {
-                        VideosRow(
-                            header = stringResource(R.string.video_info_related_video_title),
-                            videos = relatedVideos,
-                            showMore = {}
-                        )
+                    if (videoDetailViewModel.relatedVideos.isNotEmpty()) {
+                        item {
+                            VideosRow(
+                                header = stringResource(R.string.video_info_related_video_title),
+                                videos = videoDetailViewModel.relatedVideos,
+                                showMore = {}
+                            )
+                        }
                     }
                 }
             }

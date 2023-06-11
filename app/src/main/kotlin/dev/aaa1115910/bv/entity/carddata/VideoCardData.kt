@@ -13,7 +13,9 @@ data class VideoCardData(
     val danmaku: Int? = null,
     var danmakuString: String = "",
     val time: Long? = null,
-    var timeString: String = ""
+    var timeString: String = "",
+    val jumpToSeason: Boolean = false,
+    val epId: Int? = null
 ) {
     init {
         play?.let {
@@ -23,7 +25,7 @@ data class VideoCardData(
             danmakuString = if (it >= 10000) "${it / 10000}万" else "$it"
         }
         time?.let {
-            timeString = it.formatMinSec()
+            timeString = if (it > 0) it.formatMinSec() else ""
         }
     }
 }

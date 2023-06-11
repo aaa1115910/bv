@@ -20,7 +20,7 @@ data class VideoDetail(
     val author: Author,
     val pages: List<VideoPage>,
     val ugcSeason: UgcSeason?,
-    val relateVideos: MutableList<RelateVideo>,
+    val relatedVideos: MutableList<RelatedVideo>,
     val redirectToEp: Boolean,
     val epid: Int?,
     val argueTip: String?
@@ -38,9 +38,10 @@ data class VideoDetail(
             author = Author.fromAuthor(viewReply.arc.author),
             pages = viewReply.pagesList.map { VideoPage.fromViewPage(it) },
             ugcSeason = viewReply.ugcSeasonOrNull?.let { UgcSeason.fromUgcSeason(it) },
-            relateVideos = viewReply.relatesList.map { RelateVideo.fromRelate(it) }.toMutableList(),
+            relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) }
+                .toMutableList(),
             redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
-            epid = viewReply.arc.redirectUrl.split("ep")[1].toInt(),
+            epid = runCatching { viewReply.arc.redirectUrl.split("ep")[1].toInt() }.getOrNull(),
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() }
         )
 
@@ -56,7 +57,7 @@ data class VideoDetail(
             author = Author.fromVideoOwner(videoInfo.owner),
             pages = videoInfo.pages.map { VideoPage.fromVideoPage(it) },
             ugcSeason = videoInfo.ugcSeason?.let { UgcSeason.fromUgcSeason(it) },
-            relateVideos = ArrayList(),
+            relatedVideos = ArrayList(),
             redirectToEp = videoInfo.redirectUrl?.contains("ep") ?: false,
             epid = videoInfo.redirectUrl?.split("ep")?.get(1)?.toInt(),
             argueTip = videoInfo.stat.argueMsg.takeIf { it.isNotEmpty() }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Text
+import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 
@@ -59,7 +60,11 @@ fun VideosRow(
                     modifier = Modifier.width(200.dp),
                     data = videoData,
                     onClick = {
-                        VideoInfoActivity.actionStart(context, videoData.avid)
+                        if (videoData.jumpToSeason) {
+                            SeasonInfoActivity.actionStart(context, videoData.epId!!)
+                        } else {
+                            VideoInfoActivity.actionStart(context, videoData.avid)
+                        }
                     }
                 )
             }
