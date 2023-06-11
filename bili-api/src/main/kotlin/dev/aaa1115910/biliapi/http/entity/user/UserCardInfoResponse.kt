@@ -55,8 +55,8 @@ data class UserCardData(
      * @param nameplate 勋章信息
      * @param official 认证信息
      * @param officialVerify 认证信息
-     * @param vip 会员信息
-     * @param isSeniorMember
+     * @param vip 大会员信息
+     * @param isSeniorMember 是否为硬核会员 0：否 1：是
      */
     @Serializable
     data class UserCardInfo(

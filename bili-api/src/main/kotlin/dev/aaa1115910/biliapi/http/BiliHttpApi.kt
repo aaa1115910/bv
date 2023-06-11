@@ -45,6 +45,7 @@ import dev.aaa1115910.biliapi.http.entity.video.TagDetail
 import dev.aaa1115910.biliapi.http.entity.video.TagTopVideosResponse
 import dev.aaa1115910.biliapi.http.entity.video.Timeline
 import dev.aaa1115910.biliapi.http.entity.video.TimelineType
+import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
@@ -144,6 +145,19 @@ object BiliHttpApi {
         bv: String? = null,
         sessData: String = ""
     ): BiliResponse<VideoInfo> = client.get("/x/web-interface/view") {
+        parameter("aid", av)
+        parameter("bvid", bv)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取视频超详细信息
+     */
+    suspend fun getVideoDetail(
+        av: Int? = null,
+        bv: String? = null,
+        sessData: String = ""
+    ): BiliResponse<VideoDetail> = client.get("/x/web-interface/view/detail") {
         parameter("aid", av)
         parameter("bvid", bv)
         header("Cookie", "SESSDATA=$sessData;")
