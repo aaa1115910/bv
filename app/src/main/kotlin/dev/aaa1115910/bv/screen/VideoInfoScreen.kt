@@ -87,6 +87,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
 import dev.aaa1115910.biliapi.entity.video.Dimension
+import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
@@ -96,7 +97,6 @@ import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.RelationData
 import dev.aaa1115910.biliapi.http.entity.user.RelationType
 import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
-import dev.aaa1115910.biliapi.http.entity.video.Tag
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
@@ -140,7 +140,6 @@ fun VideoInfoScreen(
     val logger = KotlinLogging.logger { }
 
     var relations: RelationData? by remember { mutableStateOf(null) }
-    val tags = remember { mutableStateListOf<Tag>() }
 
     var lastPlayedCid by remember { mutableIntStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
@@ -188,17 +187,6 @@ fun VideoInfoScreen(
                 ).getResponseData()
             }.onFailure {
                 logger.fInfo { "Get relation data failed: ${it.stackTraceToString()}" }
-            }
-        }
-    }
-
-    val updateTags: (avid: Int) -> Unit = { avid ->
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                logger.fInfo { "Getting tags" }
-                tags.swapList(BiliHttpApi.getVideoTags(avid = avid).getResponseData())
-            }.onFailure {
-                logger.fInfo { "Get tags failed: ${it.stackTraceToString()}" }
             }
         }
     }
@@ -352,10 +340,6 @@ fun VideoInfoScreen(
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
                 }
             }
-            //如果是从剧集跳转过来的，就不需要获取相关视频等信息，因为页面一直都是 Loading
-            if (!fromSeason) {
-                updateTags(aid)
-            }
         }
     }
 
@@ -447,7 +431,7 @@ fun VideoInfoScreen(
                         VideoInfoData(
                             videoDetail = videoDetailViewModel.videoDetail!!,
                             relations = relations,
-                            tags = tags,
+                            tags = videoDetailViewModel.videoDetail!!.tags,
                             isFavorite = favorited,
                             userFavoriteFolders = favoriteFolders,
                             favoriteFolderIds = videoInFavoriteFolderIds,
@@ -484,8 +468,8 @@ fun VideoInfoScreen(
                             onClickTip = { tag ->
                                 TagActivity.actionStart(
                                     context = context,
-                                    tagId = tag.tagId,
-                                    tagName = tag.tagName
+                                    tagId = tag.id,
+                                    tagName = tag.name
                                 )
                             },
                             onAddToDefaultFavoriteFolder = {
@@ -756,7 +740,7 @@ fun VideoInfoData(
                         ) {
                             Text(
                                 modifier = Modifier.padding(8.dp, 4.dp),
-                                text = tag.tagName,
+                                text = tag.name,
                                 color = Color.White
                             )
                         }

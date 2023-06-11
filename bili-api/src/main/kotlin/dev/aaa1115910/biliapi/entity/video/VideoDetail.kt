@@ -22,7 +22,8 @@ data class VideoDetail(
     val relatedVideos: List<RelatedVideo>,
     val redirectToEp: Boolean,
     val epid: Int?,
-    val argueTip: String?
+    val argueTip: String?,
+    val tags: List<Tag>
 ) {
     companion object {
         fun fromViewReply(viewReply: ViewReply) = VideoDetail(
@@ -40,7 +41,8 @@ data class VideoDetail(
             relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) },
             redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
             epid = runCatching { viewReply.arc.redirectUrl.split("ep")[1].toInt() }.getOrNull(),
-            argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() }
+            argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
+            tags = viewReply.descTagList.map { Tag.fromTag(it) }
         )
 
         fun fromVideoDetail(videoDetail: dev.aaa1115910.biliapi.http.entity.video.VideoDetail) =
@@ -59,7 +61,8 @@ data class VideoDetail(
                 relatedVideos = videoDetail.related.map { RelatedVideo.fromRelate(it) },
                 redirectToEp = videoDetail.view.redirectUrl?.contains("ep") ?: false,
                 epid = videoDetail.view.redirectUrl?.split("ep")?.get(1)?.toInt(),
-                argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() }
+                argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
+                tags = videoDetail.tags.map { Tag.fromTag(it) }
             )
     }
 
