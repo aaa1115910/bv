@@ -21,13 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,21 +50,7 @@ fun FavoriteButton(
     var showFavoriteDialog by remember { mutableStateOf(false) }
 
     Button(
-        modifier = modifier
-            .onPreviewKeyEvent {
-                when (it.key) {
-                    Key.DirectionCenter, Key.Enter -> {
-                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
-
-                        if (it.nativeKeyEvent.isLongPress) {
-                            showFavoriteDialog = true
-                            return@onPreviewKeyEvent true
-                        }
-                        if (showFavoriteDialog) return@onPreviewKeyEvent true
-                    }
-                }
-                false
-            },
+        modifier = modifier,
         icon = {
             if (isFavorite) {
                 Icon(
@@ -86,7 +69,9 @@ fun FavoriteButton(
         text = stringResource(R.string.favorite_button_text),
         onClick = {
             if (showFavoriteDialog) return@Button
-            if (isFavorite) onUpdateFavoriteFolders(listOf()) else onAddToDefaultFavoriteFolder()
+            if (isFavorite) {
+                showFavoriteDialog = true
+            } else onAddToDefaultFavoriteFolder()
         }
     )
 
@@ -113,10 +98,12 @@ private fun FavoriteDialog(
     onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
     val selectedFavoriteFolderIds = remember { mutableStateListOf<Long>() }
+    val defaultFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(show) {
         if (show) {
             selectedFavoriteFolderIds.swapList(favoriteFolderIds)
+            defaultFocusRequester.requestFocus()
         }
     }
 
@@ -124,26 +111,22 @@ private fun FavoriteDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = onHideDialog,
-            confirmButton = {
-                androidx.compose.material3.TextButton(
-                    onClick = {
-                        onUpdateFavoriteFolders(selectedFavoriteFolderIds)
-                        onHideDialog()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.common_confirm))
-                }
-            },
+            confirmButton = {},
             title = { Text(text = stringResource(R.string.favorite_dialog_title)) },
             text = {
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    userFavoriteFolders.forEach { userFavoriteFolder ->
+                    userFavoriteFolders.forEachIndexed { index, userFavoriteFolder ->
                         val selected = selectedFavoriteFolderIds.contains(userFavoriteFolder.id)
                         var hasFocus by remember { mutableStateOf(false) }
+
+                        val itemModifier =
+                            if (index == 0) Modifier.focusRequester(defaultFocusRequester)
+                            else Modifier
+
                         FilterChip(
-                            modifier = Modifier.onFocusChanged { hasFocus = it.hasFocus },
+                            modifier = itemModifier.onFocusChanged { hasFocus = it.hasFocus },
                             selected = selected,
                             onClick = {
                                 if (selectedFavoriteFolderIds.contains(userFavoriteFolder.id)) {
@@ -151,6 +134,7 @@ private fun FavoriteDialog(
                                 } else {
                                     selectedFavoriteFolderIds.add(userFavoriteFolder.id)
                                 }
+                                onUpdateFavoriteFolders(selectedFavoriteFolderIds)
                             },
                             border = if (hasFocus) FilterChipDefaults.filterChipBorder(
                                 borderColor = Color.White,

@@ -1,6 +1,9 @@
 package dev.aaa1115910.bv.viewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,38 +64,38 @@ class VideoPlayerV3ViewModel(
     var availableAudio = mutableStateListOf<Audio>()
     val availableVideoList get() = videoInfoRepository.videoList
 
-    var currentVideoHeight by mutableStateOf(0)
-    var currentVideoWidth by mutableStateOf(0)
+    var currentVideoHeight by mutableIntStateOf(0)
+    var currentVideoWidth by mutableIntStateOf(0)
 
-    var currentQuality by mutableStateOf(Prefs.defaultQuality)
+    var currentQuality by mutableIntStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentAudio by mutableStateOf(Prefs.defaultAudio)
-    var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
-    var currentDanmakuOpacity by mutableStateOf(Prefs.defaultDanmakuOpacity)
+    var currentDanmakuScale by mutableFloatStateOf(Prefs.defaultDanmakuScale)
+    var currentDanmakuOpacity by mutableFloatStateOf(Prefs.defaultDanmakuOpacity)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
     val currentDanmakuTypes = mutableStateListOf<DanmakuType>().apply {
         addAll(Prefs.defaultDanmakuTypes)
     }
-    var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
-    var currentSubtitleId by mutableStateOf(-1L)
+    var currentDanmakuArea by mutableFloatStateOf(Prefs.defaultDanmakuArea)
+    var currentSubtitleId by mutableLongStateOf(-1L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
     var currentSubtitleFontSize by mutableStateOf(Prefs.defaultSubtitleFontSize)
-    var currentSubtitleBackgroundOpacity by mutableStateOf(Prefs.defaultSubtitleBackgroundOpacity)
+    var currentSubtitleBackgroundOpacity by mutableFloatStateOf(Prefs.defaultSubtitleBackgroundOpacity)
     var currentSubtitleBottomPadding by mutableStateOf(Prefs.defaultSubtitleBottomPadding)
 
     var title by mutableStateOf("")
     var partTitle by mutableStateOf("")
-    var lastPlayed by mutableStateOf(0)
+    var lastPlayed by mutableIntStateOf(0)
     var fromSeason by mutableStateOf(false)
-    var subType by mutableStateOf(0)
-    var epid by mutableStateOf(0)
-    var seasonId by mutableStateOf(0)
+    var subType by mutableIntStateOf(0)
+    var epid by mutableIntStateOf(0)
+    var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
 
     var needPay by mutableStateOf(false)
 
     var logs by mutableStateOf("")
-    var lastChangedLog by mutableStateOf(System.currentTimeMillis())
+    var lastChangedLog by mutableLongStateOf(System.currentTimeMillis())
     var showBuffering by mutableStateOf(false)
 
     private var currentAid = 0

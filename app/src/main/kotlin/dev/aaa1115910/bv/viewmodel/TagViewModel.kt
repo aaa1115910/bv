@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.viewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,7 +20,7 @@ class TagViewModel : ViewModel() {
     }
 
     var tagName by mutableStateOf("")
-    var tagId by mutableStateOf(0)
+    var tagId by mutableIntStateOf(0)
     var topVideos = mutableStateListOf<VideoCardData>()
 
     private var pageNumber = 1

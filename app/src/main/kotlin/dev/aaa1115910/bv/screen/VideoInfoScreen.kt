@@ -35,6 +35,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -143,8 +144,8 @@ fun VideoInfoScreen(
     var relations: RelationData? by remember { mutableStateOf(null) }
     val tags = remember { mutableStateListOf<Tag>() }
 
-    var lastPlayedCid by remember { mutableStateOf(0) }
-    var lastPlayedTime by remember { mutableStateOf(0) }
+    var lastPlayedCid by remember { mutableIntStateOf(0) }
+    var lastPlayedTime by remember { mutableIntStateOf(0) }
 
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
@@ -280,6 +281,7 @@ fun VideoInfoScreen(
             runCatching {
                 require(favoriteFolders.isNotEmpty()) { "Not found favorite folder" }
                 require(videoInfo?.aid != null) { "Video info is null" }
+                logger.info { "Update video av${videoInfo?.aid} to favorite folder $folderIds" }
 
                 BiliApi.setVideoToFavorite(
                     avid = videoInfo!!.aid,
@@ -294,14 +296,8 @@ fun VideoInfoScreen(
                     it.message ?: "unknown error".toast(context)
                 }
             }.onSuccess {
+                logger.fInfo { "Add video to favorite folder success" }
                 videoInFavoriteFolderIds.swapList(folderIds)
-                withContext(Dispatchers.Main) {
-                    if (folderIds.isEmpty()) {
-                        "已移除收藏夹".toast(context)
-                    } else {
-                        "已添加到收藏夹".toast(context)
-                    }
-                }
             }
         }
     }
@@ -761,10 +757,10 @@ fun VideoInfoData(
                     items(tags) { tag ->
                         Surface(
                             modifier = Modifier,
-                            color = ClickableSurfaceDefaults.color(
-                                color = Color.White.copy(alpha = 0.2f),
-                                focusedColor = Color.White.copy(alpha = 0.2f),
-                                pressedColor = Color.White.copy(alpha = 0.2f)
+                            colors = ClickableSurfaceDefaults.colors(
+                                containerColor = Color.White.copy(alpha = 0.2f),
+                                focusedContainerColor = Color.White.copy(alpha = 0.2f),
+                                pressedContainerColor = Color.White.copy(alpha = 0.2f)
                             ),
                             shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
                             border = ClickableSurfaceDefaults.border(
@@ -936,15 +932,10 @@ fun VideoPartButton(
 ) {
     Surface(
         modifier = modifier,
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.primary,
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onPrimary,
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onPrimary
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         border = ClickableSurfaceDefaults.border(
@@ -984,15 +975,10 @@ private fun VideoPartRowButton(
 ) {
     Surface(
         modifier = modifier.height(64.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.primary,
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onPrimary,
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onPrimary
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         border = ClickableSurfaceDefaults.border(
@@ -1148,8 +1134,8 @@ private fun VideoPartListDialog(
 ) {
     val scope = rememberCoroutineScope()
 
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabCount by remember { mutableStateOf(ceil(pages.size / 20.0).toInt()) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabCount by remember { mutableIntStateOf(ceil(pages.size / 20.0).toInt()) }
     val selectedVideoPart = remember { mutableStateListOf<VideoPage>() }
 
     val tabRowFocusRequester = remember { FocusRequester() }
@@ -1257,8 +1243,8 @@ private fun VideoUgcListDialog(
 ) {
     val scope = rememberCoroutineScope()
 
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabCount by remember { mutableStateOf(ceil(episodes.size / 20.0).toInt()) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabCount by remember { mutableIntStateOf(ceil(episodes.size / 20.0).toInt()) }
     val selectedVideoPart = remember { mutableStateListOf<UgcSeason.Section.Episode>() }
 
     val tabRowFocusRequester = remember { FocusRequester() }

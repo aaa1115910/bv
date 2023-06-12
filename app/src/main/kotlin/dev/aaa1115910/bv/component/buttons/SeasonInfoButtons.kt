@@ -52,9 +52,17 @@ fun FollowSeasonButton(
         modifier = modifier,
         icon = {
             if (following) {
-                Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.Done,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
             } else {
-                Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
             }
         },
         text = if (following) "已追番" else "追番",

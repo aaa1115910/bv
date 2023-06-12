@@ -342,6 +342,16 @@ internal class BiliApiTest {
     }
 
     @Test
+    fun `get user space videos`() = runBlocking {
+        println(
+            BiliApi.getUserSpaceVideos(
+                mid = 1,
+                sessData = SESSDATA
+            )
+        )
+    }
+
+    @Test
     fun `get season info data`() {
         runBlocking {
             println(

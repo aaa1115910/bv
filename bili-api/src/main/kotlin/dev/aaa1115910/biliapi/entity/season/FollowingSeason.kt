@@ -144,7 +144,7 @@ data class FollowingSeason(
     data class Producer(
         @SerialName("is_contribute")
         val isContribute: Int? = null,
-        val mid: Int,
+        val mid: Long,
         val type: Int
     )
 

@@ -47,6 +47,8 @@ import dev.aaa1115910.biliapi.entity.video.Timeline
 import dev.aaa1115910.biliapi.entity.video.TimelineType
 import dev.aaa1115910.biliapi.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.entity.web.NavResponseData
+import dev.aaa1115910.biliapi.util.encWbi
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -64,11 +66,13 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
+import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.jsoup.nodes.Document
@@ -85,8 +89,15 @@ object BiliApi {
         prettyPrint = true
     }
 
+    var wbiImgKey: String? = null
+    var wbiSubKey: String? = null
+    private var wbiLastRefreshDate = 0L
+
     init {
         createClient()
+        CoroutineScope(Dispatchers.IO).launch {
+            updateWbi()
+        }
     }
 
     private fun createClient() {
@@ -104,7 +115,10 @@ object BiliApi {
             }
             install(JsoupPlugin)
             defaultRequest {
-                host = endPoint
+                url {
+                    host = endPoint
+                    protocol = URLProtocol.HTTPS
+                }
             }
         }
     }
@@ -649,6 +663,7 @@ object BiliApi {
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
+        encWbi()
     }.body()
 
     /**
@@ -880,6 +895,7 @@ object BiliApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
+        encWbi()
     }.body()
 
     /**
@@ -901,6 +917,7 @@ object BiliApi {
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
         header("Cookie", "buvid3=$buvid3;")
+        encWbi()
     }.body()
 
     /** 获取番剧首页数据 */
@@ -972,4 +989,36 @@ object BiliApi {
         parameter("vmid", mid)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    /**
+     * 获取导航栏用户信息
+     *
+     * 内含 wbi keys
+     */
+    suspend fun getWebInterfaceNav(): BiliResponse<NavResponseData> =
+        client.get("/x/web-interface/nav").body()
+
+    /**
+     * 更新 wbi keys
+     */
+    suspend fun updateWbi() {
+        val needToUpdate =
+            wbiImgKey == null || wbiSubKey == null || System.currentTimeMillis() - wbiLastRefreshDate < 2 * 60 * 60 * 1000L
+        if (!needToUpdate) {
+            println("Skip update wbi keys")
+            return
+        }
+
+        println("Updating wbi keys...")
+        runCatching {
+            val wbiData = getWebInterfaceNav().data!!.wbiImg
+            wbiImgKey = wbiData.getImgKey()
+            wbiSubKey = wbiData.getSubKey()
+            wbiLastRefreshDate = System.currentTimeMillis()
+        }.onSuccess {
+            println("Update wbi data success")
+        }.onFailure {
+            println("Update wbi data failed: ${it.stackTraceToString()}")
+        }
+    }
 }

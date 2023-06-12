@@ -411,7 +411,7 @@ data class SeasonData(
         val follower: Int,
         @SerialName("is_follow")
         val isFollow: Int,
-        val mid: Int,
+        val mid: Long,
         @SerialName("nickname_color")
         val nicknameColor: String,
         val pendant: Pendant,

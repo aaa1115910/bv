@@ -69,15 +69,10 @@ fun Button(
     Surface(
         modifier = modifier.height(height),
         onClick = { onClick() },
-        color = ClickableSurfaceDefaults.color(
-            color = color,
-            focusedColor = color,
-            pressedColor = color
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = color,
+            focusedContainerColor = color,
+            pressedContainerColor = color
         ),
         shape = ClickableSurfaceDefaults.shape(shape = shape),
         border = ClickableSurfaceDefaults.border(

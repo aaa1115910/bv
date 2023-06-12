@@ -235,15 +235,10 @@ fun SettingsMenuButton(
                 hasFocus = it.hasFocus
                 if (hasFocus) onFocus() else onLoseFocus()
             },
-        color = ClickableSurfaceDefaults.color(
-            color = buttonBackgroundColor,
-            focusedColor = buttonBackgroundColor,
-            pressedColor = buttonBackgroundColor
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = buttonBackgroundColor,
+            focusedContainerColor = buttonBackgroundColor,
+            pressedContainerColor = buttonBackgroundColor
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick

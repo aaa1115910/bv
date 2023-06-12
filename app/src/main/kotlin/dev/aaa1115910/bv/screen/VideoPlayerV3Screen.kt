@@ -13,6 +13,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,9 +91,9 @@ fun VideoPlayerV3Screen(
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var currentPosition by remember { mutableStateOf(0L) }
-    var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
-    var aspectRatio by remember { mutableStateOf(16f / 9f) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
+    var currentPlaySpeed by remember { mutableFloatStateOf(Prefs.defaultPlaySpeed) }
+    var aspectRatio by remember { mutableFloatStateOf(16f / 9f) }
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
@@ -328,6 +330,7 @@ fun VideoPlayerV3Screen(
             millisInFuture = Long.MAX_VALUE,
             countDownInterval = 1000,
             tag = "clockRefreshTimer",
+            showLogs = false,
             onTick = {
                 val calendar = Calendar.getInstance()
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -512,7 +515,8 @@ fun VideoPlayerV3Screen(
                 logger.info { "On subtitle bottom padding change: $padding" }
                 Prefs.defaultSubtitleBottomPadding = padding
                 playerViewModel.currentSubtitleBottomPadding = padding
-            }
+            },
+            onRequestFocus = { focusRequester.requestFocus() },
         ) {
             Box(
                 modifier = Modifier.background(Color.Black),

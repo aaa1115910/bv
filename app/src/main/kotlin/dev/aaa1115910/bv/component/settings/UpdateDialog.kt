@@ -13,6 +13,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,12 +50,12 @@ fun UpdateDialog(
 
     var updateStatus by remember { mutableStateOf(UpdateStatus.UpdatingInfo) }
 
-    var bytesSentTotal: Long by remember { mutableStateOf(0) }
-    var contentLength: Long by remember { mutableStateOf(0) }
-    var targetProgress by remember { mutableStateOf(0f) }
+    var bytesSentTotal: Long by remember { mutableLongStateOf(0L) }
+    var contentLength: Long by remember { mutableLongStateOf(0L) }
+    var targetProgress by remember { mutableFloatStateOf(0f) }
     val progress by animateFloatAsState(targetValue = targetProgress)
 
-    var latestPackageId by remember { mutableStateOf(0) }
+    var latestPackageId by remember { mutableIntStateOf(0) }
     var packageInfo: PackageInfo? by remember { mutableStateOf(null) }
 
     val checkUpdate: () -> Unit = {

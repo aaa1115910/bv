@@ -56,7 +56,7 @@ data class SubtitleListItem(
  */
 @Serializable
 data class SubtitleAuthor(
-    val mid: Int,
+    val mid: Long,
     val name: String,
     val sex: String,
     val face: String,
