@@ -8,7 +8,7 @@ import dev.aaa1115910.biliapi.http.entity.login.qr.RequestWebQRData
 import dev.aaa1115910.biliapi.http.entity.login.qr.WebQRLoginData
 import dev.aaa1115910.biliapi.http.entity.login.sms.SendSmsResponse
 import dev.aaa1115910.biliapi.http.entity.login.sms.SmsLoginResponse
-import dev.aaa1115910.biliapi.http.util.encAppPost
+import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -55,6 +55,8 @@ object BiliPassportHttpApi {
                     protocol = URLProtocol.HTTPS
                 }
             }
+        }.apply {
+            encApiSign()
         }
     }
 
@@ -90,7 +92,6 @@ object BiliPassportHttpApi {
                     mobiApp?.let { append("mobi_app", it) }
                 }
             ))
-            encAppPost()
         }.body()
 
 
@@ -110,7 +111,6 @@ object BiliPassportHttpApi {
                     append("ts", "$ts")
                 }
             ))
-            encAppPost()
         }.body()
 
     /**
@@ -163,7 +163,6 @@ object BiliPassportHttpApi {
                 append("ts", "$ts")
             }
         ))
-        encAppPost()
     }.body()
 
     suspend fun loginWithSms(
@@ -183,6 +182,5 @@ object BiliPassportHttpApi {
                 append("ts", "0")
             }
         ))
-        encAppPost()
     }.body()
 }

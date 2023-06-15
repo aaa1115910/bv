@@ -49,7 +49,7 @@ import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
-import dev.aaa1115910.biliapi.http.util.encWbi
+import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -121,6 +121,8 @@ object BiliHttpApi {
                     protocol = URLProtocol.HTTPS
                 }
             }
+        }.apply {
+            encApiSign()
         }
     }
 
@@ -677,7 +679,6 @@ object BiliHttpApi {
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
-        encWbi()
     }.body()
 
     /**
@@ -903,13 +904,14 @@ object BiliHttpApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        buvid3: String? = null
     ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/all/v2") {
         parameter("keyword", keyword)
         parameter("page", page)
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
-        encWbi()
+        header("Cookie", "buvid3=$buvid3;")
     }.body()
 
     /**
@@ -931,7 +933,6 @@ object BiliHttpApi {
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
         header("Cookie", "buvid3=$buvid3;")
-        encWbi()
     }.body()
 
     /** 获取番剧首页数据 */
