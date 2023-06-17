@@ -162,8 +162,8 @@ fun PictureMenuList(
                 contentPadding = PaddingValues(8.dp)
             ) {
                 val menuList = when (Prefs.apiType) {
-                    ApiType.Http -> VideoPlayerPictureMenuItem.values().toMutableList()
-                    ApiType.GRPC -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
+                    ApiType.Web -> VideoPlayerPictureMenuItem.values().toMutableList()
+                    ApiType.App -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
                         this.remove(VideoPlayerPictureMenuItem.Codec)
                     }
                 }

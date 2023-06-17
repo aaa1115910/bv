@@ -26,23 +26,24 @@ class VideoDetailRepositoryTest {
     }
 
     private val channelRepository = ChannelRepository()
+    private val authRepository = AuthRepository()
+    private val videoDetailRepository = VideoDetailRepository(authRepository, channelRepository)
 
     init {
         channelRepository.initDefaultChannel(
             VideoPlayRepositoryTest.ACCESS_TOKEN,
             VideoPlayRepositoryTest.BUVID
         )
-        channelRepository.sessionData = VideoPlayRepositoryTest.SESSDATA
+        authRepository.sessionData = VideoPlayRepositoryTest.SESSDATA
     }
 
     @Test
     fun `get video info with http`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 170001,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -54,11 +55,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get video info with grpc`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 170001,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -70,11 +70,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get ugc season video info with http`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 954251211,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -86,11 +85,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get ugc season video info with grpc`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 954251211,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -102,11 +100,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get anime video info with http`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 314583081,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -118,11 +115,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get anime video info with grpc`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 314583081,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -134,11 +130,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get argue video info with http`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 996965888,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -150,11 +145,10 @@ class VideoDetailRepositoryTest {
     @Test
     fun `get argue video info with grpc`() {
         runBlocking {
-            val repository = VideoDetailRepository(channelRepository)
             runCatching {
-                val result = repository.getVideoDetail(
+                val result = videoDetailRepository.getVideoDetail(
                     aid = 996965888,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {

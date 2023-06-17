@@ -145,11 +145,11 @@ object BiliHttpApi {
     suspend fun getVideoInfo(
         av: Int? = null,
         bv: String? = null,
-        sessData: String = ""
+        sessData: String? = null
     ): BiliResponse<VideoInfo> = client.get("/x/web-interface/view") {
         parameter("aid", av)
         parameter("bvid", bv)
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
@@ -158,11 +158,11 @@ object BiliHttpApi {
     suspend fun getVideoDetail(
         av: Int? = null,
         bv: String? = null,
-        sessData: String = ""
+        sessData: String? = null
     ): BiliResponse<VideoDetail> = client.get("/x/web-interface/view/detail") {
         parameter("aid", av)
         parameter("bvid", bv)
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
@@ -180,7 +180,7 @@ object BiliHttpApi {
         otype: String = "json",
         type: String = "",
         platform: String = "oc",
-        sessData: String = ""
+        sessData: String? = null
     ): BiliResponse<PlayUrlData> = client.get("/x/player/playurl") {
         require(av != null || bv != null) { "av and bv cannot be null at the same time" }
         parameter("avid", av)
@@ -194,7 +194,7 @@ object BiliHttpApi {
         parameter("otype", otype)
         parameter("type", type)
         parameter("platform", platform)
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
@@ -213,7 +213,7 @@ object BiliHttpApi {
         supportMultiAudio: Boolean? = null,
         drmTechType: Int? = null,
         fromClient: String? = null,
-        sessData: String = ""
+        sessData: String? = null
     ): BiliResponse<PlayUrlData> = client.get("/pgc/player/web/playurl") {
         require(av != null || bv != null) { "av and bv cannot be null at the same time" }
         require(epid != null || cid != null) { "epid and cid cannot be null at the same time" }
@@ -229,7 +229,7 @@ object BiliHttpApi {
         supportMultiAudio?.let { parameter("support_multi_audio", it) }
         drmTechType?.let { parameter("drm_tech_type", it) }
         fromClient?.let { parameter("from_client", it) }
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
     }.body()
@@ -819,18 +819,21 @@ object BiliHttpApi {
         mid: Long,
         action: FollowAction,
         actionSource: FollowActionSource,
-        csrf: String,
-        sessData: String = ""
+        accessKey: String? = null,
+        csrf: String? = null,
+        sessData: String? = null
     ): BiliResponseWithoutData = client.post("/x/relation/modify") {
+        checkToken(accessKey, sessData)
         setBody(FormDataContent(
             Parameters.build {
                 append("fid", "$mid")
                 append("act", "${action.id}")
                 append("re_src", "${actionSource.id}")
-                append("csrf", csrf)
+                accessKey?.let { append("access_key", accessKey) }
+                csrf?.let { append("csrf", csrf) }
             }
         ))
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
@@ -842,19 +845,26 @@ object BiliHttpApi {
      */
     suspend fun getRelations(
         mid: Long,
-        sessData: String = ""
-    ): BiliResponse<RelationData> = client.get("/x/space/acc/relation") {
+        accessKey: String? = null,
+        sessData: String? = null
+    ): BiliResponse<RelationData> = client.get("/x/space/wbi/acc/relation") {
+        checkToken(accessKey, sessData)
         parameter("mid", mid)
-        header("Cookie", "SESSDATA=$sessData;")
+        accessKey?.let { parameter("access_key", accessKey) }
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
      * 获取用户[mid]的关系统计（关注数，粉丝数，黑名单数）
      */
     suspend fun getRelationStat(
-        mid: Long
+        mid: Long,
+        accessKey: String? = null,
+        sessData: String? = null
     ): BiliResponse<RelationStat> = client.get("x/relation/stat") {
         parameter("vmid", mid)
+        accessKey?.let { parameter("access_key", accessKey) }
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
     }.body()
 
     /**
@@ -1036,4 +1046,8 @@ object BiliHttpApi {
             println("Update wbi data failed: ${it.stackTraceToString()}")
         }
     }
+}
+
+private fun checkToken(accessKey: String?, sessData: String?) {
+    require(accessKey != null || sessData != null) { "accessKey and sessData cannot be null at the same time" }
 }

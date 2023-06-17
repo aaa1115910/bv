@@ -10,6 +10,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
+import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
@@ -65,23 +66,29 @@ class BVApp : Application() {
             modules(appModule)
         }
         firebaseAnalytics = Firebase.analytics
-        initChannelRepository()
+        initRepository()
     }
 
-    private fun initChannelRepository() {
+    private fun initRepository() {
         val channelRepository by koinApplication.koin.inject<ChannelRepository>()
         channelRepository.initDefaultChannel(Prefs.accessToken, Prefs.buvid)
-        channelRepository.sessionData = Prefs.sessData
+
+        val authRepository by koinApplication.koin.inject<AuthRepository>()
+        authRepository.sessionData = Prefs.sessData.takeIf { it.isNotEmpty() }
+        authRepository.biliJct = Prefs.biliJct.takeIf { it.isNotEmpty() }
+        authRepository.accessToken = Prefs.accessToken.takeIf { it.isNotEmpty() }
     }
 }
 
 val appModule = module {
-    single { UserRepository() }
+    single { AuthRepository() }
+    single { dev.aaa1115910.biliapi.repositories.UserRepository(get()) }
+    single { UserRepository(get()) }
     single { LoginRepository() }
     single { VideoInfoRepository() }
     single { ChannelRepository() }
-    single { VideoPlayRepository(get()) }
-    single { VideoDetailRepository(get()) }
+    single { VideoPlayRepository(get(), get()) }
+    single { VideoDetailRepository(get(), get()) }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { WebQrLoginViewModel(get(), get()) }

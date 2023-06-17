@@ -56,7 +56,12 @@ class LoginRepository {
             86038 -> QrLoginState.Expired
             else -> QrLoginState.Unknown
         }
-        return QrLoginResult(resultState, resultCookies)
+        return QrLoginResult(
+            state = resultState,
+            accessToken = null,
+            refreshToken = null,
+            cookies = resultCookies
+        )
     }
 
     /**
@@ -85,6 +90,7 @@ class LoginRepository {
             localId = "0",
             ts = (System.currentTimeMillis() / 1000).toInt(),
         )
+        println(response)
         var resultCookies: WebCookies? = null
         val resultState = when (response.code) {
             0 -> {
@@ -109,7 +115,12 @@ class LoginRepository {
             86038 -> QrLoginState.Expired
             else -> QrLoginState.Unknown
         }
-        return QrLoginResult(resultState, resultCookies)
+        return QrLoginResult(
+            state = resultState,
+            accessToken = response.data?.accessToken,
+            refreshToken = response.data?.refreshToken,
+            cookies = resultCookies
+        )
     }
 
     /**

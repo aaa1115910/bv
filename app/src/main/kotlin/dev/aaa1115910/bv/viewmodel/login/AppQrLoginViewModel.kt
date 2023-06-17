@@ -103,6 +103,11 @@ class AppQrLoginViewModel(
                         expiredDate = qrLoginResult.cookies!!.expiredDate
                     )
 
+                    userRepository.setAppToken(
+                        accessToken = qrLoginResult.accessToken!!,
+                        refreshToken = qrLoginResult.refreshToken!!
+                    )
+
                     timer.cancel()
                 }
 

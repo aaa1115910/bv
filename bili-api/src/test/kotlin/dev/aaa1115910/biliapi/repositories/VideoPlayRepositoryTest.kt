@@ -30,22 +30,23 @@ class VideoPlayRepositoryTest {
             runCatching { localProperties.getProperty("test.buvid") }.getOrNull() ?: ""
     }
 
+    private val authRepository = AuthRepository()
     private val channelRepository = ChannelRepository()
+    private val videoPlayRepository = VideoPlayRepository(authRepository, channelRepository)
 
     init {
         channelRepository.initDefaultChannel(ACCESS_TOKEN, BUVID)
-        channelRepository.sessionData = SESSDATA
+        authRepository.sessionData = SESSDATA
     }
 
     @Test
     fun `get flac video with grpc`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPlayData(
+                val result = videoPlayRepository.getPlayData(
                     aid = 993403941,
                     cid = 1051761130,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -57,12 +58,11 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get flac video with http`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPlayData(
+                val result = videoPlayRepository.getPlayData(
                     aid = 993403941,
                     cid = 1051761130,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -74,12 +74,11 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get 8k video with grpc`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPlayData(
+                val result = videoPlayRepository.getPlayData(
                     aid = 934637444,
                     cid = 455439756,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -91,12 +90,11 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get 8k video with http`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPlayData(
+                val result = videoPlayRepository.getPlayData(
                     aid = 934637444,
                     cid = 455439756,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -118,13 +116,12 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get pgc video with grpc`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPgcPlayData(
+                val result = videoPlayRepository.getPgcPlayData(
                     aid = 210680503,
                     cid = 486114279,
                     epid = 469110,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -136,13 +133,12 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get pgc video with http`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPgcPlayData(
+                val result = videoPlayRepository.getPgcPlayData(
                     aid = 210680503,
                     cid = 486114279,
                     epid = 469110,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {
@@ -154,13 +150,12 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get paid pgc video with grpc`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPgcPlayData(
+                val result = videoPlayRepository.getPgcPlayData(
                     aid = 741219885,
                     cid = 1132332811,
                     epid = 750015,
-                    preferApiType = ApiType.GRPC
+                    preferApiType = ApiType.App
                 )
                 println(result)
             }.onFailure {
@@ -172,13 +167,12 @@ class VideoPlayRepositoryTest {
     @Test
     fun `get paid pgc video with http`() {
         runBlocking {
-            val repository = VideoPlayRepository(channelRepository)
             runCatching {
-                val result = repository.getPgcPlayData(
+                val result = videoPlayRepository.getPgcPlayData(
                     aid = 741219885,
                     cid = 1132332811,
                     epid = 750015,
-                    preferApiType = ApiType.Http
+                    preferApiType = ApiType.Web
                 )
                 println(result)
             }.onFailure {

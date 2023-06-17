@@ -12,6 +12,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpApi
 import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt as PgcPlayURLGrpcKt
 
 class VideoPlayRepository(
+    private val authRepository: AuthRepository,
     private val channelRepository: ChannelRepository
 ) {
     private val playerStub
@@ -27,10 +28,10 @@ class VideoPlayRepository(
         aid: Int,
         cid: Int,
         preferCodec: CodeType = CodeType.NoCode,
-        preferApiType: ApiType = ApiType.Http
+        preferApiType: ApiType = ApiType.Web
     ): PlayData {
         return when (preferApiType) {
-            ApiType.Http -> {
+            ApiType.Web -> {
                 val playUrlData = BiliHttpApi.getVideoPlayUrl(
                     av = aid,
                     cid = cid,
@@ -38,12 +39,12 @@ class VideoPlayRepository(
                     qn = 127,
                     fnver = 0,
                     fourk = 1,
-                    sessData = channelRepository.sessionData
+                    sessData = authRepository.sessionData
                 ).getResponseData()
                 PlayData.fromPlayUrlData(playUrlData)
             }
 
-            ApiType.GRPC -> {
+            ApiType.App -> {
                 val playUniteReplay = runCatching {
                     playerStub?.playViewUnite(playViewUniteReq {
                         vod = videoVod {
@@ -67,10 +68,10 @@ class VideoPlayRepository(
         cid: Int,
         epid: Int,
         preferCodec: CodeType = CodeType.NoCode,
-        preferApiType: ApiType = ApiType.Http
+        preferApiType: ApiType = ApiType.Web
     ): PlayData {
         return when (preferApiType) {
-            ApiType.Http -> {
+            ApiType.Web -> {
                 val playUrlData = BiliHttpApi.getPgcVideoPlayUrl(
                     av = aid,
                     cid = cid,
@@ -78,12 +79,12 @@ class VideoPlayRepository(
                     qn = 127,
                     fnver = 0,
                     fourk = 1,
-                    sessData = channelRepository.sessionData
+                    sessData = authRepository.sessionData
                 ).getResponseData()
                 PlayData.fromPlayUrlData(playUrlData)
             }
 
-            ApiType.GRPC -> {
+            ApiType.App -> {
                 val pgcPlayViewReply = runCatching {
                     pgcPlayUrlStub?.playView(playViewReq {
                         this.epid = epid.toLong()

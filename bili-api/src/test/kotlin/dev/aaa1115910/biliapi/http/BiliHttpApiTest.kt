@@ -26,6 +26,10 @@ internal class BiliHttpApiTest {
             runCatching { localProperties.getProperty("test.bili_jct") }.getOrNull() ?: ""
         val UID: Long =
             runCatching { localProperties.getProperty("test.uid") }.getOrNull()?.toLongOrNull() ?: 2
+        val ACCESS_TOKEN: String =
+            runCatching { localProperties.getProperty("test.access_token") }.getOrNull() ?: ""
+        val BUVID: String =
+            runCatching { localProperties.getProperty("test.buvid") }.getOrNull() ?: ""
     }
 
     @Test

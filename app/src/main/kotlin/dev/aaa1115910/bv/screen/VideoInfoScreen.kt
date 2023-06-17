@@ -92,11 +92,8 @@ import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.entity.user.FollowAction
-import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
-import dev.aaa1115910.biliapi.http.entity.user.RelationData
-import dev.aaa1115910.biliapi.http.entity.user.RelationType
 import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
@@ -132,14 +129,16 @@ fun VideoInfoScreen(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     videoInfoRepository: VideoInfoRepository = getKoin().get(),
-    videoDetailViewModel: VideoDetailViewModel = koinViewModel()
+    videoDetailViewModel: VideoDetailViewModel = koinViewModel(),
+    userRepository: UserRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val intent = (context as Activity).intent
     val logger = KotlinLogging.logger { }
 
-    var relations: RelationData? by remember { mutableStateOf(null) }
+    var showFollowButton by remember { mutableStateOf(false) }
+    var isFollowing by remember { mutableStateOf(false) }
 
     var lastPlayedCid by remember { mutableIntStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
@@ -177,38 +176,45 @@ fun VideoInfoScreen(
         }
     }
 
-    val updateRelationData: () -> Unit = {
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                logger.fInfo { "Get relation data with user ${videoDetailViewModel.videoDetail?.author?.mid}" }
-                relations = BiliHttpApi.getRelations(
-                    mid = videoDetailViewModel.videoDetail?.author?.mid ?: -1,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-            }.onFailure {
-                logger.fInfo { "Get relation data failed: ${it.stackTraceToString()}" }
-            }
+    val updateFollowingState: () -> Unit = {
+        scope.launch(Dispatchers.IO) {
+            val userMid = videoDetailViewModel.videoDetail?.author?.mid ?: -1
+            logger.fInfo { "Checking is following user $userMid" }
+            val success = userRepository.checkIsFollowing(
+                mid = userMid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Following user result: $success" }
+            showFollowButton = success != null
+            isFollowing = success ?: false
         }
     }
 
-    val modifyRelation: (action: FollowAction, afterModify: () -> Unit) -> Unit =
-        { action, afterModify ->
-            scope.launch(Dispatchers.Default) {
-                runCatching {
-                    logger.fInfo { "Modify relation: $action" }
-                    BiliHttpApi.modifyFollow(
-                        mid = videoDetailViewModel.videoDetail?.author?.mid ?: -1,
-                        action = action,
-                        actionSource = FollowActionSource.Video,
-                        csrf = Prefs.biliJct,
-                        sessData = Prefs.sessData
-                    )
-                    afterModify()
-                }.onFailure {
-                    logger.fInfo { "Modify relation failed: ${it.stackTraceToString()}" }
-                }
-            }
+    val addFollow: (afterModify: (success: Boolean) -> Unit) -> Unit = { afterModify ->
+        scope.launch(Dispatchers.IO) {
+            val userMid = videoDetailViewModel.videoDetail?.author?.mid ?: -1
+            logger.fInfo { "Add follow to user $userMid" }
+            val success = userRepository.followUser(
+                mid = userMid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Add follow result: $success" }
+            afterModify(success)
         }
+    }
+
+    val delFollow: (afterModify: (success: Boolean) -> Unit) -> Unit = { afterModify ->
+        scope.launch(Dispatchers.IO) {
+            val userMid = videoDetailViewModel.videoDetail?.author?.mid ?: -1
+            logger.fInfo { "Del follow to user $userMid" }
+            val success = userRepository.unfollowUser(
+                mid = userMid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Del follow result: $success" }
+            afterModify(success)
+        }
+    }
 
     val updateFavoriteData: (Int) -> Unit = { avid ->
         scope.launch(Dispatchers.IO) {
@@ -360,7 +366,7 @@ fun VideoInfoScreen(
                 logger.fInfo { "No redirection required" }
             }
 
-            if (!fromSeason) updateRelationData()
+            if (!fromSeason) updateFollowingState()
         }
     }
 
@@ -430,7 +436,8 @@ fun VideoInfoScreen(
                     item {
                         VideoInfoData(
                             videoDetail = videoDetailViewModel.videoDetail!!,
-                            relations = relations,
+                            showFollowButton = showFollowButton,
+                            isFollowing = isFollowing,
                             tags = videoDetailViewModel.videoDetail!!.tags,
                             isFavorite = favorited,
                             userFavoriteFolders = favoriteFolders,
@@ -456,13 +463,13 @@ fun VideoInfoScreen(
                                 )
                             },
                             onAddFollow = {
-                                modifyRelation(FollowAction.AddFollow) {
-                                    updateRelationData()
+                                addFollow {
+                                    updateFollowingState()
                                 }
                             },
                             onDelFollow = {
-                                modifyRelation(FollowAction.DelFollow) {
-                                    updateRelationData()
+                                delFollow {
+                                    updateFollowingState()
                                 }
                             },
                             onClickTip = { tag ->
@@ -591,7 +598,8 @@ fun ArgueTip(
 fun VideoInfoData(
     modifier: Modifier = Modifier,
     videoDetail: VideoDetail,
-    relations: RelationData?,
+    showFollowButton: Boolean,
+    isFollowing: Boolean,
     tags: List<Tag>,
     isFavorite: Boolean,
     userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
@@ -658,12 +666,8 @@ fun VideoInfoData(
                 ) {
                     UpButton(
                         name = videoDetail.author.name,
-                        followed = listOf(
-                            RelationType.Followed,
-                            RelationType.FollowedQuietly,
-                            RelationType.BothFollowed
-                        ).contains(relations?.relation?.attribute),
-                        showFollowButton = relations != null,
+                        followed = isFollowing,
+                        showFollowButton = showFollowButton,
                         onClickUp = onClickUp,
                         onAddFollow = onAddFollow,
                         onDelFollow = onDelFollow

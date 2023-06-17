@@ -252,7 +252,7 @@ class VideoPlayerV3ViewModel(
     }
 
     fun updateAvailableCodec() {
-        if (Prefs.apiType == ApiType.GRPC) return
+        if (Prefs.apiType == ApiType.App) return
         val supportedCodec = playData!!.codec
         val codecList =
             supportedCodec[currentQuality]!!.mapNotNull { VideoCodec.fromCodecString(it) }
@@ -279,8 +279,8 @@ class VideoPlayerV3ViewModel(
 
         val videoItem = playData!!.dashVideos.find {
             when (Prefs.apiType) {
-                ApiType.Http -> it.quality == qn && it.codecs!!.startsWith(codec.prefix)
-                ApiType.GRPC -> it.quality == qn
+                ApiType.Web -> it.quality == qn && it.codecs!!.startsWith(codec.prefix)
+                ApiType.App -> it.quality == qn
             }
         }
         val videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl

@@ -70,7 +70,7 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
     .intercept { request ->
         when (request.method) {
             HttpMethod.Get -> {
-                val isWebRequest = request.headers.contains("Cookie")
+                val isWebRequest = true//request.headers.contains("Cookie")
                 val isWbiRequest = request.url.encodedPath.contains("wbi")
                 if (isWebRequest && isWbiRequest) {
                     println("Enc wbi for get request: ${request.url}")

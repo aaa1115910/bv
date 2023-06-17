@@ -82,12 +82,12 @@ class VideoPlayerV3Activity : ComponentActivity() {
         logger.info { "Init video player: ${Prefs.playerType.name}" }
         val options = VideoPlayerOptions(
             userAgent = when (Prefs.apiType) {
-                ApiType.Http -> getString(R.string.video_player_user_agent_http)
-                ApiType.GRPC -> getString(R.string.video_player_user_agent_client)
+                ApiType.Web -> getString(R.string.video_player_user_agent_http)
+                ApiType.App -> getString(R.string.video_player_user_agent_client)
             },
             referer = when (Prefs.apiType) {
-                ApiType.Http -> getString(R.string.video_player_referer)
-                ApiType.GRPC -> null
+                ApiType.Web -> getString(R.string.video_player_referer)
+                ApiType.App -> null
             }
         )
         val videoPlayer = when (Prefs.playerType) {

@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +65,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.http.entity.user.RelationStat
+import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -90,11 +91,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 
 @Composable
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
-    userViewModel: UserViewModel = koinViewModel()
+    userViewModel: UserViewModel = koinViewModel(),
+    userRepository: UserRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -107,8 +110,8 @@ fun UserInfoScreen(
     val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
-    var relationStat: RelationStat? by remember { mutableStateOf(null) }
-    val followingNumber by animateIntAsState(targetValue = relationStat?.following ?: 0)
+    var followingUpCount by remember { mutableIntStateOf(0) }
+    val animateFollowingNumber by animateIntAsState(targetValue = followingUpCount)
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }
@@ -118,14 +121,14 @@ fun UserInfoScreen(
     var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
     var focusOnFollowedUserCard by remember { mutableStateOf(false) }
 
-    val updateRelationStat: () -> Unit = {
+    val updateFollowingUpCount = {
         scope.launch(Dispatchers.Default) {
-            runCatching {
-                logger.fInfo { "Get relation stat with user ${Prefs.uid}" }
-                relationStat = BiliHttpApi.getRelationStat(mid = Prefs.uid).getResponseData()
-            }.onFailure {
-                logger.fInfo { "Get relation stat failed: ${it.stackTraceToString()}" }
-            }
+            logger.fInfo { "Update following up count with user ${Prefs.uid}" }
+            followingUpCount = userRepository.getFollowingUpCount(
+                mid = Prefs.uid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Following up count: $followingUpCount" }
         }
     }
 
@@ -259,7 +262,7 @@ fun UserInfoScreen(
             }
         }
 
-        updateRelationStat()
+        updateFollowingUpCount()
     }
 
     Scaffold(
@@ -329,7 +332,7 @@ fun UserInfoScreen(
                             showLargeTitle =
                                 focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
                         },
-                        size = followingNumber,
+                        size = animateFollowingNumber,
                         onClick = {
                             context.startActivity(Intent(context, FollowActivity::class.java))
                         }

@@ -8,6 +8,7 @@ import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 
 class VideoDetailRepository(
+    private val authRepository: AuthRepository,
     private val channelRepository: ChannelRepository
 ) {
     private val viewStub
@@ -17,18 +18,18 @@ class VideoDetailRepository(
 
     suspend fun getVideoDetail(
         aid: Int,
-        preferApiType: ApiType = ApiType.Http
+        preferApiType: ApiType = ApiType.Web
     ): VideoDetail {
         return when (preferApiType) {
-            ApiType.Http -> {
+            ApiType.Web -> {
                 val videoDetail = BiliHttpApi.getVideoDetail(
                     av = aid,
-                    sessData = channelRepository.sessionData
+                    sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
                 VideoDetail.fromVideoDetail(videoDetail)
             }
 
-            ApiType.GRPC -> {
+            ApiType.App -> {
                 val viewReply = runCatching {
                     viewStub?.view(viewReq {
                         this.aid = aid.toLong()
