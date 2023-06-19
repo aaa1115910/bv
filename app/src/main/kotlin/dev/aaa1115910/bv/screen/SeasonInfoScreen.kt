@@ -241,6 +241,8 @@ fun SeasonInfoScreen(
                         lastPlayedIndex = lastPlayProgress?.lastEpId ?: -1,
                         lastPlayedTitle = lastPlayProgress?.lastEpIndex ?: "Unknown",
                         following = isFollowing,
+                        isPublished = seasonData!!.publish.isStarted,
+                        publishDate = seasonData!!.publish.pubTimeShow,
                         onPlay = {
                             logger.fInfo { "Click play button" }
                             var playAid = -1
@@ -359,32 +361,35 @@ fun SeasonInfoScreen(
                         }
                     )
                 }
-                item {
-                    SeasonEpisodeRow(
-                        title = stringResource(R.string.season_feature_film),
-                        episodes = seasonData?.episodes ?: emptyList(),
-                        lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
-                        lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
-                        onClick = { avid, cid, epid, episodeTitle, startTime ->
-                            onClickVideo(avid, cid, epid, episodeTitle, startTime)
+                if (seasonData?.episodes?.isNotEmpty() == true) {
+                    item {
+                        SeasonEpisodeRow(
+                            title = stringResource(R.string.season_feature_film),
+                            episodes = seasonData?.episodes ?: emptyList(),
+                            lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
+                            lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
+                            onClick = { avid, cid, epid, episodeTitle, startTime ->
+                                onClickVideo(avid, cid, epid, episodeTitle, startTime)
 
-                            val partVideoList = seasonData?.episodes?.mapIndexed { index, episode ->
-                                VideoListItem(
-                                    aid = episode.aid.toInt(),
-                                    cid = episode.cid,
-                                    epid = episode.id,
-                                    seasonId = seasonData?.seasonId,
-                                    title = runCatching {
-                                        "第 ${episode.title.toInt()} 集"
-                                    }.getOrDefault(episode.title) + " " + episode.longTitle,
-                                    index = index,
-                                    isEpisode = true
-                                )
-                            } ?: emptyList()
-                            videoInfoRepository.videoList.clear()
-                            videoInfoRepository.videoList.addAll(partVideoList)
-                        }
-                    )
+                                val partVideoList =
+                                    seasonData?.episodes?.mapIndexed { index, episode ->
+                                        VideoListItem(
+                                            aid = episode.aid.toInt(),
+                                            cid = episode.cid,
+                                            epid = episode.id,
+                                            seasonId = seasonData?.seasonId,
+                                            title = runCatching {
+                                                "第 ${episode.title.toInt()} 集"
+                                            }.getOrDefault(episode.title) + " " + episode.longTitle,
+                                            index = index,
+                                            isEpisode = true
+                                        )
+                                    } ?: emptyList()
+                                videoInfoRepository.videoList.clear()
+                                videoInfoRepository.videoList.addAll(partVideoList)
+                            }
+                        )
+                    }
                 }
                 seasonData?.section?.forEach { section ->
                     item {
@@ -455,6 +460,8 @@ fun SeasonBaseInfo(
     lastPlayedIndex: Int,
     lastPlayedTitle: String = "",
     following: Boolean,
+    isPublished: Boolean,
+    publishDate: String,
     onPlay: () -> Unit,
     onClickFollow: (follow: Boolean) -> Unit,
 ) {
@@ -481,6 +488,8 @@ fun SeasonBaseInfo(
             lastPlayedIndex = lastPlayedIndex,
             lastPlayedTitle = lastPlayedTitle,
             following = following,
+            isPublished = isPublished,
+            publishDate = publishDate,
             onPlay = onPlay,
             onClickFollow = onClickFollow
         )
@@ -497,6 +506,8 @@ fun SeasonInfoPart(
     lastPlayedIndex: Int,
     lastPlayedTitle: String = "",
     following: Boolean,
+    isPublished: Boolean,
+    publishDate: String,
     onPlay: () -> Unit,
     onClickFollow: (follow: Boolean) -> Unit,
 ) {
@@ -517,6 +528,8 @@ fun SeasonInfoPart(
             lastPlayedIndex = lastPlayedIndex,
             lastPlayedTitle = lastPlayedTitle,
             following = following,
+            isPublished = isPublished,
+            publishDate = publishDate,
             onPlay = onPlay,
             onClickFollow = onClickFollow
         )
@@ -859,6 +872,8 @@ fun SeasonInfoPartPreview() {
             lastPlayedIndex = 3,
             lastPlayedTitle = "拯救灵依计划",
             following = false,
+            isPublished = true,
+            publishDate = "2021-04-30",
             onPlay = {},
             onClickFollow = {}
         )
