@@ -42,6 +42,22 @@ fun HttpRequestBuilder.encAppPost() {
     println("sign: $sign")
 }
 
+fun HttpRequestBuilder.encAppGet() {
+    parameter("appkey", APP_KEY)
+
+    val sortedParams = url.encodedParameters.entries()
+        .associate { it.key to it.value.first() }
+        .toSortedMap()
+        .map { (key, value) -> "$key=$value" }
+        .joinToString("&")
+
+    val sign = MessageDigest.getInstance("MD5").digest((sortedParams + APP_SEC).toByteArray())
+        .joinToString("") { "%02x".format(it) }
+
+    parameter("sign", sign)
+    println("sign: $sign")
+}
+
 suspend fun HttpRequestBuilder.encWbi() {
     val getMixinKey: (orig: String) -> String = { orig ->
         val mixinKey = mixinKeyEncTab.fold("") { s, i -> s + orig[i] }
@@ -69,12 +85,17 @@ suspend fun HttpRequestBuilder.encWbi() {
 fun HttpClient.encApiSign() = plugin(HttpSend)
     .intercept { request ->
         when (request.method) {
+            // app 端如果既用到了 wbi get 接口，也用到了 token 去请求，那是先计算 wbi sign 还是 app sign？
+            // 目前看来需要计算 wbi sign 的接口之前忘记计算 app sign 都通过校验了🤯
             HttpMethod.Get -> {
-                val isWebRequest = true//request.headers.contains("Cookie")
                 val isWbiRequest = request.url.encodedPath.contains("wbi")
-                if (isWebRequest && isWbiRequest) {
+                val isAppRequest = request.url.parameters.contains("access_key")
+                if (isWbiRequest) {
                     println("Enc wbi for get request: ${request.url}")
                     request.encWbi()
+                } else if (isAppRequest) {
+                    println("Enc app sign for get request: ${request.url}")
+                    request.encAppGet()
                 }
             }
 
