@@ -59,7 +59,7 @@ fun FavoriteScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolder?.title}",
+                        text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolderMetadata?.title}",
                         fontSize = titleFontSize.sp
                     )
                     Text(
@@ -90,16 +90,16 @@ fun FavoriteScreen(
                         Alignment.CenterHorizontally
                     )
                 ) {
-                    items(items = favoriteViewModel.favoriteFolders) { folder ->
+                    items(items = favoriteViewModel.favoriteFolderMetadataList) { folderMetadata ->
                         FilterChip(
-                            selected = favoriteViewModel.currentFavoriteFolder == folder,
+                            selected = favoriteViewModel.currentFavoriteFolderMetadata == folderMetadata,
                             onClick = {
-                                favoriteViewModel.currentFavoriteFolder = folder
+                                favoriteViewModel.currentFavoriteFolderMetadata = folderMetadata
                                 favoriteViewModel.favorites.clear()
                                 favoriteViewModel.resetPageNumber()
                                 favoriteViewModel.updateFolderItems()
                             },
-                            label = { Text(text = folder.title) }
+                            label = { Text(text = folderMetadata.title) }
                         )
                     }
                 }

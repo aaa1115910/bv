@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.entity.video
 
+import bilibili.app.view.v1.ReqUser
 import bilibili.app.view.v1.ViewReply
 import bilibili.app.view.v1.ugcSeasonOrNull
 import dev.aaa1115910.biliapi.entity.user.Author
@@ -23,7 +24,8 @@ data class VideoDetail(
     val redirectToEp: Boolean,
     val epid: Int?,
     val argueTip: String?,
-    val tags: List<Tag>
+    val tags: List<Tag>,
+    val userActions: UserActions
 ) {
     companion object {
         fun fromViewReply(viewReply: ViewReply) = VideoDetail(
@@ -42,7 +44,8 @@ data class VideoDetail(
             redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
             epid = runCatching { viewReply.arc.redirectUrl.split("ep")[1].toInt() }.getOrNull(),
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
-            tags = viewReply.descTagList.map { Tag.fromTag(it) }
+            tags = viewReply.descTagList.map { Tag.fromTag(it) },
+            userActions = UserActions.fromReqUser(viewReply.reqUser)
         )
 
         fun fromVideoDetail(videoDetail: dev.aaa1115910.biliapi.http.entity.video.VideoDetail) =
@@ -62,7 +65,8 @@ data class VideoDetail(
                 redirectToEp = videoDetail.view.redirectUrl?.contains("ep") ?: false,
                 epid = videoDetail.view.redirectUrl?.split("ep")?.get(1)?.toInt(),
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
-                tags = videoDetail.tags.map { Tag.fromTag(it) }
+                tags = videoDetail.tags.map { Tag.fromTag(it) },
+                userActions = UserActions()
             )
     }
 
@@ -97,6 +101,24 @@ data class VideoDetail(
                 share = videoStat.share,
                 like = videoStat.like,
                 historyRank = videoStat.hisRank
+            )
+        }
+    }
+}
+
+data class UserActions(
+    var like: Boolean = false,
+    var favorite: Boolean = false,
+    var coin: Boolean = false,
+    var dislike: Boolean = false
+) {
+    companion object {
+        fun fromReqUser(reqUser: ReqUser): UserActions {
+            return UserActions(
+                like = reqUser.like == 1,
+                favorite = reqUser.favorite == 1,
+                coin = reqUser.coin == 1,
+                dislike = reqUser.dislike == 1
             )
         }
     }

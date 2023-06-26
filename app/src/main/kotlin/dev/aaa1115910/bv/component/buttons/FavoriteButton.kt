@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.Button
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -42,7 +42,7 @@ import dev.aaa1115910.bv.util.swapList
 fun FavoriteButton(
     modifier: Modifier = Modifier,
     isFavorite: Boolean,
-    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
     onAddToDefaultFavoriteFolder: () -> Unit,
     onUpdateFavoriteFolders: (List<Long>) -> Unit
@@ -93,7 +93,7 @@ private fun FavoriteDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideDialog: () -> Unit,
-    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
     onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
@@ -191,16 +191,16 @@ fun FavoriteButtonDisablePreview() {
 @Composable
 private fun FavoriteDialogPreview() {
     val userFavoriteFolders = listOf(
-        UserFavoriteFoldersData.UserFavoriteFolder(0, 0, 0, 0, "收藏夹1", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(1, 1, 0, 0, "收藏夹2", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(2, 2, 0, 0, "收藏夹3", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(3, 3, 0, 0, "收藏夹4", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(4, 4, 0, 0, "收藏夹5", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(5, 5, 0, 0, "收藏夹6", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(6, 6, 0, 0, "收藏夹7", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(7, 7, 0, 0, "收藏夹8", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(8, 8, 0, 0, "收藏夹9", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(9, 9, 0, 0, "收藏夹10", 0, 0),
+        FavoriteFolderMetadata(0, 0, 0, "收藏夹1", null, false, 0),
+        FavoriteFolderMetadata(1, 1, 0, "收藏夹2", null, false, 0),
+        FavoriteFolderMetadata(2, 2, 0, "收藏夹3", null, false, 0),
+        FavoriteFolderMetadata(3, 3, 0, "收藏夹4", null, false, 0),
+        FavoriteFolderMetadata(4, 4, 0, "收藏夹5", null, false, 0),
+        FavoriteFolderMetadata(5, 5, 0, "收藏夹6", null, false, 0),
+        FavoriteFolderMetadata(6, 6, 0, "收藏夹7", null, false, 0),
+        FavoriteFolderMetadata(7, 7, 0, "收藏夹8", null, false, 0),
+        FavoriteFolderMetadata(8, 8, 0, "收藏夹9", null, false, 0),
+        FavoriteFolderMetadata(9, 9, 0, "收藏夹10", null, false, 0),
     )
     BVTheme {
         FavoriteDialog(

@@ -12,6 +12,7 @@ import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
+import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
@@ -87,8 +88,9 @@ val appModule = module {
     single { LoginRepository() }
     single { VideoInfoRepository() }
     single { ChannelRepository() }
+    single { FavoriteRepository(get()) }
     single { VideoPlayRepository(get(), get()) }
-    single { VideoDetailRepository(get(), get()) }
+    single { VideoDetailRepository(get(), get(), get()) }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { WebQrLoginViewModel(get(), get()) }
@@ -97,7 +99,7 @@ val appModule = module {
     viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get()) }
-    viewModel { FavoriteViewModel() }
+    viewModel { FavoriteViewModel(get()) }
     viewModel { UpInfoViewModel() }
     viewModel { FollowViewModel() }
     viewModel { SearchInputViewModel() }

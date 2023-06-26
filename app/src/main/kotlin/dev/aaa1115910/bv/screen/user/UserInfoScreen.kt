@@ -65,6 +65,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -97,7 +98,8 @@ import org.koin.compose.getKoin
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
     userViewModel: UserViewModel = koinViewModel(),
-    userRepository: UserRepository = getKoin().get()
+    userRepository: UserRepository = getKoin().get(),
+    favoriteRepository: FavoriteRepository = getKoin().get(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -213,28 +215,29 @@ fun UserInfoScreen(
         }
 
         //update favorite videos
-        scope.launch(Dispatchers.Default) {
-            var folderId: Long = 0
+        scope.launch(Dispatchers.IO) {
+            var defaultFolderId: Long = 0
             runCatching {
-                val foldersInfo = BiliHttpApi.getAllFavoriteFoldersInfo(
-                    mid = Prefs.uid,
-                    type = 2,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                if (foldersInfo.count == 0) {
+                val favoriteFolderMetadataList =
+                    favoriteRepository.getAllFavoriteFolderMetadataList(
+                        mid = Prefs.uid,
+                        preferApiType = Prefs.apiType
+                    )
+                if (favoriteFolderMetadataList.isEmpty()) {
                     "未找到收藏夹".toast(context)
                     return@launch
                 }
-                logger.fInfo { "Get favorite folders: ${foldersInfo.list.map { it.id }}" }
-                folderId = foldersInfo.list.first().id
+                defaultFolderId =
+                    favoriteFolderMetadataList.find { it.title == "默认收藏夹" }?.id ?: 0
+                logger.fInfo { "Get favorite folders: ${favoriteFolderMetadataList.map { it.id }}" }
             }.onFailure {
                 logger.fException(it) { "Load favorite folders failed" }
             }
             runCatching {
-                val favoriteItems = BiliHttpApi.getFavoriteList(
-                    mediaId = folderId,
-                    sessData = Prefs.sessData
-                ).getResponseData().medias
+                val favoriteItems = favoriteRepository.getFavoriteFolderData(
+                    mediaId = defaultFolderId,
+                    preferApiType = Prefs.apiType
+                ).medias
                 favoriteItems.forEach { favoriteItem ->
                     favorites.add(
                         VideoCardData(

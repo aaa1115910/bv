@@ -6,10 +6,14 @@ import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 
 class VideoDetailRepository(
     private val authRepository: AuthRepository,
-    private val channelRepository: ChannelRepository
+    private val channelRepository: ChannelRepository,
+    private val favoriteRepository: FavoriteRepository
 ) {
     private val viewStub
         get() = runCatching {
@@ -22,11 +26,30 @@ class VideoDetailRepository(
     ): VideoDetail {
         return when (preferApiType) {
             ApiType.Web -> {
-                val videoDetail = BiliHttpApi.getVideoDetail(
-                    av = aid,
-                    sessData = authRepository.sessionData ?: ""
-                ).getResponseData()
-                VideoDetail.fromVideoDetail(videoDetail)
+                withContext(Dispatchers.IO) {
+                    val videoDetailWithoutUserActions = async {
+                        val httpVideoDetail = BiliHttpApi.getVideoDetail(
+                            av = aid,
+                            sessData = authRepository.sessionData ?: ""
+                        ).getResponseData()
+                        VideoDetail.fromVideoDetail(httpVideoDetail)
+                    }
+
+                    //check liked, favoured, coined status...
+                    val isFavoured = async {
+                        runCatching {
+                            favoriteRepository.checkVideoFavoured(
+                                aid = aid,
+                                preferApiType = ApiType.Web
+                            )
+                        }.onFailure {
+                            println("Check video favoured failed: $it")
+                        }.getOrDefault(false)
+                    }
+                    videoDetailWithoutUserActions.await().apply {
+                        userActions.favorite = isFavoured.await()
+                    }
+                }
             }
 
             ApiType.App -> {

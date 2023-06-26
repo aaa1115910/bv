@@ -369,10 +369,13 @@ object BiliHttpApi {
      */
     suspend fun getFavoriteFolderInfo(
         mediaId: Long,
-        sessData: String = ""
+        accessKey: String? = null,
+        sessData: String? = null
     ): BiliResponse<FavoriteFolderInfo> = client.get("/x/v3/fav/folder/info") {
+        checkToken(accessKey, sessData)
         parameter("media_id", mediaId)
-        header("Cookie", "SESSDATA=$sessData;")
+        accessKey?.let { parameter("access_key", it) }
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
     }.body()
 
     /**
@@ -385,12 +388,15 @@ object BiliHttpApi {
         mid: Long,
         type: Int = 0,
         rid: Int? = null,
-        sessData: String = ""
+        accessKey: String? = null,
+        sessData: String? = null
     ): BiliResponse<UserFavoriteFoldersData> = client.get("/x/v3/fav/folder/created/list-all") {
+        checkToken(accessKey, sessData)
         parameter("up_mid", mid)
         parameter("type", type)
         parameter("rid", rid)
-        header("Cookie", "SESSDATA=$sessData;")
+        accessKey?.let { parameter("access_key", it) }
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
     }.body()
 
     /**
@@ -413,8 +419,10 @@ object BiliHttpApi {
         pageSize: Int = 20,
         pageNumber: Int = 1,
         platform: String? = null,
-        sessData: String = ""
+        accessKey: String? = null,
+        sessData: String? = null
     ): BiliResponse<FavoriteFolderInfoListData> = client.get("/x/v3/fav/resource/list") {
+        checkToken(accessKey, sessData)
         parameter("media_id", mediaId)
         parameter("tid", tid)
         parameter("keyword", keyword)
@@ -423,7 +431,8 @@ object BiliHttpApi {
         parameter("ps", pageSize)
         parameter("pn", pageNumber)
         parameter("platform", platform)
-        header("Cookie", "SESSDATA=$sessData;")
+        accessKey?.let { parameter("access_key", it) }
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
     }.body()
 
     /**
@@ -432,11 +441,14 @@ object BiliHttpApi {
     suspend fun getFavoriteIdList(
         mediaId: Long,
         platform: String? = null,
-        sessData: String = ""
+        accessKey: String? = null,
+        sessData: String? = null
     ): FavoriteItemIdListResponse = client.get("/x/v3/fav/resource/ids") {
+        checkToken(accessKey, sessData)
         parameter("media_id", mediaId)
         parameter("platform", platform)
-        header("Cookie", "SESSDATA=$sessData;")
+        accessKey?.let { parameter("access_key", it) }
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
     }.body()
 
     /**
@@ -617,25 +629,29 @@ object BiliHttpApi {
         type: Int = 2,
         addMediaIds: List<Long> = listOf(),
         delMediaIds: List<Long> = listOf(),
-        csrf: String,
-        sessData: String
-    ): Pair<Boolean, String> {
+        accessKey: String? = null,
+        csrf: String? = null,
+        sessData: String? = null
+    ) {
+        checkToken(accessKey, sessData)
         val response = client.post("/x/v3/fav/resource/deal") {
             require(addMediaIds.isNotEmpty() || delMediaIds.isNotEmpty()) {
                 "addMediaIds and delMediaIds cannot be empty at the same time"
             }
-            setBody(FormDataContent(
-                Parameters.build {
-                    append("rid", "$avid")
-                    append("type", "$type")
-                    append("add_media_ids", addMediaIds.joinToString(separator = ","))
-                    append("del_media_ids", delMediaIds.joinToString(separator = ","))
-                    append("csrf", csrf)
+            setBody(
+                FormDataContent(
+                    Parameters.build {
+                        append("rid", "$avid")
+                        append("type", "$type")
+                        append("add_media_ids", addMediaIds.joinToString(separator = ","))
+                        append("del_media_ids", delMediaIds.joinToString(separator = ","))
+                        csrf?.let { append("csrf", it) }
+                        accessKey?.let { append("access_key", it) }
                 }
             ))
-            header("Cookie", "SESSDATA=$sessData;")
+            sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponse<SetVideoFavorite>>()
-        return Pair(response.code == 0, response.message)
+        check(response.code == 0) { response.message }
     }
 
     /**
@@ -643,11 +659,14 @@ object BiliHttpApi {
      */
     suspend fun checkVideoFavoured(
         avid: Int,
-        sessData: String
+        accessKey: String? = null,
+        sessData: String? = null
     ): Boolean {
+        checkToken(accessKey, sessData)
         val response = client.get("/x/v2/fav/video/favoured") {
             parameter("aid", avid)
-            header("Cookie", "SESSDATA=$sessData;")
+            accessKey?.let { parameter("access_key", it) }
+            sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponse<CheckVideoFavoured>>()
         return runCatching {
             response.getResponseData().favoured
