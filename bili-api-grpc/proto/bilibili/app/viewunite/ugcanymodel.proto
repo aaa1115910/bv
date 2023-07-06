@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bilibili.app.viewunite.ugcanymodel;
+
+option java_multiple_files = true;
+
+// 
+message ViewUgcAny {
+    
+}
+
+// 
