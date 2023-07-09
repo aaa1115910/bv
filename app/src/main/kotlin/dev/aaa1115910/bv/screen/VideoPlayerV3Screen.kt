@@ -46,6 +46,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
+import dev.aaa1115910.bv.viewmodel.RequestState
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -278,6 +279,19 @@ fun VideoPlayerV3Screen(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(playerViewModel.loadState) {
+        when (playerViewModel.loadState) {
+            RequestState.Ready -> {}
+            RequestState.Doing -> {}
+            RequestState.Done -> {}
+            RequestState.Success -> {}
+            RequestState.Failed -> {
+                exception = Exception(playerViewModel.errorMessage)
+                isError = true
+            }
+        }
     }
 
     DisposableEffect(Unit) {

@@ -241,7 +241,7 @@ class VideoPlayerV3ViewModel(
 
         }.onFailure {
             addLogs("加载视频地址失败：${it.localizedMessage}")
-            errorMessage = it.stackTraceToString()
+            errorMessage = it.localizedMessage ?: "Unknown error"
             loadState = RequestState.Failed
             logger.fException(it) { "Load video failed" }
         }.onSuccess {
