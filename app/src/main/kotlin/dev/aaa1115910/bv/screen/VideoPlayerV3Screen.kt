@@ -393,7 +393,9 @@ fun VideoPlayerV3Screen(
             isError = isError,
             exception = exception,
             clock = clock,
-            showBackToHistory = showBackToHistory
+            showBackToHistory = showBackToHistory,
+            needPay = playerViewModel.needPay,
+            epid = playerViewModel.epid
         )
     ) {
         VideoPlayerController(

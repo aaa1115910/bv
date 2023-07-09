@@ -316,7 +316,9 @@ fun VideoPlayerController(
             isPlaying = data.isPlaying,
             isBuffering = data.isBuffering,
             isError = data.isError,
-            exception = data.exception
+            exception = data.exception,
+            needPay = data.needPay,
+            epid = data.epid
         )
         ControllerVideoInfo(
             show = showInfo,
