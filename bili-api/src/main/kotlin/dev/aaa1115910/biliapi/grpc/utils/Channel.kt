@@ -23,8 +23,8 @@ private const val MOBI_APP = "android_hd"
 private const val DEVICE = "android_hd"
 private const val APP_BUILD_CODE = 6830300
 private const val CHANNEL = "bili"
-private const val PLATFORM = "android_hd"
-private const val APP_ID = 1
+private const val PLATFORM = "android"
+private const val APP_ID = 5
 private const val TIMEZONE = "Asia/Shanghai"
 
 fun generateChannel(
