@@ -1,5 +1,7 @@
 package dev.aaa1115910.biliapi.entity.video.season
 
+import dev.aaa1115910.biliapi.http.entity.season.OtherSeason
+
 data class UgcSeason(
     val id: Int,
     val title: String,
@@ -21,5 +23,28 @@ data class UgcSeason(
                 cover = ugcSeason.cover,
                 sections = ugcSeason.sections.map { Section.fromSection(it) }
             )
+    }
+}
+
+/**
+ * 剧集信息
+ *
+ * @param seasonId 剧集id
+ * @param title 剧集标题，仅 App 端
+ * @param shortTitle 剧集短标题，用于 TabRow 处显示
+ */
+data class PgcSeason(
+    val seasonId: Int,
+    val title: String?,
+    val shortTitle: String
+) {
+    companion object {
+        fun fromSeason(season: OtherSeason): PgcSeason {
+            return PgcSeason(
+                seasonId = season.seasonId,
+                title = season.title,
+                shortTitle = season.seasonTitle
+            )
+        }
     }
 }

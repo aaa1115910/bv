@@ -42,7 +42,9 @@ data class VideoDetail(
             ugcSeason = viewReply.ugcSeasonOrNull?.let { UgcSeason.fromUgcSeason(it) },
             relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) },
             redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
-            epid = runCatching { viewReply.arc.redirectUrl.split("ep")[1].toInt() }.getOrNull(),
+            epid = runCatching {
+                viewReply.arc.redirectUrl.split("ep", "?")[1].toInt()
+            }.getOrNull(),
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
             tags = viewReply.descTagList.map { Tag.fromTag(it) },
             userActions = UserActions.fromReqUser(viewReply.reqUser)
@@ -63,7 +65,7 @@ data class VideoDetail(
                 ugcSeason = videoDetail.view.ugcSeason?.let { UgcSeason.fromUgcSeason(it) },
                 relatedVideos = videoDetail.related.map { RelatedVideo.fromRelate(it) },
                 redirectToEp = videoDetail.view.redirectUrl?.contains("ep") ?: false,
-                epid = videoDetail.view.redirectUrl?.split("ep")?.get(1)?.toInt(),
+                epid = videoDetail.view.redirectUrl?.split("ep", "?")?.get(1)?.toInt(),
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
                 tags = videoDetail.tags.map { Tag.fromTag(it) },
                 userActions = UserActions()

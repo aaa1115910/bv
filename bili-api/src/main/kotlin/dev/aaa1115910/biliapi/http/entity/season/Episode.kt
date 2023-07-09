@@ -16,6 +16,8 @@ import kotlinx.serialization.Serializable
  * @param cover 单集封面url
  * @param dimension 分辨率信息
  * @param duration 时长
+ * @param enableVt
+ * @param epId 同 [id]
  * @param from
  * @param id 单集epid
  * @param isViewHide 是否隐藏
@@ -24,11 +26,14 @@ import kotlinx.serialization.Serializable
  * @param pubTime 发布时间 时间戳
  * @param pv 0 作用尚不明确
  * @param releaseDate 空 作用尚不明确
+ * @param report 仅 App 端
  * @param rights
  * @param shareCopy 《{标题}》+第n话+ 单集完整标题｝
  * @param shareUrl 单集网页url
  * @param shortLink 单集网页url短链接
  * @param skip 跳过片头片尾数据
+ * @param stat 视频数据信息，例如播放数、弹幕数等
+ * @param statForUnity 视频数据信息，例如播放数、弹幕数等
  * @param status
  * @param subtitle 单集副标题 观看次数文字
  * @param title 单集标题
@@ -47,6 +52,10 @@ data class Episode(
     val cover: String,
     val dimension: Dimension? = null,
     val duration: Int = 0,
+    @SerialName("enable_vt")
+    val enableVt: Boolean,
+    @SerialName("ep_id")
+    val epId: Int = 0,
     val from: String = "",
     val id: Int,
     @SerialName("is_view_hide")
@@ -59,6 +68,7 @@ data class Episode(
     val pv: Int,
     @SerialName("release_date")
     val releaseDate: String = "",
+    val report: Report? = null,
     val rights: EpisodeRights? = null,
     @SerialName("share_copy")
     val shareCopy: String = "",
@@ -67,6 +77,9 @@ data class Episode(
     @SerialName("short_link")
     val shortLink: String = "",
     val skip: Skip? = null,
+    val stat: Stat? = null,
+    @SerialName("stat_for_unity")
+    val statForUnity: StatForUnity? = null,
     val status: Int,
     val subtitle: String = "",
     val title: String,
@@ -134,6 +147,59 @@ data class Episode(
         data class SkipTime(
             val start: Int,
             val end: Int
+        )
+    }
+
+    @Serializable
+    data class Report(
+        val aid: String,
+        @SerialName("ep_title")
+        val epTitle: String,
+        val epid: String? = null,
+        val position: String,
+        @SerialName("season_id")
+        val seasonId: String,
+        @SerialName("season_type")
+        val seasonType: String,
+        @SerialName("section_id")
+        val sectionId: String,
+        @SerialName("section_type")
+        val sectionType: String,
+        val style: String? = null
+    )
+
+    @Serializable
+    data class Stat(
+        val coin: Int,
+        val danmakus: Int,
+        val likes: Int,
+        val play: Int,
+        val reply: Int,
+        val vt: Int
+    )
+
+    @Serializable
+    data class StatForUnity(
+        val coin: Int,
+        val danmaku: Danmaku,
+        val likes: Int,
+        val reply: Int,
+        val vt: Vt
+    ) {
+        @Serializable
+        data class Danmaku(
+            val icon: String,
+            @SerialName("pure_text")
+            val pureText: String,
+            val text: String,
+            val value: Int
+        )
+
+        @Serializable
+        data class Vt(
+            val icon: String,
+            val text: String,
+            val value: Int
         )
     }
 }

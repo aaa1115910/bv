@@ -356,14 +356,26 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get season info data`() {
+    fun `get web season info data`() {
         runBlocking {
             println(
-                BiliHttpApi.getSeasonInfo(
+                BiliHttpApi.getWebSeasonInfo(
                     epId = 705917
                 )
             )
         }
+    }
+
+    @Test
+    fun `get app season info data`() = runBlocking {
+        println(
+            BiliHttpApi.getAppSeasonInfo(
+                epId = 752900,
+                seasonId = 45303,
+                mobiApp = "android_hd",
+                accessKey = ACCESS_TOKEN
+            )
+        )
     }
 
     @Test

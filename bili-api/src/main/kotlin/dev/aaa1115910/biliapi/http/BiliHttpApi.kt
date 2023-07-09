@@ -15,11 +15,12 @@ import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.search.HotwordData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
+import dev.aaa1115910.biliapi.http.entity.season.AppSeasonData
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonData
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.http.entity.season.SeasonData
 import dev.aaa1115910.biliapi.http.entity.season.SeasonFollowData
+import dev.aaa1115910.biliapi.http.entity.season.WebSeasonData
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.MyInfoData
@@ -647,8 +648,8 @@ object BiliHttpApi {
                         append("del_media_ids", delMediaIds.joinToString(separator = ","))
                         csrf?.let { append("csrf", it) }
                         accessKey?.let { append("access_key", it) }
-                }
-            ))
+                    }
+                ))
             sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponse<SetVideoFavorite>>()
         check(response.code == 0) { response.message }
@@ -701,19 +702,67 @@ object BiliHttpApi {
     }.body()
 
     /**
-     * 获取剧集[seasonId]或[epId]的详细信息，例如 ss24439 ep234533，传参仅需数字
+     * 获取剧集[seasonId]或[epId]的详细信息 (Web)，例如 ss24439 ep234533，传参仅需数字
      */
-    suspend fun getSeasonInfo(
+    suspend fun getWebSeasonInfo(
         seasonId: Int? = null,
         epId: Int? = null,
         sessData: String = ""
-    ): BiliResponse<SeasonData> = client.get("/pgc/view/web/season") {
+    ): BiliResponse<WebSeasonData> = client.get("/pgc/view/web/season") {
         require(seasonId != null || epId != null) { "seasonId and epId cannot be null at the same time" }
         seasonId?.let { parameter("season_id", it) }
         epId?.let { parameter("ep_id", it) }
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 获取剧集[seasonId]或[epId]的详细信息 (App)，例如 ss24439 ep234533，传参仅需数字
+     */
+    suspend fun getAppSeasonInfo(
+        seasonId: Int? = null,
+        epId: Int? = null,
+        mobiApp: String,
+        adExtra: String? = null,
+        autoPlay: Int? = null,
+        build: Int? = null,
+        cLocale: String? = null,
+        channel: String? = null,
+        disableRcmd: Int? = null,
+        fromAv: String? = null,
+        fromSpmid: String? = null,
+        isShowAllSeries: Int? = null,
+        platform: String? = null,
+        sLocale: String? = null,
+        spmid: String? = null,
+        statistics: String? = null,
+        trackPath: String? = null,
+        trackid: String? = null,
+        ts: Int? = null,
+        accessKey: String? = ""
+    ): BiliResponse<AppSeasonData> = client.get("/pgc/view/v2/app/season") {
+        require(seasonId != null || epId != null) { "seasonId and epId cannot be null at the same time" }
+        seasonId?.let { parameter("season_id", it) }
+        epId?.let { parameter("ep_id", it) }
+        parameter("mobi_app", mobiApp)
+        adExtra?.let { parameter("ad_extra", it) }
+        autoPlay?.let { parameter("auto_play", it) }
+        build?.let { parameter("build", it) }
+        cLocale?.let { parameter("c_locale", it) }
+        channel?.let { parameter("channel", it) }
+        disableRcmd?.let { parameter("disable_rcmd", it) }
+        fromAv?.let { parameter("from_av", it) }
+        fromSpmid?.let { parameter("from_spmid", it) }
+        isShowAllSeries?.let { parameter("is_show_all_series", it) }
+        platform?.let { parameter("platform", it) }
+        sLocale?.let { parameter("s_locale", it) }
+        spmid?.let { parameter("spmid", it) }
+        statistics?.let { parameter("statistics", it) }
+        trackPath?.let { parameter("track_path", it) }
+        trackid?.let { parameter("trackid", it) }
+        ts?.let { parameter("ts", it) }
+        accessKey?.let { parameter("access_key", accessKey) }
     }.body()
 
     /**
@@ -747,12 +796,12 @@ object BiliHttpApi {
     }.body()
 
     /**
-     * 单独获取剧集[seasonId]的用户信息[SeasonData.UserStatus]
+     * 单独获取剧集[seasonId]的用户信息[WebSeasonData.UserStatus]
      */
     suspend fun getSeasonUserStatus(
         seasonId: Int,
         sessData: String
-    ): BiliResponse<SeasonData.UserStatus> = client.get("/pgc/view/web/season/user/status") {
+    ): BiliResponse<WebSeasonData.UserStatus> = client.get("/pgc/view/web/season/user/status") {
         parameter("season_id", seasonId)
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证

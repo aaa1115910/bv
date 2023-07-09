@@ -4,6 +4,7 @@ import bilibili.app.view.v1.ViewGrpcKt
 import bilibili.app.view.v1.viewReq
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
+import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,31 @@ class VideoDetailRepository(
                     }) ?: throw IllegalStateException("Player stub is not initialized")
                 }.onFailure { handleGrpcException(it) }.getOrThrow()
                 VideoDetail.fromViewReply(viewReply)
+            }
+        }
+    }
+
+    suspend fun getPgcVideoDetail(
+        epid: Int? = null,
+        seasonId: Int? = null,
+        preferApiType: ApiType = ApiType.Web
+    ): SeasonDetail {
+        when (preferApiType) {
+            ApiType.Web -> {
+                val webSeasonData = BiliHttpApi.getWebSeasonInfo(
+                    epId = epid,
+                    seasonId = seasonId,
+                ).getResponseData()
+                return SeasonDetail.fromSeasonData(webSeasonData)
+            }
+
+            ApiType.App -> {
+                val appSeasonData = BiliHttpApi.getAppSeasonInfo(
+                    epId = epid,
+                    seasonId = seasonId,
+                    mobiApp = "android_hd"
+                ).getResponseData()
+                return SeasonDetail.fromSeasonData(appSeasonData)
             }
         }
     }

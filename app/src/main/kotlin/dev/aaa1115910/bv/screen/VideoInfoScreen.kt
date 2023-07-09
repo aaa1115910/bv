@@ -152,7 +152,7 @@ fun VideoInfoScreen(
     val containsVerticalScreenVideo by remember {
         derivedStateOf {
             videoDetailViewModel.videoDetail?.pages?.any { it.dimension.isVertical } ?: false
-                    || videoDetailViewModel.videoDetail?.ugcSeason?.sections?.any { section -> section.episodes.any { it.dimension.isVertical } } ?: false
+                    || videoDetailViewModel.videoDetail?.ugcSeason?.sections?.any { section -> section.episodes.any { it.dimension!!.isVertical } } ?: false
         }
     }
 

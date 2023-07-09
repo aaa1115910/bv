@@ -158,4 +158,34 @@ class VideoDetailRepositoryTest {
             }
         }
     }
+
+    @Test
+    fun `get pgc season video prefer web api`() {
+        runBlocking {
+            runCatching {
+                val result = videoDetailRepository.getPgcVideoDetail(
+                    epid = 752900,
+                    preferApiType = ApiType.Web
+                )
+                println(result)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    @Test
+    fun `get pgc season video prefer app api`() {
+        runBlocking {
+            runCatching {
+                val result = videoDetailRepository.getPgcVideoDetail(
+                    epid = 752900,
+                    preferApiType = ApiType.App
+                )
+                println(result)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
 }

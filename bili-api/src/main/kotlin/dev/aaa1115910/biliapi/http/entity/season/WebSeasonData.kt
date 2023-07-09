@@ -37,6 +37,7 @@ import kotlinx.serialization.Serializable
  * @param squareCover 方形封面图片url
  * @param stat 状态数
  * @param status
+ * @param style 剧集风格
  * @param subtitle 剧集副标题
  * @param title 剧集标题
  * @param total 总计正片集数 未完结：大多为-1 已完结：正整数
@@ -45,7 +46,7 @@ import kotlinx.serialization.Serializable
  * @param userStatus 用户信息
  */
 @Serializable
-data class SeasonData(
+data class WebSeasonData(
     val activity: Activity,
     val alias: String,
     @SerialName("bkg_cover")
@@ -85,6 +86,7 @@ data class SeasonData(
     val squareCover: String,
     val stat: SeasonStat,
     val status: Int,
+    val styles: List<String> = emptyList(),
     val subtitle: String,
     val title: String,
     val total: Int,
@@ -109,30 +111,6 @@ data class SeasonData(
         val id: Int,
         val title: String
     )
-
-    /**
-     * 更新信息
-     *
-     * @param cover 封面
-     * @param desc 更新备注
-     * @param id 最新一话epid
-     * @param indexShow 集数
-     * @param _isNew 是否最新发布 0：否 1：是
-     * @param title 最新一话标题
-     */
-    @Serializable
-    data class NewEP(
-        val cover: String = "",
-        val desc: String = "",
-        val id: Int,
-        @SerialName("index_show")
-        val indexShow: String = "",
-        @SerialName("is_new")
-        private val _isNew: Int = 0,
-        val title: String = ""
-    ) {
-        val isNew = _isNew == 1
-    }
 
     /**
      * 会员&付费信息
@@ -197,144 +175,6 @@ data class SeasonData(
         val id: Int,
         val title: String
     )
-
-    /**
-     * 发布信息
-     *
-     * @param _isFinish 完结状态 0：未完结 1：已完结
-     * @param _isStarted 是否发布 0：未发布 1：已发布
-     * @param pubTime 发布时间 YYYY-MM-DDD hh:mm:ss
-     * @param pubTimeShow 发布时间文字介绍
-     * @param unknowPubDate 0 作用尚不明确
-     * @param weekday 0 作用尚不明确
-     */
-    @Serializable
-    data class Publish(
-        @SerialName("is_finish")
-        private val _isFinish: Int,
-        @SerialName("is_started")
-        private val _isStarted: Int,
-        @SerialName("pub_time")
-        val pubTime: String,
-        @SerialName("pub_time_show")
-        val pubTimeShow: String,
-        @SerialName("unknow_pub_date")
-        val unknowPubDate: Int,
-        val weekday: Int
-    ) {
-        val isFinish = _isFinish == 1
-        val isStarted = _isStarted == 1
-    }
-
-    /**
-     * 评分信息
-     *
-     * @param count 总计评分人数
-     * @param score 评分
-     */
-    @Serializable
-    data class Rating(
-        val count: Int,
-        val score: Float
-    )
-
-    /**
-     * 属性标志信息
-     *
-     * @param allowBp
-     * @param allowBpRank
-     * @param allowDownload
-     * @param allowReview
-     * @param areaLimit
-     * @param banAreaShow
-     * @param canWatch
-     * @param copyright 版权标志 bilibili：授权 dujia：独家
-     * @param forbidPre
-     * @param isCoverShow
-     * @param isPreview
-     * @param onlyVipDownload
-     * @param resource
-     * @param watchPlatform
-     */
-    @Serializable
-    data class SeasonRights(
-        @SerialName("allow_bp")
-        val allowBp: Int,
-        @SerialName("allow_bp_rank")
-        val allowBpRank: Int,
-        @SerialName("allow_download")
-        val allowDownload: Int,
-        @SerialName("allow_review")
-        val allowReview: Int,
-        @SerialName("area_limit")
-        val areaLimit: Int,
-        @SerialName("ban_area_show")
-        val banAreaShow: Int,
-        @SerialName("can_watch")
-        val canWatch: Int,
-        val copyright: String,
-        @SerialName("forbid_pre")
-        val forbidPre: Int,
-        @SerialName("is_cover_show")
-        val isCoverShow: Int,
-        @SerialName("is_preview")
-        val isPreview: Int,
-        @SerialName("only_vip_download")
-        val onlyVipDownload: Int,
-        val resource: String,
-        @SerialName("watch_platform")
-        val watchPlatform: Int
-    )
-
-    /**
-     * 同系列其它季
-     *
-     * @param badge
-     * @param badgeInfo
-     * @param badgeType
-     * @param cover 剧集封面图片url
-     * @param mediaId 剧集mdid
-     * @param newEp  更新信息
-     * @param seasonId
-     * @param seasonTitle
-     * @param seasonType
-     * @param stat
-     */
-    @Serializable
-    data class OtherSeason(
-        val badge: String,
-        @SerialName("badge_info")
-        val badgeInfo: Episode.BadgeInfo,
-        @SerialName("badge_type")
-        val badgeType: Int,
-        val cover: String,
-        @SerialName("media_id")
-        val mediaId: Int,
-        @SerialName("new_ep")
-        val newEp: NewEP,
-        @SerialName("season_id")
-        val seasonId: Int,
-        @SerialName("season_title")
-        val seasonTitle: String,
-        @SerialName("season_type")
-        val seasonType: Int,
-        val stat: Stat
-    ) {
-        /**
-         * 剧集数据信息
-         *
-         * @param favorites 单季追剧人数
-         * @param seriesFollow 系列追剧人数
-         * @param views 播放次数
-         */
-        @Serializable
-        data class Stat(
-            val favorites: Int,
-            @SerialName("series_follow")
-            val seriesFollow: Int,
-            val views: Int
-        )
-    }
 
     /**
      * 系列信息
@@ -513,3 +353,200 @@ data class SeasonData(
         )
     }
 }
+
+/**
+ * 同系列其它季
+ *
+ * @param badge 标签，例如“独家”
+ * @param badgeInfo
+ * @param badgeType
+ * @param cover 剧集封面图片url
+ * @param horizontalCover 横向封面图片url，仅 App
+ * @param link 剧集链接，仅 App
+ * @param mediaId 剧集mdid，仅 Web
+ * @param newEp  更新信息
+ * @param report 仅 App
+ * @param resource 仅 App
+ * @param seasonId
+ * @param seasonTitle 剧集短标题，用于 Tab 处显示
+ * @param seasonType
+ * @param stat 仅 Web
+ * @param title 剧集完整长标题，仅 App
+ */
+@Serializable
+data class OtherSeason(
+    val badge: String,
+    @SerialName("badge_info")
+    val badgeInfo: Episode.BadgeInfo,
+    @SerialName("badge_type")
+    val badgeType: Int,
+    val cover: String,
+    @SerialName("horizontal_cover")
+    val horizontalCover: String? = null,
+    val link: String? = null,
+    @SerialName("media_id")
+    val mediaId: Int? = null,
+    @SerialName("new_ep")
+    val newEp: NewEP,
+    val report: Report? = null,
+    val resource: String? = null,
+    @SerialName("season_id")
+    val seasonId: Int,
+    @SerialName("season_title")
+    val seasonTitle: String,
+    @SerialName("season_type")
+    val seasonType: Int? = null,
+    val stat: Stat? = null,
+    val title: String? = null
+) {
+    /**
+     * 剧集数据信息
+     *
+     * @param favorites 单季追剧人数
+     * @param seriesFollow 系列追剧人数
+     * @param views 播放次数
+     */
+    @Serializable
+    data class Stat(
+        val favorites: Int,
+        @SerialName("series_follow")
+        val seriesFollow: Int,
+        val views: Int
+    )
+
+    @Serializable
+    data class Report(
+        @SerialName("display_type")
+        val displayType: String,
+        @SerialName("season_id")
+        val seasonId: String,
+        @SerialName("season_type")
+        val seasonType: String,
+        @SerialName("version_style")
+        val versionStyle: String
+    )
+}
+
+/**
+ * 更新信息
+ *
+ * @param cover 封面
+ * @param desc 更新备注
+ * @param id 最新一话epid
+ * @param indexShow 集数
+ * @param _isNew 是否最新发布 0：否 1：是
+ * @param title 最新一话标题
+ */
+@Serializable
+data class NewEP(
+    val cover: String = "",
+    val desc: String = "",
+    val id: Int,
+    @SerialName("index_show")
+    val indexShow: String = "",
+    @SerialName("is_new")
+    private val _isNew: Int = 0,
+    val title: String = ""
+) {
+    val isNew = _isNew == 1
+}
+
+/**
+ * 发布信息
+ *
+ * @param _isFinish 完结状态 0：未完结 1：已完结
+ * @param _isStarted 是否发布 0：未发布 1：已发布
+ * @param pubTime 发布时间 YYYY-MM-DDD hh:mm:ss
+ * @param pubTimeShow 发布时间文字介绍
+ * @param releaseDateShow 发布日期文字介绍，仅 App 端，例如 "2020年8月15日开播"
+ * @param timeLengthShow 应该可能是更新时间显示，仅 App 端，例如 "已完结，全1话"
+ * @param unknowPubDate 0 作用尚不明确
+ * @param updateInfoDesc 更新信息，仅 App 端，例如 "更已完结，全1话"
+ * @param weekday 0 作用尚不明确
+ */
+@Serializable
+data class Publish(
+    @SerialName("is_finish")
+    private val _isFinish: Int,
+    @SerialName("is_started")
+    private val _isStarted: Int,
+    @SerialName("pub_time")
+    val pubTime: String,
+    @SerialName("pub_time_show")
+    val pubTimeShow: String,
+    @SerialName("release_date_show")
+    val releaseDateShow: String? = null,
+    @SerialName("time_length_show")
+    val timeLengthShow: String? = null,
+    @SerialName("unknow_pub_date")
+    val unknowPubDate: Int,
+    @SerialName("update_info_desc")
+    val updateInfoDesc: String? = null,
+    val weekday: Int
+) {
+    val isFinish = _isFinish == 1
+    val isStarted = _isStarted == 1
+}
+
+/**
+ * 评分信息
+ *
+ * @param count 总计评分人数
+ * @param score 评分
+ */
+@Serializable
+data class Rating(
+    val count: Int,
+    val score: Float
+)
+
+/**
+ * 属性标志信息
+ *
+ * @param allowBp
+ * @param allowBpRank
+ * @param allowDownload
+ * @param allowReview
+ * @param areaLimit
+ * @param banAreaShow
+ * @param canWatch
+ * @param copyright 版权标志 bilibili：授权 dujia：独家
+ * @param copyrightName 版权名称，仅 App 端，例如 “独家”
+ * @param forbidPre
+ * @param isCoverShow
+ * @param isPreview
+ * @param onlyVipDownload
+ * @param resource
+ * @param watchPlatform
+ */
+@Serializable
+data class SeasonRights(
+    @SerialName("allow_bp")
+    val allowBp: Int,
+    @SerialName("allow_bp_rank")
+    val allowBpRank: Int,
+    @SerialName("allow_download")
+    val allowDownload: Int,
+    @SerialName("allow_review")
+    val allowReview: Int,
+    @SerialName("area_limit")
+    val areaLimit: Int,
+    @SerialName("ban_area_show")
+    val banAreaShow: Int,
+    @SerialName("can_watch")
+    val canWatch: Int,
+    val copyright: String,
+    @SerialName("copyright_name")
+    val copyrightName: String? = null,
+    @SerialName("forbid_pre")
+    val forbidPre: Int,
+    @SerialName("is_cover_show")
+    val isCoverShow: Int,
+    @SerialName("is_preview")
+    val isPreview: Int,
+    @SerialName("only_vip_download")
+    val onlyVipDownload: Int,
+    val resource: String,
+    @SerialName("watch_platform")
+    val watchPlatform: Int
+)
