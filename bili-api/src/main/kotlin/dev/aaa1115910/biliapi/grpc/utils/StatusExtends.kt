@@ -41,8 +41,14 @@ fun handleGrpcException(it: Throwable) {
             )
             val data = it.trailers[statusDetailsKey]
             val status = Status.parseFrom(data).getDetail()
-            if (status is bilibili.rpc.Status) {
-                throw IllegalStateException(status.message)
+            when (status) {
+                is bilibili.rpc.Status -> {
+                    throw IllegalStateException(status.message)
+                }
+
+                is common.ErrorProto -> {
+                    throw IllegalStateException(status.message)
+                }
             }
         }
 
