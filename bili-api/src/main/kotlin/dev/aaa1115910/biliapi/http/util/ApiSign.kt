@@ -8,6 +8,7 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.parameter
 import io.ktor.client.request.setBody
+import io.ktor.client.utils.EmptyContent
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.http.encodedPath
@@ -100,6 +101,7 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
             }
 
             HttpMethod.Post -> {
+                if (request.body is EmptyContent) return@intercept execute(request)
                 val parameters = (request.body as FormDataContent).formData
                 val isParametersContainKeywords = parameters.contains("access_key")
                 val isPathContainKeywords = request.url.encodedPath.contains("passport")
