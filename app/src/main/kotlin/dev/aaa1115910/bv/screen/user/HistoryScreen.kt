@@ -61,13 +61,23 @@ fun HistoryScreen(
                         text = stringResource(R.string.user_homepage_recent),
                         fontSize = titleFontSize.sp
                     )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            historyViewModel.histories.size
-                        ),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    if (historyViewModel.noMore) {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count_no_more,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }

@@ -1,7 +1,10 @@
 package dev.aaa1115910.bv.viewmodel.user
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.BiliApi
@@ -32,6 +35,7 @@ class HistoryViewModel(
 
     private var max = 0L
     private var viewAt = 0L
+    var noMore by mutableStateOf(false)
 
     private var updating = false
 
@@ -42,7 +46,7 @@ class HistoryViewModel(
     }
 
     private suspend fun updateHistories(context: Context = BVApp.context) {
-        if (updating) return
+        if (updating || noMore) return
         logger.fInfo { "Updating histories with params [max=$max, viewAt=$viewAt]" }
         updating = true
         runCatching {
@@ -75,6 +79,10 @@ class HistoryViewModel(
             viewAt = responseData.cursor.viewAt
             logger.fInfo { "Update history cursor: [max=$max, viewAt=$viewAt]" }
             logger.fInfo { "Update histories success" }
+            if (max == 0L && viewAt == 0L) {
+                noMore = true
+                logger.fInfo { "No more history" }
+            }
         }.onFailure {
             logger.fWarn { "Update histories failed: ${it.stackTraceToString()}" }
             when (it) {
