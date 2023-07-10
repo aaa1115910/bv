@@ -1,8 +1,8 @@
 package dev.aaa1115910.biliapi.http
 
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.video.TimelineType
@@ -563,19 +563,40 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get following season data`() {
+    fun `get web following season data`() {
         runBlocking {
             for (followingSeasonType in FollowingSeasonType.values()) {
                 for (followingSeasonStatus in FollowingSeasonStatus.values()) {
                     println("type: $followingSeasonType, status: $followingSeasonStatus: ")
                     println(
                         BiliHttpApi.getFollowingSeasons(
-                            type = followingSeasonType,
-                            status = followingSeasonStatus,
+                            type = followingSeasonType.id,
+                            status = followingSeasonStatus.id,
                             pageNumber = 1,
                             pageSize = 1,
                             mid = UID,
                             sessData = SESSDATA
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `get app following season data`() {
+        runBlocking {
+            for (followingSeasonType in FollowingSeasonType.values()) {
+                for (followingSeasonStatus in FollowingSeasonStatus.values()) {
+                    println("type: $followingSeasonType, status: $followingSeasonStatus: ")
+                    println(
+                        BiliHttpApi.getFollowingSeasons(
+                            type = followingSeasonType.paramName,
+                            status = followingSeasonStatus.id,
+                            pageNumber = 1,
+                            pageSize = 1,
+                            build = 6830300,
+                            accessKey = ACCESS_TOKEN
                         )
                     )
                 }

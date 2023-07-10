@@ -97,6 +97,7 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
                 } else if (isAppRequest) {
                     println("Enc app sign for get request: ${request.url}")
                     request.encAppGet()
+                    println(request.url)
                 }
             }
 

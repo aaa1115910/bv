@@ -5,6 +5,7 @@ import bilibili.metadata.locale.locale
 import bilibili.metadata.metadata
 import bilibili.metadata.network.NetworkType
 import bilibili.metadata.network.network
+import dev.aaa1115910.biliapi.http.util.BiliAppConf
 import io.grpc.CallOptions
 import io.grpc.Channel
 import io.grpc.ClientCall
@@ -17,21 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import io.grpc.Metadata as GrpcMetadata
 
-private const val HOST = "grpc.biliapi.net"
-private const val PORT = 443
-private const val MOBI_APP = "android_hd"
-private const val DEVICE = "android_hd"
-private const val APP_BUILD_CODE = 6830300
-private const val CHANNEL = "bili"
-private const val PLATFORM = "android"
-private const val APP_ID = 5
-private const val TIMEZONE = "Asia/Shanghai"
-
 fun generateChannel(
     accessKey: String,
     buvid: String
 ): ManagedChannel = ManagedChannelBuilder
-    .forAddress(HOST, PORT)
+    .forAddress(BiliAppConf.GRPC_HOST, BiliAppConf.GRPC_PORT)
     .useTransportSecurity()
     .executor(Dispatchers.IO.asExecutor())
     .intercept(MetadataInterceptor(accessKey, buvid))
@@ -71,12 +62,12 @@ fun GrpcMetadata.putMetadataBin(accessKey: String, buvid: String) {
         GrpcMetadata.Key.of("x-bili-metadata-bin", GrpcMetadata.BINARY_BYTE_MARSHALLER),
         metadata {
             this.accessKey = accessKey
-            mobiApp = MOBI_APP
-            device = DEVICE
-            build = APP_BUILD_CODE
-            channel = CHANNEL
+            mobiApp = BiliAppConf.MOBI_APP
+            device = BiliAppConf.DEVICE
+            build = BiliAppConf.APP_BUILD_CODE
+            channel = BiliAppConf.CHANNEL
             this.buvid = buvid
-            platform = PLATFORM
+            platform = BiliAppConf.PLATFORM
         }.toByteArray()
     )
 }
@@ -85,13 +76,13 @@ fun GrpcMetadata.putDeviceBin(buvid: String) {
     put(
         io.grpc.Metadata.Key.of("x-bili-device-bin", GrpcMetadata.BINARY_BYTE_MARSHALLER),
         device {
-            appId = APP_ID
-            mobiApp = MOBI_APP
-            device = DEVICE
-            build = APP_BUILD_CODE
-            channel = CHANNEL
+            appId = BiliAppConf.APP_ID
+            mobiApp = BiliAppConf.MOBI_APP
+            device = BiliAppConf.DEVICE
+            build = BiliAppConf.APP_BUILD_CODE
+            channel = BiliAppConf.CHANNEL
             this.buvid = buvid
-            platform = PLATFORM
+            platform = BiliAppConf.PLATFORM
         }.toByteArray()
     )
 }
@@ -100,7 +91,7 @@ fun GrpcMetadata.putLocalBin() {
     put(
         io.grpc.Metadata.Key.of("x-bili-local-bin", GrpcMetadata.BINARY_BYTE_MARSHALLER),
         locale {
-            timezone = TIMEZONE
+            timezone = BiliAppConf.TIMEZONE
         }.toByteArray()
     )
 }

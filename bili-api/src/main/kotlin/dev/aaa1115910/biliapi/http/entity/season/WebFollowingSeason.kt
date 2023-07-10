@@ -3,14 +3,15 @@ package dev.aaa1115910.biliapi.http.entity.season
 import dev.aaa1115910.biliapi.http.entity.video.VideoStat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 
 /**
  * 追剧
  */
 @Serializable
-data class FollowingSeasonData(
-    val list: List<FollowingSeason>,
+data class FollowingSeasonWebData(
+    val list: List<WebFollowingSeason>,
     @SerialName("pn")
     val pageNumber: Int,
     @SerialName("ps")
@@ -19,7 +20,22 @@ data class FollowingSeasonData(
 )
 
 @Serializable
-data class FollowingSeason(
+data class FollowingSeasonAppData(
+    @SerialName("follow_list")
+    val followList: List<AppFollowingSeason> = emptyList(),
+    @SerialName("has_next")
+    private val _hasNext: Int,
+    val hasNext: Boolean = _hasNext == 1,
+    val series: JsonElement? = null,
+    val total: Int,
+    @SerialName("vip_tip")
+    val vipTip: JsonArray? = null,
+    val want: JsonArray? = null,
+    val watched: JsonArray? = null
+)
+
+@Serializable
+data class WebFollowingSeason(
     val badge: String,
     @SerialName("badge_ep")
     val badgeEp: String,
@@ -99,7 +115,7 @@ data class FollowingSeason(
     val totalCount: Int,
     val url: String,
     @SerialName("viewable_crowd_type")
-    val viewableCrowdType: Int?=null
+    val viewableCrowdType: Int? = null
 ) {
     @Serializable
     data class BadgeInfo(
@@ -201,6 +217,85 @@ data class FollowingSeason(
     )
 }
 
+@Serializable
+data class AppFollowingSeason(
+    val areas: List<Area> = emptyList(),
+    val badge: String,
+    @SerialName("badge_info")
+    val badgeInfo: BadgeInfo,
+    @SerialName("badge_type")
+    val badgeType: Int,
+    @SerialName("can_watch")
+    val canWatch: Int,
+    val cover: String,
+    val follow: Int,
+    @SerialName("is_finish")
+    private val _isFinish: Int,
+    val isFinish: Boolean = _isFinish == 1,
+    val movable: Int,
+    val mtime: Int,
+    @SerialName("new_ep")
+    val newEp: NewEp,
+    val progress: Progress,
+    @SerialName("season_id")
+    val seasonId: Int,
+    @SerialName("season_type")
+    val seasonType: Int,
+    @SerialName("season_type_name")
+    val seasonTypeName: String,
+    val series: Series,
+    @SerialName("square_cover")
+    val squareCover: String,
+    val title: String,
+    val url: String
+) {
+    @Serializable
+    data class Area(
+        val id: Int,
+        val name: String
+    )
+
+    @Serializable
+    data class BadgeInfo(
+        @SerialName("bg_color")
+        val bgColor: String,
+        @SerialName("bg_color_night")
+        val bgColorNight: String,
+        val img: String? = null,
+        val text: String
+    )
+
+    @Serializable
+    data class NewEp(
+        val cover: String,
+        val duration: Int,
+        val id: Int,
+        @SerialName("index_show")
+        val indexShow: String,
+        @SerialName("is_new")
+        private val _isNew: Int,
+        val isNew: Boolean = _isNew == 1
+    )
+
+    @Serializable
+    data class Progress(
+        @SerialName("index_show")
+        val indexShow: String,
+        @SerialName("last_ep_id")
+        val lastEpId: Int,
+        @SerialName("last_time")
+        val lastTime: Int,
+    )
+
+    @Serializable
+    data class Series(
+        val count: Int,
+        val id: Int,
+        val title: String
+    )
+}
+
+/*
 enum class FollowingSeasonType(val id: Int) {
     Bangumi(id = 1), FilmAndTelevision(id = 2)
 }
@@ -208,3 +303,4 @@ enum class FollowingSeasonType(val id: Int) {
 enum class FollowingSeasonStatus(val id: Int) {
     All(id = 0), Want(id = 1), Watching(id = 2), Watched(id = 3)
 }
+*/

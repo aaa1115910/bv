@@ -105,4 +105,40 @@ class UserRepository(
             it.printStackTrace()
         }.getOrNull() ?: 0
     }
+
+    suspend fun addSeasonFollow(
+        seasonId: Int,
+        preferApiType: ApiType = ApiType.Web
+    ): String {
+        return when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.addSeasonFollow(
+                seasonId = seasonId,
+                csrf = authRepository.biliJct!!,
+                sessData = authRepository.sessionData!!
+            )
+
+            ApiType.App -> BiliHttpApi.addSeasonFollow(
+                seasonId = seasonId,
+                accessKey = authRepository.accessToken!!
+            )
+        }.getResponseData().toast
+    }
+
+    suspend fun delSeasonFollow(
+        seasonId: Int,
+        preferApiType: ApiType = ApiType.Web
+    ): String {
+        return when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.delSeasonFollow(
+                seasonId = seasonId,
+                csrf = authRepository.biliJct!!,
+                sessData = authRepository.sessionData!!
+            )
+
+            ApiType.App -> BiliHttpApi.delSeasonFollow(
+                seasonId = seasonId,
+                accessKey = authRepository.accessToken!!
+            )
+        }.getResponseData().toast
+    }
 }

@@ -75,7 +75,7 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
-import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
@@ -105,7 +105,8 @@ fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     videoInfoRepository: VideoInfoRepository = getKoin().get(),
-    videoDetailRepository: VideoDetailRepository = getKoin().get()
+    videoDetailRepository: VideoDetailRepository = getKoin().get(),
+    userRepository: UserRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -319,11 +320,10 @@ fun SeasonInfoScreen(
                             if (isFollowing) {
                                 scope.launch(Dispatchers.Default) {
                                     runCatching {
-                                        val resultToast = BiliHttpApi.delSeasonFollow(
+                                        val resultToast = userRepository.delSeasonFollow(
                                             seasonId = seasonData?.seasonId ?: return@launch,
-                                            csrf = Prefs.biliJct,
-                                            sessData = Prefs.sessData
-                                        ).getResponseData().toast
+                                            preferApiType = Prefs.apiType
+                                        )
                                         isFollowing = false
                                         withContext(Dispatchers.Main) {
                                             resultToast.toast(context)
@@ -338,11 +338,10 @@ fun SeasonInfoScreen(
                             } else {
                                 scope.launch(Dispatchers.Default) {
                                     runCatching {
-                                        val resultToast = BiliHttpApi.addSeasonFollow(
+                                        val resultToast = userRepository.addSeasonFollow(
                                             seasonId = seasonData?.seasonId ?: return@launch,
-                                            csrf = Prefs.biliJct,
-                                            sessData = Prefs.sessData
-                                        ).getResponseData().toast
+                                            preferApiType = Prefs.apiType
+                                        )
                                         isFollowing = true
                                         withContext(Dispatchers.Main) {
                                             resultToast.toast(context)

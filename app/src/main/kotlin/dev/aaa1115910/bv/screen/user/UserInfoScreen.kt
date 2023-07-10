@@ -61,11 +61,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
+import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
+import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -100,6 +101,7 @@ fun UserInfoScreen(
     userViewModel: UserViewModel = koinViewModel(),
     userRepository: UserRepository = getKoin().get(),
     favoriteRepository: FavoriteRepository = getKoin().get(),
+    seasonRepository: SeasonRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -180,15 +182,14 @@ fun UserInfoScreen(
         //update followed animes
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val followedSeasons = BiliHttpApi.getFollowingSeasons(
+                val followingSeasonData = seasonRepository.getFollowingSeasons(
                     type = FollowingSeasonType.Bangumi,
                     status = FollowingSeasonStatus.All,
                     pageNumber = 1,
                     pageSize = 15,
-                    mid = Prefs.uid,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                followedSeasons.list.forEach { followedSeason ->
+                    preferApiType = Prefs.apiType
+                )
+                followingSeasonData.list.forEach { followedSeason ->
                     animes.add(
                         SeasonCardData(
                             seasonId = followedSeason.seasonId,

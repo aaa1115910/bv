@@ -14,6 +14,7 @@ import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
+import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
@@ -78,6 +79,7 @@ class BVApp : Application() {
         authRepository.sessionData = Prefs.sessData.takeIf { it.isNotEmpty() }
         authRepository.biliJct = Prefs.biliJct.takeIf { it.isNotEmpty() }
         authRepository.accessToken = Prefs.accessToken.takeIf { it.isNotEmpty() }
+        authRepository.mid = Prefs.uid.takeIf { it != 0L }
     }
 }
 
@@ -91,6 +93,7 @@ val appModule = module {
     single { FavoriteRepository(get()) }
     single { VideoPlayRepository(get(), get()) }
     single { VideoDetailRepository(get(), get(), get()) }
+    single { SeasonRepository(get()) }
     viewModel { DynamicViewModel(get()) }
     viewModel { PopularViewModel() }
     viewModel { WebQrLoginViewModel(get(), get()) }
@@ -105,7 +108,7 @@ val appModule = module {
     viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
     viewModel { AnimeViewModel() }
-    viewModel { FollowingSeasonViewModel() }
+    viewModel { FollowingSeasonViewModel(get()) }
     viewModel { TagViewModel() }
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
     viewModel { VideoDetailViewModel(get()) }

@@ -16,9 +16,8 @@ import dev.aaa1115910.biliapi.http.entity.search.HotwordData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
 import dev.aaa1115910.biliapi.http.entity.season.AppSeasonData
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonData
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonStatus
-import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonAppData
+import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonWebData
 import dev.aaa1115910.biliapi.http.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.http.entity.season.WebSeasonData
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
@@ -773,11 +772,30 @@ object BiliHttpApi {
         csrf: String,
         sessData: String
     ): BiliResponse<SeasonFollowData> = client.post("/pgc/web/follow/add") {
-        parameter("season_id", seasonId)
-        parameter("csrf", csrf)
+        setBody(FormDataContent(
+            Parameters.build {
+                append("season_id", "$seasonId")
+                append("csrf", csrf)
+            }
+        ))
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 添加番剧[seasonId]的追番
+     */
+    suspend fun addSeasonFollow(
+        seasonId: Int,
+        accessKey: String
+    ): BiliResponse<SeasonFollowData> = client.post("/pgc/app/follow/add") {
+        setBody(FormDataContent(
+            Parameters.build {
+                append("season_id", "$seasonId")
+                append("access_key", accessKey)
+            }
+        ))
     }.body()
 
     /**
@@ -788,11 +806,30 @@ object BiliHttpApi {
         csrf: String,
         sessData: String
     ): BiliResponse<SeasonFollowData> = client.post("/pgc/web/follow/del") {
-        parameter("season_id", seasonId)
-        parameter("csrf", csrf)
+        setBody(FormDataContent(
+            Parameters.build {
+                append("season_id", "$seasonId")
+                append("csrf", csrf)
+            }
+        ))
         header("Cookie", "SESSDATA=$sessData;")
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
+    }.body()
+
+    /**
+     * 取消番剧[seasonId]的追番
+     */
+    suspend fun delSeasonFollow(
+        seasonId: Int,
+        accessKey: String
+    ): BiliResponse<SeasonFollowData> = client.post("/pgc/app/follow/del") {
+        setBody(FormDataContent(
+            Parameters.build {
+                append("season_id", "$seasonId")
+                append("access_key", accessKey)
+            }
+        ))
     }.body()
 
     /**
@@ -1068,19 +1105,43 @@ object BiliHttpApi {
      * @param mid 用户id
      */
     suspend fun getFollowingSeasons(
-        type: FollowingSeasonType,
-        status: FollowingSeasonStatus,
+        type: Int,
+        status: Int,
         pageNumber: Int = 1,
         pageSize: Int = 15,
         mid: Long,
         sessData: String? = ""
-    ): BiliResponse<FollowingSeasonData> = client.get("/x/space/bangumi/follow/list") {
-        parameter("type", type.id)
-        parameter("follow_status", status.id)
+    ): BiliResponse<FollowingSeasonWebData> = client.get("/x/space/bangumi/follow/list") {
+        parameter("type", type)
+        parameter("follow_status", status)
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
         parameter("vmid", mid)
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取用户的追剧列表
+     *
+     * @param type 追剧类型
+     * @param status 追剧状态
+     * @param pageNumber 页码
+     * @param pageSize 每页数量 [1, 30]
+     * @param build App build code
+     */
+    suspend fun getFollowingSeasons(
+        type: String,
+        status: Int,
+        pageNumber: Int = 1,
+        pageSize: Int = 15,
+        build: Int,
+        accessKey: String
+    ): BiliResponse<FollowingSeasonAppData> = client.get("/pgc/app/follow/v2/$type") {
+        parameter("status", status)
+        parameter("pn", pageNumber)
+        parameter("ps", pageSize)
+        parameter("build", build)
+        parameter("access_key", accessKey)
     }.body()
 
     /**
