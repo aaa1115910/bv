@@ -1,15 +1,16 @@
 [versions]
 activity = "1.7.2"
-compose = "1.5.0-beta02"
-compose-compiler = "1.4.7"
-compose-material3 = "1.2.0-alpha02"
+compose = "1.5.0-beta03"
+compose-compiler = "1.4.8"
+compose-material3 = "1.2.0-alpha03"
 compose-tv = "1.0.0-alpha07"
 core = "1.10.1"
 core-splashscreen = "1.0.1"
-dataStore = "1.1.0-alpha04"
+# 1.1.0-alpha04 下载出现 404
+dataStore = "1.0.0"
 lifecycle = "2.6.1"
-media3 = "1.1.0-beta01"
-room = "2.5.1"
+media3 = "1.1.0"
+room = "2.5.2"
 webkit = "1.8.0-alpha01"
 
 [libraries]
