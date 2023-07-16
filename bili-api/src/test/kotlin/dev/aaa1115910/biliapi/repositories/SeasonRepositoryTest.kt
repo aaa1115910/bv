@@ -2,6 +2,7 @@ package dev.aaa1115910.biliapi.repositories
 
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.entity.season.TimelineFilter
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -69,5 +70,27 @@ class SeasonRepositoryTest {
         )
         println("bangumiResult: $bangumiResult")
         println("cinemaResult: $cinemaResult")
+    }
+
+    @Test
+    fun `get timeline with web api`() = runBlocking {
+        TimelineFilter.webFilters.forEach { filter ->
+            val result = seasonRepository.getTimeline(
+                filter = filter,
+                preferApiType = ApiType.Web
+            )
+            println("filter: $filter, result: $result")
+        }
+    }
+
+    @Test
+    fun `get timeline with app api`() = runBlocking {
+        TimelineFilter.appFilters.forEach { filter ->
+            val result = seasonRepository.getTimeline(
+                filter = filter,
+                preferApiType = ApiType.App
+            )
+            println("filter: $filter, result: $result")
+        }
     }
 }

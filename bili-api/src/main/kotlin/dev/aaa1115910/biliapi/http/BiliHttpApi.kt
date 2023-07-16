@@ -44,7 +44,7 @@ import dev.aaa1115910.biliapi.http.entity.video.Tag
 import dev.aaa1115910.biliapi.http.entity.video.TagDetail
 import dev.aaa1115910.biliapi.http.entity.video.TagTopVideosResponse
 import dev.aaa1115910.biliapi.http.entity.video.Timeline
-import dev.aaa1115910.biliapi.http.entity.video.TimelineType
+import dev.aaa1115910.biliapi.http.entity.video.TimelineAppData
 import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
@@ -887,17 +887,31 @@ object BiliHttpApi {
 
     /**
      * 获取剧集更新时间表
+     *
+     * @param type 番剧: 1 影视（貌似只有少数几个纪录片）: 3, 国创: 4
      */
     suspend fun getTimeline(
-        type: TimelineType,
+        type: Int,
         before: Int,
         after: Int
     ): BiliResponse<List<Timeline>> = client.get("/pgc/web/timeline") {
         require(before in 0..7) { "before must in [0,7]" }
         require(after in 0..7) { "after must in [0,7]" }
-        parameter("types", type.id)
+        parameter("types", type)
         parameter("before", before)
         parameter("after", after)
+    }.body()
+
+    /**
+     * 获取剧集更新时间表
+     *
+     * @param filterType 全部: 0 番剧: 1 我的追番: 2 国创: 3
+     */
+    suspend fun getTimeline(
+        filterType: Int,
+    ): BiliResponse<TimelineAppData> = client.get("/pgc/app/timeline") {
+        parameter("filter_type", filterType)
+        parameter("access_key", "")
     }.body()
 
     /**

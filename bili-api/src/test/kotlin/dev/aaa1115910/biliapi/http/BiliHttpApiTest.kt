@@ -5,7 +5,6 @@ import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
-import dev.aaa1115910.biliapi.http.entity.video.TimelineType
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
@@ -422,18 +421,21 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get timeline`() {
-        runBlocking {
-            TimelineType.values().forEach { timelineType ->
-                println(
-                    BiliHttpApi.getTimeline(
-                        type = timelineType,
-                        before = 7,
-                        after = 7
-                    )
-                )
-            }
-        }
+    fun `get web timeline`() = runBlocking {
+        val result = BiliHttpApi.getTimeline(
+            type = 1,
+            before = 7,
+            after = 7
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get app timeline`() = runBlocking {
+        val result = BiliHttpApi.getTimeline(
+            filterType = 0
+        )
+        println(result)
     }
 
     @Test

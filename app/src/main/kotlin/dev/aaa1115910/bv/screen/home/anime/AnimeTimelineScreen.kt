@@ -33,28 +33,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.entity.video.Timeline
-import dev.aaa1115910.biliapi.http.entity.video.TimelineType
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.season.Timeline
+import dev.aaa1115910.biliapi.entity.season.TimelineFilter
+import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.util.ImageSize
+import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
+import org.koin.compose.getKoin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeTimelineScreen(
     modifier: Modifier = Modifier,
+    seasonRepository: SeasonRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger { }
+    val listState = rememberTvLazyListState()
 
     var currentTimelineIndex by remember { mutableIntStateOf(0) }
     var currentEpisodeIndex by remember { mutableIntStateOf(0) }
@@ -72,15 +82,24 @@ fun AnimeTimelineScreen(
         scope.launch(Dispatchers.Default) {
             runCatching {
                 timelines.addAll(
-                    BiliHttpApi.getTimeline(
-                        type = TimelineType.Anime,
-                        before = 0,
-                        after = 7
-                    ).getResponseData()
+                    seasonRepository.getTimeline(
+                        filter = TimelineFilter.Anime,
+                        preferApiType = Prefs.apiType
+                    )
                 )
-                delay(200)
-                defaultFocusRequester.requestFocus()
+                runCatching {
+                    delay(200)
+                    logger.info { "scroll to item today" }
+                    // web 接口可以获取到最大 7 天前的数据，而 app 接口只能从 6 天前开始获取
+                    val targetIndex = when (Prefs.apiType) {
+                        ApiType.Web -> 7
+                        ApiType.App -> 6
+                    }
+                    listState.animateScrollToItem(targetIndex, 0)
+                    defaultFocusRequester.requestFocus(scope)
+                }
             }.onFailure {
+                logger.fInfo { "Get timeline failed: ${it.stackTraceToString()}" }
                 withContext(Dispatchers.Main) {
                     "获取放送时间表失败: ${it.message}".toast(context)
                 }
@@ -102,6 +121,7 @@ fun AnimeTimelineScreen(
         }
     ) { innerPadding ->
         TvLazyColumn(
+            state = listState,
             modifier = Modifier.padding(innerPadding),
             contentPadding = PaddingValues(bottom = 48.dp, start = 48.dp, end = 48.dp)
         ) {
@@ -162,7 +182,7 @@ fun TimelinePerDay(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "${timeline.date} ${getWeekString(timeline.dayOfWeek)}",
+            text = "${timeline.dateString} ${getWeekString(timeline.dayOfWeek)}",
             fontSize = titleFontSize.sp,
             color = titleColor
         )

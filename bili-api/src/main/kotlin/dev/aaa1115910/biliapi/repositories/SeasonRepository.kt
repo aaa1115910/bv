@@ -5,6 +5,8 @@ import dev.aaa1115910.biliapi.entity.season.FollowingSeason
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonData
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.entity.season.Timeline
+import dev.aaa1115910.biliapi.entity.season.TimelineFilter
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.util.BiliAppConf
 
@@ -57,6 +59,23 @@ class SeasonRepository(
                         total = responseData.total
                     )
                 }
+        }
+    }
+
+    suspend fun getTimeline(
+        filter: TimelineFilter = TimelineFilter.All,
+        preferApiType: ApiType = ApiType.Web
+    ): List<Timeline> {
+        return when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.getTimeline(
+                type = filter.webFilterId,
+                before = 7,
+                after = 7
+            ).getResponseData().map { Timeline.fromTimeline(it) }
+
+            ApiType.App -> BiliHttpApi.getTimeline(
+                filterType = filter.appFilterId
+            ).getResponseData().data.map { Timeline.fromTimeline(it) }
         }
     }
 }
