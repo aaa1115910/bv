@@ -33,7 +33,6 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -46,11 +45,13 @@ fun SmallVideoCard(
     modifier: Modifier = Modifier,
     data: VideoCardData,
     onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
         onClick = onClick,
+        onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface,
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -183,7 +184,7 @@ fun SmallVideoCardPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        SurfaceWithoutClickable {
+        Surface {
             SmallVideoCard(
                 data = data
             )

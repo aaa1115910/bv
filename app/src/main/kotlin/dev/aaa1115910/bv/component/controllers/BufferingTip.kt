@@ -13,8 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -23,9 +24,11 @@ fun BufferingTip(
     modifier: Modifier = Modifier,
     speed: String
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(

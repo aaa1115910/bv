@@ -200,7 +200,10 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                Crossfade(targetState = selectedTab) { screen ->
+                Crossfade(
+                    targetState = selectedTab,
+                    label = "home content cross fade"
+                ) { screen ->
                     when (screen) {
                         TopNavItem.Popular -> PopularScreen(
                             tvLazyGridState = popularState,

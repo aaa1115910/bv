@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @Composable
@@ -64,9 +65,11 @@ fun PlayStateTips(
 fun PauseIcon(
     modifier: Modifier = Modifier,
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Icon(
@@ -86,9 +89,11 @@ fun BufferingTip(
     modifier: Modifier = Modifier,
     speed: String
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
@@ -117,9 +122,11 @@ fun PlayErrorTip(
     modifier: Modifier = Modifier,
     exception: Exception
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(

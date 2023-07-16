@@ -2,8 +2,6 @@ package dev.aaa1115910.bv.screen.settings
 
 import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,10 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -66,7 +59,10 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val showLargeTitle by remember { derivedStateOf { true } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     var currentMenu by remember { mutableStateOf(SettingsMenuNavItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
@@ -290,36 +286,4 @@ fun SettingsDetail(
     ) {
         content()
     }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-fun SettingsMenuSelectItem(
-    modifier: Modifier = Modifier,
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    ListItem(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .clip(MaterialTheme.shapes.small)
-            .clickable { onClick() },
-        headlineContent = { Text(text = text) },
-        trailingContent = {
-            RadioButton(
-                modifier = Modifier.focusable(false),
-                selected = selected,
-                onClick = { },
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = if (hasFocus) Color.White else MaterialTheme.colorScheme.primary
-                )
-            )
-        },
-        colors = ListItemDefaults.colors(
-            containerColor = if (hasFocus) MaterialTheme.colorScheme.primary else Color.Transparent
-        )
-    )
 }

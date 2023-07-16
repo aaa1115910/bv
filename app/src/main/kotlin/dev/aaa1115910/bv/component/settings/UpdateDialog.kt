@@ -53,7 +53,10 @@ fun UpdateDialog(
     var bytesSentTotal: Long by remember { mutableLongStateOf(0L) }
     var contentLength: Long by remember { mutableLongStateOf(0L) }
     var targetProgress by remember { mutableFloatStateOf(0f) }
-    val progress by animateFloatAsState(targetValue = targetProgress)
+    val progress by animateFloatAsState(
+        targetValue = targetProgress,
+        label = "update progress"
+    )
 
     var latestPackageId by remember { mutableIntStateOf(0) }
     var packageInfo: PackageInfo? by remember { mutableStateOf(null) }

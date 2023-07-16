@@ -44,9 +44,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.playermenu.ClosedCaptionMenuList
@@ -136,10 +137,12 @@ fun MenuController(
     var selectedNavItem by remember { mutableStateOf(VideoPlayerMenuNavItem.Picture) }
     var focusState by remember { mutableStateOf(MenuFocusState.MenuNav) }
 
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier
             .fillMaxHeight(),
-        color = Color.Black.copy(alpha = 0.5f)
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(alpha = 0.5f)
+        )
     ) {
         CompositionLocalProvider(
             LocalMenuFocusStateData provides MenuFocusStateData(
@@ -372,8 +375,10 @@ fun MenuControllerPreview() {
     }
 
     BVTheme {
-        SurfaceWithoutClickable(
-            color = Color.White
+        Surface(
+            colors = NonInteractiveSurfaceDefaults.colors(
+                containerColor = Color.White
+            )
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 CompositionLocalProvider(

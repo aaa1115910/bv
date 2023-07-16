@@ -103,12 +103,18 @@ fun UserInfoScreen(
     var showLargeTitle by remember { mutableStateOf(true) }
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
     val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
     var relationStat: RelationStat? by remember { mutableStateOf(null) }
-    val followingNumber by animateIntAsState(targetValue = relationStat?.following ?: 0)
+    val followingNumber by animateIntAsState(
+        targetValue = relationStat?.following ?: 0,
+        label = "following number"
+    )
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }
@@ -653,7 +659,10 @@ private fun FollowingAnimeVideosRow(
     val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
 
     Column(
         modifier = modifier
