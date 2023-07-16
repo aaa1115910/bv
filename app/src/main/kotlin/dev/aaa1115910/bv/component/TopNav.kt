@@ -48,6 +48,8 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
@@ -216,14 +218,17 @@ private fun SettingsIcon(
 ) {
     var hasFocus by remember { mutableStateOf(false) }
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(
+        label = "settings icon infinite transition"
+    )
 
     val iconRotate by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 60f,
         animationSpec = infiniteRepeatable(
             tween(1000, easing = LinearEasing), RepeatMode.Restart
-        )
+        ),
+        label = "settings icon rotate"
     )
 
     IconButton(
@@ -273,11 +278,13 @@ private fun UserIcon(
                 color = MaterialTheme.colorScheme.primary
             )
             Box {
-                SurfaceWithoutClickable(
+                Surface(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),
-                    color = Color.White
+                    colors = NonInteractiveSurfaceDefaults.colors(
+                        containerColor = Color.White
+                    )
                 ) {
                     AsyncImage(
                         modifier = Modifier

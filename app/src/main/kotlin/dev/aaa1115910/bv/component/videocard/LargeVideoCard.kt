@@ -34,9 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -53,7 +54,10 @@ fun LargeVideoCard(
     val view = LocalView.current
 
     var hasFocus by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (hasFocus) 1f else 0.95f)
+    val scale by animateFloatAsState(
+        targetValue = if (hasFocus) 1f else 0.95f,
+        label = "large video card scale"
+    )
 
     val height = 160.dp
     val reasonColor = Color.Red
@@ -87,19 +91,23 @@ fun LargeVideoCard(
                         contentScale = ContentScale.FillBounds
                     )
                 } else {
-                    SurfaceWithoutClickable(
+                    Surface(
                         modifier = Modifier
                             .fillMaxHeight()
                             .aspectRatio(1.6f),
                         shape = MaterialTheme.shapes.large,
-                        color = Color.White
+                        colors = NonInteractiveSurfaceDefaults.colors(
+                            containerColor = Color.White
+                        )
                     ) {}
                 }
-                SurfaceWithoutClickable(
+                Surface(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp),
-                    color = Color.Black.copy(alpha = 0.5f),
+                    colors = NonInteractiveSurfaceDefaults.colors(
+                        containerColor = Color.Black.copy(alpha = 0.5f)
+                    ),
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
@@ -174,7 +182,7 @@ fun LargeVideoCardPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        SurfaceWithoutClickable {
+        Surface {
             LargeVideoCard(
                 data = data
             )

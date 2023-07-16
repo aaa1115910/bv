@@ -78,6 +78,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
@@ -99,7 +100,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -559,12 +559,14 @@ fun ArgueTip(
     modifier: Modifier = Modifier,
     text: String
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 50.dp),
-        color = Color.Yellow.copy(alpha = 0.2f),
-        contentColor = Color.Yellow,
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Yellow.copy(alpha = 0.2f),
+            contentColor = Color.Yellow
+        ),
         shape = MaterialTheme.shapes.small
     ) {
         Row(
@@ -814,7 +816,10 @@ fun VideoDescription(
 ) {
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
     var showDescriptionDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -978,7 +983,10 @@ fun VideoPartRow(
     var hasFocus by remember { mutableStateOf(false) }
     var showPartListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
 
     Column(
         modifier = modifier
@@ -1037,7 +1045,10 @@ fun VideoUgcSeasonRow(
     var hasFocus by remember { mutableStateOf(false) }
     var showUgcListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
 
     Column(
         modifier = modifier

@@ -80,7 +80,10 @@ fun SearchResultScreen(
     var rowSize by remember { mutableIntStateOf(4) }
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < rowSize } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "Title font size"
+    )
 
     var searchKeyword by remember { mutableStateOf("") }
 
@@ -129,6 +132,12 @@ fun SearchResultScreen(
 
     val backToTabRow: () -> Unit = {
         tabRowFocusRequester.requestFocus(scope)
+    }
+
+    val onLongClickSearchResultItem = {
+        if (searchResultViewModel.searchType == SearchResultType.Video) {
+            showFilter = true
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -241,19 +250,6 @@ fun SearchResultScreen(
                             if (it.type == KeyEventType.KeyUp) backToTabRow()
                             return@onPreviewKeyEvent true
                         }
-
-                        Key.DirectionCenter, Key.Enter -> {
-                            // 让 Surface 监听到 KeyUp 事件，否则 Surface 将会是一直按下的状态
-                            if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
-
-                            if (it.nativeKeyEvent.isLongPress) {
-                                if (searchResultViewModel.searchType == SearchResultType.Video) {
-                                    showFilter = true
-                                }
-                                return@onPreviewKeyEvent true
-                            }
-                            if (showFilter) return@onPreviewKeyEvent true
-                        }
                     }
                     false
                 },
@@ -265,7 +261,8 @@ fun SearchResultScreen(
                 itemsIndexed(items = searchResult.results) { index, searchResultItem ->
                     SearchResultListItem(
                         searchResult = searchResultItem,
-                        onClick = { if (!showFilter) onClickResult(searchResultItem) },
+                        onClick = { onClickResult(searchResultItem) },
+                        onLongClick = onLongClickSearchResultItem,
                         onFocus = { currentIndex = index }
                     )
                 }
@@ -292,6 +289,7 @@ private fun SearchResultListItem(
     modifier: Modifier = Modifier,
     searchResult: SearchResultItem,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onFocus: () -> Unit
 ) {
     when (searchResult) {
@@ -306,6 +304,7 @@ private fun SearchResultListItem(
                     timeString = searchResult.duration
                 ),
                 onClick = onClick,
+                onLongClick = onLongClick,
                 onFocus = onFocus
             )
         }
@@ -320,6 +319,7 @@ private fun SearchResultListItem(
                     rating = String.format("%.1f", searchResult.mediaScore.score)
                 ),
                 onClick = onClick,
+                onLongClick = onLongClick,
                 onFocus = onFocus
             )
         }
@@ -331,7 +331,8 @@ private fun SearchResultListItem(
                 sign = searchResult.usign,
                 username = searchResult.uname,
                 onFocusChange = { if (it) onFocus() },
-                onClick = onClick
+                onClick = onClick,
+                onLongClick = onLongClick
             )
         }
 

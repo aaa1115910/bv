@@ -50,6 +50,7 @@ fun SeasonCard(
     data: SeasonCardData,
     coverHeight: Dp? = null,
     onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     onFocus: () -> Unit = {}
 ) {
     val localDensity = LocalDensity.current
@@ -58,6 +59,7 @@ fun SeasonCard(
     Surface(
         modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
         onClick = onClick,
+        onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface,
             focusedContainerColor = MaterialTheme.colorScheme.surface,

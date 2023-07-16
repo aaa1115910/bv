@@ -40,7 +40,10 @@ fun HistoryScreen(
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     LaunchedEffect(Unit) {
         historyViewModel.update()
@@ -61,13 +64,23 @@ fun HistoryScreen(
                         text = stringResource(R.string.user_homepage_recent),
                         fontSize = titleFontSize.sp
                     )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            historyViewModel.histories.size
-                        ),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    if (historyViewModel.noMore) {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count_no_more,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }

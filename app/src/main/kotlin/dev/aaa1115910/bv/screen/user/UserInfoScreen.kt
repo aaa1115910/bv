@@ -110,12 +110,18 @@ fun UserInfoScreen(
     var showLargeTitle by remember { mutableStateOf(true) }
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
     val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
     var followingUpCount by remember { mutableIntStateOf(0) }
-    val animateFollowingNumber by animateIntAsState(targetValue = followingUpCount)
+    val animateFollowingNumber by animateIntAsState(
+        targetValue = followingUpCount,
+        label = "animate following number"
+    )
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }

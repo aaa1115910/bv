@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,7 +54,6 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.compose.getKoin
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeTimelineScreen(
     modifier: Modifier = Modifier,
@@ -73,7 +71,10 @@ fun AnimeTimelineScreen(
             currentTimelineIndex == 0 && currentEpisodeIndex < 1
         }
     }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     val defaultFocusRequester = remember { FocusRequester() }
     val timelines = remember { mutableStateListOf<Timeline>() }
@@ -159,7 +160,10 @@ fun TimelinePerDay(
 ) {
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 20f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 20f,
+        label = "title font size"
+    )
     val episodeChunkedList = timeline.episodes.chunked(5)
 
     val getWeekString: (Int) -> String = { dayOfWeek ->

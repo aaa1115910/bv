@@ -3,6 +3,7 @@ package dev.aaa1115910.biliapi.http.entity.search
 import dev.aaa1115910.biliapi.http.entity.user.OfficialVerify
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
@@ -423,5 +424,10 @@ data class SearchVideoResult(
     @SerialName("biz_data")
     val bizData: JsonElement? = null,
     @SerialName("is_charge_video")
-    val isChargeVideo: Int = 0
+    val isChargeVideo: Int = 0,
+    val vt: Int = 0,
+    @SerialName("enable_vt")
+    private val _enableVt: Int = 0,
+    @Transient
+    val enableVt: Boolean = _enableVt == 1
 ) : SearchResultItem()
