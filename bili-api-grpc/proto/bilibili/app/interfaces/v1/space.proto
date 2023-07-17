@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-package bilibili.app.interfaces.v1;
+package bilibili.app.interface.v1;
 
+option java_package = "bilibili.app.interfaces.v1";
 option java_multiple_files = true;
 
 import "bilibili/app/archive/middleware/v1/preload.proto";
