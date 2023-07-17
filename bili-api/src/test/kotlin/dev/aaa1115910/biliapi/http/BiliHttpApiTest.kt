@@ -347,7 +347,7 @@ internal class BiliHttpApiTest {
     @Test
     fun `get user space videos`() = runBlocking {
         println(
-            BiliHttpApi.getUserSpaceVideos(
+            BiliHttpApi.getWebUserSpaceVideos(
                 mid = 1,
                 sessData = SESSDATA
             )

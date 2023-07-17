@@ -20,15 +20,16 @@ import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonAppData
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonWebData
 import dev.aaa1115910.biliapi.http.entity.season.SeasonFollowData
 import dev.aaa1115910.biliapi.http.entity.season.WebSeasonData
+import dev.aaa1115910.biliapi.http.entity.user.AppSpaceVideoData
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.MyInfoData
 import dev.aaa1115910.biliapi.http.entity.user.RelationData
 import dev.aaa1115910.biliapi.http.entity.user.RelationStat
-import dev.aaa1115910.biliapi.http.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.http.entity.user.UserCardData
 import dev.aaa1115910.biliapi.http.entity.user.UserFollowData
 import dev.aaa1115910.biliapi.http.entity.user.UserInfoData
+import dev.aaa1115910.biliapi.http.entity.user.WebSpaceVideoData
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteItemIdListResponse
@@ -682,7 +683,7 @@ object BiliHttpApi {
      * @param pageNumber 页码
      * @param pageSize 每页项数 最小1，最大50
      */
-    suspend fun getUserSpaceVideos(
+    suspend fun getWebUserSpaceVideos(
         mid: Long,
         order: String = "pubdate",
         tid: Int = 0,
@@ -690,7 +691,7 @@ object BiliHttpApi {
         pageNumber: Int = 1,
         pageSize: Int = 30,
         sessData: String
-    ): BiliResponse<SpaceVideoData> = client.get("/x/space/wbi/arc/search") {
+    ): BiliResponse<WebSpaceVideoData> = client.get("/x/space/wbi/arc/search") {
         parameter("mid", mid)
         parameter("order", order)
         parameter("tid", tid)
@@ -699,6 +700,21 @@ object BiliHttpApi {
         parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    suspend fun getAppUserSpaceVideos(
+        mid: Long,
+        order: String = "pubdate",
+        pageNumber: Int = 1,
+        pageSize: Int = 30,
+        accessKey: String
+    ): BiliResponse<AppSpaceVideoData> =
+        client.get("https://app.bilibili.com/x/v2/space/archive/cursor") {
+            parameter("vmid", mid)
+            parameter("order", order)
+            parameter("pn", pageNumber)
+            parameter("ps", pageSize)
+            parameter("access_key", accessKey)
+        }.body()
 
     /**
      * 获取剧集[seasonId]或[epId]的详细信息 (Web)，例如 ss24439 ep234533，传参仅需数字

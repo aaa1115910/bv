@@ -1,6 +1,8 @@
 package dev.aaa1115910.biliapi.repositories
 
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.user.SpaceVideo
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoOrder
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
@@ -140,5 +142,33 @@ class UserRepository(
                 accessKey = authRepository.accessToken!!
             )
         }.getResponseData().toast
+    }
+
+    suspend fun getSpaceVideos(
+        mid: Long,
+        order: SpaceVideoOrder = SpaceVideoOrder.PubDate,
+        pageNumber: Int = 1,
+        pageSize: Int = 30,
+        preferApiType: ApiType = ApiType.Web
+    ): List<SpaceVideo> {
+        return when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.getWebUserSpaceVideos(
+                mid = mid,
+                order = order.value,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                sessData = authRepository.sessionData!!
+            ).getResponseData().list.vlist
+                .map { SpaceVideo.fromSpaceVideoItem(it) }
+
+            ApiType.App -> BiliHttpApi.getAppUserSpaceVideos(
+                mid = mid,
+                order = order.value,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                accessKey = authRepository.accessToken!!
+            ).getResponseData().item
+                .map { SpaceVideo.fromSpaceVideoItem(it) }
+        }
     }
 }

@@ -103,7 +103,7 @@ val appModule = module {
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get()) }
     viewModel { FavoriteViewModel(get()) }
-    viewModel { UpInfoViewModel() }
+    viewModel { UpInfoViewModel(get()) }
     viewModel { FollowViewModel() }
     viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
