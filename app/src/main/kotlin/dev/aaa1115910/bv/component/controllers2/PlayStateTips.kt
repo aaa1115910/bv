@@ -190,9 +190,11 @@ fun PaidRequireTip(
             qrImage = BitmapFactory.decodeStream(input).asImageBitmap()
         }
     }
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(

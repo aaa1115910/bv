@@ -27,10 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.login.QrLoginState
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.login.WebQrLoginViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -59,9 +60,11 @@ fun WebQRLoginContent(
         }
     }
 
-    SurfaceWithoutClickable(
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFE9487F)
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color(0xFFE9487F)
+        )
     ) {
         Box(
             modifier = modifier
