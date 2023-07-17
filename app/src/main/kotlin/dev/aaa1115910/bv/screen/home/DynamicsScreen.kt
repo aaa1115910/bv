@@ -85,23 +85,15 @@ fun DynamicsScreen(
             itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
                 SmallVideoCard(
                     data = VideoCardData(
-                        avid = dynamic.modules.moduleDynamic.major?.archive?.aid?.toInt()
-                            ?: 170001,
-                        title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
-                        cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
-                        playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play
-                            ?: "",
-                        danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
-                            ?: "",
-                        upName = dynamic.modules.moduleAuthor.name,
-                        timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
-                            ?: ""
+                        avid = dynamic.aid,
+                        title = dynamic.title,
+                        cover = dynamic.cover,
+                        play = dynamic.play,
+                        danmaku = dynamic.danmaku,
+                        upName = dynamic.author,
+                        time = dynamic.duration * 1000L
                     ),
-                    onClick = {
-                        VideoInfoActivity.actionStart(
-                            context, dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
-                        )
-                    },
+                    onClick = { VideoInfoActivity.actionStart(context, dynamic.aid) },
                     onFocus = { currentFocusedIndex = index }
                 )
             }

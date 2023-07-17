@@ -85,7 +85,6 @@ class BVApp : Application() {
 
 val appModule = module {
     single { AuthRepository() }
-    single { dev.aaa1115910.biliapi.repositories.UserRepository(get()) }
     single { UserRepository(get()) }
     single { LoginRepository() }
     single { VideoInfoRepository() }
@@ -94,7 +93,8 @@ val appModule = module {
     single { VideoPlayRepository(get(), get()) }
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
-    viewModel { DynamicViewModel(get()) }
+    single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
+    viewModel { DynamicViewModel(get(), get()) }
     viewModel { PopularViewModel() }
     viewModel { WebQrLoginViewModel(get(), get()) }
     viewModel { AppQrLoginViewModel(get(), get()) }

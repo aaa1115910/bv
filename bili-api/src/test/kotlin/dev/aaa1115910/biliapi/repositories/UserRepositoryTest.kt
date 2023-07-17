@@ -28,7 +28,7 @@ class UserRepositoryTest {
 
     private val authRepository = AuthRepository()
     private val channelRepository = ChannelRepository()
-    private val userRepository = UserRepository(authRepository)
+    private val userRepository = UserRepository(authRepository, channelRepository)
 
     init {
         channelRepository.initDefaultChannel(
@@ -60,6 +60,28 @@ class UserRepositoryTest {
             order = SpaceVideoOrder.PubDate,
             pageNumber = 1,
             pageSize = 10,
+            preferApiType = ApiType.App
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get dynamic videos with web api`() = runBlocking {
+        val result = userRepository.getDynamicVideos(
+            page = 1,
+            offset = "",
+            updateBaseline = "",
+            preferApiType = ApiType.Web
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get dynamic videos with grpc api`() = runBlocking {
+        val result = userRepository.getDynamicVideos(
+            page = 1,
+            offset = "",
+            updateBaseline = "",
             preferApiType = ApiType.App
         )
         println(result)

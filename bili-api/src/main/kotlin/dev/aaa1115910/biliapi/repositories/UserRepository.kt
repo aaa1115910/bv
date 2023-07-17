@@ -1,16 +1,27 @@
 package dev.aaa1115910.biliapi.repositories
 
+import bilibili.app.dynamic.v2.DynamicGrpcKt
+import bilibili.app.dynamic.v2.Refresh
+import bilibili.app.dynamic.v2.dynVideoReq
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.user.DynamicVideoData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideo
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoOrder
+import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.RelationType
 
 class UserRepository(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val channelRepository: ChannelRepository
 ) {
+    private val dynamicStub
+        get() = runCatching {
+            DynamicGrpcKt.DynamicCoroutineStub(channelRepository.defaultChannel!!)
+        }.getOrNull()
+
     private suspend fun modifyFollow(
         mid: Long,
         action: FollowAction,
@@ -169,6 +180,43 @@ class UserRepository(
                 accessKey = authRepository.accessToken!!
             ).getResponseData().item
                 .map { SpaceVideo.fromSpaceVideoItem(it) }
+        }
+    }
+
+    suspend fun getDynamicVideos(
+        page: Int,
+        offset: String,
+        updateBaseline: String,
+        preferApiType: ApiType = ApiType.Web
+    ): DynamicVideoData {
+        return when (preferApiType) {
+            ApiType.Web -> {
+                val responseData = BiliHttpApi.getDynamicList(
+                    type = "video",
+                    page = page,
+                    offset = offset,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
+                DynamicVideoData.fromDynamicData(responseData)
+            }
+
+            ApiType.App -> {
+                var result: DynamicVideoData? = null
+                runCatching {
+                    val dynVideoReply = dynamicStub?.dynVideo(dynVideoReq {
+                        this.page = page
+                        this.offset = offset
+                        this.updateBaseline = updateBaseline
+                        localTime = 8
+                        refreshType =
+                            if (offset == "") Refresh.refresh_new else Refresh.refresh_history
+                    })
+                    result = DynamicVideoData.fromDynamicData(dynVideoReply!!)
+                }.onFailure {
+                    handleGrpcException(it)
+                }
+                result!!
+            }
         }
     }
 }
