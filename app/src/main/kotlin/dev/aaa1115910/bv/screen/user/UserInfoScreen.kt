@@ -63,9 +63,9 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
+import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BuildConfig
@@ -101,7 +101,8 @@ fun UserInfoScreen(
     userViewModel: UserViewModel = koinViewModel(),
     userRepository: UserRepository = getKoin().get(),
     favoriteRepository: FavoriteRepository = getKoin().get(),
-    seasonRepository: SeasonRepository = getKoin().get()
+    seasonRepository: SeasonRepository = getKoin().get(),
+    historyRepository: HistoryRepository = getKoin().get(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -147,19 +148,19 @@ fun UserInfoScreen(
         userViewModel.updateUserInfo()
 
         //update histories
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-                val responseData =
-                    BiliHttpApi.getHistories(sessData = Prefs.sessData).getResponseData()
-                responseData.list.forEach { historyItem ->
-                    val supportedBusinessList = listOf("archive", "pgc")
-                    if (!supportedBusinessList.contains(historyItem.history.business)) return@forEach
+                val data = historyRepository.getHistories(
+                    cursor = 0,
+                    preferApiType = Prefs.apiType
+                )
+                data.data.forEach { historyItem ->
                     histories.add(
                         VideoCardData(
-                            avid = historyItem.history.oid,
+                            avid = historyItem.oid,
                             title = historyItem.title,
                             cover = historyItem.cover,
-                            upName = historyItem.authorName,
+                            upName = historyItem.author,
                             timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
                             else context.getString(
                                 R.string.play_time_history,
@@ -186,7 +187,7 @@ fun UserInfoScreen(
         }
 
         //update followed animes
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
                 val followingSeasonData = seasonRepository.getFollowingSeasons(
                     type = FollowingSeasonType.Bangumi,

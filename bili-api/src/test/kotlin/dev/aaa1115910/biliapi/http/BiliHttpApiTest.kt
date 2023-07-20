@@ -165,6 +165,7 @@ internal class BiliHttpApiTest {
         assertDoesNotThrow {
             runBlocking {
                 val response = BiliHttpApi.getHistories(
+                    viewAt = 0,
                     sessData = SESSDATA
                 )
                 println(response)

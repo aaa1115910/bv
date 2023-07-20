@@ -13,6 +13,7 @@ import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
+import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
@@ -90,6 +91,7 @@ val appModule = module {
     single { VideoInfoRepository() }
     single { ChannelRepository() }
     single { FavoriteRepository(get()) }
+    single { HistoryRepository(get(), get()) }
     single { VideoPlayRepository(get(), get()) }
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
@@ -101,7 +103,7 @@ val appModule = module {
     viewModel { SmsLoginViewModel(get(), get()) }
     viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
-    viewModel { HistoryViewModel(get()) }
+    viewModel { HistoryViewModel(get(), get()) }
     viewModel { FavoriteViewModel(get()) }
     viewModel { UpInfoViewModel(get()) }
     viewModel { FollowViewModel() }
