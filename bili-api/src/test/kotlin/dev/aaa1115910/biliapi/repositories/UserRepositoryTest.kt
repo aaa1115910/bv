@@ -86,4 +86,22 @@ class UserRepositoryTest {
         )
         println(result)
     }
+
+    @Test
+    fun `get following users with web api`() = runBlocking {
+        val result = userRepository.getFollowedUsers(
+            mid = UID,
+            preferApiType = ApiType.Web
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get following users with app api`() = runBlocking {
+        val result = userRepository.getFollowedUsers(
+            mid = UID,
+            preferApiType = ApiType.App
+        )
+        println(result)
+    }
 }

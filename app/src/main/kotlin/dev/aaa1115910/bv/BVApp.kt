@@ -106,7 +106,7 @@ val appModule = module {
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { FavoriteViewModel(get()) }
     viewModel { UpInfoViewModel(get()) }
-    viewModel { FollowViewModel() }
+    viewModel { FollowViewModel(get()) }
     viewModel { SearchInputViewModel() }
     viewModel { SearchResultViewModel() }
     viewModel { AnimeViewModel() }

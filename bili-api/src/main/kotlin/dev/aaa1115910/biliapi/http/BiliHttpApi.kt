@@ -938,13 +938,16 @@ object BiliHttpApi {
         orderType: String? = null,
         pageSize: Int = 50,
         pageNumber: Int = 1,
-        sessData: String = ""
+        accessKey: String? = null,
+        sessData: String? = null
     ): BiliResponse<UserFollowData> = client.get("/x/relation/followings") {
+        checkToken(accessKey, sessData)
         parameter("vmid", mid)
         orderType?.let { parameter("order_type", orderType) }
         parameter("ps", pageSize)
         parameter("pn", pageNumber)
-        header("Cookie", "SESSDATA=$sessData;")
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
+        accessKey?.let { parameter("access_key", accessKey) }
     }.body()
 
     /**
