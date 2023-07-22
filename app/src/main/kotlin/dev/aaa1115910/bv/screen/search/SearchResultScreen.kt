@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.screen.search
 
 import android.app.Activity
+import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,10 +45,9 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.http.entity.search.SearchBiliUserResult
-import dev.aaa1115910.biliapi.http.entity.search.SearchMediaResult
-import dev.aaa1115910.biliapi.http.entity.search.SearchResultItem
-import dev.aaa1115910.biliapi.http.entity.search.SearchVideoResult
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.repositories.SearchType
+import dev.aaa1115910.biliapi.repositories.SearchTypeResult
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
@@ -57,11 +57,11 @@ import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.screen.user.UpCard
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.removeHtmlTags
 import dev.aaa1115910.bv.util.requestFocus
-import dev.aaa1115910.bv.viewmodel.search.SearchResultType
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
@@ -88,10 +88,10 @@ fun SearchResultScreen(
     var searchKeyword by remember { mutableStateOf("") }
 
     val searchResult = when (searchResultViewModel.searchType) {
-        SearchResultType.Video -> searchResultViewModel.videoSearchResult
-        SearchResultType.MediaBangumi -> searchResultViewModel.mediaBangumiSearchResult
-        SearchResultType.MediaFt -> searchResultViewModel.mediaFtSearchResult
-        SearchResultType.BiliUser -> searchResultViewModel.biliUserSearchResult
+        SearchType.Video -> searchResultViewModel.videoSearchResult
+        SearchType.MediaBangumi -> searchResultViewModel.mediaBangumiSearchResult
+        SearchType.MediaFt -> searchResultViewModel.mediaFtSearchResult
+        SearchType.BiliUser -> searchResultViewModel.biliUserSearchResult
     }
 
     var showFilter by remember { mutableStateOf(false) }
@@ -101,9 +101,9 @@ fun SearchResultScreen(
     val selectedPartition = searchResultViewModel.selectedPartition
     val selectedChildPartition = searchResultViewModel.selectedChildPartition
 
-    val onClickResult: (SearchResultItem) -> Unit = { resultItem ->
+    val onClickResult: (SearchTypeResult.SearchTypeResultItem) -> Unit = { resultItem ->
         when (resultItem) {
-            is SearchVideoResult -> {
+            is SearchTypeResult.Video -> {
                 VideoInfoActivity.actionStart(
                     context = context,
                     aid = resultItem.aid,
@@ -111,18 +111,18 @@ fun SearchResultScreen(
                 )
             }
 
-            is SearchMediaResult -> {
+            is SearchTypeResult.Pgc -> {
                 SeasonInfoActivity.actionStart(
                     context = context,
                     seasonId = resultItem.seasonId
                 )
             }
 
-            is SearchBiliUserResult -> {
+            is SearchTypeResult.User -> {
                 UpInfoActivity.actionStart(
                     context = context,
                     mid = resultItem.mid,
-                    name = resultItem.uname
+                    name = resultItem.name
                 )
             }
 
@@ -135,8 +135,8 @@ fun SearchResultScreen(
     }
 
     val onLongClickSearchResultItem = {
-        if (searchResultViewModel.searchType == SearchResultType.Video) {
-            showFilter = true
+        if (searchResultViewModel.searchType == SearchType.Video) {
+            if (Prefs.apiType == ApiType.Web) showFilter = true
         }
     }
 
@@ -153,9 +153,9 @@ fun SearchResultScreen(
 
     LaunchedEffect(searchResultViewModel.searchType) {
         rowSize = when (searchResultViewModel.searchType) {
-            SearchResultType.Video -> 4
-            SearchResultType.MediaBangumi, SearchResultType.MediaFt -> 6
-            SearchResultType.BiliUser -> 3
+            SearchType.Video -> 4
+            SearchType.MediaBangumi, SearchType.MediaFt -> 6
+            SearchType.BiliUser -> 3
         }
     }
 
@@ -167,7 +167,7 @@ fun SearchResultScreen(
     }
 
     LaunchedEffect(currentIndex) {
-        if (currentIndex + 24 > searchResult.results.size) {
+        if (currentIndex + 24 > searchResult.count) {
             searchResultViewModel.loadMore(searchResult.type)
         }
     }
@@ -200,7 +200,7 @@ fun SearchResultScreen(
                         Text(
                             text = stringResource(
                                 R.string.load_data_count,
-                                searchResult.results.size
+                                searchResult.count
                             ),
                             color = Color.White.copy(alpha = 0.6f)
                         )
@@ -220,7 +220,7 @@ fun SearchResultScreen(
                     selectedTabIndex = searchResultViewModel.searchType.ordinal,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
                 ) {
-                    SearchResultType.values().forEach { type ->
+                    SearchType.values().forEach { type ->
                         val isSelected = type == searchResultViewModel.searchType
                         val tabModifier =
                             if (isSelected) Modifier.focusRequester(tabRowFocusRequester) else Modifier
@@ -258,7 +258,14 @@ fun SearchResultScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                itemsIndexed(items = searchResult.results) { index, searchResultItem ->
+                itemsIndexed(
+                    items = when (searchResult.type) {
+                        SearchType.Video -> searchResult.videos
+                        SearchType.MediaBangumi -> searchResult.mediaBangumis
+                        SearchType.MediaFt -> searchResult.mediaFts
+                        SearchType.BiliUser -> searchResult.biliUsers
+                    }
+                ) { index, searchResultItem ->
                     SearchResultListItem(
                         searchResult = searchResultItem,
                         onClick = { onClickResult(searchResultItem) },
@@ -287,21 +294,21 @@ fun SearchResultScreen(
 @Composable
 private fun SearchResultListItem(
     modifier: Modifier = Modifier,
-    searchResult: SearchResultItem,
+    searchResult: SearchTypeResult.SearchTypeResultItem,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onFocus: () -> Unit
 ) {
     when (searchResult) {
-        is SearchVideoResult -> {
+        is SearchTypeResult.Video -> {
             SmallVideoCard(
                 modifier = modifier,
                 data = VideoCardData(
                     avid = searchResult.aid,
                     title = searchResult.title.removeHtmlTags(),
-                    cover = "https:${searchResult.pic}",
+                    cover = searchResult.cover,
                     upName = searchResult.author,
-                    timeString = searchResult.duration
+                    time = searchResult.duration * 1000L
                 ),
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -309,14 +316,14 @@ private fun SearchResultListItem(
             )
         }
 
-        is SearchMediaResult -> {
+        is SearchTypeResult.Pgc -> {
             SeasonCard(
                 modifier = modifier,
                 data = SeasonCardData(
                     seasonId = searchResult.seasonId,
                     title = searchResult.title.removeHtmlTags(),
                     cover = searchResult.cover,
-                    rating = String.format("%.1f", searchResult.mediaScore.score)
+                    rating = String.format("%.1f", searchResult.star)
                 ),
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -324,12 +331,12 @@ private fun SearchResultListItem(
             )
         }
 
-        is SearchBiliUserResult -> {
+        is SearchTypeResult.User -> {
             UpCard(
                 modifier = modifier.focusedScale(0.95f),
-                face = "https:${searchResult.upic}",
-                sign = searchResult.usign,
-                username = searchResult.uname,
+                face = searchResult.avatar,
+                sign = searchResult.sign,
+                username = searchResult.name,
                 onFocusChange = { if (it) onFocus() },
                 onClick = onClick,
                 onLongClick = onLongClick
@@ -340,4 +347,11 @@ private fun SearchResultListItem(
 
         }
     }
+}
+
+fun SearchType.getDisplayName(context: Context) = when (this) {
+    SearchType.Video -> context.getString(R.string.search_result_type_name_video)
+    SearchType.MediaBangumi -> context.getString(R.string.search_result_type_name_media_bangumi)
+    SearchType.MediaFt -> context.getString(R.string.search_result_type_name_media_ft)
+    SearchType.BiliUser -> context.getString(R.string.search_result_type_name_bili_user)
 }

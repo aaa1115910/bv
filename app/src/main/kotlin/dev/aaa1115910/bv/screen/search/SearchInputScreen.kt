@@ -134,7 +134,7 @@ fun SearchInputScreen(
                         items(hotwords) { hotword ->
                             SearchKeyword(
                                 keyword = hotword.showName,
-                                icon = hotword.icon,
+                                icon = hotword.icon ?: "",
                                 onClick = { onSearch(hotword.showName) }
                             )
                         }
@@ -154,9 +154,9 @@ fun SearchInputScreen(
                     TvLazyColumn {
                         items(suggests) { suggest ->
                             SearchKeyword(
-                                keyword = suggest.value,
+                                keyword = suggest,
                                 icon = "",
-                                onClick = { onSearch(suggest.value) }
+                                onClick = { onSearch(suggest) }
                             )
                         }
                     }

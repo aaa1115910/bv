@@ -505,10 +505,18 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get search hot words`() {
-        runBlocking {
-            println(BiliHttpApi.getHotwords())
-        }
+    fun `get web search hot words`() = runBlocking {
+        println(BiliHttpApi.getWebSearchSquare())
+    }
+
+    @Test
+    fun `get app search hot words`() = runBlocking {
+        println(BiliHttpApi.getAppSearchSquare())
+    }
+
+    @Test
+    fun `get app search trending ranking`() = runBlocking {
+        println(BiliHttpApi.getSearchTrendRank())
     }
 
     @Test

@@ -12,9 +12,11 @@ import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
-import dev.aaa1115910.biliapi.http.entity.search.HotwordData
+import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
+import dev.aaa1115910.biliapi.http.entity.search.SearchTendingData
+import dev.aaa1115910.biliapi.http.entity.search.WebSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.season.AppSeasonData
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonAppData
 import dev.aaa1115910.biliapi.http.entity.season.FollowingSeasonWebData
@@ -50,6 +52,7 @@ import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
+import dev.aaa1115910.biliapi.http.util.BiliAppConf
 import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -1006,15 +1009,50 @@ object BiliHttpApi {
     }.body()
 
     /**
-     * 获取搜索热词
+     * 获取搜索提示（Web）
+     *
+     * @param limit 返回数量
+     * @param platform 平台标识
      */
-    suspend fun getHotwords(
+    suspend fun getWebSearchSquare(
         limit: Int = 10,
         platform: String? = null
-    ): BiliResponse<HotwordData> =
-        client.get("/x/web-interface/search/square") {
+    ): BiliResponse<WebSearchSquareData> =
+        client.get("/x/web-interface/wbi/search/square") {
             parameter("limit", limit)
             platform?.let { parameter("platform", platform) }
+        }.body()
+
+    /**
+     * 获取搜索提示（App）
+     *
+     * @param limit 返回数量，上限仅为 10
+     * @param platform 平台标识
+     */
+    suspend fun getAppSearchSquare(
+        limit: Int = 10,
+        platform: String? = null,
+        //accessKey: String = ""
+    ): BiliResponse<List<AppSearchSquareData>> =
+        client.get("https://app.bilibili.com/x/v2/search/square") {
+            parameter("limit", limit)
+            platform?.let { parameter("platform", platform) }
+            parameter("build", BiliAppConf.APP_BUILD_CODE)
+            //parameter("access_key", accessKey)
+        }.body()
+
+    /**
+     * 获取搜索趋势（App）
+     *
+     * @param limit 返回数量
+     */
+    suspend fun getSearchTrendRank(
+        limit: Int = 10
+    ): BiliResponse<SearchTendingData> =
+        client.get("https://app.bilibili.com/x/v2/search/trending/ranking") {
+            parameter("limit", limit)
+            //platform?.let { parameter("platform", platform) }
+            //parameter("build", BiliAppConf.APP_BUILD_CODE)
         }.body()
 
     /**

@@ -15,6 +15,7 @@ import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
+import dev.aaa1115910.biliapi.repositories.SearchRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
@@ -81,6 +82,7 @@ class BVApp : Application() {
         authRepository.biliJct = Prefs.biliJct.takeIf { it.isNotEmpty() }
         authRepository.accessToken = Prefs.accessToken.takeIf { it.isNotEmpty() }
         authRepository.mid = Prefs.uid.takeIf { it != 0L }
+        authRepository.buvid3 = Prefs.buvid3
     }
 }
 
@@ -92,6 +94,7 @@ val appModule = module {
     single { ChannelRepository() }
     single { FavoriteRepository(get()) }
     single { HistoryRepository(get(), get()) }
+    single { SearchRepository(get(), get()) }
     single { VideoPlayRepository(get(), get()) }
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
@@ -107,8 +110,8 @@ val appModule = module {
     viewModel { FavoriteViewModel(get()) }
     viewModel { UpInfoViewModel(get()) }
     viewModel { FollowViewModel(get()) }
-    viewModel { SearchInputViewModel() }
-    viewModel { SearchResultViewModel() }
+    viewModel { SearchInputViewModel(get()) }
+    viewModel { SearchResultViewModel(get()) }
     viewModel { AnimeViewModel() }
     viewModel { FollowingSeasonViewModel(get()) }
     viewModel { TagViewModel() }

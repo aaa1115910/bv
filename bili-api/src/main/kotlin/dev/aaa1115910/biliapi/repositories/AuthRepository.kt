@@ -5,4 +5,5 @@ class AuthRepository {
     var biliJct: String? = null
     var accessToken: String? = null
     var mid: Long? = null
+    var buvid3: String? = null
 }
