@@ -9,7 +9,6 @@ import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
-import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
 import mu.KotlinLogging
@@ -33,13 +32,13 @@ class VideoDetailViewModel(
             )
         }.onFailure {
             state = VideoInfoState.Error
-            logger.fException(it) { "Load video av$aid failed" }
+            logger.fInfo { "Load video av$aid failed: ${it.stackTraceToString()}" }
         }.onSuccess {
             state = VideoInfoState.Success
             logger.fInfo { "Load video av$aid success" }
 
             updateRelatedVideos()
-        }
+        }.getOrThrow()
     }
 
     private fun updateRelatedVideos() {
