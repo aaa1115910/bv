@@ -291,7 +291,7 @@ data class AppSeasonData(
     data class Payment(
         val dialog: JsonElement,
         @SerialName("pay_tip")
-        val payTip: JsonElement,
+        val payTip: JsonElement? = null,
         @SerialName("pay_type")
         val payType: PayType,
         val price: String,
