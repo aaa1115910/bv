@@ -3,7 +3,6 @@ package dev.aaa1115910.biliapi.repositories
 import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
-import io.ktor.http.ContentType.*
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -103,6 +102,26 @@ class VideoPlayRepositoryTest {
         }
     }
 
+    @Test
+    fun `get multi part video with http`() = runBlocking {
+        val result = videoPlayRepository.getPlayData(
+            aid = 836207,
+            cid = 1215693,
+            preferApiType = ApiType.Web
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get multi part video with grpc`() = runBlocking {
+        val result = videoPlayRepository.getPlayData(
+            aid = 836207,
+            cid = 1215693,
+            preferApiType = ApiType.App
+        )
+        println(result)
+    }
+
     @OptIn(ExperimentalEncodingApi::class)
     @Test
     fun `parse error status`() {
@@ -179,6 +198,26 @@ class VideoPlayRepositoryTest {
                 it.printStackTrace()
             }
         }
+    }
+
+    @Test
+    fun `get subtitle with web api`() = runBlocking {
+        val result = videoPlayRepository.getSubtitle(
+            aid = 913498989,
+            cid = 1203020250,
+            preferApiType = ApiType.Web
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get subtitle with app api`() = runBlocking {
+        val result = videoPlayRepository.getSubtitle(
+            aid = 913498989,
+            cid = 1203020250,
+            preferApiType = ApiType.App
+        )
+        println(result)
     }
 }
 

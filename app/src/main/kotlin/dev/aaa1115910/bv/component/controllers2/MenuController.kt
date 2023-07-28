@@ -46,7 +46,10 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
-import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
+import dev.aaa1115910.biliapi.entity.video.SubtitleType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
@@ -74,7 +77,7 @@ fun MenuController(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
-    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit
@@ -129,7 +132,7 @@ fun MenuController(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
-    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit
@@ -205,7 +208,7 @@ private fun MenuList(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
-    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
@@ -316,7 +319,7 @@ fun MenuControllerPreview() {
     var currentDanmakuArea by remember { mutableFloatStateOf(1f) }
 
     var currentSubtitleId by remember { mutableLongStateOf(-1L) }
-    val currentSubtitleList = remember { mutableStateListOf<VideoMoreInfo.SubtitleItem>() }
+    val currentSubtitleList = remember { mutableStateListOf<Subtitle>() }
     var currentSubtitleFontSize by remember { mutableStateOf(24.sp) }
     var currentSubtitleBackgroundOpacity by remember { mutableFloatStateOf(0.4f) }
     var currentSubtitleBottomPadding by remember { mutableStateOf(8.dp) }
@@ -325,49 +328,41 @@ fun MenuControllerPreview() {
         currentSubtitleList.apply {
             addAll(
                 listOf(
-                    VideoMoreInfo.SubtitleItem(
+                    Subtitle(
                         id = -1,
-                        lanDoc = "关闭",
-                        lan = "",
-                        isLock = false,
-                        subtitleUrl = "",
-                        type = 0,
-                        idStr = "",
-                        aiType = 0,
-                        aiStatus = 0
+                        langDoc = "关闭",
+                        lang = "",
+                        url = "",
+                        type = SubtitleType.CC,
+                        aiType = SubtitleAiType.Normal,
+                        aiStatus = SubtitleAiStatus.None
                     ),
-                    VideoMoreInfo.SubtitleItem(
+                    Subtitle(
                         id = 1111,
-                        lan = "ai-zh",
-                        lanDoc = "中文（自动翻译）",
-                        isLock = false,
-                        subtitleUrl = "",
-                        type = 1,
-                        idStr = "",
-                        aiType = 1,
-                        aiStatus = 2
+                        langDoc = "ai-zh",
+                        lang = "中文（自动翻译）",
+                        url = "",
+                        type = SubtitleType.CC,
+                        aiType = SubtitleAiType.Normal,
+                        aiStatus = SubtitleAiStatus.None
                     ),
-                    VideoMoreInfo.SubtitleItem(
+                    Subtitle(
                         id = 222,
-                        lan = "zh",
-                        lanDoc = "中文",
-                        isLock = false,
-                        subtitleUrl = "",
-                        type = 1,
-                        idStr = "",
-                        aiType = 1,
-                        aiStatus = 2
+                        lang = "zh",
+                        langDoc = "中文",
+                        url = "",
+                        type = SubtitleType.CC,
+                        aiType = SubtitleAiType.Normal,
+                        aiStatus = SubtitleAiStatus.None
                     ),
-                    VideoMoreInfo.SubtitleItem(
+                    Subtitle(
                         id = 1333,
-                        lan = "ai-en",
-                        lanDoc = "English",
-                        isLock = false,
-                        subtitleUrl = "",
-                        type = 1,
-                        idStr = "",
-                        aiType = 1,
-                        aiStatus = 2
+                        lang = "ai-en",
+                        langDoc = "English",
+                        url = "",
+                        type = SubtitleType.CC,
+                        aiType = SubtitleAiType.Normal,
+                        aiStatus = SubtitleAiStatus.None
                     )
                 )
             )

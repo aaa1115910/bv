@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
@@ -467,7 +468,7 @@ data class VideoPlayerControllerData(
     val availableVideoCodec: List<VideoCodec> = emptyList(),
     val availableAudio: List<Audio> = emptyList(),
     val availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
-    val availableSubtitleTracks: List<VideoMoreInfo.SubtitleItem> = emptyList(),
+    val availableSubtitleTracks: List<Subtitle> = emptyList(),
     val availableVideoList: List<VideoListItem> = emptyList(),
     val currentVideoCid: Int = 0,
     val currentResolution: Int? = null,

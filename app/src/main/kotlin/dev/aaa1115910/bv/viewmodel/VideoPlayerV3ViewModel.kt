@@ -17,8 +17,11 @@ import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
+import dev.aaa1115910.biliapi.entity.video.SubtitleType
 import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
@@ -62,7 +65,7 @@ class VideoPlayerV3ViewModel(
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
-    var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
+    var availableSubtitle = mutableStateListOf<Subtitle>()
     var availableAudio = mutableStateListOf<Audio>()
     val availableVideoList get() = videoInfoRepository.videoList
 
@@ -339,31 +342,31 @@ class VideoPlayerV3ViewModel(
         currentSubtitleId = -1
         currentSubtitleData.clear()
 
-        val responseData = runCatching {
-            BiliHttpApi.getVideoMoreInfo(
-                avid = currentAid,
+        runCatching {
+            val subtitleData = videoPlayRepository.getSubtitle(
+                aid = currentAid,
                 cid = currentCid,
-                sessData = Prefs.sessData
-            ).getResponseData()
-        }.getOrNull() ?: return
-        availableSubtitle.clear()
-        availableSubtitle.add(
-            VideoMoreInfo.SubtitleItem(
-                id = -1,
-                lanDoc = "关闭",
-                lan = "",
-                isLock = false,
-                subtitleUrl = "",
-                type = 0,
-                idStr = "",
-                aiType = 0,
-                aiStatus = 0
+                preferApiType = Prefs.apiType
             )
-        )
-        availableSubtitle.addAll(responseData.subtitle.subtitles)
-        availableSubtitle.sortBy { it.id }
-        addLogs("获取到 ${responseData.subtitle.subtitles.size} 条字幕: ${responseData.subtitle.subtitles.map { it.lanDoc }}")
-        logger.fInfo { "Update subtitle size: ${responseData.subtitle.subtitles.size}" }
+            availableSubtitle.add(
+                Subtitle(
+                    id = -1,
+                    lang = "",
+                    langDoc = "关闭",
+                    url = "",
+                    type = SubtitleType.CC,
+                    aiType = SubtitleAiType.Normal,
+                    aiStatus = SubtitleAiStatus.None
+                )
+            )
+            availableSubtitle.addAll(subtitleData)
+            availableSubtitle.sortBy { it.id }
+            addLogs("获取到 ${subtitleData.size} 条字幕: ${subtitleData.map { it.langDoc }}")
+            logger.fInfo { "Update subtitle size: ${subtitleData.size}" }
+        }.onFailure {
+            addLogs("获取字幕失败：${it.localizedMessage}")
+            logger.fWarn { "Update subtitle failed: ${it.stackTraceToString()}" }
+        }
     }
 
     private fun addLogs(text: String) {
@@ -414,7 +417,7 @@ class VideoPlayerV3ViewModel(
     }
 
     fun loadSubtitle(id: Long) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             if (id == 0L) {
                 currentSubtitleData.clear()
                 currentSubtitleId = -1
@@ -423,10 +426,10 @@ class VideoPlayerV3ViewModel(
             var subtitleName = ""
             runCatching {
                 val subtitle = availableSubtitle.find { it.id == id } ?: return@runCatching
-                subtitleName = subtitle.lanDoc
-                logger.info { "Subtitle url: ${subtitle.subtitleUrl}" }
+                subtitleName = subtitle.langDoc
+                logger.info { "Subtitle url: ${subtitle.url}" }
                 val client = HttpClient(OkHttp)
-                val responseText = client.get(subtitle.subtitleUrl).bodyAsText()
+                val responseText = client.get(subtitle.url).bodyAsText()
                 val subtitleData = SubtitleParser.fromBccString(responseText)
                 currentSubtitleId = id
                 currentSubtitleData.swapList(subtitleData)

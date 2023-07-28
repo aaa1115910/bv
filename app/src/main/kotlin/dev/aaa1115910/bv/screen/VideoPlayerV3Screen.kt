@@ -365,7 +365,6 @@ fun VideoPlayerV3Screen(
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
             availableAudio = playerViewModel.availableAudio,
-            availableSubtitle = playerViewModel.availableSubtitle,
             availableSubtitleTracks = playerViewModel.availableSubtitle,
             availableVideoList = playerViewModel.availableVideoList,
             currentVideoCid = playerViewModel.currentCid,
