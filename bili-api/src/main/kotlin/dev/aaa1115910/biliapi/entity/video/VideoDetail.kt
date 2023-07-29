@@ -25,7 +25,8 @@ data class VideoDetail(
     val epid: Int?,
     val argueTip: String?,
     val tags: List<Tag>,
-    val userActions: UserActions
+    val userActions: UserActions,
+    var history: History
 ) {
     companion object {
         fun fromViewReply(viewReply: ViewReply) = VideoDetail(
@@ -47,7 +48,8 @@ data class VideoDetail(
             }.getOrNull(),
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
             tags = viewReply.descTagList.map { Tag.fromTag(it) },
-            userActions = UserActions.fromReqUser(viewReply.reqUser)
+            userActions = UserActions.fromReqUser(viewReply.reqUser),
+            history = History.fromHistory(viewReply.history)
         )
 
         fun fromVideoDetail(videoDetail: dev.aaa1115910.biliapi.http.entity.video.VideoDetail) =
@@ -68,7 +70,8 @@ data class VideoDetail(
                 epid = videoDetail.view.redirectUrl?.split("ep", "?")?.get(1)?.toInt(),
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
                 tags = videoDetail.tags.map { Tag.fromTag(it) },
-                userActions = UserActions()
+                userActions = UserActions(),
+                history = History(0, 0)
             )
     }
 
@@ -103,6 +106,18 @@ data class VideoDetail(
                 share = videoStat.share,
                 like = videoStat.like,
                 historyRank = videoStat.hisRank
+            )
+        }
+    }
+
+    data class History(
+        val progress: Int,
+        val lastPlayedCid: Int
+    ) {
+        companion object {
+            fun fromHistory(history: bilibili.app.view.v1.History) = History(
+                progress = history.progress.toInt(),
+                lastPlayedCid = history.cid.toInt()
             )
         }
     }

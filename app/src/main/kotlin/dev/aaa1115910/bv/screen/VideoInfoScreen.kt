@@ -93,7 +93,6 @@ import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
-import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.R
@@ -160,22 +159,21 @@ fun VideoInfoScreen(
     val favoriteFolderMetadataList = remember { mutableStateListOf<FavoriteFolderMetadata>() }
     val videoInFavoriteFolderIds = remember { mutableStateListOf<Long>() }
 
-    val updateV2Data: () -> Unit = {
+    val setHistory = {
+        logger.info { "play history: ${videoDetailViewModel.videoDetail?.history}" }
+        lastPlayedCid = videoDetailViewModel.videoDetail?.history?.lastPlayedCid ?: 0
+        lastPlayedTime = videoDetailViewModel.videoDetail?.history?.progress ?: 0
+    }
+
+    val updateHistory = {
         scope.launch(Dispatchers.IO) {
             runCatching {
-                logger.fInfo { "Get video more info" }
-                val moreInfoResponse = BiliHttpApi.getVideoMoreInfo(
-                    avid = videoDetailViewModel.videoDetail!!.aid,
-                    cid = videoDetailViewModel.videoDetail!!.cid,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                lastPlayedCid = moreInfoResponse.lastPlayCid
-                lastPlayedTime = moreInfoResponse.lastPlayTime
-            }.onFailure {
-                logger.fInfo { "Get video more info failed: ${it.stackTraceToString()}" }
+                videoDetailViewModel.loadDetailOnlyUpdateHistory(videoDetailViewModel.videoDetail!!.aid)
             }
+            setHistory()
         }
     }
+
 
     val updateFollowingState: () -> Unit = {
         scope.launch(Dispatchers.IO) {
@@ -287,7 +285,7 @@ fun VideoInfoScreen(
                 runCatching {
                     videoDetailViewModel.loadDetail(aid)
                     updateVideoIsFavoured()
-                    updateV2Data()
+                    setHistory()
                     if (Prefs.isLogin) fetchFavoriteData(aid)
 
                     //如果是从剧集跳转过来的，就直接播放 P1
@@ -299,7 +297,7 @@ fun VideoInfoScreen(
                             cid = playPart.cid,
                             title = videoDetailViewModel.videoDetail!!.title,
                             partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == playPart.cid }!!.title,
-                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime else 0,
+                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                             fromSeason = true,
                             isVerticalVideo = containsVerticalScreenVideo
                         )
@@ -368,7 +366,7 @@ fun VideoInfoScreen(
                 paused = true
             } else if (event == Lifecycle.Event.ON_RESUME) {
                 // 如果 pause==true 那可能是从播放页返回回来的，此时更新历史记录
-                if (paused) updateV2Data()
+                if (paused) updateHistory()
             }
         }
 
@@ -442,7 +440,7 @@ fun VideoInfoScreen(
                                     cid = videoDetailViewModel.videoDetail!!.pages.first().cid,
                                     title = videoDetailViewModel.videoDetail!!.title,
                                     partTitle = videoDetailViewModel.videoDetail!!.pages.first().title,
-                                    played = if (videoDetailViewModel.videoDetail!!.cid == lastPlayedCid) lastPlayedTime else 0,
+                                    played = if (videoDetailViewModel.videoDetail!!.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                     fromSeason = false,
                                     isVerticalVideo = containsVerticalScreenVideo
                                 )
@@ -503,7 +501,7 @@ fun VideoInfoScreen(
                                         cid = cid,
                                         title = videoDetailViewModel.videoDetail!!.title,
                                         partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
-                                        played = if (cid == lastPlayedCid) lastPlayedTime else 0,
+                                        played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
                                         isVerticalVideo = containsVerticalScreenVideo
                                     )
@@ -530,7 +528,7 @@ fun VideoInfoScreen(
                                         cid = cid,
                                         title = videoDetailViewModel.videoDetail!!.title,
                                         partTitle = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
-                                        played = if (cid == lastPlayedCid) lastPlayedTime else 0,
+                                        played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
                                         isVerticalVideo = containsVerticalScreenVideo
                                     )
@@ -921,7 +919,7 @@ fun VideoPartButton(
                 modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.2f))
                     .fillMaxHeight()
-                    .fillMaxWidth(if (played < 0) 1f else (played / (duration * 1000f)))
+                    .fillMaxWidth(if (played < 0) 1f else (played / duration.toFloat()))
             ) {}
             Text(
                 modifier = Modifier

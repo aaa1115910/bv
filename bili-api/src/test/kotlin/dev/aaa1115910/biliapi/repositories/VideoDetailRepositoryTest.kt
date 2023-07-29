@@ -70,6 +70,24 @@ class VideoDetailRepositoryTest {
     }
 
     @Test
+    fun `get multi part video info with http`() = runBlocking {
+        val result = videoDetailRepository.getVideoDetail(
+            aid = 836207,
+            preferApiType = ApiType.Web
+        )
+        println(result)
+    }
+
+    @Test
+    fun `get multi part video info with grpc`() = runBlocking {
+        val result = videoDetailRepository.getVideoDetail(
+            aid = 836207,
+            preferApiType = ApiType.App
+        )
+        println(result)
+    }
+
+    @Test
     fun `get ugc season video info with http`() {
         runBlocking {
             runCatching {

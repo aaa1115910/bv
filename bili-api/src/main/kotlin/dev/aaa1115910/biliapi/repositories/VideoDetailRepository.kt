@@ -47,8 +47,26 @@ class VideoDetailRepository(
                             println("Check video favoured failed: $it")
                         }.getOrDefault(false)
                     }
+
+                    val history = async {
+                        runCatching {
+                            val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
+                                avid = aid,
+                                cid = videoDetailWithoutUserActions.await().cid,
+                                sessData = authRepository.sessionData ?: ""
+                            ).getResponseData()
+                            VideoDetail.History(
+                                progress = videoModeInfo.lastPlayTime / 1000,
+                                lastPlayedCid = videoModeInfo.lastPlayCid
+                            )
+                        }.onFailure {
+                            println("Get video history failed: $it")
+                        }.getOrDefault(VideoDetail.History(0, 0))
+                    }
+
                     videoDetailWithoutUserActions.await().apply {
                         userActions.favorite = isFavoured.await()
+                        this.history = history.await()
                     }
                 }
             }

@@ -41,6 +41,20 @@ class VideoDetailViewModel(
         }.getOrThrow()
     }
 
+    suspend fun loadDetailOnlyUpdateHistory(aid: Int) {
+        logger.fInfo { "Load detail only update history: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
+        runCatching {
+            videoDetail?.history = videoDetailRepository.getVideoDetail(
+                aid = aid,
+                preferApiType = Prefs.apiType
+            ).history
+        }.onFailure {
+            logger.fInfo { "Load video av$aid only update history failed: ${it.stackTraceToString()}" }
+        }.onSuccess {
+            logger.fInfo { "Load video av$aid only update history success: ${videoDetail?.history}" }
+        }
+    }
+
     private fun updateRelatedVideos() {
         logger.fInfo { "Start update relate video" }
         val relateVideoCardDataList = videoDetail?.relatedVideos?.map {
