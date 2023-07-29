@@ -94,6 +94,7 @@ import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -167,6 +168,23 @@ fun SeasonInfoScreen(
         }
     }
 
+    val updateHistoryAfterBack = {
+        scope.launch(Dispatchers.IO) {
+            //延迟 200ms，避免获取到的依旧是旧数据
+            delay(200)
+            runCatching {
+                lastPlayProgress = videoDetailRepository.getPgcVideoDetail(
+                    seasonId = seasonId,
+                    epid = epId,
+                    preferApiType = Prefs.apiType
+                ).userStatus.progress
+                logger.info { "update user status progress: $lastPlayProgress" }
+            }.onFailure {
+                logger.fInfo { "update user status progress failed: ${it.stackTraceToString()}" }
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         val epId1 = intent.getIntExtra("epid", 0)
         val seasonId1 = intent.getIntExtra("seasonid", 0)
@@ -196,7 +214,7 @@ fun SeasonInfoScreen(
                 paused = true
             } else if (event == Lifecycle.Event.ON_RESUME) {
                 // 如果 pause==true 那可能是从播放页返回回来的，此时更新历史记录
-                if (paused) updateSeasonData(seasonId, epId)
+                if (paused) updateHistoryAfterBack()
             }
         }
 

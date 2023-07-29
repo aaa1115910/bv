@@ -46,7 +46,7 @@ data class AppSeasonData(
     val originName: String? = null,
     val payment: Payment,
     @SerialName("play_strategy")
-    val playStrategy: PlayStrategy,
+    val playStrategy: PlayStrategy? = null,
     @SerialName("player_icon")
     val playerIcon: PlayerIcon? = null,
     val premieres: JsonArray,

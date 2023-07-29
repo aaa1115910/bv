@@ -92,6 +92,7 @@ class VideoDetailRepository(
                 val webSeasonData = BiliHttpApi.getWebSeasonInfo(
                     epId = epid,
                     seasonId = seasonId,
+                    sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
                 return SeasonDetail.fromSeasonData(webSeasonData)
             }
@@ -100,7 +101,8 @@ class VideoDetailRepository(
                 val appSeasonData = BiliHttpApi.getAppSeasonInfo(
                     epId = epid,
                     seasonId = seasonId,
-                    mobiApp = "android_hd"
+                    mobiApp = "android_hd",
+                    accessKey = authRepository.accessToken ?: ""
                 ).getResponseData()
                 return SeasonDetail.fromSeasonData(appSeasonData)
             }
