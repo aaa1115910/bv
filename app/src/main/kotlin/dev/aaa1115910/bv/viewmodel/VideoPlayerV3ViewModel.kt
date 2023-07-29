@@ -17,6 +17,7 @@ import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
@@ -388,25 +389,23 @@ class VideoPlayerV3ViewModel(
         runCatching {
             if (!fromSeason) {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
-                BiliHttpApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                videoPlayRepository.sendHeartbeat(
+                    aid = currentAid,
                     cid = currentCid,
-                    playedTime = time,
-                    csrf = Prefs.biliJct,
-                    sessData = Prefs.sessData
+                    time = time,
+                    preferApiType = Prefs.apiType
                 )
             } else {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
-                BiliHttpApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                videoPlayRepository.sendHeartbeat(
+                    aid = currentAid,
                     cid = currentCid,
-                    playedTime = time,
-                    type = 4,
+                    time = time,
+                    type = HeartbeatVideoType.Season,
                     subType = subType,
                     epid = epid,
-                    sid = seasonId,
-                    csrf = Prefs.biliJct,
-                    sessData = Prefs.sessData
+                    seasonId = seasonId,
+                    preferApiType = Prefs.apiType
                 )
             }
         }.onSuccess {

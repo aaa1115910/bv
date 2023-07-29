@@ -9,6 +9,7 @@ import bilibili.playershared.videoVod
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
@@ -139,5 +140,42 @@ class VideoPlayRepository(
                     ?: emptyList()
             }
         }
+    }
+
+    suspend fun sendHeartbeat(
+        aid: Int,
+        cid: Int,
+        time: Int,
+        type: HeartbeatVideoType = HeartbeatVideoType.Video,
+        subType: Int? = null,
+        epid: Int? = null,
+        seasonId: Int? = null,
+        preferApiType: ApiType = ApiType.Web
+    ) {
+        val result = when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.sendHeartbeat(
+                avid = aid.toLong(),
+                cid = cid,
+                playedTime = time,
+                type = type.value,
+                subType = subType,
+                epid = epid,
+                sid = seasonId,
+                csrf = authRepository.biliJct,
+                sessData = authRepository.sessionData ?: ""
+            )
+
+            ApiType.App -> BiliHttpApi.sendHeartbeat(
+                avid = aid.toLong(),
+                cid = cid,
+                playedTime = time,
+                type = type.value,
+                subType = subType,
+                epid = epid,
+                sid = seasonId,
+                accessKey = authRepository.accessToken ?: ""
+            )
+        }
+        println("send heartbeat result: $result")
     }
 }

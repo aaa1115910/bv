@@ -2,6 +2,7 @@ package dev.aaa1115910.biliapi.repositories
 
 import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -36,6 +37,8 @@ class VideoPlayRepositoryTest {
     init {
         channelRepository.initDefaultChannel(ACCESS_TOKEN, BUVID)
         authRepository.sessionData = SESSDATA
+        authRepository.accessToken = ACCESS_TOKEN
+        authRepository.biliJct = BILI_JCT
     }
 
     @Test
@@ -218,6 +221,50 @@ class VideoPlayRepositoryTest {
             preferApiType = ApiType.App
         )
         println(result)
+    }
+
+    @Test
+    fun `send heartbeat with web api`() = runBlocking {
+        val randomTime = (0..100).random()
+        println("random time: $randomTime")
+        videoPlayRepository.sendHeartbeat(
+            aid = 170001,
+            cid = 280468,
+            time = randomTime,
+            preferApiType = ApiType.Web
+        )
+        videoPlayRepository.sendHeartbeat(
+            aid = 476982015,
+            cid = 1107179650,
+            type = HeartbeatVideoType.Season,
+            subType = 4,
+            time = randomTime,
+            epid = 706666,
+            seasonId = 39707,
+            preferApiType = ApiType.Web
+        )
+    }
+
+    @Test
+    fun `send heartbeat with app api`() = runBlocking {
+        val randomTime = (0..100).random()
+        println("random time: $randomTime")
+        videoPlayRepository.sendHeartbeat(
+            aid = 170001,
+            cid = 280468,
+            time = randomTime,
+            preferApiType = ApiType.App
+        )
+        videoPlayRepository.sendHeartbeat(
+            aid = 476982015,
+            cid = 1107179650,
+            type = HeartbeatVideoType.Season,
+            subType = 4,
+            time = randomTime,
+            epid = 706666,
+            seasonId = 39707,
+            preferApiType = ApiType.App
+        )
     }
 }
 

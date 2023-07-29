@@ -513,6 +513,43 @@ object BiliHttpApi {
         header("Cookie", "SESSDATA=$sessData;")
     }.bodyAsText()
 
+    suspend fun sendHeartbeat(
+        avid: Long? = null,
+        bvid: String? = null,
+        cid: Int? = null,
+        epid: Int? = null,
+        sid: Int? = null,
+        mid: Long? = null,
+        playedTime: Int? = null,
+        realtime: Int? = null,
+        startTs: Long? = null,
+        type: Int? = null,
+        subType: Int? = null,
+        dt: Int? = null,
+        playType: Int? = null,
+        accessKey: String? = null
+    ): String = client.post("/x/v2/history/report") {
+        require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
+        setBody(FormDataContent(
+            Parameters.build {
+                avid?.let { append("aid", "$it") }
+                bvid?.let { append("bvid", it) }
+                cid?.let { append("cid", "$it") }
+                epid?.let { append("epid", "$it") }
+                sid?.let { append("sid", "$it") }
+                mid?.let { append("mid", "$it") }
+                playedTime?.let { append("progress", "$it") }
+                realtime?.let { append("realtime", "$it") }
+                startTs?.let { append("start_ts", "$it") }
+                type?.let { append("type", "$it") }
+                subType?.let { append("sub_type", "$it") }
+                dt?.let { append("dt", "$it") }
+                playType?.let { append("play_type", "$it") }
+                accessKey?.let { append("access_key", it) }
+            }
+        ))
+    }.bodyAsText()
+
     /**
      * 获取视频[avid]的[cid]视频更多信息，例如播放进度
      */
