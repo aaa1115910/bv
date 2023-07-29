@@ -47,7 +47,7 @@ data class VideoDetail(
                 viewReply.arc.redirectUrl.split("ep", "?")[1].toInt()
             }.getOrNull(),
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
-            tags = viewReply.descTagList.map { Tag.fromTag(it) },
+            tags = viewReply.tagList.map { Tag.fromTag(it) },
             userActions = UserActions.fromReqUser(viewReply.reqUser),
             history = History.fromHistory(viewReply.history)
         )
