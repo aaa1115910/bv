@@ -120,9 +120,9 @@ fun FollowScreen(
                         if (index == 0) Modifier.focusRequester(defaultFocusRequester) else Modifier
                     UpCard(
                         modifier = upCardModifier,
-                        face = up.face,
+                        face = up.avatar,
                         sign = up.sign,
-                        username = up.uname,
+                        username = up.name,
                         onFocusChange = {
                             if (it) currentIndex = index
                         },
@@ -130,7 +130,7 @@ fun FollowScreen(
                             UpInfoActivity.actionStart(
                                 context = context,
                                 mid = up.mid,
-                                name = up.uname
+                                name = up.name
                             )
                         }
                     )

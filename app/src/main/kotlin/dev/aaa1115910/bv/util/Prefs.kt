@@ -12,6 +12,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.http.util.generateBuvid
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
@@ -187,6 +189,19 @@ object Prefs {
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowFpsRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowFpsKey, value) }
 
+    var buvid: String
+        get() = runBlocking {
+            val id = dsm.getPreferenceFlow(PrefKeys.prefBuvidRequest).first()
+            if (id != "") {
+                id
+            } else {
+                val randomBuvid = generateBuvid()
+                buvid3 = randomBuvid
+                randomBuvid
+            }
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefBuvidKey, value) }
+
     var buvid3: String
         get() = runBlocking {
             val id = dsm.getPreferenceFlow(PrefKeys.prefBuvid3Request).first()
@@ -221,6 +236,20 @@ object Prefs {
     var updateAlpha: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAlphaRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefAlphaKey, value) }
+
+    var accessToken: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefAccessTokenRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefAccessTokenKey, value) }
+
+    var refreshToken: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefRefreshTokenRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefRefreshTokenKey, value) }
+
+    var apiType: ApiType
+        get() = runBlocking {
+            ApiType.values()[dsm.getPreferenceFlow(PrefKeys.prefApiTypeRequest).first()]
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefApiTypeKey, value.ordinal) }
 }
 
 private object PrefKeys {
@@ -248,11 +277,15 @@ private object PrefKeys {
     val prefDefaultSubtitleBackgroundOpacityKey = floatPreferencesKey("dsbo")
     val prefDefaultSubtitleBottomPaddingKey = intPreferencesKey("dsbp")
     val prefShowFpsKey = booleanPreferencesKey("sf")
+    val prefBuvidKey = stringPreferencesKey("random_buvid")
     val prefBuvid3Key = stringPreferencesKey("random_buvid3")
     val prefPlayerTypeKey = intPreferencesKey("pt")
     val prefDensityKey = floatPreferencesKey("density")
     val prefUseOldPlayerKey = booleanPreferencesKey("uop")
     val prefAlphaKey = booleanPreferencesKey("alpha")
+    val prefAccessTokenKey = stringPreferencesKey("access_token")
+    val prefRefreshTokenKey = stringPreferencesKey("refresh_token")
+    val prefApiTypeKey = intPreferencesKey("api_type")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -284,6 +317,7 @@ private object PrefKeys {
     val prefDefaultSubtitleBottomPaddingRequest =
         PreferenceRequest(prefDefaultSubtitleBottomPaddingKey, 12)
     val prefShowFpsRequest = PreferenceRequest(prefShowFpsKey, false)
+    val prefBuvidRequest = PreferenceRequest(prefBuvidKey, "")
     val prefBuvid3Request = PreferenceRequest(prefBuvid3Key, "")
     val prefPlayerTypeRequest = PreferenceRequest(prefPlayerTypeKey, PlayerType.Media3.ordinal)
     val prefDensityRequest =
@@ -292,4 +326,7 @@ private object PrefKeys {
 
     @Suppress("KotlinConstantConditions")
     val prefAlphaRequest = PreferenceRequest(prefAlphaKey, BuildConfig.BUILD_TYPE == "alpha")
+    val prefAccessTokenRequest = PreferenceRequest(prefAccessTokenKey, "")
+    val prefRefreshTokenRequest = PreferenceRequest(prefRefreshTokenKey, "")
+    val prefApiTypeRequest = PreferenceRequest(prefApiTypeKey, 0)
 }

@@ -14,5 +14,5 @@ fun FollowingSeasonStatus.getDisplayName(context: Context) = when (this) {
 
 fun FollowingSeasonType.getDisplayName(context: Context) = when (this) {
     FollowingSeasonType.Bangumi -> context.getString(R.string.following_season_type_bangumi)
-    FollowingSeasonType.FilmAndTelevision -> context.getString(R.string.following_season_type_film_and_television)
+    FollowingSeasonType.Cinema -> context.getString(R.string.following_season_type_film_and_television)
 }

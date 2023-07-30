@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
-import dev.aaa1115910.biliapi.entity.user.MyInfoData
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.http.entity.user.MyInfoData
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -36,7 +36,8 @@ class UserViewModel(
         logger.fInfo { "Update user info" }
         viewModelScope.launch {
             runCatching {
-                responseData = BiliApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+                responseData =
+                    BiliHttpApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
                 logger.fInfo { "Update user info success" }
                 shouldUpdateInfo = false
                 userRepository.username = responseData!!.name

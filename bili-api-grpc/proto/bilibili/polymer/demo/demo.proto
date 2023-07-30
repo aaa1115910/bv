@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bilibili.polymer.demo;
+
+option java_multiple_files = true;
+
+//
+message HelloWorldReq {
+  //
+  string content = 1;
+}
+
+//
+message HelloWorldResp {
+  //
+    string data = 1;
+}

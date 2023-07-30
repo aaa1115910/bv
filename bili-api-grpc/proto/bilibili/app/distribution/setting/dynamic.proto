@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bilibili.app.distribution.setting.dynamic;
+
+option java_multiple_files = true;
+
+import "bilibili/app/distribution/v1/distribution.proto";
+
+// 
+message DynamicAutoPlay {
+  //
+  bilibili.app.distribution.v1.Int64Value value = 1;
+}
+
+// 
+message DynamicDeviceConfig {
+    // 
+    DynamicAutoPlay auto_play = 1;
+}

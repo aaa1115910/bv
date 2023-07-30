@@ -34,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayInputStream
@@ -57,7 +56,9 @@ fun CookiesDialog(
                 sid = Prefs.sid,
                 biliJct = Prefs.biliJct,
                 sessData = Prefs.sessData,
-                tokenExpiredData = Prefs.tokenExpiredData.time
+                tokenExpiredData = Prefs.tokenExpiredData.time,
+                accessToken = Prefs.accessToken,
+                refreshToken = Prefs.refreshToken
             )
         )
     }
@@ -120,6 +121,8 @@ fun CookiesDialog(
                         Prefs.biliJct = cookies.biliJct
                         Prefs.sessData = cookies.sessData
                         Prefs.tokenExpiredData = Date(cookies.tokenExpiredData)
+                        Prefs.accessToken = cookies.accessToken
+                        Prefs.refreshToken = cookies.refreshToken
                         Prefs.isLogin = true
                     }.onFailure {
                         println(it.stackTraceToString())
@@ -152,5 +155,9 @@ private data class CookiesData(
     @SerialName("SESSDATA")
     val sessData: String,
     @SerialName("expired_date")
-    val tokenExpiredData: Long
+    val tokenExpiredData: Long,
+    @SerialName("access_token")
+    val accessToken: String = "",
+    @SerialName("refresh_token")
+    val refreshToken: String = ""
 )

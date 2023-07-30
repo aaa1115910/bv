@@ -6,8 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
+import dev.aaa1115910.biliapi.entity.FavoriteItemType
+import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -17,15 +18,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
-class FavoriteViewModel : ViewModel() {
+class FavoriteViewModel(
+    private val favoriteRepository: FavoriteRepository
+) : ViewModel() {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
 
-    var favoriteFolders = mutableStateListOf<UserFavoriteFoldersData.UserFavoriteFolder>()
+    var favoriteFolderMetadataList = mutableStateListOf<FavoriteFolderMetadata>()
     var favorites = mutableStateListOf<VideoCardData>()
 
-    var currentFavoriteFolder: UserFavoriteFoldersData.UserFavoriteFolder? by mutableStateOf(null)
+    var currentFavoriteFolderMetadata: FavoriteFolderMetadata? by mutableStateOf(null)
 
     private var pageSize = 20
     private var pageNumber = 1
@@ -42,15 +45,18 @@ class FavoriteViewModel : ViewModel() {
         if (updatingFolders) return
         updatingFolders = true
         logger.fInfo { "Updating favorite folders" }
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching {
-                val responseData = BiliApi.getAllFavoriteFoldersInfo(
-                    mid = Prefs.uid,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                favoriteFolders.swapList(responseData.list)
-                currentFavoriteFolder = responseData.list.first()
-                logger.fInfo { "Update favorite folders success: ${favoriteFolders.map { it.id }}" }
+                val favoriteFolderMetadataList =
+                    favoriteRepository.getAllFavoriteFolderMetadataList(
+                        mid = Prefs.uid,
+                        preferApiType = Prefs.apiType
+                    )
+                this@FavoriteViewModel.favoriteFolderMetadataList.swapList(
+                    favoriteFolderMetadataList
+                )
+                currentFavoriteFolderMetadata = favoriteFolderMetadataList.firstOrNull()
+                logger.fInfo { "Update favorite folders success: ${favoriteFolderMetadataList.map { it.id }}" }
             }.onFailure {
                 logger.fWarn { "Update favorite folders failed: ${it.stackTraceToString()}" }
                 //这里返回的数据并不会有用户认证失败的错误返回，没必要做身份验证失败提示
@@ -64,17 +70,17 @@ class FavoriteViewModel : ViewModel() {
     fun updateFolderItems() {
         if (updatingFolderItems || !hasMore) return
         updatingFolderItems = true
-        logger.fInfo { "Updating favorite folder items with media id: ${currentFavoriteFolder?.id}" }
-        viewModelScope.launch(Dispatchers.Default) {
+        logger.fInfo { "Updating favorite folder items with media id: ${currentFavoriteFolderMetadata?.id}" }
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching {
-                val responseData = BiliApi.getFavoriteList(
-                    mediaId = currentFavoriteFolder!!.id,
+                val favoriteFolderData = favoriteRepository.getFavoriteFolderData(
+                    mediaId = currentFavoriteFolderMetadata!!.id,
                     pageSize = pageSize,
                     pageNumber = pageNumber,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                responseData.medias.forEach { favoriteItem ->
-                    if (favoriteItem.type != 2) return@forEach
+                    preferApiType = Prefs.apiType
+                )
+                favoriteFolderData.medias.forEach { favoriteItem ->
+                    if (favoriteItem.type != FavoriteItemType.Video) return@forEach
                     favorites.add(
                         VideoCardData(
                             avid = favoriteItem.id.toInt(),
@@ -85,7 +91,7 @@ class FavoriteViewModel : ViewModel() {
                         )
                     )
                 }
-                hasMore = responseData.hasMore
+                hasMore = favoriteFolderData.hasMore
                 logger.fInfo { "Update favorite items success" }
             }.onFailure {
                 logger.fInfo { "Update favorite items failed: ${it.stackTraceToString()}" }

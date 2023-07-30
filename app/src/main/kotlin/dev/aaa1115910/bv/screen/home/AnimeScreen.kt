@@ -62,9 +62,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
-import dev.aaa1115910.biliapi.entity.anime.CarouselItem
-import dev.aaa1115910.biliapi.entity.web.Hover
+import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.http.entity.anime.CarouselItem
+import dev.aaa1115910.biliapi.http.entity.web.Hover
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.anime.AnimeIndexActivity
 import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity

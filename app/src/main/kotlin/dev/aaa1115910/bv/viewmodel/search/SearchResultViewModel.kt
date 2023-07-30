@@ -6,12 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.search.SearchResultData
-import dev.aaa1115910.biliapi.entity.search.SearchResultItem
+import dev.aaa1115910.biliapi.repositories.SearchFilterDuration
+import dev.aaa1115910.biliapi.repositories.SearchFilterOrderType
+import dev.aaa1115910.biliapi.repositories.SearchRepository
+import dev.aaa1115910.biliapi.repositories.SearchType
+import dev.aaa1115910.biliapi.repositories.SearchTypePage
+import dev.aaa1115910.biliapi.repositories.SearchTypeResult
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.screen.search.SearchResultFilterDuration
-import dev.aaa1115910.bv.screen.search.SearchResultFilterOrderType
 import dev.aaa1115910.bv.util.Partition
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -19,114 +20,138 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
-class SearchResultViewModel : ViewModel() {
+class SearchResultViewModel(
+    private val searchRepository: SearchRepository
+) : ViewModel() {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
 
     var keyword by mutableStateOf("")
-    var searchType by mutableStateOf(SearchResultType.Video)
+    var searchType by mutableStateOf(SearchType.Video)
 
-    var videoSearchResult by mutableStateOf(SearchResult(SearchResultType.Video))
-    var mediaBangumiSearchResult by mutableStateOf(SearchResult(SearchResultType.MediaBangumi))
-    var mediaFtSearchResult by mutableStateOf(SearchResult(SearchResultType.MediaFt))
-    var biliUserSearchResult by mutableStateOf(SearchResult(SearchResultType.BiliUser))
+    var videoSearchResult by mutableStateOf(SearchResult(SearchType.Video))
+    var mediaBangumiSearchResult by mutableStateOf(SearchResult(SearchType.MediaBangumi))
+    var mediaFtSearchResult by mutableStateOf(SearchResult(SearchType.MediaFt))
+    var biliUserSearchResult by mutableStateOf(SearchResult(SearchType.BiliUser))
 
-    var selectedOrder by mutableStateOf(SearchResultFilterOrderType.ComprehensiveSort)
-    var selectedDuration by mutableStateOf(SearchResultFilterDuration.All)
+    var selectedOrder by mutableStateOf(SearchFilterOrderType.MostClicks)
+    var selectedDuration by mutableStateOf(SearchFilterDuration.All)
     var selectedPartition: Partition? by mutableStateOf(null)
     var selectedChildPartition: Partition? by mutableStateOf(null)
 
     private var updating = false
+    val hasMore = true
+    private var page = SearchTypePage()
 
     fun update() {
         resetPages()
         clearResults()
-        SearchResultType.values().forEach { loadMore(it, true) }
+        SearchType.values().forEach { loadMore(it, true) }
     }
 
     private fun resetPages() {
-        videoSearchResult.page.reset()
-        mediaBangumiSearchResult.page.reset()
-        mediaFtSearchResult.page.reset()
-        biliUserSearchResult.page.reset()
+        videoSearchResult.resetPage()
+        mediaBangumiSearchResult.resetPage()
+        mediaFtSearchResult.resetPage()
+        biliUserSearchResult.resetPage()
     }
 
     private fun clearResults() {
-        videoSearchResult.results = listOf()
-        mediaBangumiSearchResult.results = listOf()
-        mediaFtSearchResult.results = listOf()
-        biliUserSearchResult.results = listOf()
+        videoSearchResult.clearResult()
+        mediaBangumiSearchResult.clearResult()
+        mediaFtSearchResult.clearResult()
+        biliUserSearchResult.clearResult()
     }
 
     fun loadMore(
-        searchType: SearchResultType,
+        searchType: SearchType,
         ignoreUpdating: Boolean = false
     ) {
-        val currentPage = when (searchType) {
-            SearchResultType.Video -> videoSearchResult.page
-            SearchResultType.MediaBangumi -> mediaBangumiSearchResult.page
-            SearchResultType.MediaFt -> mediaFtSearchResult.page
-            SearchResultType.BiliUser -> biliUserSearchResult.page
-        }
-        if (currentPage.pageNumber >= currentPage.maxPages) return
+        if (!hasMore) return
         if (updating && !ignoreUpdating) return
 
         updating = true
-        viewModelScope.launch(Dispatchers.Default) {
-            logger.fInfo { "Load search result: [keyword=$keyword, type=$searchType, pageNumber=${currentPage.pageNumber}]" }
+        viewModelScope.launch(Dispatchers.IO) {
+            logger.fInfo { "Load search result: [keyword=$keyword, type=$searchType, page=${page}]" }
             runCatching {
-                val searchResultResponse =
-                    BiliApi.searchType(
-                        keyword = keyword,
-                        type = searchType.type,
-                        page = currentPage.pageNumber,
-                        tid = selectedChildPartition?.tid ?: selectedPartition?.tid,
-                        order = selectedOrder.order,
-                        duration = selectedDuration.duration,
-                        buvid3 = Prefs.buvid3
-                    ).getResponseData()
+                val searchResultResponse = searchRepository.searchType(
+                    keyword = keyword,
+                    type = searchType,
+                    page = page,
+                    tid = selectedChildPartition?.tid ?: selectedPartition?.tid,
+                    order = selectedOrder,
+                    duration = selectedDuration,
+                    preferApiType = Prefs.apiType
+                )
+
                 when (searchType) {
-                    SearchResultType.Video -> videoSearchResult =
+                    SearchType.Video -> videoSearchResult =
                         videoSearchResult.appendSearchResultData(searchResultResponse)
 
-                    SearchResultType.MediaBangumi -> mediaBangumiSearchResult =
+                    SearchType.MediaBangumi -> mediaBangumiSearchResult =
                         mediaBangumiSearchResult.appendSearchResultData(searchResultResponse)
 
-                    SearchResultType.MediaFt -> mediaFtSearchResult =
+                    SearchType.MediaFt -> mediaFtSearchResult =
                         mediaFtSearchResult.appendSearchResultData(searchResultResponse)
 
-                    SearchResultType.BiliUser -> biliUserSearchResult =
+                    SearchType.BiliUser -> biliUserSearchResult =
                         biliUserSearchResult.appendSearchResultData(searchResultResponse)
                 }
+
+                page = searchResultResponse.page
             }
             updating = false
         }
     }
 
     data class SearchResult(
-        var type: SearchResultType,
-        var results: List<SearchResultItem> = ArrayList(),
-        var page: SearchResultPage = SearchResultPage()
+        var type: SearchType,
+        var videos: List<SearchTypeResult.Video> = emptyList(),
+        var mediaBangumis: List<SearchTypeResult.Pgc> = emptyList(),
+        var mediaFts: List<SearchTypeResult.Pgc> = emptyList(),
+        var biliUsers: List<SearchTypeResult.User> = emptyList(),
+        var page: SearchTypePage = SearchTypePage()
     ) {
-        data class SearchResultPage(
-            var pageNumber: Int = 1,
-            var maxPages: Int = 50
-        ) {
-            fun reset() {
-                pageNumber = 1
-                maxPages = 50
-            }
+        val count get() = videos.size + mediaBangumis.size + mediaFts.size + biliUsers.size
+
+        fun resetPage() {
+            page = SearchTypePage()
         }
 
-        fun appendSearchResultData(searchResultData: SearchResultData): SearchResult {
-            val newSearchResult = SearchResult(type)
-            newSearchResult.results = results + searchResultData.searchTypeResults
-            newSearchResult.page = SearchResultPage(
-                pageNumber = page.pageNumber + 1,
-                maxPages = searchResultData.numPages
-            )
-            return newSearchResult
+        fun clearResult() {
+            videos = emptyList()
+            mediaBangumis = emptyList()
+            mediaFts = emptyList()
+            biliUsers = emptyList()
+        }
+
+        fun appendSearchResultData(searchTypeResult: SearchTypeResult): SearchResult {
+            return when (type) {
+                SearchType.Video -> {
+                    SearchResult(type).apply {
+                        this.videos = this@SearchResult.videos + searchTypeResult.videos
+                    }
+                }
+
+                SearchType.MediaBangumi -> {
+                    SearchResult(type).apply {
+                        this.mediaBangumis = this@SearchResult.mediaBangumis + searchTypeResult.pgcs
+                    }
+                }
+
+                SearchType.MediaFt -> {
+                    SearchResult(type).apply {
+                        this.mediaFts = this@SearchResult.mediaFts + searchTypeResult.pgcs
+                    }
+                }
+
+                SearchType.BiliUser -> {
+                    SearchResult(type).apply {
+                        this.biliUsers = this@SearchResult.biliUsers + searchTypeResult.users
+                    }
+                }
+            }
         }
     }
 }
