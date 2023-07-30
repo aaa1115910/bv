@@ -47,7 +47,7 @@ fun PopularScreen(
 
     LaunchedEffect(currentFocusedIndex) {
         if (currentFocusedIndex + 24 > popularViewModel.popularVideoList.size) {
-            scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+            scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
         }
     }
 
@@ -84,10 +84,10 @@ fun PopularScreen(
                 data = VideoCardData(
                     avid = video.aid,
                     title = video.title,
-                    cover = video.pic,
-                    play = video.stat.view,
-                    danmaku = video.stat.danmaku,
-                    upName = video.owner.name,
+                    cover = video.cover,
+                    play = with(video.play) { if (this == -1) null else this },
+                    danmaku = with(video.danmaku) { if (this == -1) null else this },
+                    upName = video.author,
                     time = video.duration * 1000L
                 ),
                 onClick = { VideoInfoActivity.actionStart(context, video.aid) },

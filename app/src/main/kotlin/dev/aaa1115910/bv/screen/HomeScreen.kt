@@ -86,13 +86,13 @@ fun HomeScreen(
     //启动时刷新数据
     LaunchedEffect(Unit) {
         navFocusRequester.requestFocus()
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             popularViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             dynamicViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             userViewModel.updateUserInfo()
         }
     }
@@ -169,7 +169,7 @@ fun HomeScreen(
                                 logger.fInfo { "clear popular data" }
                                 popularViewModel.clearData()
                                 logger.fInfo { "reload popular data" }
-                                scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
                             }
 
                             TopNavItem.Partition -> {
@@ -183,7 +183,7 @@ fun HomeScreen(
                             TopNavItem.Dynamics -> {
                                 //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
                                 dynamicViewModel.clearData()
-                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
                             }
 
                             TopNavItem.Search -> {
