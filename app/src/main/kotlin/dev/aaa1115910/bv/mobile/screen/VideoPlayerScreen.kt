@@ -202,17 +202,21 @@ fun VideoPlayerScreen(
                                     item {
                                         VideoPlayerInfo(
                                             modifier = Modifier.padding(12.dp),
-                                            upAvatar = playerViewModel.videoInfo?.owner?.face ?: "",
-                                            upName = playerViewModel.videoInfo?.owner?.name ?: "",
-                                            upFansCount = 0,
-                                            title = playerViewModel.videoInfo?.title ?: "",
-                                            description = playerViewModel.videoInfo?.desc ?: "",
-                                            playCount = playerViewModel.videoInfo?.stat?.view ?: 0,
-                                            danmakuCount = playerViewModel.videoInfo?.stat?.danmaku
-                                                ?: 0,
-                                            date = playerViewModel.videoInfo?.pubdate?.toString()
+                                            upAvatar = playerViewModel.videoDetail?.author?.face
                                                 ?: "",
-                                            avid = playerViewModel.videoInfo?.aid ?: 0
+                                            upName = playerViewModel.videoDetail?.author?.name
+                                                ?: "",
+                                            upFansCount = 0,
+                                            title = playerViewModel.videoDetail?.title ?: "",
+                                            description = playerViewModel.videoDetail?.description
+                                                ?: "",
+                                            playCount = playerViewModel.videoDetail?.stat?.view
+                                                ?: 0,
+                                            danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
+                                                ?: 0,
+                                            date = playerViewModel.videoDetail?.publishDate?.toString()
+                                                ?: "",
+                                            avid = playerViewModel.videoDetail?.aid ?: 0
                                         )
                                     }
                                     RelatedVideos()
@@ -231,16 +235,16 @@ fun VideoPlayerScreen(
                         item {
                             VideoPlayerInfo(
                                 modifier = Modifier.padding(12.dp),
-                                upAvatar = playerViewModel.videoInfo?.owner?.face ?: "",
-                                upName = playerViewModel.videoInfo?.owner?.name ?: "",
+                                upAvatar = playerViewModel.videoDetail?.author?.face ?: "",
+                                upName = playerViewModel.videoDetail?.author?.name ?: "",
                                 upFansCount = 0,
-                                title = playerViewModel.videoInfo?.title ?: "",
-                                description = playerViewModel.videoInfo?.desc ?: "",
-                                playCount = playerViewModel.videoInfo?.stat?.view ?: 0,
-                                danmakuCount = playerViewModel.videoInfo?.stat?.danmaku
+                                title = playerViewModel.videoDetail?.title ?: "",
+                                description = playerViewModel.videoDetail?.description ?: "",
+                                playCount = playerViewModel.videoDetail?.stat?.view ?: 0,
+                                danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
                                     ?: 0,
-                                date = playerViewModel.videoInfo?.pubdate?.toString() ?: "",
-                                avid = playerViewModel.videoInfo?.aid ?: 0
+                                date = playerViewModel.videoDetail?.publishDate?.toString() ?: "",
+                                avid = playerViewModel.videoDetail?.aid ?: 0
                             )
                         }
                         RelatedVideos()

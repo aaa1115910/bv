@@ -97,10 +97,10 @@ fun HomeScreen(
                         data = VideoCardData(
                             avid = video.aid,
                             title = video.title,
-                            cover = video.pic,
-                            play = video.stat.view,
-                            danmaku = video.stat.danmaku,
-                            upName = video.owner.name,
+                            cover = video.cover,
+                            play = video.play,
+                            danmaku = video.danmaku,
+                            upName = video.author,
                             time = video.duration * 1000L
                         ),
                         onClick = {

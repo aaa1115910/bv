@@ -120,7 +120,7 @@ val appModule = module {
     viewModel { TagViewModel() }
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
     viewModel { VideoDetailViewModel(get()) }
-    viewModel { MobileVideoPlayerViewModel() }
+    viewModel { MobileVideoPlayerViewModel(get(), get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")
