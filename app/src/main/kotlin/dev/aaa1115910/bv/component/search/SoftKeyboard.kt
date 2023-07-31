@@ -97,13 +97,9 @@ fun SoftKeyboardKey(
 ) {
     Surface(
         modifier = modifier,
-        color = ClickableSurfaceDefaults.color(
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
@@ -126,13 +122,9 @@ fun SoftKeyboardButton(
 ) {
     Surface(
         modifier = modifier.height(38.dp),
-        color = ClickableSurfaceDefaults.color(
-            focusedColor = MaterialTheme.colorScheme.primary,
-            pressedColor = MaterialTheme.colorScheme.primary
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            focusedColor = MaterialTheme.colorScheme.onPrimary,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            pressedContainerColor = MaterialTheme.colorScheme.primary
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick

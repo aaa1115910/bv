@@ -1,5 +1,8 @@
 package dev.aaa1115910.bv.component.controllers2
 
+import android.graphics.BitmapFactory
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,17 +16,31 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import io.github.g0dkar.qrcode.QRCode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
 @Composable
 fun PlayStateTips(
@@ -31,6 +48,8 @@ fun PlayStateTips(
     isPlaying: Boolean,
     isBuffering: Boolean,
     isError: Boolean,
+    needPay: Boolean,
+    epid: Int = 0,
     exception: Exception? = null
 ) {
     Box(
@@ -56,6 +75,12 @@ fun PlayStateTips(
                 exception = exception!!
             )
         }
+        if (needPay) {
+            PaidRequireTip(
+                modifier = Modifier.align(Alignment.Center),
+                epid = epid
+            )
+        }
     }
 }
 
@@ -64,9 +89,11 @@ fun PlayStateTips(
 fun PauseIcon(
     modifier: Modifier = Modifier,
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Icon(
@@ -86,9 +113,11 @@ fun BufferingTip(
     modifier: Modifier = Modifier,
     speed: String
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
@@ -117,9 +146,11 @@ fun PlayErrorTip(
     modifier: Modifier = Modifier,
     exception: Exception
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(0.5f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(
@@ -133,6 +164,53 @@ fun PlayErrorTip(
             Text(text = " _(:з」∠)_")
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = "错误信息：${exception.message}")
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun PaidRequireTip(
+    modifier: Modifier = Modifier,
+    epid: Int,
+) {
+    val scope = rememberCoroutineScope()
+    var qrImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(Unit) {
+        scope.launch(Dispatchers.IO) {
+            val output = ByteArrayOutputStream()
+            val url = "https://b23.tv/ep$epid"
+            QRCode(url)
+                .render(
+                    darkColor = android.graphics.Color.WHITE,
+                    brightColor = android.graphics.Color.BLACK
+                )
+                .writeImage(output)
+            val input = ByteArrayInputStream(output.toByteArray())
+            qrImage = BitmapFactory.decodeStream(input).asImageBitmap()
+        }
+    }
+    Surface(
+        modifier = modifier,
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(0.5f)
+        ),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp, 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "请先购买影片",
+                style = MaterialTheme.typography.titleLarge
+            )
+            // TODO 使用颜文字显示影片价格
+            Text(text = "(・∀・)つ㊿")
+            Spacer(modifier = Modifier.height(12.dp))
+            AnimatedVisibility(visible = qrImage != null) {
+                Image(bitmap = qrImage!!, contentDescription = "EP$epid QR Code")
+            }
         }
     }
 }
@@ -163,5 +241,13 @@ private fun BufferingTipPreview() {
 private fun PlayErrorTipPreview() {
     BVTheme {
         PlayErrorTip(exception = Exception("This is a test exception."))
+    }
+}
+
+@Preview
+@Composable
+private fun PaidRequireTipPreview() {
+    BVTheme {
+        PaidRequireTip(epid = 752900)
     }
 }

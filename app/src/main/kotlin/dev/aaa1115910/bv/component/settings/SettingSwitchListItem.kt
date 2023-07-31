@@ -1,14 +1,13 @@
 package dev.aaa1115910.bv.component.settings
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Switch
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
@@ -49,18 +49,18 @@ fun SettingSwitchListItem(
         headlineContent = { Text(text = title) },
         supportingContent = { Text(text = supportText) },
         trailingContent = {
-            Switch(
+            Box(
                 modifier = Modifier
-                    .focusable(false)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(0.dp),
-                checked = switchChecked,
-                onCheckedChange = null,
-                colors = SwitchDefaults.colors(
-                    checkedBorderColor = if (checked) MaterialTheme.colorScheme.surface else Color.Transparent
+                    .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            ) {
+                Switch(
+                    modifier = Modifier
+                        .focusable(false)
+                        .padding(2.dp),
+                    checked = switchChecked,
+                    onCheckedChange = null
                 )
-            )
+            }
         },
         colors = ListItemDefaults.colors(
             containerColor = if (hasFocus) MaterialTheme.colorScheme.primary else Color.Transparent,
@@ -93,6 +93,34 @@ fun SettingSwitchListItemFocusedAndDisabledPreview() {
             supportText = "This is a support text",
             checked = false,
             defaultHasFocus = true,
+            onCheckedChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SettingSwitchListItemNotFocusedAndEnabledPreview() {
+    BVTheme {
+        SettingSwitchListItem(
+            title = "This is a title",
+            supportText = "This is a support text",
+            checked = true,
+            defaultHasFocus = false,
+            onCheckedChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SettingSwitchListItemNotFocusedAndDisabledPreview() {
+    BVTheme {
+        SettingSwitchListItem(
+            title = "This is a title",
+            supportText = "This is a support text",
+            checked = false,
+            defaultHasFocus = false,
             onCheckedChange = {}
         )
     }

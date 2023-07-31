@@ -5,26 +5,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FpsMonitor(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    var fpsCount by remember { mutableStateOf(0) }
-    var fps by remember { mutableStateOf(0) }
-    var lastUpdate by remember { mutableStateOf(0L) }
+    var fpsCount by remember { mutableIntStateOf(0) }
+    var fps by remember { mutableIntStateOf(0) }
+    var lastUpdate by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
         while (true) {

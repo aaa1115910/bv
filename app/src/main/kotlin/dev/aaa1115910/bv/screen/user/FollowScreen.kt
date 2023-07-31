@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -54,6 +54,7 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowScreen(
     modifier: Modifier = Modifier,
@@ -63,9 +64,12 @@ fun FollowScreen(
     val scope = rememberCoroutineScope()
     val defaultFocusRequester = remember { FocusRequester() }
 
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 3 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     LaunchedEffect(followViewModel.updating) {
         if (!followViewModel.updating) {
@@ -117,9 +121,9 @@ fun FollowScreen(
                         if (index == 0) Modifier.focusRequester(defaultFocusRequester) else Modifier
                     UpCard(
                         modifier = upCardModifier,
-                        face = up.face,
+                        face = up.avatar,
                         sign = up.sign,
-                        username = up.uname,
+                        username = up.name,
                         onFocusChange = {
                             if (it) currentIndex = index
                         },
@@ -127,7 +131,7 @@ fun FollowScreen(
                             UpInfoActivity.actionStart(
                                 context = context,
                                 mid = up.mid,
-                                name = up.uname
+                                name = up.name
                             )
                         }
                     )
@@ -156,21 +160,17 @@ fun UpCard(
     sign: String,
     username: String,
     onFocusChange: (hasFocus: Boolean) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(280.dp, 80.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.surface,
-            focusedColor = MaterialTheme.colorScheme.surface,
-            pressedColor = MaterialTheme.colorScheme.surface
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onSurface,
-            focusedColor = MaterialTheme.colorScheme.onSurface,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -179,7 +179,8 @@ fun UpCard(
                 shape = MaterialTheme.shapes.large
             )
         ),
-        onClick = onClick
+        onClick = onClick,
+        onLongClick = onLongClick
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),

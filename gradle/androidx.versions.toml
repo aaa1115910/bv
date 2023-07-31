@@ -1,17 +1,18 @@
 [versions]
-activity = "1.7.1"
-compose = "1.5.0-alpha04"
-compose-compiler = "1.4.7"
+activity = "1.7.2"
+compose = "1.5.0-rc01"
+compose-compiler = "1.5.1"
 compose-constraintlayout = "1.0.1"
-compose-material3 = "1.2.0-alpha01"
-compose-tv = "1.0.0-alpha06"
+compose-material3 = "1.2.0-alpha04"
+compose-tv = "1.0.0-alpha08"
 core = "1.10.1"
 core-splashscreen = "1.0.1"
-dataStore = "1.1.0-alpha04"
+# 1.1.0-alpha04 下载出现 404
+dataStore = "1.0.0"
 lifecycle = "2.6.1"
-media3 = "1.1.0-alpha01"
-room = "2.5.1"
-webkit = "1.7.0-rc01"
+media3 = "1.1.0"
+room = "2.5.2"
+webkit = "1.8.0-beta01"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity

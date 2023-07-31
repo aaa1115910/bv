@@ -13,6 +13,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,6 +26,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
@@ -44,6 +47,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
+import dev.aaa1115910.bv.viewmodel.RequestState
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,6 +57,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Timer
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerV3Screen(
     modifier: Modifier = Modifier,
@@ -89,9 +94,9 @@ fun VideoPlayerV3Screen(
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var currentPosition by remember { mutableStateOf(0L) }
-    var currentPlaySpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed) }
-    var aspectRatio by remember { mutableStateOf(16f / 9f) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
+    var currentPlaySpeed by remember { mutableFloatStateOf(Prefs.defaultPlaySpeed) }
+    var aspectRatio by remember { mutableFloatStateOf(16f / 9f) }
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
@@ -278,6 +283,19 @@ fun VideoPlayerV3Screen(
         focusRequester.requestFocus()
     }
 
+    LaunchedEffect(playerViewModel.loadState) {
+        when (playerViewModel.loadState) {
+            RequestState.Ready -> {}
+            RequestState.Doing -> {}
+            RequestState.Done -> {}
+            RequestState.Success -> {}
+            RequestState.Failed -> {
+                exception = Exception(playerViewModel.errorMessage)
+                isError = true
+            }
+        }
+    }
+
     DisposableEffect(Unit) {
         val updateSeekTimer = timeTask(0, 100, "updateSeekTimer", false) {
             scope.launch { updateSeek() }
@@ -349,7 +367,6 @@ fun VideoPlayerV3Screen(
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
             availableAudio = playerViewModel.availableAudio,
-            availableSubtitle = playerViewModel.availableSubtitle,
             availableSubtitleTracks = playerViewModel.availableSubtitle,
             availableVideoList = playerViewModel.availableVideoList,
             currentVideoCid = playerViewModel.currentCid,
@@ -377,7 +394,9 @@ fun VideoPlayerV3Screen(
             isError = isError,
             exception = exception,
             clock = clock,
-            showBackToHistory = showBackToHistory
+            showBackToHistory = showBackToHistory,
+            needPay = playerViewModel.needPay,
+            epid = playerViewModel.epid
         )
     ) {
         VideoPlayerController(

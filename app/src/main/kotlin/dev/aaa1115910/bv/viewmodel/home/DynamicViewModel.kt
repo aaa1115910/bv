@@ -2,62 +2,61 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
-import dev.aaa1115910.biliapi.entity.dynamic.DynamicItem
+import dev.aaa1115910.biliapi.entity.user.DynamicVideo
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import dev.aaa1115910.bv.repository.UserRepository as BvUserRepository
 
 class DynamicViewModel(
+    private val bvUserRepository: BvUserRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
-    val dynamicList = mutableStateListOf<DynamicItem>()
+    val dynamicList = mutableStateListOf<DynamicVideo>()
 
     private var currentPage = 0
     var loading = false
     var hasMore = true
-    private var offset: String? = null
-    val isLogin get() = userRepository.isLogin
+    private var historyOffset: String? = null
+    private var updateBaseline: String? = null
+    val isLogin get() = bvUserRepository.isLogin
 
     suspend fun loadMore() {
         if (!loading) loadData()
     }
 
     private suspend fun loadData() {
-        if (!hasMore || !userRepository.isLogin) return
+        if (!hasMore || !bvUserRepository.isLogin) return
         loading = true
-        logger.fInfo { "Load more dynamic videos" }
+        logger.fInfo { "Load more dynamic videos [apiType=${Prefs.apiType}, offset=$historyOffset, page=${currentPage + 1}]" }
         runCatching {
-            val responseData = runBlocking {
-                BiliApi.getDynamicList(
-                    page = ++currentPage,
-                    type = "video",
-                    offset = offset,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-            }
-            dynamicList.addAll(responseData.items)
-            offset = responseData.offset
+            val dynamicVideoData = userRepository.getDynamicVideos(
+                page = ++currentPage,
+                offset = historyOffset ?: "",
+                updateBaseline = updateBaseline ?: "",
+                preferApiType = Prefs.apiType
+            )
+            dynamicList.addAll(dynamicVideoData.videos)
+            historyOffset = dynamicVideoData.historyOffset
+            updateBaseline = dynamicVideoData.updateBaseline
+            hasMore = dynamicVideoData.hasMore
 
-            logger.fInfo { "Load dynamic list page: ${currentPage},size: ${responseData.items.size}" }
-            val avList = responseData.items.map {
-                it.modules.moduleDynamic.major!!.archive!!.aid
+            logger.fInfo { "Load dynamic list page: ${currentPage},size: ${dynamicVideoData.videos.size}" }
+            val avList = dynamicVideoData.videos.map {
+                it.aid
             }
             logger.fInfo { "Load dynamic size: ${avList.size}" }
             logger.info { "Load dynamic list ${avList}}" }
-
-            hasMore = responseData.hasMore
         }.onFailure {
             logger.fWarn { "Load dynamic list failed: ${it.stackTraceToString()}" }
             when (it) {
@@ -67,7 +66,7 @@ class DynamicViewModel(
                             .toast(BVApp.context)
                     }
                     logger.fInfo { "User auth failure" }
-                    if (!BuildConfig.DEBUG) userRepository.logout()
+                    if (!BuildConfig.DEBUG) bvUserRepository.logout()
                 }
 
                 else -> {
@@ -85,6 +84,6 @@ class DynamicViewModel(
         currentPage = 0
         loading = false
         hasMore = true
-        offset = null
+        historyOffset = null
     }
 }

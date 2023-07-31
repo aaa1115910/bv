@@ -21,20 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.Button
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -45,7 +42,7 @@ import dev.aaa1115910.bv.util.swapList
 fun FavoriteButton(
     modifier: Modifier = Modifier,
     isFavorite: Boolean,
-    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
     onAddToDefaultFavoriteFolder: () -> Unit,
     onUpdateFavoriteFolders: (List<Long>) -> Unit
@@ -53,21 +50,7 @@ fun FavoriteButton(
     var showFavoriteDialog by remember { mutableStateOf(false) }
 
     Button(
-        modifier = modifier
-            .onPreviewKeyEvent {
-                when (it.key) {
-                    Key.DirectionCenter, Key.Enter -> {
-                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
-
-                        if (it.nativeKeyEvent.isLongPress) {
-                            showFavoriteDialog = true
-                            return@onPreviewKeyEvent true
-                        }
-                        if (showFavoriteDialog) return@onPreviewKeyEvent true
-                    }
-                }
-                false
-            },
+        modifier = modifier,
         icon = {
             if (isFavorite) {
                 Icon(
@@ -86,7 +69,9 @@ fun FavoriteButton(
         text = stringResource(R.string.favorite_button_text),
         onClick = {
             if (showFavoriteDialog) return@Button
-            if (isFavorite) onUpdateFavoriteFolders(listOf()) else onAddToDefaultFavoriteFolder()
+            if (isFavorite) {
+                showFavoriteDialog = true
+            } else onAddToDefaultFavoriteFolder()
         }
     )
 
@@ -108,15 +93,17 @@ private fun FavoriteDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideDialog: () -> Unit,
-    userFavoriteFolders: List<UserFavoriteFoldersData.UserFavoriteFolder> = emptyList(),
+    userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
     onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
     val selectedFavoriteFolderIds = remember { mutableStateListOf<Long>() }
+    val defaultFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(show) {
         if (show) {
             selectedFavoriteFolderIds.swapList(favoriteFolderIds)
+            defaultFocusRequester.requestFocus()
         }
     }
 
@@ -124,26 +111,22 @@ private fun FavoriteDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = onHideDialog,
-            confirmButton = {
-                androidx.compose.material3.TextButton(
-                    onClick = {
-                        onUpdateFavoriteFolders(selectedFavoriteFolderIds)
-                        onHideDialog()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.common_confirm))
-                }
-            },
+            confirmButton = {},
             title = { Text(text = stringResource(R.string.favorite_dialog_title)) },
             text = {
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    userFavoriteFolders.forEach { userFavoriteFolder ->
+                    userFavoriteFolders.forEachIndexed { index, userFavoriteFolder ->
                         val selected = selectedFavoriteFolderIds.contains(userFavoriteFolder.id)
                         var hasFocus by remember { mutableStateOf(false) }
+
+                        val itemModifier =
+                            if (index == 0) Modifier.focusRequester(defaultFocusRequester)
+                            else Modifier
+
                         FilterChip(
-                            modifier = Modifier.onFocusChanged { hasFocus = it.hasFocus },
+                            modifier = itemModifier.onFocusChanged { hasFocus = it.hasFocus },
                             selected = selected,
                             onClick = {
                                 if (selectedFavoriteFolderIds.contains(userFavoriteFolder.id)) {
@@ -151,6 +134,7 @@ private fun FavoriteDialog(
                                 } else {
                                     selectedFavoriteFolderIds.add(userFavoriteFolder.id)
                                 }
+                                onUpdateFavoriteFolders(selectedFavoriteFolderIds)
                             },
                             border = if (hasFocus) FilterChipDefaults.filterChipBorder(
                                 borderColor = Color.White,
@@ -207,16 +191,16 @@ fun FavoriteButtonDisablePreview() {
 @Composable
 private fun FavoriteDialogPreview() {
     val userFavoriteFolders = listOf(
-        UserFavoriteFoldersData.UserFavoriteFolder(0, 0, 0, 0, "收藏夹1", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(1, 1, 0, 0, "收藏夹2", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(2, 2, 0, 0, "收藏夹3", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(3, 3, 0, 0, "收藏夹4", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(4, 4, 0, 0, "收藏夹5", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(5, 5, 0, 0, "收藏夹6", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(6, 6, 0, 0, "收藏夹7", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(7, 7, 0, 0, "收藏夹8", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(8, 8, 0, 0, "收藏夹9", 0, 0),
-        UserFavoriteFoldersData.UserFavoriteFolder(9, 9, 0, 0, "收藏夹10", 0, 0),
+        FavoriteFolderMetadata(0, 0, 0, "收藏夹1", null, false, 0),
+        FavoriteFolderMetadata(1, 1, 0, "收藏夹2", null, false, 0),
+        FavoriteFolderMetadata(2, 2, 0, "收藏夹3", null, false, 0),
+        FavoriteFolderMetadata(3, 3, 0, "收藏夹4", null, false, 0),
+        FavoriteFolderMetadata(4, 4, 0, "收藏夹5", null, false, 0),
+        FavoriteFolderMetadata(5, 5, 0, "收藏夹6", null, false, 0),
+        FavoriteFolderMetadata(6, 6, 0, "收藏夹7", null, false, 0),
+        FavoriteFolderMetadata(7, 7, 0, "收藏夹8", null, false, 0),
+        FavoriteFolderMetadata(8, 8, 0, "收藏夹9", null, false, 0),
+        FavoriteFolderMetadata(9, 9, 0, "收藏夹10", null, false, 0),
     )
     BVTheme {
         FavoriteDialog(

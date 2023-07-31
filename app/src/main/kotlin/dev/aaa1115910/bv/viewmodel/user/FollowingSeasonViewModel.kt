@@ -6,17 +6,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
 import dev.aaa1115910.biliapi.entity.season.FollowingSeason
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
+import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
-class FollowingSeasonViewModel : ViewModel() {
+class FollowingSeasonViewModel(
+    private val seasonRepository: SeasonRepository
+) : ViewModel() {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -33,7 +35,6 @@ class FollowingSeasonViewModel : ViewModel() {
     init {
         followingSeasonType = FollowingSeasonType.Bangumi
         followingSeasonStatus = FollowingSeasonStatus.All
-        loadMore()
     }
 
     fun clearData() {
@@ -45,7 +46,7 @@ class FollowingSeasonViewModel : ViewModel() {
     }
 
     fun loadMore() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             updateData()
         }
     }
@@ -54,18 +55,16 @@ class FollowingSeasonViewModel : ViewModel() {
         if (updating) return
         updating = true
         runCatching {
-            logger.fInfo { "Init following seasons" }
-            val response = BiliApi.getFollowingSeasons(
+            logger.fInfo { "Updating following season data" }
+            val response = seasonRepository.getFollowingSeasons(
                 type = followingSeasonType,
                 status = followingSeasonStatus,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                mid = Prefs.uid,
-                sessData = Prefs.sessData
-            ).getResponseData()
-            if (response.pageSize * response.pageNumber >= response.total) {
-                noMore = true
-            }
+                preferApiType = Prefs.apiType
+            )
+
+            if (pageSize * pageNumber >= response.total) noMore = true
             pageNumber++
             followingSeasons.addAll(response.list)
             logger.fInfo { "Following season count: ${response.list.size}" }

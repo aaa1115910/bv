@@ -8,7 +8,7 @@ on:
 jobs:
   build-release:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -90,70 +90,69 @@ jobs:
 
       # upload to app center
 
+      - name: Setup app center cli
+        id: setup-appcenter-cli
+        run: npm install -g appcenter-cli
+
       - name: Upload lite release apk to app center
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public
-          file: app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }}
-          notifyTesters: true
-          debug: false
+        id: upload-lite-release-apk
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }} \
+            --group Public \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default release apk to app center (universal)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public-universal
-          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-release-apk-universal
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk \
+            --group Public-universal \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default release apk to app center (armeabi-v7a)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public-armeabi-v7a
-          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-release-apk-armeabi-v7a
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk \
+            --group Public-armeabi-v7a \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default release apk to app center (arm64-v8a)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public-arm64-v8a
-          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-release-apk-arm64-v8a
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk \
+            --group Public-arm64-v8a \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default release apk to app center (x86)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public-x86
-          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-release-apk-x86
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk \
+            --group Public-x86 \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default release apk to app center (x86_64)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Public-x86_64
-          file: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-release-apk-x86_64
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk \
+            --group Public-x86_64 \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       # upload artifacts lite-debug
 

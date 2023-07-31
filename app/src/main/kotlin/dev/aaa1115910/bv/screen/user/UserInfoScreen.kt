@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,11 +61,13 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.entity.user.RelationStat
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.repositories.FavoriteRepository
+import dev.aaa1115910.biliapi.repositories.HistoryRepository
+import dev.aaa1115910.biliapi.repositories.SeasonRepository
+import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -90,11 +93,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
-    userViewModel: UserViewModel = koinViewModel()
+    userViewModel: UserViewModel = koinViewModel(),
+    userRepository: UserRepository = getKoin().get(),
+    favoriteRepository: FavoriteRepository = getKoin().get(),
+    seasonRepository: SeasonRepository = getKoin().get(),
+    historyRepository: HistoryRepository = getKoin().get(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -103,12 +112,18 @@ fun UserInfoScreen(
     var showLargeTitle by remember { mutableStateOf(true) }
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
     val randomTitleList = context.resources.getStringArray(R.array.user_homepage_random_title)
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
-    var relationStat: RelationStat? by remember { mutableStateOf(null) }
-    val followingNumber by animateIntAsState(targetValue = relationStat?.following ?: 0)
+    var followingUpCount by remember { mutableIntStateOf(0) }
+    val animateFollowingNumber by animateIntAsState(
+        targetValue = followingUpCount,
+        label = "animate following number"
+    )
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }
@@ -118,14 +133,14 @@ fun UserInfoScreen(
     var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
     var focusOnFollowedUserCard by remember { mutableStateOf(false) }
 
-    val updateRelationStat: () -> Unit = {
+    val updateFollowingUpCount = {
         scope.launch(Dispatchers.Default) {
-            runCatching {
-                logger.fInfo { "Get relation stat with user ${Prefs.uid}" }
-                relationStat = BiliApi.getRelationStat(mid = Prefs.uid).getResponseData()
-            }.onFailure {
-                logger.fInfo { "Get relation stat failed: ${it.stackTraceToString()}" }
-            }
+            logger.fInfo { "Update following up count with user ${Prefs.uid}" }
+            followingUpCount = userRepository.getFollowingUpCount(
+                mid = Prefs.uid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Following up count: $followingUpCount" }
         }
     }
 
@@ -134,18 +149,19 @@ fun UserInfoScreen(
         userViewModel.updateUserInfo()
 
         //update histories
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-                val responseData = BiliApi.getHistories(sessData = Prefs.sessData).getResponseData()
-                responseData.list.forEach { historyItem ->
-                    val supportedBusinessList = listOf("archive", "pgc")
-                    if (!supportedBusinessList.contains(historyItem.history.business)) return@forEach
+                val data = historyRepository.getHistories(
+                    cursor = 0,
+                    preferApiType = Prefs.apiType
+                )
+                data.data.forEach { historyItem ->
                     histories.add(
                         VideoCardData(
-                            avid = historyItem.history.oid,
+                            avid = historyItem.oid,
                             title = historyItem.title,
                             cover = historyItem.cover,
-                            upName = historyItem.authorName,
+                            upName = historyItem.author,
                             timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
                             else context.getString(
                                 R.string.play_time_history,
@@ -172,17 +188,16 @@ fun UserInfoScreen(
         }
 
         //update followed animes
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-                val followedSeasons = BiliApi.getFollowingSeasons(
+                val followingSeasonData = seasonRepository.getFollowingSeasons(
                     type = FollowingSeasonType.Bangumi,
                     status = FollowingSeasonStatus.All,
                     pageNumber = 1,
                     pageSize = 15,
-                    mid = Prefs.uid,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                followedSeasons.list.forEach { followedSeason ->
+                    preferApiType = Prefs.apiType
+                )
+                followingSeasonData.list.forEach { followedSeason ->
                     animes.add(
                         SeasonCardData(
                             seasonId = followedSeason.seasonId,
@@ -209,28 +224,29 @@ fun UserInfoScreen(
         }
 
         //update favorite videos
-        scope.launch(Dispatchers.Default) {
-            var folderId: Long = 0
+        scope.launch(Dispatchers.IO) {
+            var defaultFolderId: Long = 0
             runCatching {
-                val foldersInfo = BiliApi.getAllFavoriteFoldersInfo(
-                    mid = Prefs.uid,
-                    type = 2,
-                    sessData = Prefs.sessData
-                ).getResponseData()
-                if (foldersInfo.count == 0) {
+                val favoriteFolderMetadataList =
+                    favoriteRepository.getAllFavoriteFolderMetadataList(
+                        mid = Prefs.uid,
+                        preferApiType = Prefs.apiType
+                    )
+                if (favoriteFolderMetadataList.isEmpty()) {
                     "未找到收藏夹".toast(context)
                     return@launch
                 }
-                logger.fInfo { "Get favorite folders: ${foldersInfo.list.map { it.id }}" }
-                folderId = foldersInfo.list.first().id
+                defaultFolderId =
+                    favoriteFolderMetadataList.find { it.title == "默认收藏夹" }?.id ?: 0
+                logger.fInfo { "Get favorite folders: ${favoriteFolderMetadataList.map { it.id }}" }
             }.onFailure {
                 logger.fException(it) { "Load favorite folders failed" }
             }
             runCatching {
-                val favoriteItems = BiliApi.getFavoriteList(
-                    mediaId = folderId,
-                    sessData = Prefs.sessData
-                ).getResponseData().medias
+                val favoriteItems = favoriteRepository.getFavoriteFolderData(
+                    mediaId = defaultFolderId,
+                    preferApiType = Prefs.apiType
+                ).medias
                 favoriteItems.forEach { favoriteItem ->
                     favorites.add(
                         VideoCardData(
@@ -258,7 +274,7 @@ fun UserInfoScreen(
             }
         }
 
-        updateRelationStat()
+        updateFollowingUpCount()
     }
 
     Scaffold(
@@ -292,7 +308,16 @@ fun UserInfoScreen(
                         uid = userViewModel.responseData?.mid ?: 0,
                         level = userViewModel.responseData?.level ?: 0,
                         currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
-                        nextLevelExp = userViewModel.responseData?.levelExp?.currentMin ?: 1,
+                        nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
+                            if (this == null) {
+                                1
+                            } else if (this <= 0) {
+                                userViewModel.responseData?.levelExp?.currentExp ?: 1
+                            } else {
+                                (userViewModel.responseData?.levelExp?.currentExp ?: 1)
+                                +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
+                            }
+                        },
                         showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
                         labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic
                             ?: "",
@@ -319,7 +344,7 @@ fun UserInfoScreen(
                             showLargeTitle =
                                 focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
                         },
-                        size = followingNumber,
+                        size = animateFollowingNumber,
                         onClick = {
                             context.startActivity(Intent(context, FollowActivity::class.java))
                         }
@@ -363,6 +388,7 @@ fun UserInfoScreen(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LogoutConfirmDialog(
     modifier: Modifier = Modifier,
@@ -429,15 +455,10 @@ private fun UserInfo(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .size(480.dp, 140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -542,15 +563,10 @@ fun IncognitoModeCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = backgroundColor,
-            focusedColor = backgroundColor,
-            pressedColor = backgroundColor
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = backgroundColor,
+            focusedContainerColor = backgroundColor,
+            pressedContainerColor = backgroundColor
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -596,15 +612,10 @@ fun FollowedUserCard(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
             .height(140.dp),
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            focusedColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -650,6 +661,7 @@ private fun RecentVideosRow(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun FollowingAnimeVideosRow(
     modifier: Modifier = Modifier,

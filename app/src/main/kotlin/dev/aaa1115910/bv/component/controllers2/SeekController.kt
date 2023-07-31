@@ -58,6 +58,7 @@ fun SeekController(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SeekController(
     modifier: Modifier = Modifier,

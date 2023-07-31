@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -26,6 +26,7 @@ import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyGridState
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
@@ -36,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun DynamicsScreen(
     modifier: Modifier = Modifier,
@@ -45,7 +47,7 @@ fun DynamicsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var currentFocusedIndex by remember { mutableStateOf(0) }
+    var currentFocusedIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(currentFocusedIndex) {
         if (currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size) {
@@ -85,23 +87,15 @@ fun DynamicsScreen(
             itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
                 SmallVideoCard(
                     data = VideoCardData(
-                        avid = dynamic.modules.moduleDynamic.major?.archive?.aid?.toInt()
-                            ?: 170001,
-                        title = dynamic.modules.moduleDynamic.major?.archive?.title ?: "",
-                        cover = dynamic.modules.moduleDynamic.major?.archive?.cover ?: "",
-                        playString = dynamic.modules.moduleDynamic.major?.archive?.stat?.play
-                            ?: "",
-                        danmakuString = dynamic.modules.moduleDynamic.major?.archive?.stat?.danmaku
-                            ?: "",
-                        upName = dynamic.modules.moduleAuthor.name,
-                        timeString = dynamic.modules.moduleDynamic.major?.archive?.durationText
-                            ?: ""
+                        avid = dynamic.aid,
+                        title = dynamic.title,
+                        cover = dynamic.cover,
+                        play = dynamic.play,
+                        danmaku = dynamic.danmaku,
+                        upName = dynamic.author,
+                        time = dynamic.duration * 1000L
                     ),
-                    onClick = {
-                        VideoInfoActivity.actionStart(
-                            context, dynamic.modules.moduleDynamic.major!!.archive!!.aid.toInt()
-                        )
-                    },
+                    onClick = { VideoInfoActivity.actionStart(context, dynamic.aid) },
                     onFocus = { currentFocusedIndex = index }
                 )
             }

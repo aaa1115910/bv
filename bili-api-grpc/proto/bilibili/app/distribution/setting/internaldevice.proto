@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bilibili.app.distribution.setting.internaldevice;
+
+option java_multiple_files = true;
+
+import "bilibili/app/distribution/v1/distribution.proto";
+
+// 
+message InternalDeviceConfig {
+  // 首次启动时间
+  bilibili.app.distribution.v1.Int64Value fts = 1;
+}

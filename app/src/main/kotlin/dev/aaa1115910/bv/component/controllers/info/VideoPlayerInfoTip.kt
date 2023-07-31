@@ -8,8 +8,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.formatMinSec
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -18,10 +19,12 @@ fun VideoPlayerInfoTip(
     modifier: Modifier = Modifier,
     data: VideoPlayerInfoData
 ) {
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier
             .padding(8.dp),
-        color = Color.Black.copy(alpha = 0.4f),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(alpha = 0.4f)
+        ),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(

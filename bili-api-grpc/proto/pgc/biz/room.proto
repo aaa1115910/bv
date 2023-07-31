@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pgc.biz;
+
+option java_multiple_files = true;
+
+//
+message RoomProto {
+  //
+  repeated string room_id = 1;
+}

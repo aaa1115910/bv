@@ -18,6 +18,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +51,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.requestFocus
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UISetting(
     modifier: Modifier = Modifier
@@ -106,7 +108,7 @@ private fun UIDensityDialog(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
-    val defaultDensity by remember { mutableStateOf(context.resources.displayMetrics.widthPixels / 960f) }
+    val defaultDensity by remember { mutableFloatStateOf(context.resources.displayMetrics.widthPixels / 960f) }
 
     LaunchedEffect(show) {
         if (show) focusRequester.requestFocus(scope)
@@ -160,7 +162,7 @@ private fun UIDensityDialog(
 @Composable
 fun UIDensityDialogPreview() {
     val show by remember { mutableStateOf(true) }
-    var density by remember { mutableStateOf(1.0f) }
+    var density by remember { mutableFloatStateOf(1.0f) }
 
     BVTheme {
         UIDensityDialog(

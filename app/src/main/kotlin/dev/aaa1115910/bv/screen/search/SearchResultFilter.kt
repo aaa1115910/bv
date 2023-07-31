@@ -31,22 +31,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.repositories.SearchFilterDuration
+import dev.aaa1115910.biliapi.repositories.SearchFilterOrderType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.Partition
 import dev.aaa1115910.bv.util.PartitionUtil
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchResultVideoFilter(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideFilter: () -> Unit,
-    selectedOrder: SearchResultFilterOrderType,
-    selectedDuration: SearchResultFilterDuration,
+    selectedOrder: SearchFilterOrderType,
+    selectedDuration: SearchFilterDuration,
     selectedPartition: Partition?,
     selectedChildPartition: Partition?,
-    onSelectedOrderChange: (SearchResultFilterOrderType) -> Unit,
-    onSelectedDurationChange: (SearchResultFilterDuration) -> Unit,
+    onSelectedOrderChange: (SearchFilterOrderType) -> Unit,
+    onSelectedDurationChange: (SearchFilterDuration) -> Unit,
     onSelectedPartitionChange: (Partition?) -> Unit,
     onSelectedChildPartitionChange: (Partition?) -> Unit,
 ) {
@@ -84,7 +88,7 @@ fun SearchResultVideoFilter(
                         },
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace)
                     ) {
-                        items(items = SearchResultFilterOrderType.values()) { orderType ->
+                        items(items = SearchFilterOrderType.webFilters) { orderType ->
                             FilterDialogFilterChip(
                                 focusRequester = defaultFocusRequester,
                                 selected = orderType == selectedOrder,
@@ -113,7 +117,7 @@ fun SearchResultVideoFilter(
                         },
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace)
                     ) {
-                        items(items = SearchResultFilterDuration.values()) { duration ->
+                        items(items = SearchFilterDuration.values()) { duration ->
                             FilterDialogFilterChip(
                                 focusRequester = durationFocusRequester,
                                 selected = duration == selectedDuration,
@@ -237,22 +241,20 @@ private fun FilterDialogFilterChip(
     )
 }
 
-enum class SearchResultFilterOrderType(val order: String?, private val strRes: Int) {
-    ComprehensiveSort(null, R.string.search_result_filter_order_type_comprehensive_sort),
-    MostClicks("click", R.string.search_result_filter_order_type_most_clicks),
-    LatestPublish("pubdate", R.string.search_result_filter_order_type_latest_publish),
-    MostDanmaku("dm", R.string.search_result_filter_order_type_most_danmaku),
-    MostFavorites("stow", R.string.search_result_filter_order_type_most_favorites);
-
-    fun getDisplayName(context: Context) = context.getString(strRes)
+fun SearchFilterOrderType.getDisplayName(context: Context) = when (this) {
+    SearchFilterOrderType.ComprehensiveSort -> context.getString(R.string.search_result_filter_order_type_comprehensive_sort)
+    SearchFilterOrderType.MostClicks -> context.getString(R.string.search_result_filter_order_type_most_clicks)
+    SearchFilterOrderType.LatestPublish -> context.getString(R.string.search_result_filter_order_type_latest_publish)
+    SearchFilterOrderType.MostDanmaku -> context.getString(R.string.search_result_filter_order_type_most_danmaku)
+    SearchFilterOrderType.MostFavorites -> context.getString(R.string.search_result_filter_order_type_most_favorites)
+    SearchFilterOrderType.MostComment -> "最多评论"
+    SearchFilterOrderType.MostLikes -> "最多点赞"
 }
 
-enum class SearchResultFilterDuration(val duration: Int?, private val strRes: Int) {
-    All(null, R.string.search_result_filter_duration_all),
-    TimeLessThan10(1, R.string.search_result_filter_duration_less_than_10),
-    Time10To30(2, R.string.search_result_filter_duration_10_to_30),
-    Time30To60(3, R.string.search_result_filter_duration_30_to_60),
-    TimeMoreThan60(4, R.string.search_result_filter_duration_more_than_60);
-
-    fun getDisplayName(context: Context) = context.getString(strRes)
+fun SearchFilterDuration.getDisplayName(context: Context) = when (this) {
+    SearchFilterDuration.All -> context.getString(R.string.search_result_filter_duration_all)
+    SearchFilterDuration.LessThan10Minutes -> context.getString(R.string.search_result_filter_duration_less_than_10)
+    SearchFilterDuration.Between10And30Minutes -> context.getString(R.string.search_result_filter_duration_10_to_30)
+    SearchFilterDuration.Between30And60Minutes -> context.getString(R.string.search_result_filter_duration_30_to_60)
+    SearchFilterDuration.MoreThan60Minutes -> context.getString(R.string.search_result_filter_duration_more_than_60)
 }

@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Typography
 import androidx.tv.material3.darkColorScheme
 import dev.aaa1115910.bv.component.FpsMonitor
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -109,7 +109,7 @@ fun BVTheme(
                 LocalDensity provides Density(density = density, fontScale = fontScale)
             ) {
                 androidx.compose.material3.Surface(color = Color.Transparent) {
-                    SurfaceWithoutClickable {
+                    Surface {
                         if (showFps) {
                             FpsMonitor {
                                 content(

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,7 +58,7 @@ fun VideoPlayerScreen(
     var videoPlayerWidth by remember { mutableStateOf(0.dp) }
     var usingDefaultAspectRatio by remember { mutableStateOf(true) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
-    var currentPosition by remember { mutableStateOf(0L) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {

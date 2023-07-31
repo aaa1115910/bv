@@ -21,10 +21,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideosRow(
     modifier: Modifier = Modifier,
@@ -36,7 +39,10 @@ fun VideosRow(
     val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
 
     Column(
         modifier = modifier
@@ -59,7 +65,11 @@ fun VideosRow(
                     modifier = Modifier.width(200.dp),
                     data = videoData,
                     onClick = {
-                        VideoInfoActivity.actionStart(context, videoData.avid)
+                        if (videoData.jumpToSeason) {
+                            SeasonInfoActivity.actionStart(context, videoData.epId!!)
+                        } else {
+                            VideoInfoActivity.actionStart(context, videoData.avid)
+                        }
                     }
                 )
             }

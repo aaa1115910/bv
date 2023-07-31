@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -43,11 +43,11 @@ fun PopularScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var currentFocusedIndex by remember { mutableStateOf(0) }
+    var currentFocusedIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(currentFocusedIndex) {
         if (currentFocusedIndex + 24 > popularViewModel.popularVideoList.size) {
-            scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+            scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
         }
     }
 
@@ -84,10 +84,10 @@ fun PopularScreen(
                 data = VideoCardData(
                     avid = video.aid,
                     title = video.title,
-                    cover = video.pic,
-                    play = video.stat.view,
-                    danmaku = video.stat.danmaku,
-                    upName = video.owner.name,
+                    cover = video.cover,
+                    play = with(video.play) { if (this == -1) null else this },
+                    danmaku = with(video.danmaku) { if (this == -1) null else this },
+                    upName = video.author,
                     time = video.duration * 1000L
                 ),
                 onClick = { VideoInfoActivity.actionStart(context, video.aid) },

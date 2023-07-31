@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,8 +48,11 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.TabRowScope
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
@@ -94,7 +98,7 @@ fun TopNav(
                             .padding(horizontal = 26.dp)
                     )
 
-                    var selectedTabIndex by remember { mutableStateOf(1) }
+                    var selectedTabIndex by remember { mutableIntStateOf(1) }
 
                     TabRow(
                         selectedTabIndex = selectedTabIndex,
@@ -155,7 +159,7 @@ fun TopNav(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NavItemTab(
+private fun TabRowScope.NavItemTab(
     modifier: Modifier = Modifier,
     topNavItem: TopNavItem,
     selected: Boolean,
@@ -215,14 +219,17 @@ private fun SettingsIcon(
 ) {
     var hasFocus by remember { mutableStateOf(false) }
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(
+        label = "settings icon infinite transition"
+    )
 
     val iconRotate by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 60f,
         animationSpec = infiniteRepeatable(
             tween(1000, easing = LinearEasing), RepeatMode.Restart
-        )
+        ),
+        label = "settings icon rotate"
     )
 
     IconButton(
@@ -272,11 +279,13 @@ private fun UserIcon(
                 color = MaterialTheme.colorScheme.primary
             )
             Box {
-                SurfaceWithoutClickable(
+                Surface(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),
-                    color = Color.White
+                    colors = NonInteractiveSurfaceDefaults.colors(
+                        containerColor = Color.White
+                    )
                 ) {
                     AsyncImage(
                         modifier = Modifier

@@ -6,9 +6,10 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,9 +27,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
@@ -42,6 +44,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import mu.KotlinLogging
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
@@ -63,7 +66,7 @@ fun VideoPlayerController(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
-    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
@@ -81,17 +84,18 @@ fun VideoPlayerController(
     var showInfo by remember { mutableStateOf(false) }
     val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
 
-    var lastPressBack by remember { mutableStateOf(0L) }
+    var lastPressBack by remember { mutableLongStateOf(0L) }
     var hasFocus by remember { mutableStateOf(false) }
 
-    var goTime by remember { mutableStateOf(0L) }
-    var seekChangeCount by remember { mutableStateOf(0) }
-    var lastSeekChangeTime by remember { mutableStateOf(0L) }
+    var goTime by remember { mutableLongStateOf(0L) }
+    var seekChangeCount by remember { mutableIntStateOf(0) }
+    var lastSeekChangeTime by remember { mutableLongStateOf(0L) }
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(showSeekController) {
-        if (showSeekController) goTime = data.infoData.currentTime
+    val openSeekController = {
+        if (!showSeekController) goTime = data.infoData.currentTime
+        showSeekController = true
     }
 
     val calCoefficient = {
@@ -109,11 +113,13 @@ fun VideoPlayerController(
         goTime =
             if (targetTime > data.infoData.totalDuration) data.infoData.totalDuration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        logger.info { "onTimeForward: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
     val onTimeBack = {
         val targetTime = goTime - (5000 + calCoefficient() * 5000)
         goTime = if (targetTime < 0) 0 else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
 
     Box(
@@ -259,28 +265,28 @@ fun VideoPlayerController(
                     Key.MediaFastForward -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeForward()
                     }
 
                     Key.MediaRewind -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeBack()
                     }
 
                     Key.DirectionLeft -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeBack()
                     }
 
                     Key.DirectionRight -> {
                         if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showSeekController = true
+                        openSeekController()
                         onTimeForward()
                     }
                 }
@@ -312,7 +318,9 @@ fun VideoPlayerController(
             isPlaying = data.isPlaying,
             isBuffering = data.isBuffering,
             isError = data.isError,
-            exception = data.exception
+            exception = data.exception,
+            needPay = data.needPay,
+            epid = data.epid
         )
         ControllerVideoInfo(
             show = showInfo,

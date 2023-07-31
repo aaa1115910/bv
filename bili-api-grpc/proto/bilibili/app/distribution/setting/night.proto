@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bilibili.app.distribution.setting.night;
+
+option java_multiple_files = true;
+
+import "bilibili/app/distribution/v1/distribution.proto";
+
+// 
+message NightSettingsConfig {
+  //
+  bilibili.app.distribution.v1.BoolValue is_night_follow_system = 1;
+}

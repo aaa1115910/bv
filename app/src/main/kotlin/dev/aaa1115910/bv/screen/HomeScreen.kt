@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,7 +73,7 @@ fun HomeScreen(
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
-    var lastPressBack: Long by remember { mutableStateOf(0L) }
+    var lastPressBack: Long by remember { mutableLongStateOf(0L) }
 
     val settingsButtonFocusRequester = remember { FocusRequester() }
     val navFocusRequester = remember { FocusRequester() }
@@ -85,13 +86,13 @@ fun HomeScreen(
     //启动时刷新数据
     LaunchedEffect(Unit) {
         navFocusRequester.requestFocus()
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             popularViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             dynamicViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             userViewModel.updateUserInfo()
         }
     }
@@ -168,7 +169,7 @@ fun HomeScreen(
                                 logger.fInfo { "clear popular data" }
                                 popularViewModel.clearData()
                                 logger.fInfo { "reload popular data" }
-                                scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
                             }
 
                             TopNavItem.Partition -> {
@@ -182,7 +183,7 @@ fun HomeScreen(
                             TopNavItem.Dynamics -> {
                                 //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
                                 dynamicViewModel.clearData()
-                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
                             }
 
                             TopNavItem.Search -> {
@@ -199,7 +200,10 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                Crossfade(targetState = selectedTab) { screen ->
+                Crossfade(
+                    targetState = selectedTab,
+                    label = "home content cross fade"
+                ) { screen ->
                     when (screen) {
                         TopNavItem.Popular -> PopularScreen(
                             tvLazyGridState = popularState,

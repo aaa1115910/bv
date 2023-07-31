@@ -2,6 +2,10 @@ package dev.aaa1115910.bv.screen.home
 
 import android.content.Intent
 import android.view.KeyEvent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,9 +62,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
-import dev.aaa1115910.biliapi.entity.anime.CarouselItem
-import dev.aaa1115910.biliapi.entity.web.Hover
+import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.http.entity.anime.CarouselItem
+import dev.aaa1115910.biliapi.http.entity.web.Hover
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.anime.AnimeIndexActivity
 import dev.aaa1115910.bv.activities.anime.AnimeTimelineActivity
@@ -170,23 +174,26 @@ fun AnimeCarousel(
             .fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
-            .focusedBorder()
+            .focusedBorder(),
+        contentTransformEndToStart =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselItem {
-            AnimeCarouselCard(
-                data = data[itemIndex],
-                onClick = {
-                    SeasonInfoActivity.actionStart(
-                        context = context,
-                        epId = data[itemIndex].episodeId,
-                        seasonId = data[itemIndex].seasonId
-                    )
-                }
-            )
-        }
+        AnimeCarouselCard(
+            data = data[itemIndex],
+            onClick = {
+                SeasonInfoActivity.actionStart(
+                    context = context,
+                    epId = data[itemIndex].episodeId,
+                    seasonId = data[itemIndex].seasonId
+                )
+            }
+        )
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeCarouselCard(
     modifier: Modifier = Modifier,
@@ -261,15 +268,10 @@ fun AnimeFeatureButton(
 ) {
     Surface(
         modifier = modifier,
-        color = ClickableSurfaceDefaults.color(
-            color = MaterialTheme.colorScheme.surface,
-            focusedColor = MaterialTheme.colorScheme.surface,
-            pressedColor = MaterialTheme.colorScheme.surface
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = MaterialTheme.colorScheme.onSurface,
-            focusedColor = MaterialTheme.colorScheme.onSurface,
-            pressedColor = MaterialTheme.colorScheme.onSurface
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border = ClickableSurfaceDefaults.border(
@@ -344,6 +346,7 @@ fun AnimeFeedVideoRow(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeedRankRow(
     modifier: Modifier = Modifier,

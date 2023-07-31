@@ -27,12 +27,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.getDisplayName
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowingSeasonFilter(
     modifier: Modifier = Modifier,

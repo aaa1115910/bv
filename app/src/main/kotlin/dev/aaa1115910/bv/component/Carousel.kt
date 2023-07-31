@@ -41,21 +41,18 @@ fun HomeCarousel(
             .height(300.dp)
             .fillMaxWidth(),
     ) { itemIndex ->
-        CarouselItem(
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
-                        .fillMaxSize()
-                )
-            }
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .border(2.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
         ) {
             CarouselCard()
         }
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CarouselCard() {
     Box(

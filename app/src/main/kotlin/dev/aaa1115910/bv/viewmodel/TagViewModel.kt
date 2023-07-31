@@ -1,12 +1,13 @@
 package dev.aaa1115910.bv.viewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
+import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,7 @@ class TagViewModel : ViewModel() {
     }
 
     var tagName by mutableStateOf("")
-    var tagId by mutableStateOf(0)
+    var tagId by mutableIntStateOf(0)
     var topVideos = mutableStateListOf<VideoCardData>()
 
     private var pageNumber = 1
@@ -43,7 +44,7 @@ class TagViewModel : ViewModel() {
         if (updating) return
         updating = true
         runCatching {
-            val response = BiliApi.getTagTopVideos(
+            val response = BiliHttpApi.getTagTopVideos(
                 tagId = tagId,
                 pageNumber = pageNumber,
                 pageSize = pageSize

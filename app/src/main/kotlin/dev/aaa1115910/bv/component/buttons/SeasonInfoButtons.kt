@@ -22,6 +22,8 @@ fun SeasonInfoButtons(
     lastPlayedIndex: Int,
     lastPlayedTitle: String = "",
     following: Boolean,
+    isPublished: Boolean,
+    publishDate: String,
     onPlay: () -> Unit,
     onClickFollow: (follow: Boolean) -> Unit,
 ) {
@@ -30,10 +32,17 @@ fun SeasonInfoButtons(
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Button(
-            text = if (lastPlayedIndex == -1) "开始播放" else "继续播放 $lastPlayedTitle",
-            onClick = onPlay
-        )
+        if (isPublished) {
+            Button(
+                text = if (lastPlayedIndex == -1) "开始播放" else "继续播放 $lastPlayedTitle",
+                onClick = onPlay
+            )
+        } else {
+            Button(
+                text = publishDate,
+                onClick = {}
+            )
+        }
         FollowSeasonButton(
             following = following,
             onClick = onClickFollow
@@ -52,14 +61,22 @@ fun FollowSeasonButton(
         modifier = modifier,
         icon = {
             if (following) {
-                Icon(imageVector = Icons.Rounded.Done, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.Done,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
             } else {
-                Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
             }
         },
         text = if (following) "已追番" else "追番",
         onClick = { onClick(!following) },
-        color=MaterialTheme.colorScheme.secondary
+        color = MaterialTheme.colorScheme.secondary
     )
 }
 
@@ -71,6 +88,8 @@ fun SeasonInfoButtonsPreview() {
             lastPlayedIndex = 3,
             lastPlayedTitle = "拯救灵依计划",
             following = false,
+            isPublished = true,
+            publishDate = "2021-10-01",
             onPlay = {},
             onClickFollow = {}
         )

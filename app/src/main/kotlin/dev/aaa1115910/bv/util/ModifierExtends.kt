@@ -28,7 +28,7 @@ fun Modifier.focusedBorder(
     shape: Shape = ShapeDefaults.Large,
     animate: Boolean = false
 ): Modifier = composed {
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite border color transition")
     var hasFocus by remember { mutableStateOf(false) }
 
     val animateColor by infiniteTransition.animateColor(
@@ -37,7 +37,8 @@ fun Modifier.focusedBorder(
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "focused border animate color"
     )
     val borderColor = if (hasFocus) {
         if (animate) animateColor else Color.White
@@ -58,7 +59,10 @@ fun Modifier.focusedScale(
     scale: Float = 0.9f
 ): Modifier = composed {
     var hasFocus by remember { mutableStateOf(false) }
-    val scaleValue by animateFloatAsState(if (hasFocus) 1f else scale)
+    val scaleValue by animateFloatAsState(
+        targetValue = if (hasFocus) 1f else scale,
+        label = "focused scale"
+    )
 
     onFocusChanged { hasFocus = it.hasFocus }
         .scale(scaleValue)

@@ -8,7 +8,7 @@ on:
 jobs:
   build-alpha:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -90,71 +90,69 @@ jobs:
 
       # upload to app center
 
+      - name: Setup app center cli
+        id: setup-appcenter-cli
+        run: npm install -g appcenter-cli
+
       - name: Upload lite alpha apk to app center
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha
-          file: app/build/outputs/apk/lite/alpha/${{ env.lite_alpha_info_apk_filename }}
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-lite-alpha-apk
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/lite/alpha/${{ env.lite_alpha_info_apk_filename }} \
+            --group Alpha \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default alpha apk to app center (universal)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha-universal
-          file: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_universal.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-alpha-apk-universal
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_universal.apk \
+            --group Alpha-universal \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default alpha apk to app center (armeabi-v7a)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha-armeabi-v7a
-          file: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_armeabi-v7a.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-alpha-apk-armeabi-v7a
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_armeabi-v7a.apk \
+            --group Alpha-armeabi-v7a \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default alpha apk to app center (arm64-v8a)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha-arm64-v8a
-          file: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_arm64-v8a.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-alpha-apk-arm64-v8a
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_arm64-v8a.apk \
+            --group Alpha-arm64-v8a \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default alpha apk to app center (x86)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha-x86
-          file: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-alpha-apk-x86
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86.apk \
+            --group Alpha-x86 \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       - name: Upload default alpha apk to app center (x86_64)
-        uses: wzieba/AppCenter-Github-Action@v1.3.3
-        with:
-          appName: aaa1115910-gmail.com/BV
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: Alpha-x86_64
-          file: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk
-          notifyTesters: true
-          debug: false
-          gitReleaseNotes: true
+        id: upload-default-alpha-apk-x86_64
+        run: |
+          appcenter distribute release \
+            --app aaa1115910-gmail.com/BV \
+            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk \
+            --group Alpha-x86_64 \
+            --token ${{ secrets.APP_CENTER_TOKEN }} \
+            --release-notes "$(git log -1 --pretty=short)"
 
       # upload artifacts lite-debug
 

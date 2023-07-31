@@ -2,8 +2,6 @@ package dev.aaa1115910.bv.screen.settings
 
 import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,10 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -49,6 +42,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.content.AboutSetting
+import dev.aaa1115910.bv.screen.settings.content.ApiSetting
 import dev.aaa1115910.bv.screen.settings.content.AudioSetting
 import dev.aaa1115910.bv.screen.settings.content.InfoSetting
 import dev.aaa1115910.bv.screen.settings.content.NetworkSetting
@@ -61,12 +55,16 @@ import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.requestFocus
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val showLargeTitle by remember { derivedStateOf { true } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     var currentMenu by remember { mutableStateOf(SettingsMenuNavItem.Resolution) }
     var focusInNav by remember { mutableStateOf(false) }
@@ -171,6 +169,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     Audio(R.string.settings_item_audio),
     PlayerType(R.string.settings_item_player_type),
     UI(R.string.settings_item_ui),
+    Api(R.string.settings_item_api),
     Other(R.string.settings_item_other),
     Storage(R.string.settings_item_storage),
     Network(R.string.settings_item_network),
@@ -207,6 +206,7 @@ fun SettingContent(
                 SettingsMenuNavItem.PlayerType -> PlayerTypeSetting()
                 SettingsMenuNavItem.UI -> UISetting()
                 SettingsMenuNavItem.Storage -> StorageSetting()
+                SettingsMenuNavItem.Api -> ApiSetting()
             }
         }
     }
@@ -235,15 +235,10 @@ fun SettingsMenuButton(
                 hasFocus = it.hasFocus
                 if (hasFocus) onFocus() else onLoseFocus()
             },
-        color = ClickableSurfaceDefaults.color(
-            color = buttonBackgroundColor,
-            focusedColor = buttonBackgroundColor,
-            pressedColor = buttonBackgroundColor
-        ),
-        contentColor = ClickableSurfaceDefaults.contentColor(
-            color = Color.White,
-            focusedColor = Color.White,
-            pressedColor = Color.White
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = buttonBackgroundColor,
+            focusedContainerColor = buttonBackgroundColor,
+            pressedContainerColor = buttonBackgroundColor
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
@@ -295,36 +290,4 @@ fun SettingsDetail(
     ) {
         content()
     }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-fun SettingsMenuSelectItem(
-    modifier: Modifier = Modifier,
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    ListItem(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .clip(MaterialTheme.shapes.small)
-            .clickable { onClick() },
-        headlineContent = { Text(text = text) },
-        trailingContent = {
-            RadioButton(
-                modifier = Modifier.focusable(false),
-                selected = selected,
-                onClick = { },
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = if (hasFocus) Color.White else MaterialTheme.colorScheme.primary
-                )
-            )
-        },
-        colors = ListItemDefaults.colors(
-            containerColor = if (hasFocus) MaterialTheme.colorScheme.primary else Color.Transparent
-        )
-    )
 }
