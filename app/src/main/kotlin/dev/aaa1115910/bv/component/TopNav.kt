@@ -52,6 +52,7 @@ import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.TabRowScope
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
@@ -158,7 +159,7 @@ fun TopNav(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NavItemTab(
+private fun TabRowScope.NavItemTab(
     modifier: Modifier = Modifier,
     topNavItem: TopNavItem,
     selected: Boolean,

@@ -28,7 +28,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun TvOutlinedTextFiled(
     modifier: Modifier = Modifier,

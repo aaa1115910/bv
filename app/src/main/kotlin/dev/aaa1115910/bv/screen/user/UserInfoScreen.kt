@@ -95,6 +95,7 @@ import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserInfoScreen(
     modifier: Modifier = Modifier,
@@ -387,6 +388,7 @@ fun UserInfoScreen(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LogoutConfirmDialog(
     modifier: Modifier = Modifier,
@@ -659,6 +661,7 @@ private fun RecentVideosRow(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun FollowingAnimeVideosRow(
     modifier: Modifier = Modifier,

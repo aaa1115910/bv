@@ -191,6 +191,7 @@ fun UserPanel(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelMyItem(
     modifier: Modifier = Modifier,
@@ -239,6 +240,7 @@ private fun UserPanelMyItem(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelSmallItem(
     modifier: Modifier = Modifier,

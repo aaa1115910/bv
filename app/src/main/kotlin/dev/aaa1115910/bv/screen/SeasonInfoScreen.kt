@@ -101,6 +101,7 @@ import mu.KotlinLogging
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -443,6 +444,7 @@ fun SeasonInfoScreen(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonCover(
     modifier: Modifier = Modifier,
@@ -465,6 +467,7 @@ fun SeasonCover(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonBaseInfo(
     modifier: Modifier = Modifier,

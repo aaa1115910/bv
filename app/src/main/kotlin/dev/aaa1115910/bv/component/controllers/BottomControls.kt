@@ -26,6 +26,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.util.formatMinSec
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BottomControls(
     modifier: Modifier = Modifier,

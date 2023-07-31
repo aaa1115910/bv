@@ -124,6 +124,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -807,6 +808,7 @@ private fun UpButton(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescription(
     modifier: Modifier = Modifier,
@@ -856,6 +858,7 @@ fun VideoDescription(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescriptionDialog(
     modifier: Modifier = Modifier,
@@ -969,6 +972,7 @@ private fun VideoPartRowButton(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
@@ -1031,6 +1035,7 @@ fun VideoPartRow(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
