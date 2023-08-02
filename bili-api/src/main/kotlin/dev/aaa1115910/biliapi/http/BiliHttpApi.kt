@@ -12,6 +12,8 @@ import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
+import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
+import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1283,6 +1285,34 @@ object BiliHttpApi {
             println("Update wbi data failed: ${it.stackTraceToString()}")
         }
     }
+
+    /**
+     * 获取首页视频推荐列表（Web）
+     */
+    suspend fun getFeedRcmd(
+        freshType: Int = 4,
+        pageSize: Int = 30,
+        idx: Int = 1,
+        sessData: String? = null
+    ): BiliResponse<RcmdTopData> = client.get("/x/web-interface/wbi/index/top/feed/rcmd") {
+        parameter("fresh_type", freshType)
+        parameter("ps", pageSize)
+        parameter("fresh_idx", idx)
+        parameter("fresh_idx_1h", idx)
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
+    }.body()
+
+    /**
+     * 获取首页视频推荐列表（App）
+     */
+    suspend fun getFeedIndex(
+        idx: Int = 0,
+        accessKey: String? = null,
+    ): BiliResponse<RcmdIndexData> =
+        client.get("https://app.bilibili.com/x/v2/feed/index") {
+            parameter("idx", idx)
+            accessKey?.let { parameter("access_key", it) }
+        }.body()
 }
 
 private fun checkToken(accessKey: String?, sessData: String?) {

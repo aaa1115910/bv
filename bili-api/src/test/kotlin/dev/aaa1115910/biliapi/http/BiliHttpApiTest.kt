@@ -614,4 +614,16 @@ internal class BiliHttpApiTest {
             }
         }
     }
+
+    @Test
+    fun `get web homepage recommend items`() = runBlocking {
+        val result = BiliHttpApi.getFeedRcmd()
+        println(result)
+    }
+
+    @Test
+    fun `get app homepage recommend items`() = runBlocking {
+        val result = BiliHttpApi.getFeedIndex()
+        println(result)
+    }
 }

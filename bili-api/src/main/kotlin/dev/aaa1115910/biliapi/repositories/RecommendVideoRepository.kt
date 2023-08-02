@@ -3,12 +3,15 @@ package dev.aaa1115910.biliapi.repositories
 import bilibili.app.show.v1.PopularGrpcKt
 import bilibili.app.show.v1.popularResultReq
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.home.RecommendData
+import dev.aaa1115910.biliapi.entity.home.RecommendItem
+import dev.aaa1115910.biliapi.entity.home.RecommendPage
 import dev.aaa1115910.biliapi.entity.rank.PopularVideo
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoData
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoPage
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 
-class PopularVideoRepository(
+class RecommendVideoRepository(
     private val authRepository: AuthRepository,
     private val channelRepository: ChannelRepository
 ) {
@@ -58,5 +61,39 @@ class PopularVideoRepository(
                 )
             }
         }
+    }
+
+    suspend fun getRecommendVideos(
+        page: RecommendPage = RecommendPage(),
+        preferApiType: ApiType = ApiType.Web
+    ): RecommendData {
+        val items = when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.getFeedRcmd(
+                idx = page.nextWebIdx,
+                sessData = authRepository.sessionData
+            )
+                .getResponseData().item
+                .map { RecommendItem.fromRcmdItem(it) }
+
+            ApiType.App -> BiliHttpApi.getFeedIndex(
+                idx = page.nextAppIdx,
+                accessKey = authRepository.accessToken
+            )
+                .getResponseData().items
+                .map { RecommendItem.fromRcmdItem(it) }
+        }
+        val nextPage = when (preferApiType) {
+            ApiType.Web -> RecommendPage(
+                nextWebIdx = page.nextWebIdx + 1
+            )
+
+            ApiType.App -> RecommendPage(
+                nextAppIdx = items.first().idx + 1
+            )
+        }
+        return RecommendData(
+            items = items,
+            nextPage = nextPage
+        )
     }
 }

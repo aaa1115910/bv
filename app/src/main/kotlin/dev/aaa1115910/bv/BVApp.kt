@@ -15,7 +15,7 @@ import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
-import dev.aaa1115910.biliapi.repositories.PopularVideoRepository
+import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.biliapi.repositories.SearchRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
@@ -99,7 +99,7 @@ val appModule = module {
     single { HistoryRepository(get(), get()) }
     single { SearchRepository(get(), get()) }
     single { VideoPlayRepository(get(), get()) }
-    single { PopularVideoRepository(get(), get()) }
+    single { RecommendVideoRepository(get(), get()) }
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
