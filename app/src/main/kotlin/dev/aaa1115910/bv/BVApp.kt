@@ -49,6 +49,7 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
+import org.slf4j.impl.HandroidLoggerAdapter
 
 class BVApp : Application() {
     companion object {
@@ -64,6 +65,7 @@ class BVApp : Application() {
     override fun onCreate() {
         super.onCreate()
         context = this.applicationContext
+        HandroidLoggerAdapter.DEBUG = BuildConfig.DEBUG
         dataStoreManager = DataStoreManager(applicationContext.dataStore)
         koinApplication = startKoin {
             androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
