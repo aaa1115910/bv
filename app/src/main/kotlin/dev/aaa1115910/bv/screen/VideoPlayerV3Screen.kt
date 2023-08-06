@@ -265,7 +265,8 @@ fun VideoPlayerV3Screen(
                     avid = nextVideo.aid,
                     cid = nextVideo.cid,
                     epid = nextVideo.epid,
-                    seasonId = nextVideo.seasonId
+                    seasonId = nextVideo.seasonId,
+                    continuePlayNext = true
                 )
             }
         }
@@ -437,7 +438,8 @@ fun VideoPlayerV3Screen(
                     avid = it.aid,
                     cid = it.cid,
                     epid = it.epid,
-                    seasonId = it.seasonId
+                    seasonId = it.seasonId,
+                    continuePlayNext = true
                 )
             },
 

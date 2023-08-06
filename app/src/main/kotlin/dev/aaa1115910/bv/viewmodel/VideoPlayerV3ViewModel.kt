@@ -120,7 +120,8 @@ class VideoPlayerV3ViewModel(
         avid: Int,
         cid: Int,
         epid: Int? = null,
-        seasonId: Int? = null
+        seasonId: Int? = null,
+        continuePlayNext: Boolean = false
     ) {
         currentAid = avid
         currentCid = cid
@@ -137,10 +138,21 @@ class VideoPlayerV3ViewModel(
             } else {
                 addLogs("av$avid，cid:$cid")
             }
+
+            val lastPlayEnabledSubtitle = currentSubtitleId != -1L
+            if (lastPlayEnabledSubtitle) {
+                logger.info { "Subtitle is enabled, next video will enable subtitle automatic" }
+            }
+
             updateSubtitle()
             loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
+
+            //如果是继续播放下一集，且之前开启了字幕，就会自动加载第一条字幕，主要用于观看番剧时自动加载字幕
+            if (continuePlayNext) {
+                if (lastPlayEnabledSubtitle) enableFirstSubtitle()
+            }
         }
     }
 
@@ -349,6 +361,7 @@ class VideoPlayerV3ViewModel(
                 cid = currentCid,
                 preferApiType = Prefs.apiType
             )
+            availableSubtitle.clear()
             availableSubtitle.add(
                 Subtitle(
                     id = -1,
@@ -367,6 +380,20 @@ class VideoPlayerV3ViewModel(
         }.onFailure {
             addLogs("获取字幕失败：${it.localizedMessage}")
             logger.fWarn { "Update subtitle failed: ${it.stackTraceToString()}" }
+        }
+    }
+
+    private fun enableFirstSubtitle() {
+        runCatching {
+            logger.info { "Load first subtitle" }
+            logger.info { "availableSubtitle: ${availableSubtitle.toList()}" }
+            loadSubtitle(
+                availableSubtitle
+                    .firstOrNull { it.id != -1L }?.id
+                    ?: throw IllegalStateException("No available subtitle")
+            )
+        }.onFailure {
+            logger.error { "Load first subtitle failed: ${it.stackTraceToString()}" }
         }
     }
 
