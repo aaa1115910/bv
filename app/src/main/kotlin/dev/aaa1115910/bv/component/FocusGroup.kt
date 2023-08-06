@@ -52,6 +52,7 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
  */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalTvFoundationApi
+@Deprecated("Use focusRestorer instead")
 @Composable
 fun FocusGroup(
     modifier: Modifier = Modifier,
