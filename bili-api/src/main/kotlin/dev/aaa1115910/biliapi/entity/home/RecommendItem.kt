@@ -9,7 +9,7 @@ data class RecommendItem(
     val cover: String,
     val author: String,
     val play: Int,
-    val danmkau: Int,
+    val danmaku: Int,
     val duration: Int,
     val idx: Int
 ) {
@@ -30,7 +30,7 @@ data class RecommendItem(
                         }
                     }.getOrDefault(-1)
                 },
-                danmkau = with(rcmdItem.coverLeftText2) {
+                danmaku = with(rcmdItem.coverLeftText2) {
                     runCatching {
                         if (this.endsWith("万")) {
                             (this.substring(0, this.length - 1).toDouble() * 10000).toInt()
@@ -51,7 +51,7 @@ data class RecommendItem(
                 cover = rcmdItem.pic,
                 author = rcmdItem.owner?.name ?: "",
                 play = rcmdItem.stat?.view ?: -1,
-                danmkau = rcmdItem.stat?.danmaku ?: -1,
+                danmaku = rcmdItem.stat?.danmaku ?: -1,
                 duration = rcmdItem.duration,
                 idx = -1
             )

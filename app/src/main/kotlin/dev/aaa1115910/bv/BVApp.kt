@@ -31,6 +31,7 @@ import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
+import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import dev.aaa1115910.bv.viewmodel.login.AppQrLoginViewModel
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import dev.aaa1115910.bv.viewmodel.login.WebQrLoginViewModel
@@ -104,6 +105,7 @@ val appModule = module {
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
     viewModel { DynamicViewModel(get(), get()) }
+    viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
     viewModel { WebQrLoginViewModel(get(), get()) }
     viewModel { AppQrLoginViewModel(get(), get()) }

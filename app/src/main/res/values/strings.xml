@@ -205,6 +205,7 @@
     <string name="top_nav_item_dynamics">动态</string>
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门</string>
+    <string name="top_nav_item_recommend">推荐</string>
     <string name="top_nav_item_search">搜索</string>
 
     <string name="user_homepage_anime">我追的番</string>

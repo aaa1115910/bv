@@ -76,7 +76,13 @@ fun TopNav(
     val context = LocalContext.current
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
     val navList =
-        listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Anime, TopNavItem.Dynamics)
+        listOf(
+            TopNavItem.Search,
+            TopNavItem.Recommend,
+            TopNavItem.Popular,
+            TopNavItem.Anime,
+            TopNavItem.Dynamics
+        )
 
     Box(
         modifier = modifier
@@ -303,6 +309,7 @@ private fun UserIcon(
 
 enum class TopNavItem(private val _displayNameResId: Int) {
     Search(R.string.top_nav_item_search),
+    Recommend(R.string.top_nav_item_recommend),
     Popular(R.string.top_nav_item_popular),
     Partition(R.string.top_nav_item_partition),
     Anime(R.string.top_nav_item_anime),
