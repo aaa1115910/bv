@@ -7,6 +7,7 @@ import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -109,7 +111,9 @@ fun BVTheme(
                 LocalDensity provides Density(density = density, fontScale = fontScale)
             ) {
                 androidx.compose.material3.Surface(color = Color.Transparent) {
-                    Surface {
+                    Surface(
+                        shape = RoundedCornerShape(0.dp),
+                    ) {
                         if (showFps) {
                             FpsMonitor {
                                 content(
