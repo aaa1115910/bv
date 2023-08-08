@@ -7,8 +7,12 @@ on:
 
 jobs:
   build-release:
-
+    name: Build Release Apk
     runs-on: macos-latest
+    outputs:
+      lite_release_info_apk_filename: ${{ steps.lite-info.outputs.lite_release_info_apk_filename }}
+      default_release_info_version_code: ${{ steps.default-info.outputs.default_release_info_version_code }}
+      default_release_info_version_name: ${{ steps.default-info.outputs.default_release_info_version_name }}
 
     steps:
       - name: Checkout
@@ -79,6 +83,7 @@ jobs:
         run: |
           echo "lite_release_info_apk_filename=${{ fromJson(steps.apk-meta-lite-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
           echo "lite_debug_info_apk_filename=${{ fromJson(steps.apk-meta-lite-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+          echo "lite_release_info_apk_filename=${{ fromJson(steps.apk-meta-lite-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_OUTPUT
 
       - name: Parse default apks info
         id: default-info
@@ -87,72 +92,8 @@ jobs:
           echo "default_release_info_version_name=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
           echo "default_debug_info_version_code=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
           echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-
-      # upload to app center
-
-      - name: Setup app center cli
-        id: setup-appcenter-cli
-        run: npm install -g appcenter-cli
-
-      - name: Upload lite release apk to app center
-        id: upload-lite-release-apk
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }} \
-            --group Public \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default release apk to app center (universal)
-        id: upload-default-release-apk-universal
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk \
-            --group Public-universal \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default release apk to app center (armeabi-v7a)
-        id: upload-default-release-apk-armeabi-v7a
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk \
-            --group Public-armeabi-v7a \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default release apk to app center (arm64-v8a)
-        id: upload-default-release-apk-arm64-v8a
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk \
-            --group Public-arm64-v8a \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default release apk to app center (x86)
-        id: upload-default-release-apk-x86
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk \
-            --group Public-x86 \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default release apk to app center (x86_64)
-        id: upload-default-release-apk-x86_64
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk \
-            --group Public-x86_64 \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
+          echo "default_release_info_version_code=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_OUTPUT
+          echo "default_release_info_version_name=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionName }}" >> $GITHUB_OUTPUT
 
       # upload artifacts lite-debug
 
@@ -245,3 +186,131 @@ jobs:
         with:
           name: Default release build artifact (x86_64)
           path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk
+
+  upload-release:
+    name: Upload Release Apk to App Center
+    needs: build-release
+    runs-on: ubuntu-latest
+
+    steps:
+      # download artifacts
+
+      - name: download lite release build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Lite release build artifact
+
+      - name: download default release build artifacts (universal)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default release build artifact (universal)
+
+      - name: download default release build artifacts (armeabi-v7a)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default release build artifact (armeabi-v7a)
+
+      - name: download default release build artifacts (arm64-v8a)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default release build artifact (arm64-v8a)
+
+      - name: download default release build artifacts (x86)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default release build artifact (x86)
+
+      - name: download default release build artifacts (x86_64)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default release build artifact (x86_64)
+
+      # upload to app center
+
+      - name: Setup app center cli
+        id: setup-appcenter-cli
+        run: npm install -g appcenter-cli
+
+      - name: Upload lite release apk to app center
+        id: upload-lite-release-apk
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file ${{ needs.build-release.outputs.lite_release_info_apk_filename }} \
+              --group Public \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default release apk to app center (universal)
+        id: upload-default-release-apk-universal
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_universal.apk \
+              --group Public-universal \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default release apk to app center (armeabi-v7a)
+        id: upload-default-release-apk-armeabi-v7a
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_armeabi-v7a.apk \
+              --group Public-armeabi-v7a \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default release apk to app center (arm64-v8a)
+        id: upload-default-release-apk-arm64-v8a
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_arm64-v8a.apk \
+              --group Public-arm64-v8a \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default release apk to app center (x86)
+        id: upload-default-release-apk-x86
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_x86.apk \
+              --group Public-x86 \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default release apk to app center (x86_64)
+        id: upload-default-release-apk-x86_64
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_x86_64.apk \
+              --group Public-x86_64 \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"

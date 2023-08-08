@@ -7,8 +7,12 @@ on:
 
 jobs:
   build-alpha:
-
+    name: Build Alpha Apk
     runs-on: macos-latest
+    outputs:
+      lite_alpha_info_apk_filename: ${{ steps.lite-info.outputs.lite_alpha_info_apk_filename }}
+      default_alpha_info_version_code: ${{ steps.default-info.outputs.default_alpha_info_version_code }}
+      default_alpha_info_version_name: ${{ steps.default-info.outputs.default_alpha_info_version_name }}
 
     steps:
       - name: Checkout
@@ -79,6 +83,7 @@ jobs:
         run: |
           echo "lite_alpha_info_apk_filename=${{ fromJson(steps.apk-meta-lite-alpha.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
           echo "lite_debug_info_apk_filename=${{ fromJson(steps.apk-meta-lite-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
+          echo "lite_alpha_info_apk_filename=${{ fromJson(steps.apk-meta-lite-alpha.outputs.content).elements[0].outputFile }}" >> $GITHUB_OUTPUT
 
       - name: Parse default apks info
         id: default-info
@@ -87,72 +92,8 @@ jobs:
           echo "default_alpha_info_version_name=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
           echo "default_debug_info_version_code=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
           echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-
-      # upload to app center
-
-      - name: Setup app center cli
-        id: setup-appcenter-cli
-        run: npm install -g appcenter-cli
-
-      - name: Upload lite alpha apk to app center
-        id: upload-lite-alpha-apk
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/lite/alpha/${{ env.lite_alpha_info_apk_filename }} \
-            --group Alpha \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default alpha apk to app center (universal)
-        id: upload-default-alpha-apk-universal
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_universal.apk \
-            --group Alpha-universal \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default alpha apk to app center (armeabi-v7a)
-        id: upload-default-alpha-apk-armeabi-v7a
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_armeabi-v7a.apk \
-            --group Alpha-armeabi-v7a \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default alpha apk to app center (arm64-v8a)
-        id: upload-default-alpha-apk-arm64-v8a
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_arm64-v8a.apk \
-            --group Alpha-arm64-v8a \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default alpha apk to app center (x86)
-        id: upload-default-alpha-apk-x86
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86.apk \
-            --group Alpha-x86 \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
-
-      - name: Upload default alpha apk to app center (x86_64)
-        id: upload-default-alpha-apk-x86_64
-        run: |
-          appcenter distribute release \
-            --app aaa1115910-gmail.com/BV \
-            --file app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk \
-            --group Alpha-x86_64 \
-            --token ${{ secrets.APP_CENTER_TOKEN }} \
-            --release-notes "$(git log -1 --pretty=short)"
+          echo "default_alpha_info_version_code=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionCode }}" >> $GITHUB_OUTPUT
+          echo "default_alpha_info_version_name=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_OUTPUT
 
       # upload artifacts lite-debug
 
@@ -245,3 +186,131 @@ jobs:
         with:
           name: Default alpha build artifact (x86_64)
           path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk
+
+  upload-alpha:
+    name: Upload Alpha Apk to App Center
+    needs: build-alpha
+    runs-on: ubuntu-latest
+
+    steps:
+      # download artifacts
+
+      - name: download lite alpha build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Lite alpha build artifact
+
+      - name: download default alpha build artifacts (universal)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default alpha build artifact (universal)
+
+      - name: download default alpha build artifacts (armeabi-v7a)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default alpha build artifact (armeabi-v7a)
+
+      - name: download default alpha build artifacts (arm64-v8a)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default alpha build artifact (arm64-v8a)
+
+      - name: download default alpha build artifacts (x86)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default alpha build artifact (x86)
+
+      - name: download default alpha build artifacts (x86_64)
+        uses: actions/download-artifact@v3
+        with:
+          name: Default alpha build artifact (x86_64)
+
+      # upload to app center
+
+      - name: Setup app center cli
+        id: setup-appcenter-cli
+        run: npm install -g appcenter-cli
+
+      - name: Upload lite alpha apk to app center
+        id: upload-lite-alpha-apk
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file ${{ needs.build-alpha.outputs.lite_alpha_info_apk_filename }} \
+              --group Alpha \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default alpha apk to app center (universal)
+        id: upload-default-alpha-apk-universal
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_universal.apk \
+              --group Alpha-universal \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default alpha apk to app center (armeabi-v7a)
+        id: upload-default-alpha-apk-armeabi-v7a
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_armeabi-v7a.apk \
+              --group Alpha-armeabi-v7a \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default alpha apk to app center (arm64-v8a)
+        id: upload-default-alpha-apk-arm64-v8a
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_arm64-v8a.apk \
+              --group Alpha-arm64-v8a \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default alpha apk to app center (x86)
+        id: upload-default-alpha-apk-x86
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_x86.apk \
+              --group Alpha-x86 \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
+
+      - name: Upload default alpha apk to app center (x86_64)
+        id: upload-default-alpha-apk-x86_64
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          max_attempts: 5
+          command: |
+            appcenter distribute release \
+              --app aaa1115910-gmail.com/BV \
+              --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_x86_64.apk \
+              --group Alpha-x86_64 \
+              --token ${{ secrets.APP_CENTER_TOKEN }} \
+              --release-notes "$(git log -1 --pretty=short)"
