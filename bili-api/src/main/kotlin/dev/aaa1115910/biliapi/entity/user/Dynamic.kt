@@ -134,8 +134,18 @@ private fun convertStringTimeToSeconds(time: String): Int {
 
 //web 接口获取到的是“xx万”，而 grpc 接口获取到的是“xx.x万播放”
 private fun convertStringPlayCountToNumberPlayCount(play: String): Int {
-    val number = play.replace("弹幕", "").replace("播放", "").substringBefore("万").toFloat()
-    return (if (play.contains("万")) number * 10000 else number).toInt()
+    if (play.startsWith("-")) return 0
+    runCatching {
+        val number = play
+            .replace("弹幕", "")
+            .replace("观看", "")
+            .replace("播放", "")
+            .substringBefore("万").toFloat()
+        return (if (play.contains("万")) number * 10000 else number).toInt()
+    }.onFailure {
+        println("convert play count [$play] failed: ${it.stackTraceToString()}")
+    }
+    return -1
 }
 
 enum class DynamicType {
