@@ -13,6 +13,7 @@ jobs:
       lite_alpha_info_apk_filename: ${{ steps.lite-info.outputs.lite_alpha_info_apk_filename }}
       default_alpha_info_version_code: ${{ steps.default-info.outputs.default_alpha_info_version_code }}
       default_alpha_info_version_name: ${{ steps.default-info.outputs.default_alpha_info_version_name }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
 
     steps:
       - name: Checkout
@@ -94,6 +95,13 @@ jobs:
           echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
           echo "default_alpha_info_version_code=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionCode }}" >> $GITHUB_OUTPUT
           echo "default_alpha_info_version_name=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_OUTPUT
+
+      - name: Set changelog to output
+        id: changelog
+        run: |
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$(git log -1 --pretty=short)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       # upload artifacts lite-debug
 
@@ -243,7 +251,7 @@ jobs:
               --file ${{ needs.build-alpha.outputs.lite_alpha_info_apk_filename }} \
               --group Alpha \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
 
       - name: Upload default alpha apk to app center (universal)
         id: upload-default-alpha-apk-universal
@@ -257,7 +265,7 @@ jobs:
               --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_universal.apk \
               --group Alpha-universal \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
 
       - name: Upload default alpha apk to app center (armeabi-v7a)
         id: upload-default-alpha-apk-armeabi-v7a
@@ -271,7 +279,7 @@ jobs:
               --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_armeabi-v7a.apk \
               --group Alpha-armeabi-v7a \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
 
       - name: Upload default alpha apk to app center (arm64-v8a)
         id: upload-default-alpha-apk-arm64-v8a
@@ -285,7 +293,7 @@ jobs:
               --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_arm64-v8a.apk \
               --group Alpha-arm64-v8a \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
 
       - name: Upload default alpha apk to app center (x86)
         id: upload-default-alpha-apk-x86
@@ -299,7 +307,7 @@ jobs:
               --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_x86.apk \
               --group Alpha-x86 \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
 
       - name: Upload default alpha apk to app center (x86_64)
         id: upload-default-alpha-apk-x86_64
@@ -313,4 +321,4 @@ jobs:
               --file BV_${{ needs.build-alpha.outputs.default_alpha_info_version_code }}_${{ needs.build-alpha.outputs.default_alpha_info_version_name }}_default_x86_64.apk \
               --group Alpha-x86_64 \
               --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "$(git log -1 --pretty=short)"
+              --release-notes "${{ needs.build-alpha.outputs.changelog }}"
