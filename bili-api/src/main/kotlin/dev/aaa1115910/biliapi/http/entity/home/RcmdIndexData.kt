@@ -64,7 +64,7 @@ data class RcmdIndexData(
     data class RcmdItem(
         val args: Args,
         @SerialName("can_play")
-        val canPlay: Int,
+        val canPlay: Int? = null,
         @SerialName("card_goto")
         val cardGoto: String,
         @SerialName("card_type")
@@ -73,19 +73,19 @@ data class RcmdIndexData(
         @SerialName("cover_left_1_content_description")
         val coverLeft1ContentDescription: String,
         @SerialName("cover_left_2_content_description")
-        val coverLeft2ContentDescription: String,
+        val coverLeft2ContentDescription: String? = null,
         @SerialName("cover_left_icon_1")
         val coverLeftIcon1: Int,
         @SerialName("cover_left_icon_2")
-        val coverLeftIcon2: Int,
+        val coverLeftIcon2: Int? = null,
         @SerialName("cover_left_text_1")
         val coverLeftText1: String,
         @SerialName("cover_left_text_2")
-        val coverLeftText2: String,
+        val coverLeftText2: String? = null,
         @SerialName("cover_right_content_description")
-        val coverRightContentDescription: String,
+        val coverRightContentDescription: String? = null,
         @SerialName("cover_right_text")
-        val coverRightText: String,
+        val coverRightText: String? = null,
         val desc: String? = null,
         @SerialName("desc_button")
         val descButton: DescButton? = null,
@@ -100,7 +100,7 @@ data class RcmdIndexData(
         @SerialName("param")
         val `param`: String,
         @SerialName("player_args")
-        val playerArgs: PlayerArgs,
+        val playerArgs: PlayerArgs? = null,
         @SerialName("rcmd_reason")
         val rcmdReason: String? = null,
         @SerialName("rcmd_reason_style")
@@ -110,7 +110,7 @@ data class RcmdIndexData(
         @SerialName("talk_back")
         val talkBack: String? = null,
         @SerialName("three_point")
-        val threePoint: ThreePoint,
+        val threePoint: ThreePoint? = null,
         @SerialName("three_point_v2")
         val threePointV2: List<ThreePointV2>,
         val title: String,
@@ -120,15 +120,15 @@ data class RcmdIndexData(
     ) {
         @Serializable
         data class Args(
-            val aid: Int,
-            val rid: Int,
-            val rname: String,
+            val aid: Int? = null,
+            val rid: Int? = null,
+            val rname: String? = null,
             val tid: Int? = null,
             val tname: String? = null,
             @SerialName("up_id")
-            val upId: Long,
+            val upId: Long? = null,
             @SerialName("up_name")
-            val upName: String
+            val upName: String? = null
         )
 
         @Serializable

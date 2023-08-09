@@ -80,6 +80,7 @@ class RecommendVideoRepository(
                 accessKey = authRepository.accessToken
             )
                 .getResponseData().items
+                .filter { it.cardGoto == "av" }
                 .map { RecommendItem.fromRcmdItem(it) }
         }
         val nextPage = when (preferApiType) {

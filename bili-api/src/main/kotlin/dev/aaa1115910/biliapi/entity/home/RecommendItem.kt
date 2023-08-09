@@ -16,11 +16,11 @@ data class RecommendItem(
     companion object {
         fun fromRcmdItem(rcmdItem: dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData.RcmdItem) =
             RecommendItem(
-                aid = rcmdItem.args.aid,
+                aid = rcmdItem.args.aid ?: 0,
                 bvid = "",
                 title = rcmdItem.title,
                 cover = rcmdItem.cover,
-                author = rcmdItem.args.upName,
+                author = rcmdItem.args.upName ?: "",
                 play = with(rcmdItem.coverLeftText1) {
                     runCatching {
                         if (this.endsWith("万")) {
@@ -31,6 +31,7 @@ data class RecommendItem(
                     }.getOrDefault(-1)
                 },
                 danmaku = with(rcmdItem.coverLeftText2) {
+                    if (this == null) return@with -1
                     runCatching {
                         if (this.endsWith("万")) {
                             (this.substring(0, this.length - 1).toDouble() * 10000).toInt()
@@ -39,7 +40,7 @@ data class RecommendItem(
                         }
                     }.getOrDefault(-1)
                 },
-                duration = rcmdItem.coverRightText.convertStringTimeToSeconds(),
+                duration = rcmdItem.coverRightText?.convertStringTimeToSeconds() ?: 0,
                 idx = rcmdItem.idx
             )
 
