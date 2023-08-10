@@ -31,6 +31,7 @@ import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
@@ -97,6 +98,7 @@ class VideoPlayerV3ViewModel(
     var epid by mutableIntStateOf(0)
     var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
+    var proxyArea by mutableStateOf(ProxyArea.MainLand)
 
     var needPay by mutableStateOf(false)
 
@@ -145,7 +147,7 @@ class VideoPlayerV3ViewModel(
             }
 
             updateSubtitle()
-            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType)
+            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType, proxyArea = proxyArea)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
 
@@ -160,9 +162,10 @@ class VideoPlayerV3ViewModel(
         avid: Int,
         cid: Int,
         epid: Int = 0,
-        preferApi: ApiType = Prefs.apiType
+        preferApi: ApiType = Prefs.apiType,
+        proxyArea: ProxyArea = ProxyArea.MainLand
     ) {
-        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi]" }
+        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi, proxyArea=$proxyArea]" }
         loadState = RequestState.Ready
         logger.fInfo { "Set request state: ready" }
         runCatching {
@@ -172,7 +175,13 @@ class VideoPlayerV3ViewModel(
                     cid = cid,
                     epid = epid,
                     preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
-                    preferApiType = Prefs.apiType
+                    preferApiType = Prefs.apiType,
+                    enableProxy = proxyArea != ProxyArea.MainLand,
+                    proxyArea = when (proxyArea) {
+                        ProxyArea.MainLand -> ""
+                        ProxyArea.HongKong -> "hk"
+                        ProxyArea.TaiWan -> "tw"
+                    }
                 )
             } else {
                 videoPlayRepository.getPlayData(

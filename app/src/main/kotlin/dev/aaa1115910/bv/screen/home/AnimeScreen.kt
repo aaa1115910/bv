@@ -72,6 +72,7 @@ import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
@@ -186,7 +187,8 @@ fun AnimeCarousel(
                 SeasonInfoActivity.actionStart(
                     context = context,
                     epId = data[itemIndex].episodeId,
-                    seasonId = data[itemIndex].seasonId
+                    seasonId = data[itemIndex].seasonId,
+                    proxyArea = ProxyArea.checkProxyArea(data[itemIndex].title)
                 )
             }
         )
@@ -337,7 +339,8 @@ fun AnimeFeedVideoRow(
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = feedItem.seasonId
+                            seasonId = feedItem.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(feedItem.title)
                         )
                     }
                 )
@@ -453,7 +456,8 @@ fun AnimeFeedRankRow(
                             onClick = {
                                 SeasonInfoActivity.actionStart(
                                     context = context,
-                                    seasonId = feedItem.seasonId
+                                    seasonId = feedItem.seasonId,
+                                    proxyArea = ProxyArea.checkProxyArea(feedItem.title)
                                 )
                             }
                         )

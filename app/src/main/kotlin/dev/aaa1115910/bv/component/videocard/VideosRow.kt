@@ -26,6 +26,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -66,7 +67,11 @@ fun VideosRow(
                     data = videoData,
                     onClick = {
                         if (videoData.jumpToSeason) {
-                            SeasonInfoActivity.actionStart(context, videoData.epId!!)
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                epId = videoData.epId!!,
+                                proxyArea = ProxyArea.checkProxyArea(videoData.title)
+                            )
                         } else {
                             VideoInfoActivity.actionStart(context, videoData.avid)
                         }

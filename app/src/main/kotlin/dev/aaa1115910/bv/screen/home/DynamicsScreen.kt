@@ -32,6 +32,7 @@ import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,7 +96,13 @@ fun DynamicsScreen(
                         upName = dynamic.author,
                         time = dynamic.duration * 1000L
                     ),
-                    onClick = { VideoInfoActivity.actionStart(context, dynamic.aid) },
+                    onClick = {
+                        VideoInfoActivity.actionStart(
+                            context = context,
+                            aid = dynamic.aid,
+                            proxyArea = ProxyArea.checkProxyArea(dynamic.title)
+                        )
+                    },
                     onFocus = { currentFocusedIndex = index }
                 )
             }

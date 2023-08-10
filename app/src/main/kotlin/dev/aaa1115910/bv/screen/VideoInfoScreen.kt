@@ -93,6 +93,7 @@ import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
+import dev.aaa1115910.biliapi.http.BiliPlusHttpApi
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.R
@@ -102,6 +103,7 @@ import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.videocard.VideosRow
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -148,6 +150,7 @@ fun VideoInfoScreen(
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
+    var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     val containsVerticalScreenVideo by remember {
         derivedStateOf {
@@ -281,8 +284,27 @@ fun VideoInfoScreen(
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
+            proxyArea = ProxyArea.entries[intent.getIntExtra("proxyArea", 0)]
             //获取视频信息
             scope.launch(Dispatchers.IO) {
+                if (proxyArea != ProxyArea.MainLand) {
+                    runCatching {
+                        val seasonId = BiliPlusHttpApi.getSeasonIdByAvid(aid)
+                        logger.info { "Get season id from biliplus: $seasonId" }
+                        seasonId?.let {
+                            logger.fInfo { "Redirect to season $seasonId" }
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                seasonId = seasonId,
+                                proxyArea = proxyArea
+                            )
+                            context.finish()
+                        }
+                    }.onFailure {
+                        logger.fWarn { "Redirect failed: ${it.stackTraceToString()}" }
+                    }
+                }
+
                 runCatching {
                     videoDetailViewModel.loadDetail(aid)
                     updateVideoIsFavoured()
@@ -348,7 +370,11 @@ fun VideoInfoScreen(
             if (it.redirectToEp) {
                 runCatching {
                     logger.fInfo { "Redirect to ep ${it.epid}" }
-                    SeasonInfoActivity.actionStart(context, it.epid)
+                    SeasonInfoActivity.actionStart(
+                        context = context,
+                        epId = it.epid,
+                        proxyArea = proxyArea
+                    )
                     context.finish()
                 }.onFailure {
                     logger.fWarn { "Redirect failed: ${it.stackTraceToString()}" }

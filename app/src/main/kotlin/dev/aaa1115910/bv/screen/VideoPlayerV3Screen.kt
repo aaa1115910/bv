@@ -39,6 +39,7 @@ import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
 import dev.aaa1115910.bv.entity.VideoAspectRatio
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.util.Prefs
@@ -89,6 +90,7 @@ fun VideoPlayerV3Screen(
     var isBuffering by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     var exception: Exception? by remember { mutableStateOf(null) }
+    var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     val typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }

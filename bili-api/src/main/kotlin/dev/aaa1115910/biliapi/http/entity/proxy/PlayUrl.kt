@@ -4,6 +4,7 @@ import dev.aaa1115910.biliapi.http.entity.video.DashData
 import dev.aaa1115910.biliapi.http.entity.video.DashFlac
 import dev.aaa1115910.biliapi.http.entity.video.Durl
 import dev.aaa1115910.biliapi.http.entity.video.RecordInfo
+import dev.aaa1115910.biliapi.http.entity.video.SegmentBase
 import dev.aaa1115910.biliapi.http.entity.video.SupportFormat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -138,9 +139,10 @@ data class ProxyWebDashDolby(
 @Serializable
 data class ProxyAppDash(
     val duration: Int,
+    @SerialName("min_buffer_time")
     val minBufferTime: Float,
-    val video: List<DashData> = emptyList(),
-    val audio: List<DashData>? = null,
+    val video: List<ProxyAppDashData> = emptyList(),
+    val audio: List<ProxyAppDashData>? = null,
     val dolby: ProxyAppDashDolby = ProxyAppDashDolby(),
     val flac: DashFlac? = null
 )
@@ -149,4 +151,28 @@ data class ProxyAppDash(
 data class ProxyAppDashDolby(
     val audio: List<DashData>? = null,
     val type: String = ""
+)
+
+@Serializable
+data class ProxyAppDashData(
+    val id: Int,
+    @SerialName("base_url")
+    val baseUrl: String,
+    @SerialName("backup_url")
+    val backupUrl: List<String> = emptyList(),
+    val bandwidth: Int,
+    @SerialName("mime_type")
+    val mimeType: String,
+    val codecs: String,
+    val width: Int,
+    val height: Int,
+    @SerialName("frame_rate")
+    val frameRate: String,
+    val sar: String,
+    @SerialName("start_with_sap")
+    val startWithSap: Int,
+    @SerialName("segment_base")
+    val segmentBase: SegmentBase,
+    @SerialName("codecid")
+    val codecId: Int
 )
