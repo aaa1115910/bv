@@ -4,6 +4,7 @@ import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
+import dev.aaa1115910.biliapi.http.ProxyHttpApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -28,6 +29,8 @@ class VideoPlayRepositoryTest {
             runCatching { localProperties.getProperty("test.access_token") }.getOrNull() ?: ""
         val BUVID: String =
             runCatching { localProperties.getProperty("test.buvid") }.getOrNull() ?: ""
+        val PROXY_SERVER: String =
+            runCatching { localProperties.getProperty("test.proxy_server") }.getOrNull() ?: ""
     }
 
     private val authRepository = AuthRepository()
@@ -39,6 +42,7 @@ class VideoPlayRepositoryTest {
         authRepository.sessionData = SESSDATA
         authRepository.accessToken = ACCESS_TOKEN
         authRepository.biliJct = BILI_JCT
+        ProxyHttpApi.createClient(PROXY_SERVER)
     }
 
     @Test
@@ -265,6 +269,32 @@ class VideoPlayRepositoryTest {
             seasonId = 39707,
             preferApiType = ApiType.App
         )
+    }
+
+    @Test
+    fun `get region limited pgc play data`() = runBlocking {
+        val cid = 1199794768
+        val epid = 763396
+        val enableProxy = true
+        val proxyArea = "hk"
+        val webResult = videoPlayRepository.getPgcPlayData(
+            aid = 0,
+            cid = cid,
+            epid = epid,
+            preferApiType = ApiType.Web,
+            enableProxy = enableProxy,
+            proxyArea = proxyArea
+        )
+        val appResult = videoPlayRepository.getPgcPlayData(
+            aid = 0,
+            cid = cid,
+            epid = epid,
+            preferApiType = ApiType.App,
+            enableProxy = enableProxy,
+            proxyArea = proxyArea
+        )
+        println("web result: $webResult")
+        println("app result: $appResult")
     }
 }
 
