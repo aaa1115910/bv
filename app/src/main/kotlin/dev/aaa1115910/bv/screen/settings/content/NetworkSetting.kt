@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.screen.settings.content
 
 import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,13 +22,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.http.ProxyHttpApi
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SpeedTestActivity
-import dev.aaa1115910.bv.screen.settings.SettingsMenuButton
+import dev.aaa1115910.bv.component.settings.SettingListItem
+import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
+import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -32,14 +40,15 @@ fun NetworkSetting(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var enableProxy by remember { mutableStateOf(Prefs.enableProxy) }
+    var proxyServer by remember { mutableStateOf(Prefs.proxyServer) }
+    var showProxyServerEditDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 48.dp),
+            modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -49,15 +58,98 @@ fun NetworkSetting(
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            var isButtonHasFocus by remember { mutableStateOf(false) }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Column {
+                        SettingSwitchListItem(
+                            title = stringResource(R.string.settings_network_enable_proxy_title),
+                            supportText = stringResource(R.string.settings_network_enable_proxy_text),
+                            checked = Prefs.enableProxy,
+                            onCheckedChange = { enable ->
+                                enableProxy = enable
+                                Prefs.enableProxy = enable
+                                if (enable) ProxyHttpApi.createClient(Prefs.proxyServer)
+                            }
+                        )
+                        AnimatedVisibility(visible = enableProxy) {
+                            SettingListItem(
+                                modifier = Modifier.padding(top = 12.dp),
+                                title = stringResource(R.string.settings_network_proxy_server_title),
+                                supportText = if (proxyServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyServer,
+                                onClick = { showProxyServerEditDialog = true }
+                            )
+                        }
+                    }
+                }
 
-            SettingsMenuButton(
-                text = stringResource(R.string.settings_network_start_button),
-                selected = isButtonHasFocus,
-                onFocus = { isButtonHasFocus = true },
-                onLoseFocus = { isButtonHasFocus = false },
-                onClick = { context.startActivity(Intent(context, SpeedTestActivity::class.java)) }
-            )
+                item {
+                    SettingListItem(
+                        title = stringResource(R.string.settings_network_test_title),
+                        supportText = stringResource(R.string.settings_network_test_text),
+                        onClick = {
+                            context.startActivity(Intent(context, SpeedTestActivity::class.java))
+                        }
+                    )
+                }
+            }
         }
+    }
+
+    ProxyServerEditDialog(
+        show = showProxyServerEditDialog,
+        onHideDialog = { showProxyServerEditDialog = false },
+        proxyServer = proxyServer,
+        onProxyServerChange = {
+            proxyServer = it
+            Prefs.proxyServer = it
+            ProxyHttpApi.createClient(it)
+        }
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun ProxyServerEditDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onHideDialog: () -> Unit,
+    proxyServer: String,
+    onProxyServerChange: (String) -> Unit
+) {
+    var proxyServerString by remember(show) { mutableStateOf(proxyServer) }
+
+    if (show) {
+        AlertDialog(
+            modifier = modifier,
+            title = { Text(text = "Proxy Server") },
+            text = {
+                OutlinedTextField(
+                    value = proxyServerString,
+                    onValueChange = { proxyServerString = it },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
+                )
+            },
+            onDismissRequest = onHideDialog,
+            confirmButton = {
+                Button(onClick = {
+                    onProxyServerChange(proxyServerString)
+                    onHideDialog()
+                }) {
+                    Text(text = stringResource(id = R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                Button(onClick = onHideDialog) {
+                    Text(text = stringResource(id = R.string.common_cancel))
+                }
+            }
+        )
     }
 }
