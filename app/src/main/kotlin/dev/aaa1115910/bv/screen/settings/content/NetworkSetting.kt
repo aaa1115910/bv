@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -32,6 +36,7 @@ import dev.aaa1115910.bv.activities.settings.SpeedTestActivity
 import dev.aaa1115910.bv.component.settings.SettingListItem
 import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
+import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -127,14 +132,28 @@ fun ProxyServerEditDialog(
     if (show) {
         AlertDialog(
             modifier = modifier,
-            title = { Text(text = "Proxy Server") },
+            title = { Text(text = stringResource(R.string.proxy_server_edit_dialog_title)) },
             text = {
-                OutlinedTextField(
-                    value = proxyServerString,
-                    onValueChange = { proxyServerString = it },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.medium
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = proxyServerString,
+                        onValueChange = { proxyServerString = it },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.medium,
+                        placeholder = { Text(text = stringResource(R.string.proxy_server_edit_dialog_input_field_label)) }
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
+                        Text(
+                            text = stringResource(R.string.proxy_server_edit_dialog_warning),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
             },
             onDismissRequest = onHideDialog,
             confirmButton = {
@@ -150,6 +169,19 @@ fun ProxyServerEditDialog(
                     Text(text = stringResource(id = R.string.common_cancel))
                 }
             }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ProxyServerEditDialogPreview() {
+    BVTheme {
+        ProxyServerEditDialog(
+            show = true,
+            onHideDialog = {},
+            proxyServer = "",
+            onProxyServerChange = {}
         )
     }
 }

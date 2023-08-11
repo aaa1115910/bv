@@ -81,6 +81,10 @@
     <string name="player_controller_menu_item_video_codec">视频编码</string>
     <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
+    <string name="proxy_server_edit_dialog_input_field_label">服务器域名</string>
+    <string name="proxy_server_edit_dialog_title">代理服务器</string>
+    <string name="proxy_server_edit_dialog_warning">请谨慎使用代理服务器，因为您的登录凭证将会发送至代理服务器，使用代理服务器所带来的一切后果均由用户自行承担</string>
+
     <string name="region_block_character_painting">:(</string>
     <string name="region_block_qr_content">扫码也没有用的！</string>
     <string name="region_block_solution_text">不要在中国大陆地区使用该应用</string>
