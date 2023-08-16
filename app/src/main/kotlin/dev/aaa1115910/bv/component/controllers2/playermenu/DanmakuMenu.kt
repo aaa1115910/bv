@@ -112,7 +112,7 @@ fun DanmakuMenuList(
                     modifier = menuItemsModifier,
                     value = data.currentDanmakuScale,
                     step = 0.01f,
-                    range = 0.5f..2f,
+                    range = 0.5f..4f,
                     text = NumberFormat.getPercentInstance()
                         .apply { maximumFractionDigits = 0 }
                         .format(data.currentDanmakuScale),
