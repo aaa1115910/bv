@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -31,6 +30,7 @@ import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
@@ -151,7 +151,6 @@ fun FollowingSeasonScreen(
                             )
                         }
                     }
-
                 }
             }
         }
@@ -197,9 +196,10 @@ fun FollowingSeasonScreen(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(text = stringResource(R.string.no_data))
-                            TextButton(onClick = { showFilter = true }) {
+                            OutlinedButton(onClick = { showFilter = true }) {
                                 Text(text = stringResource(R.string.filter_dialog_open_tip_click))
                             }
                         }

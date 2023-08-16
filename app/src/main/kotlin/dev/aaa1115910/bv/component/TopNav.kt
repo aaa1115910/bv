@@ -251,7 +251,7 @@ private fun SettingsIcon(
             modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),
             imageVector = Icons.Rounded.Settings,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.inverseSurface
         )
     }
 }
@@ -282,7 +282,7 @@ private fun UserIcon(
         ) {
             Text(
                 text = if (isLogin) username else "未登录",
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.inverseSurface
             )
             Box {
                 Surface(

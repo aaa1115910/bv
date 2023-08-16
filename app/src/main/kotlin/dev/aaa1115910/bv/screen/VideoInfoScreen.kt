@@ -4,11 +4,9 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +29,7 @@ import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -72,13 +71,15 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.SuggestionChip
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
@@ -101,6 +102,8 @@ import dev.aaa1115910.bv.activities.video.TagActivity
 import dev.aaa1115910.bv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.component.UpIcon
 import dev.aaa1115910.bv.component.buttons.FavoriteButton
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
@@ -620,41 +623,67 @@ fun VideoInfoData(
         modifier = modifier
             .padding(horizontal = 50.dp, vertical = 16.dp),
     ) {
-        AsyncImage(
+        Surface(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .weight(3f)
                 .aspectRatio(1.6f)
-                .clip(MaterialTheme.shapes.large)
                 .onGloballyPositioned { coordinates ->
                     heightIs = with(localDensity) { coordinates.size.height.toDp() }
-                }
-                .focusedBorder(MaterialTheme.shapes.large)
-                .clickable { onClickCover() },
-            model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds
-        )
-        Spacer(modifier = Modifier.width(16.dp))
+                },
+            onClick = onClickCover,
+            shape = ClickableSurfaceDefaults.shape(
+                shape = MaterialTheme.shapes.large,
+            ),
+            glow = ClickableSurfaceDefaults.glow(
+                focusedGlow = Glow(
+                    elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                    elevation = 16.dp
+                )
+            )
+        ) {
+            AsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds
+            )
+        }
+        Spacer(modifier = Modifier.width(24.dp))
         Column(
             modifier = Modifier
                 .weight(7f)
                 .height(heightIs),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = videoDetail.title,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = Color.White
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                Text(
+                    text = videoDetail.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
+                )
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    CompositionLocalProvider(
+                        LocalTextStyle provides MaterialTheme.typography.labelMedium
+                    ) {
+                        Text(text = "${videoDetail.stat.like} 点赞")
+                        Text(text = "·")
+                        Text(text = "${videoDetail.stat.coin} 投币")
+                        Text(text = "·")
+                        Text(text = "${videoDetail.stat.favorite} 收藏")
+                        Text(text = "·")
+                        Text(text = videoDetail.publishDate.formatPubTimeString())
+                    }
+                }
+                Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     UpButton(
@@ -666,80 +695,30 @@ fun VideoInfoData(
                         onDelFollow = onDelFollow
                     )
                 }
-
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(
-                        R.string.video_info_time, videoDetail.publishDate.formatPubTimeString()
-                    ),
-                    maxLines = 1,
-                    color = Color.White
-                )
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row {
-                    Box(modifier = Modifier.focusable(true)) {}
-                    FavoriteButton(
-                        isFavorite = isFavorite,
-                        userFavoriteFolders = userFavoriteFolders,
-                        favoriteFolderIds = favoriteFolderIds,
-                        onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
-                        onUpdateFavoriteFolders = onUpdateFavoriteFolders
-                    )
-                    Box(modifier = Modifier.focusable(true)) {}
-                }
-                Text(
-                    text = "点赞：${videoDetail.stat.like}",
-                    color = Color.White
-                )
-                Text(
-                    text = "投币：${videoDetail.stat.coin}",
-                    color = Color.White
-                )
-                Text(
-                    text = "收藏：${videoDetail.stat.favorite}",
-                    color = Color.White
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.video_info_tags),
-                    color = Color.White
+                FavoriteButton(
+                    isFavorite = isFavorite,
+                    userFavoriteFolders = userFavoriteFolders,
+                    favoriteFolderIds = favoriteFolderIds,
+                    onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
+                    onUpdateFavoriteFolders = onUpdateFavoriteFolders
                 )
                 TvLazyRow(
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(tags) { tag ->
-                        Surface(
-                            modifier = Modifier,
-                            colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                focusedContainerColor = Color.White.copy(alpha = 0.2f),
-                                pressedContainerColor = Color.White.copy(alpha = 0.2f)
-                            ),
-                            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
-                            border = ClickableSurfaceDefaults.border(
-                                focusedBorder = Border(
-                                    border = BorderStroke(width = 3.dp, color = Color.White),
-                                    shape = MaterialTheme.shapes.small
-                                )
-                            ),
-                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                            onClick = { onClickTip(tag) }
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(8.dp, 4.dp),
-                                text = tag.name,
-                                color = Color.White
-                            )
+                        SuggestionChip(onClick = {
+                            onClickTip(tag)
+                        }) {
+                            Text(text = tag.name)
                         }
                     }
                 }
@@ -773,7 +752,8 @@ private fun UpButton(
                 .background(Color.White.copy(alpha = 0.2f))
                 .focusedBorder(MaterialTheme.shapes.small)
                 .padding(4.dp)
-                .clickable { onClickUp() }
+                .clickable { onClickUp() },
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             UpIcon(color = Color.White)
             Text(text = name, color = Color.White)
@@ -794,7 +774,10 @@ private fun UpButton(
                         contentDescription = null,
                         tint = Color.White
                     )
-                    Text(text = stringResource(R.string.video_info_followed), color = Color.White)
+                    Text(
+                        text = stringResource(R.string.video_info_followed),
+                        color = Color.White
+                    )
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Add,
@@ -901,17 +884,11 @@ fun VideoPartButton(
     Surface(
         modifier = modifier,
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = { onClick() }
     ) {
         Box(
@@ -944,17 +921,11 @@ private fun VideoPartRowButton(
     Surface(
         modifier = modifier.height(64.dp),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.medium
-            )
-        ),
         onClick = onClick
     ) {
         Box(
@@ -982,6 +953,7 @@ fun VideoPartRow(
     enablePartListDialog: Boolean = false,
     onClick: (cid: Int) -> Unit
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
     var showPartListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
@@ -1003,7 +975,9 @@ fun VideoPartRow(
         )
 
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .then(focusRestorerModifiers.parentModifier),
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -1016,6 +990,8 @@ fun VideoPartRow(
             }
             itemsIndexed(items = pages, key = { _, page -> page.cid }) { index, page ->
                 VideoPartButton(
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     index = index + 1,
                     title = page.title,
                     played = if (page.cid == lastPlayedCid) lastPlayedTime else 0,
@@ -1045,6 +1021,7 @@ fun VideoUgcSeasonRow(
     enableUgcListDialog: Boolean = false,
     onClick: (avid: Int, cid: Int) -> Unit
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
     var showUgcListDialog by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
@@ -1066,7 +1043,9 @@ fun VideoUgcSeasonRow(
         )
 
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .then(focusRestorerModifiers.parentModifier),
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -1079,6 +1058,8 @@ fun VideoUgcSeasonRow(
             }
             itemsIndexed(items = episodes) { index, episode ->
                 VideoPartButton(
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     index = index + 1,
                     title = episode.title,
                     played = if (episode.cid == lastPlayedCid) lastPlayedTime else 0,

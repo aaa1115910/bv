@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -26,7 +27,6 @@ import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.settings.UpdateDialog
 import dev.aaa1115910.bv.network.AppCenterApi
-import dev.aaa1115910.bv.screen.settings.SettingsMenuButton
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import kotlinx.coroutines.Dispatchers
@@ -86,15 +86,9 @@ fun AboutSetting(
                     )
                 }
             }
-
-            var isUpdateButtonHasFocus by remember { mutableStateOf(false) }
-            SettingsMenuButton(
-                text = stringResource(R.string.settings_version_check_update_button),
-                selected = isUpdateButtonHasFocus,
-                onFocus = { isUpdateButtonHasFocus = true },
-                onLoseFocus = { isUpdateButtonHasFocus = false },
-                onClick = { showUpdateDialog = true }
-            )
+            Button(onClick = { showUpdateDialog = true }) {
+                Text(text = stringResource(R.string.settings_version_check_update_button))
+            }
         }
         Text(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -108,7 +102,7 @@ fun AboutSetting(
     )
 }
 
-@Preview
+@Preview(device = "id:tv_1080p")
 @Composable
 private fun AboutSettingPreview() {
     BVTheme {

@@ -33,39 +33,6 @@ import dev.aaa1115910.bv.component.FpsMonitor
 import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-private val bvColorSchemeTv = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    //secondary = md_theme_dark_secondary,
-    //onSecondary = md_theme_dark_onSecondary,
-    //secondaryContainer = md_theme_dark_secondaryContainer,
-    //onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    background = Color(0xFF121212)
-)
-
-private val bvColorSchemeCommon = androidx.compose.material3.darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    //secondary = md_theme_dark_secondary,
-    //onSecondary = md_theme_dark_onSecondary,
-    //secondaryContainer = md_theme_dark_secondaryContainer,
-    //onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    background = Color(0xFF121212)
-)
-
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -77,7 +44,8 @@ fun BVTheme(
     val fontScale = LocalDensity.current.fontScale
     val view = LocalView.current
 
-    val colorScheme = bvColorSchemeTv
+    val colorSchemeTv = darkColorScheme()
+    val colorSchemeCommon = androidx.compose.material3.darkColorScheme()
     val typographyTv =
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypographyTv else Typography()
     val typographyCommon =
@@ -86,7 +54,7 @@ fun BVTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = colorSchemeTv.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
@@ -99,11 +67,11 @@ fun BVTheme(
     val showFps by remember { mutableStateOf(if (!view.isInEditMode) Prefs.showFps else false) }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colorSchemeTv,
         typography = typographyTv
     ) {
         androidx.compose.material3.MaterialTheme(
-            colorScheme = bvColorSchemeCommon,
+            colorScheme = colorSchemeCommon,
             typography = typographyCommon
         ) {
             CompositionLocalProvider(
