@@ -87,6 +87,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.Tag
@@ -118,6 +119,7 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
+import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -355,8 +357,37 @@ fun VideoInfoScreen(
                         videoInfoRepository.videoList.addAll(partVideoList)
                     }
                 }.onFailure {
-                    tip = it.localizedMessage ?: "未知错误"
+                    val errorMessage = it.localizedMessage
+                    val isVideoNotFound = when (Prefs.apiType) {
+                        ApiType.Web -> errorMessage == "啥都木有"
+                        ApiType.App -> errorMessage == "访问权限不足"
+                    }
+
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
+                    if (!isVideoNotFound || !Prefs.enableProxy) {
+                        tip = it.localizedMessage ?: "未知错误"
+                        return@onFailure
+                    }
+                    videoDetailViewModel.state = VideoInfoState.Loading
+
+                    logger.fInfo { "Trying get video info through proxy server" }
+                    runCatching {
+                        val seasonId = BiliPlusHttpApi.getSeasonIdByAvid(aid)
+                        logger.info { "Get season id from biliplus: $seasonId" }
+                        seasonId?.let {
+                            logger.fInfo { "Redirect to season $seasonId" }
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                seasonId = seasonId,
+                                proxyArea = ProxyArea.HongKong
+                            )
+                            context.finish()
+                        }
+                    }.onFailure { e ->
+                        logger.fWarn { "Redirect failed: ${e.stackTraceToString()}" }
+                        tip = e.localizedMessage ?: "未知错误"
+                        videoDetailViewModel.state = VideoInfoState.Error
+                    }
                 }
             }
         }

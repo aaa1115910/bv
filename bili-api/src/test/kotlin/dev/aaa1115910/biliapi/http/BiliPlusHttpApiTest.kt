@@ -18,6 +18,12 @@ class BiliPlusHttpApiTest {
     }
 
     @Test
+    fun `get not found video view`() = runBlocking {
+        val result = BiliPlusHttpApi.view(1)
+        println(result)
+    }
+
+    @Test
     fun `get season id by avid`() = runBlocking {
         val seasonId = BiliPlusHttpApi.getSeasonIdByAvid(314583081)
         println(seasonId)
