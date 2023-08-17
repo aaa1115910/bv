@@ -89,6 +89,8 @@ object BiliPlusHttpApi {
     ): Int? {
         return runCatching {
             view(aid).getResponseData().bangumi?.seasonId?.toInt()
+        }.onFailure {
+            println("get season id by avid through biliplus failed: ${it.stackTraceToString()}")
         }.getOrDefault(null)
     }
 }

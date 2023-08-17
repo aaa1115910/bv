@@ -382,6 +382,9 @@ fun VideoInfoScreen(
                                 proxyArea = ProxyArea.HongKong
                             )
                             context.finish()
+                        } ?: let {
+                            tip = "视频不存在"
+                            videoDetailViewModel.state = VideoInfoState.Error
                         }
                     }.onFailure { e ->
                         logger.fWarn { "Redirect failed: ${e.stackTraceToString()}" }

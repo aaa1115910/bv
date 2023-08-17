@@ -96,7 +96,7 @@ data class View(
         @SerialName("owner_ext")
         val ownerExt: OwnerExt,
         val pages: List<Page>,
-        val paster: Paster,
+        val paster: Paster? = null,
         val pic: String,
         @SerialName("play_param")
         val playParam: Int,
