@@ -1,6 +1,6 @@
 package dev.aaa1115910.bv.player
 
 data class VideoPlayerOptions(
-    val userAgent: String? = null,
-    val referer: String? = null
+    var userAgent: String? = null,
+    var referer: String? = null
 )
