@@ -10,9 +10,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.login.QrLoginState
+import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.repository.UserRepository
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.timeTask
@@ -29,7 +31,8 @@ import java.util.Timer
 
 class AppQrLoginViewModel(
     private val userRepository: UserRepository,
-    private val loginRepository: LoginRepository
+    private val loginRepository: LoginRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     var state by mutableStateOf(QrLoginState.Ready)
     private val logger = KotlinLogging.logger { }
@@ -107,6 +110,14 @@ class AppQrLoginViewModel(
                         accessToken = qrLoginResult.accessToken!!,
                         refreshToken = qrLoginResult.refreshToken!!
                     )
+
+                    authRepository.apply {
+                        sessionData = qrLoginResult.cookies!!.sessData
+                        biliJct = qrLoginResult.cookies!!.biliJct
+                        accessToken = qrLoginResult.accessToken!!
+                        mid = qrLoginResult.cookies!!.dedeUserId
+                        buvid3 = Prefs.buvid3
+                    }
 
                     timer.cancel()
                 }

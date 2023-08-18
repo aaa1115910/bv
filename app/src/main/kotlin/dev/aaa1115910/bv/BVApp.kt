@@ -108,7 +108,7 @@ val appModule = module {
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
     viewModel { WebQrLoginViewModel(get(), get()) }
-    viewModel { AppQrLoginViewModel(get(), get()) }
+    viewModel { AppQrLoginViewModel(get(), get(), get()) }
     viewModel { SmsLoginViewModel(get(), get()) }
     viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
