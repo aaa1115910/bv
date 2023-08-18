@@ -84,7 +84,7 @@
     <string name="region_block_qr_content">扫码也没有用的！</string>
     <string name="region_block_solution_text">不要在中国大陆地区使用该应用</string>
     <string name="region_block_solution_title">该问题的解决方法就是：</string>
-    <string name="region_block_subtitle">您无法在中国大陆区域使用 Bug Video</string>
+    <string name="region_block_subtitle">Bug Video 无法在中国大陆地区使用，您可以按任意键退出应用</string>
     <string name="region_block_title">不支持的使用地区</string>
 
     <string name="resolution_1080p">1080P 高清</string>
