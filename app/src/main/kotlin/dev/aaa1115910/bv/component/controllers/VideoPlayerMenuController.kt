@@ -36,9 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.DenseListItem
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
@@ -613,39 +612,16 @@ fun MenuListItem(
     onFocus: () -> Unit = {},
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    val buttonBackgroundColor =
-        if (hasFocus) MaterialTheme.colorScheme.primary
-        else if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-        else Color.Transparent
-
-    Surface(
+    DenseListItem(
         modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.hasFocus
-                if (hasFocus) onFocus()
-            },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = buttonBackgroundColor
-        ),
-        shape = ClickableSurfaceDefaults.shape(
-            shape = MaterialTheme.shapes.small
-        ),
-        onClick = onClick
-    ) {
-        Box {
+            .onFocusChanged { if (it.hasFocus) onFocus() },
+        selected = selected,
+        onClick = onClick,
+        headlineContent = {
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = 6.dp,
-                        horizontal = 24.dp
-                    ),
                 text = text,
-                style = MaterialTheme.typography.titleLarge,
                 textAlign = textAlign
             )
         }
-    }
+    )
 }

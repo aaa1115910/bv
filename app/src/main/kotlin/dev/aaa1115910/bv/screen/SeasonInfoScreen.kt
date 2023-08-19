@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.screen
 
 import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +61,6 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -81,6 +79,8 @@ import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
@@ -577,17 +577,11 @@ fun SeasonEpisodeButton(
     Surface(
         modifier = modifier,
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.medium
-            )
-        ),
         onClick = onClick
     ) {
         Row {
@@ -788,6 +782,7 @@ fun SeasonEpisodeRow(
     lastPlayedTime: Int = 0,
     onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
@@ -810,7 +805,9 @@ fun SeasonEpisodeRow(
         )
 
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .then(focusRestorerModifiers.parentModifier),
             contentPadding = PaddingValues(horizontal = 50.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
@@ -818,17 +815,11 @@ fun SeasonEpisodeRow(
                 Surface(
                     modifier = modifier.size(60.dp, 80.dp),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        focusedContainerColor = MaterialTheme.colorScheme.primary,
-                        pressedContainerColor = MaterialTheme.colorScheme.primary
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+                        pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = BorderStroke(width = 3.dp, color = Color.White),
-                            shape = MaterialTheme.shapes.medium
-                        )
-                    ),
                     onClick = { showEpisodesDialog = true }
                 ) {
                     Box(
@@ -848,7 +839,8 @@ fun SeasonEpisodeRow(
             itemsIndexed(items = episodes) { index, episode ->
                 val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
                 SeasonEpisodeButton(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     partTitle = if (title == "正片") {
                         //如果 title 是数字的话，就会返回 "第 x 集"
                         //如果 title 不是数字的话（例如 SP），就会原样使用 title

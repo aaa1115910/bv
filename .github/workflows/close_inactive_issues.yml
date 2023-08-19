@@ -5,7 +5,9 @@ on:
 
 jobs:
   close-issues:
+    name: Close inactive issues
     runs-on: ubuntu-latest
+    if: github.repository == 'aaa1115910/bv'
     permissions:
       issues: write
     steps:
