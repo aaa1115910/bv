@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.http.ProxyHttpApi
 import dev.aaa1115910.bv.R
@@ -141,6 +142,7 @@ fun ProxyServerEditDialog(
                         value = proxyServerString,
                         onValueChange = { proxyServerString = it },
                         singleLine = true,
+                        maxLines = 1,
                         shape = MaterialTheme.shapes.medium,
                         placeholder = { Text(text = stringResource(R.string.proxy_server_edit_dialog_input_field_label)) }
                     )
@@ -158,14 +160,14 @@ fun ProxyServerEditDialog(
             onDismissRequest = onHideDialog,
             confirmButton = {
                 Button(onClick = {
-                    onProxyServerChange(proxyServerString)
+                    onProxyServerChange(proxyServerString.replace("\n", ""))
                     onHideDialog()
                 }) {
                     Text(text = stringResource(id = R.string.common_confirm))
                 }
             },
             dismissButton = {
-                Button(onClick = onHideDialog) {
+                OutlinedButton(onClick = onHideDialog) {
                     Text(text = stringResource(id = R.string.common_cancel))
                 }
             }
