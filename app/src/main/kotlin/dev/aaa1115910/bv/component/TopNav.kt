@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
 @Composable
@@ -83,6 +85,11 @@ fun TopNav(
             TopNavItem.Anime,
             TopNavItem.Dynamics
         )
+
+    LaunchedEffect(selectedNav) {
+        delay(250)
+        onSelectedChange(selectedNav)
+    }
 
     Box(
         modifier = modifier
@@ -116,10 +123,7 @@ fun TopNav(
                                 topNavItem = tab,
                                 selected = index == selectedTabIndex,
                                 onFocus = {
-                                    if (tab != TopNavItem.Search) {
-                                        onSelectedChange(tab)
-                                        selectedNav = tab
-                                    }
+                                    if (tab != TopNavItem.Search) selectedNav = tab
                                     selectedTabIndex = index
                                 },
                                 onClick = { onClick(tab) }
