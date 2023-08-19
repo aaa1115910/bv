@@ -1,11 +1,14 @@
 package dev.aaa1115910.bv.viewmodel.user
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.AuthFailureException
+import dev.aaa1115910.biliapi.http.entity.AuthFailureException
+import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
@@ -22,45 +25,42 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 class HistoryViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
 
     var histories = mutableStateListOf<VideoCardData>()
+    var noMore by mutableStateOf(false)
 
-    private var max = 0L
-    private var viewAt = 0L
-
+    private var cursor = 0L
     private var updating = false
 
     fun update() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             updateHistories()
         }
     }
 
     private suspend fun updateHistories(context: Context = BVApp.context) {
-        if (updating) return
-        logger.fInfo { "Updating histories with params [max=$max, viewAt=$viewAt]" }
+        if (updating || noMore) return
+        logger.fInfo { "Updating histories with params [cursor=$cursor, apiType=${Prefs.apiType}]" }
         updating = true
         runCatching {
-            val responseData = BiliApi.getHistories(
-                max = max,
-                viewAt = viewAt,
-                pageSize = 30,
-                sessData = Prefs.sessData
-            ).getResponseData()
-            responseData.list.forEach { historyItem ->
-                val supportedBusinessList = listOf("archive", "pgc")
-                if (!supportedBusinessList.contains(historyItem.history.business)) return@forEach
+            val data = historyRepository.getHistories(
+                cursor = cursor,
+                preferApiType = Prefs.apiType
+            )
+
+            data.data.forEach { historyItem ->
                 histories.add(
                     VideoCardData(
-                        avid = historyItem.history.oid,
+                        avid = historyItem.oid,
                         title = historyItem.title,
                         cover = historyItem.cover,
-                        upName = historyItem.authorName,
+                        upName = historyItem.author,
                         timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
                         else context.getString(
                             R.string.play_time_history,
@@ -71,10 +71,13 @@ class HistoryViewModel(
                 )
             }
             //update cursor
-            max = responseData.cursor.max
-            viewAt = responseData.cursor.viewAt
-            logger.fInfo { "Update history cursor: [max=$max, viewAt=$viewAt]" }
+            cursor = data.cursor
+            logger.fInfo { "Update history cursor: [cursor=$cursor]" }
             logger.fInfo { "Update histories success" }
+            if (cursor == 0L) {
+                noMore = true
+                logger.fInfo { "No more history" }
+            }
         }.onFailure {
             logger.fWarn { "Update histories failed: ${it.stackTraceToString()}" }
             when (it) {

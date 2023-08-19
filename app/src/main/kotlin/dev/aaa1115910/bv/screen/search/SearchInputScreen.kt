@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,17 +25,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.items
+import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchResultActivity
-import dev.aaa1115910.bv.component.TvOutlinedTextFiled
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.component.search.SearchKeyword
 import dev.aaa1115910.bv.component.search.SoftKeyboard
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchInputScreen(
     modifier: Modifier = Modifier,
@@ -41,6 +46,9 @@ fun SearchInputScreen(
 ) {
     val context = LocalContext.current
     val softKeyboardFirstButtonFocusRequester = remember { FocusRequester() }
+    val hotsFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+    val historyFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+    val suggestFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     val searchKeyword = searchInputViewModel.keyword
     val hotwords = searchInputViewModel.hotwords
@@ -55,6 +63,12 @@ fun SearchInputScreen(
 
     LaunchedEffect(searchKeyword) {
         searchInputViewModel.updateSuggests()
+    }
+
+    LaunchedEffect(Unit) {
+        runCatching {
+            softKeyboardFirstButtonFocusRequester.requestFocus()
+        }
     }
 
     Scaffold(
@@ -92,14 +106,18 @@ fun SearchInputScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    TvOutlinedTextFiled(
+                    OutlinedTextField(
                         modifier = Modifier.width(258.dp),
                         value = searchKeyword,
                         onValueChange = { searchInputViewModel.keyword = it },
-                        onPressEnter = { onSearch(searchKeyword) },
-                        onMoveFocusToDown = { softKeyboardFirstButtonFocusRequester.requestFocus() },
+                        maxLines = 1,
+                        shape = MaterialTheme.shapes.large,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) })
+                        keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) }),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                            cursorColor = MaterialTheme.colorScheme.inverseSurface
+                        )
                     )
                     SoftKeyboard(
                         firstButtonFocusRequester = softKeyboardFirstButtonFocusRequester,
@@ -130,11 +148,16 @@ fun SearchInputScreen(
                         text = stringResource(R.string.search_input_hotword),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn {
-                        items(hotwords) { hotword ->
+                    TvLazyColumn(
+                        modifier = Modifier
+                            .then(hotsFocusRestorerModifiers.parentModifier)
+                    ) {
+                        itemsIndexed(hotwords) { index, hotword ->
                             SearchKeyword(
+                                modifier = Modifier
+                                    .ifElse(index == 0, hotsFocusRestorerModifiers.childModifier),
                                 keyword = hotword.showName,
-                                icon = hotword.icon,
+                                icon = hotword.icon ?: "",
                                 onClick = { onSearch(hotword.showName) }
                             )
                         }
@@ -151,12 +174,20 @@ fun SearchInputScreen(
                         text = stringResource(R.string.search_input_suggest),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn {
-                        items(suggests) { suggest ->
+                    TvLazyColumn(
+                        modifier = Modifier
+                            .then(suggestFocusRestorerModifiers.parentModifier)
+                    ) {
+                        itemsIndexed(suggests) { index, suggest ->
                             SearchKeyword(
-                                keyword = suggest.value,
+                                modifier = Modifier
+                                    .ifElse(
+                                        index == 0,
+                                        suggestFocusRestorerModifiers.childModifier
+                                    ),
+                                keyword = suggest,
                                 icon = "",
-                                onClick = { onSearch(suggest.value) }
+                                onClick = { onSearch(suggest) }
                             )
                         }
                     }
@@ -173,9 +204,14 @@ fun SearchInputScreen(
                     text = stringResource(R.string.search_input_history),
                     style = MaterialTheme.typography.titleLarge
                 )
-                TvLazyColumn {
-                    items(searchHistories) { searchHistory ->
+                TvLazyColumn(
+                    modifier = Modifier
+                        .then(historyFocusRestorerModifiers.parentModifier)
+                ) {
+                    itemsIndexed(searchHistories) { index, searchHistory ->
                         SearchKeyword(
+                            modifier = Modifier
+                                .ifElse(index == 0, historyFocusRestorerModifiers.childModifier),
                             keyword = searchHistory.keyword,
                             icon = "",
                             onClick = { onSearch(searchHistory.keyword) }

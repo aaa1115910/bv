@@ -51,6 +51,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.requestFocus
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UISetting(
     modifier: Modifier = Modifier

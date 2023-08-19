@@ -16,11 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BottomSubtitle(
     modifier: Modifier = Modifier
@@ -32,8 +34,10 @@ fun BottomSubtitle(
     var currentText by remember { mutableStateOf("") }
 
     val updateCurrentText: () -> Unit = {
-        currentText = subtitleData.find { it.isShowing(time) }?.content
-            ?: if (BuildConfig.DEBUG) "【DEBUG】无内容" else ""
+        runCatching {
+            currentText = subtitleData.find { it.isShowing(time) }?.content
+                ?: if (BuildConfig.DEBUG) "【DEBUG】无内容" else ""
+        }
     }
 
     LaunchedEffect(time) {

@@ -15,16 +15,23 @@ import androidx.lifecycle.viewModelScope
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.video.Dash
-import dev.aaa1115910.biliapi.entity.video.PlayUrlData
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
+import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
+import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
+import dev.aaa1115910.biliapi.entity.video.SubtitleType
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
+import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
@@ -43,7 +50,8 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 class VideoPlayerV3ViewModel(
-    private val videoInfoRepository: VideoInfoRepository
+    private val videoInfoRepository: VideoInfoRepository,
+    private val videoPlayRepository: VideoPlayRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger { }
 
@@ -54,13 +62,12 @@ class VideoPlayerV3ViewModel(
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")
 
-    private var playUrlResponse: PlayUrlData? by mutableStateOf(null)
+    private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
-    var dashData: Dash? = null
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
-    var availableSubtitle = mutableStateListOf<VideoMoreInfo.SubtitleItem>()
+    var availableSubtitle = mutableStateListOf<Subtitle>()
     var availableAudio = mutableStateListOf<Audio>()
     val availableVideoList get() = videoInfoRepository.videoList
 
@@ -91,6 +98,7 @@ class VideoPlayerV3ViewModel(
     var epid by mutableIntStateOf(0)
     var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
+    var proxyArea by mutableStateOf(ProxyArea.MainLand)
 
     var needPay by mutableStateOf(false)
 
@@ -100,6 +108,7 @@ class VideoPlayerV3ViewModel(
 
     private var currentAid = 0
     var currentCid = 0
+    private var currentEpid = 0
 
     private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
@@ -113,10 +122,12 @@ class VideoPlayerV3ViewModel(
         avid: Int,
         cid: Int,
         epid: Int? = null,
-        seasonId: Int? = null
+        seasonId: Int? = null,
+        continuePlayNext: Boolean = false
     ) {
         currentAid = avid
         currentCid = cid
+        currentEpid = epid ?: 0
         epid?.let { this.epid = it }
         seasonId?.let { this.seasonId = it }
         addLogs("加载视频中")
@@ -129,58 +140,73 @@ class VideoPlayerV3ViewModel(
             } else {
                 addLogs("av$avid，cid:$cid")
             }
+
+            val lastPlayEnabledSubtitle = currentSubtitleId != -1L
+            if (lastPlayEnabledSubtitle) {
+                logger.info { "Subtitle is enabled, next video will enable subtitle automatic" }
+            }
+
             updateSubtitle()
-            loadPlayUrl(avid, cid, 4048)
+            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType, proxyArea = proxyArea)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
+
+            //如果是继续播放下一集，且之前开启了字幕，就会自动加载第一条字幕，主要用于观看番剧时自动加载字幕
+            if (continuePlayNext) {
+                if (lastPlayEnabledSubtitle) enableFirstSubtitle()
+            }
         }
     }
 
     private suspend fun loadPlayUrl(
         avid: Int,
         cid: Int,
-        fnval: Int = 4048,
-        qn: Int = 80,
-        fnver: Int = 0,
-        fourk: Int = 0
+        epid: Int = 0,
+        preferApi: ApiType = Prefs.apiType,
+        proxyArea: ProxyArea = ProxyArea.MainLand
     ) {
-        logger.fInfo { "Load play url: [av=$avid, cid=$cid, fnval=$fnval, qn=$qn, fnver=$fnver, fourk=$fourk]" }
+        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi, proxyArea=$proxyArea]" }
         loadState = RequestState.Ready
         logger.fInfo { "Set request state: ready" }
         runCatching {
-            val responseData = (
-                    if (!fromSeason) BiliApi.getVideoPlayUrl(
-                        av = avid,
-                        cid = cid,
-                        fnval = fnval,
-                        qn = qn,
-                        fnver = fnver,
-                        fourk = fourk,
-                        sessData = Prefs.sessData
-                    ) else BiliApi.getPgcVideoPlayUrl(
-                        av = avid,
-                        cid = cid,
-                        fnval = fnval,
-                        qn = qn,
-                        fnver = fnver,
-                        fourk = fourk,
-                        sessData = Prefs.sessData
-                    )).getResponseData()
+            val playData = if (fromSeason) {
+                videoPlayRepository.getPgcPlayData(
+                    aid = avid,
+                    cid = cid,
+                    epid = epid,
+                    preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
+                    preferApiType = Prefs.apiType,
+                    enableProxy = proxyArea != ProxyArea.MainLand,
+                    proxyArea = when (proxyArea) {
+                        ProxyArea.MainLand -> ""
+                        ProxyArea.HongKong -> "hk"
+                        ProxyArea.TaiWan -> "tw"
+                    }
+                )
+            } else {
+                videoPlayRepository.getPlayData(
+                    aid = avid,
+                    cid = cid,
+                    preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
+                    preferApiType = Prefs.apiType
+                )
+            }
 
             //检查是否需要购买，如果未购买，则正片返回的dash为null，非正片例如可以免费观看的预告片等则会返回数据，此时不做提示
-            needPay = !responseData.hasPaid && fromSeason && responseData.dash == null
+            needPay = playData.needPay
             if (needPay) return@runCatching
 
-            playUrlResponse = responseData
-            logger.fInfo { "Load play url response success" }
-            //logger.info { "Play url response: $responseData" }
+            this.playData = playData
+            logger.fInfo { "Load play data response success" }
+            //logger.info { "Play data: $playData" }
 
             //读取清晰度
             val resolutionMap = mutableMapOf<Int, String>()
-            responseData.dash?.video?.forEach {
-                if (!resolutionMap.containsKey(it.id)) {
-                    val index = responseData.acceptQuality.indexOf(it.id)
-                    resolutionMap[it.id] = responseData.acceptDescription[index]
+            playData.dashVideos.forEach {
+                if (!resolutionMap.containsKey(it.quality)) {
+                    val name = Resolution.fromCode(it.quality)?.getShortDisplayName(BVApp.context)
+                        ?: "Unknown"
+                    resolutionMap[it.quality] = name
                 }
             }
 
@@ -189,19 +215,19 @@ class VideoPlayerV3ViewModel(
 
             //读取音频
             val audioList = mutableListOf<Audio>()
-            responseData.dash?.audio?.forEach {
-                Audio.fromCode(it.id)?.let { audio ->
+            playData.dashAudios.forEach {
+                Audio.fromCode(it.codecId)?.let { audio ->
                     if (!audioList.contains(audio)) audioList.add(audio)
                 }
             }
-            responseData.dash?.dolby?.audio?.forEach {
-                Audio.fromCode(it.id)?.let { audio ->
-                    if (!audioList.contains(audio)) audioList.add(audio)
+            playData.dolby?.let {
+                Audio.fromCode(it.codecId)?.let { audio ->
+                    audioList.add(audio)
                 }
             }
-            responseData.dash?.flac?.audio?.let {
-                Audio.fromCode(it.id)?.let { audio ->
-                    if (!audioList.contains(audio)) audioList.add(audio)
+            playData.flac?.let {
+                Audio.fromCode(it.codecId)?.let { audio ->
+                    audioList.add(audio)
                 }
             }
 
@@ -236,13 +262,11 @@ class VideoPlayerV3ViewModel(
             //再确认最终所选视频编码
             updateAvailableCodec()
 
-            dashData = responseData.dash!!
-
             playQuality(qn = currentQuality, codec = currentVideoCodec)
 
         }.onFailure {
             addLogs("加载视频地址失败：${it.localizedMessage}")
-            errorMessage = it.stackTraceToString()
+            errorMessage = it.localizedMessage ?: "Unknown error"
             loadState = RequestState.Failed
             logger.fException(it) { "Load video failed" }
         }.onSuccess {
@@ -253,10 +277,11 @@ class VideoPlayerV3ViewModel(
     }
 
     fun updateAvailableCodec() {
-        val currentResolutionInfo =
-            playUrlResponse!!.supportFormats.find { it.quality == currentQuality }
-        val codecList = currentResolutionInfo!!.codecs!!
-            .mapNotNull { VideoCodec.fromCodecString(it) }
+        if (Prefs.apiType == ApiType.App) return
+        val supportedCodec = playData!!.codec
+        val codecList =
+            supportedCodec[currentQuality]!!.mapNotNull { VideoCodec.fromCodecString(it) }
+
         availableVideoCodec.swapList(codecList)
         logger.fInfo { "Video available codec: ${availableVideoCodec.toList()}" }
 
@@ -277,22 +302,29 @@ class VideoPlayerV3ViewModel(
         logger.fInfo { "Select resolution: $qn, codec: $codec, audio: $audio" }
         addLogs("播放清晰度：${availableQuality[qn]}, 视频编码：${codec.getDisplayName(BVApp.context)}")
 
-        val videoItem = dashData!!.video.find { it.id == qn && it.codecs.startsWith(codec.prefix) }
-        val videoUrl = videoItem?.baseUrl ?: dashData!!.video[0].baseUrl
+        val videoItem = playData!!.dashVideos.find {
+            when (Prefs.apiType) {
+                ApiType.Web -> it.quality == qn && it.codecs!!.startsWith(codec.prefix)
+                ApiType.App -> it.quality == qn
+            }
+        }
+        val videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
 
-        val audioItem = dashData?.audio?.find { it.id == audio.code }
-            ?: dashData?.dolby?.audio?.find { it.id == audio.code }
-            ?: dashData?.flac?.audio?.let { if (it.id == audio.code) dashData?.flac?.audio else null }
-            ?: dashData?.audio?.minByOrNull { it.codecs }
-        val audioUrl = audioItem?.baseUrl ?: dashData?.audio?.first()?.baseUrl
+        val audioItem = playData!!.dashAudios.find { it.codecId == audio.code }
+            ?: playData!!.dolby.takeIf { it?.codecId == audio.code }
+            ?: playData!!.flac.takeIf { it?.codecId == audio.code }
+            ?: playData!!.dashAudios.minByOrNull { it.codecId }
+        val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
 
         logger.fInfo { "Select audio: $audioItem" }
-        addLogs("音频编码：${(Audio.fromCode(audioItem?.id ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
+        addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
         currentVideoHeight = videoItem?.height ?: 0
         currentVideoWidth = videoItem?.width ?: 0
 
         withContext(Dispatchers.Main) {
+            logger.info { "Video url: $videoUrl" }
+            logger.info { "Audio url: $audioUrl" }
             videoPlayer!!.playUrl(videoUrl, audioUrl)
             videoPlayer!!.prepare()
             showBuffering = true
@@ -301,7 +333,7 @@ class VideoPlayerV3ViewModel(
 
     suspend fun loadDanmaku(cid: Int) {
         runCatching {
-            val danmakuXmlData = BiliApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+            val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 
             danmakuData.clear()
             danmakuData.addAll(danmakuXmlData.data.map {
@@ -332,31 +364,46 @@ class VideoPlayerV3ViewModel(
         currentSubtitleId = -1
         currentSubtitleData.clear()
 
-        val responseData = runCatching {
-            BiliApi.getVideoMoreInfo(
-                avid = currentAid,
+        runCatching {
+            val subtitleData = videoPlayRepository.getSubtitle(
+                aid = currentAid,
                 cid = currentCid,
-                sessData = Prefs.sessData
-            ).getResponseData()
-        }.getOrNull() ?: return
-        availableSubtitle.clear()
-        availableSubtitle.add(
-            VideoMoreInfo.SubtitleItem(
-                id = -1,
-                lanDoc = "关闭",
-                lan = "",
-                isLock = false,
-                subtitleUrl = "",
-                type = 0,
-                idStr = "",
-                aiType = 0,
-                aiStatus = 0
+                preferApiType = Prefs.apiType
             )
-        )
-        availableSubtitle.addAll(responseData.subtitle.subtitles)
-        availableSubtitle.sortBy { it.id }
-        addLogs("获取到 ${responseData.subtitle.subtitles.size} 条字幕: ${responseData.subtitle.subtitles.map { it.lanDoc }}")
-        logger.fInfo { "Update subtitle size: ${responseData.subtitle.subtitles.size}" }
+            availableSubtitle.clear()
+            availableSubtitle.add(
+                Subtitle(
+                    id = -1,
+                    lang = "",
+                    langDoc = "关闭",
+                    url = "",
+                    type = SubtitleType.CC,
+                    aiType = SubtitleAiType.Normal,
+                    aiStatus = SubtitleAiStatus.None
+                )
+            )
+            availableSubtitle.addAll(subtitleData)
+            availableSubtitle.sortBy { it.id }
+            addLogs("获取到 ${subtitleData.size} 条字幕: ${subtitleData.map { it.langDoc }}")
+            logger.fInfo { "Update subtitle size: ${subtitleData.size}" }
+        }.onFailure {
+            addLogs("获取字幕失败：${it.localizedMessage}")
+            logger.fWarn { "Update subtitle failed: ${it.stackTraceToString()}" }
+        }
+    }
+
+    private fun enableFirstSubtitle() {
+        runCatching {
+            logger.info { "Load first subtitle" }
+            logger.info { "availableSubtitle: ${availableSubtitle.toList()}" }
+            loadSubtitle(
+                availableSubtitle
+                    .firstOrNull { it.id != -1L }?.id
+                    ?: throw IllegalStateException("No available subtitle")
+            )
+        }.onFailure {
+            logger.error { "Load first subtitle failed: ${it.stackTraceToString()}" }
+        }
     }
 
     private fun addLogs(text: String) {
@@ -378,25 +425,23 @@ class VideoPlayerV3ViewModel(
         runCatching {
             if (!fromSeason) {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
-                BiliApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                videoPlayRepository.sendHeartbeat(
+                    aid = currentAid,
                     cid = currentCid,
-                    playedTime = time,
-                    csrf = Prefs.biliJct,
-                    sessData = Prefs.sessData
+                    time = time,
+                    preferApiType = Prefs.apiType
                 )
             } else {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
-                BiliApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                videoPlayRepository.sendHeartbeat(
+                    aid = currentAid,
                     cid = currentCid,
-                    playedTime = time,
-                    type = 4,
+                    time = time,
+                    type = HeartbeatVideoType.Season,
                     subType = subType,
                     epid = epid,
-                    sid = seasonId,
-                    csrf = Prefs.biliJct,
-                    sessData = Prefs.sessData
+                    seasonId = seasonId,
+                    preferApiType = Prefs.apiType
                 )
             }
         }.onSuccess {
@@ -407,7 +452,7 @@ class VideoPlayerV3ViewModel(
     }
 
     fun loadSubtitle(id: Long) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             if (id == 0L) {
                 currentSubtitleData.clear()
                 currentSubtitleId = -1
@@ -416,10 +461,10 @@ class VideoPlayerV3ViewModel(
             var subtitleName = ""
             runCatching {
                 val subtitle = availableSubtitle.find { it.id == id } ?: return@runCatching
-                subtitleName = subtitle.lanDoc
-                logger.info { "Subtitle url: ${subtitle.subtitleUrl}" }
+                subtitleName = subtitle.langDoc
+                logger.info { "Subtitle url: ${subtitle.url}" }
                 val client = HttpClient(OkHttp)
-                val responseText = client.get(subtitle.subtitleUrl).bodyAsText()
+                val responseText = client.get(subtitle.url).bodyAsText()
                 val subtitleData = SubtitleParser.fromBccString(responseText)
                 currentSubtitleId = id
                 currentSubtitleData.swapList(subtitleData)

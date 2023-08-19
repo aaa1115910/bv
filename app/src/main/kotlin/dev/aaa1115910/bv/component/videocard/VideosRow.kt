@@ -20,11 +20,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
+import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideosRow(
     modifier: Modifier = Modifier,
@@ -33,10 +39,14 @@ fun VideosRow(
     videos: List<VideoCardData>,
     showMore: () -> Unit
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     val context = LocalContext.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
 
     Column(
         modifier = modifier
@@ -49,17 +59,29 @@ fun VideosRow(
             color = titleColor
         )
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .then(focusRestorerModifiers.parentModifier),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
             contentPadding = PaddingValues(end = 50.dp, start = 12.dp)
         ) {
-            items(items = videos) { videoData ->
+            itemsIndexed(items = videos) { index, videoData ->
                 SmallVideoCard(
-                    modifier = Modifier.width(200.dp),
+                    modifier = Modifier
+                        .width(200.dp)
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     data = videoData,
                     onClick = {
-                        VideoInfoActivity.actionStart(context, videoData.avid)
+                        if (videoData.jumpToSeason) {
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                epId = videoData.epId!!,
+                                proxyArea = ProxyArea.checkProxyArea(videoData.title)
+                            )
+                        } else {
+                            VideoInfoActivity.actionStart(context, videoData.avid)
+                        }
                     }
                 )
             }

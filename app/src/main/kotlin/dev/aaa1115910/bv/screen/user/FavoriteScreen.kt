@@ -29,6 +29,7 @@ import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
@@ -36,7 +37,7 @@ import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun FavoriteScreen(
     modifier: Modifier = Modifier,
@@ -45,7 +46,10 @@ fun FavoriteScreen(
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     Scaffold(
         modifier = modifier,
@@ -59,7 +63,7 @@ fun FavoriteScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolder?.title}",
+                        text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolderMetadata?.title}",
                         fontSize = titleFontSize.sp
                     )
                     Text(
@@ -90,16 +94,16 @@ fun FavoriteScreen(
                         Alignment.CenterHorizontally
                     )
                 ) {
-                    items(items = favoriteViewModel.favoriteFolders) { folder ->
+                    items(items = favoriteViewModel.favoriteFolderMetadataList) { folderMetadata ->
                         FilterChip(
-                            selected = favoriteViewModel.currentFavoriteFolder == folder,
+                            selected = favoriteViewModel.currentFavoriteFolderMetadata == folderMetadata,
                             onClick = {
-                                favoriteViewModel.currentFavoriteFolder = folder
+                                favoriteViewModel.currentFavoriteFolderMetadata = folderMetadata
                                 favoriteViewModel.favorites.clear()
                                 favoriteViewModel.resetPageNumber()
                                 favoriteViewModel.updateFolderItems()
                             },
-                            label = { Text(text = folder.title) }
+                            label = { Text(text = folderMetadata.title) }
                         )
                     }
                 }

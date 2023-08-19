@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import java.io.File
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun StorageSetting(
     modifier: Modifier = Modifier
@@ -47,8 +48,8 @@ fun StorageSetting(
     var loading by remember { mutableStateOf(false) }
     var imageCacheSize by remember { mutableLongStateOf(0L) }
     var updateCacheSize by remember { mutableLongStateOf(0L) }
-    var libVLCCacheSize by remember { mutableLongStateOf(0L) }
-    var libVLCFileSize by remember { mutableLongStateOf(0L) }
+    //var libVLCCacheSize by remember { mutableLongStateOf(0L) }
+    //var libVLCFileSize by remember { mutableLongStateOf(0L) }
 
     var showConfirmDialog by remember { mutableStateOf(false) }
     var clearFun: (() -> Unit)? by remember { mutableStateOf(null) }
@@ -58,13 +59,13 @@ fun StorageSetting(
     val calSize = {
         val imageCacheDir = File(context.cacheDir, "image_cache")
         val updateCacheDir = File(context.cacheDir, "update_downloader")
-        val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
-        val libVLCFileDir = File(context.filesDir, "vlc_libs")
+        //val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
+        //val libVLCFileDir = File(context.filesDir, "vlc_libs")
 
         imageCacheSize = getFolderSize(imageCacheDir)
         updateCacheSize = getFolderSize(updateCacheDir)
-        libVLCCacheSize = getFolderSize(libVLCCacheDir)
-        libVLCFileSize = getFolderSize(libVLCFileDir)
+        //libVLCCacheSize = getFolderSize(libVLCCacheDir)
+        //libVLCFileSize = getFolderSize(libVLCFileDir)
     }
 
     val clearImageCaches: () -> Unit = {
@@ -76,16 +77,16 @@ fun StorageSetting(
     val clearOthersCaches: () -> Unit = {
         logger.fInfo { "clearOthersCaches" }
         val updateCacheDir = File(context.cacheDir, "update_downloader")
-        val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
+        //val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
         updateCacheDir.deleteRecursively()
-        libVLCCacheDir.deleteRecursively()
+        //libVLCCacheDir.deleteRecursively()
     }
 
-    val clearLibVLCFiles: () -> Unit = {
-        logger.fInfo { "clearLibVLCFiles" }
-        val libVLCFileDir = File(context.filesDir, "vlc_libs")
-        libVLCFileDir.deleteRecursively()
-    }
+    //val clearLibVLCFiles: () -> Unit = {
+    //    logger.fInfo { "clearLibVLCFiles" }
+    //    val libVLCFileDir = File(context.filesDir, "vlc_libs")
+    //    libVLCFileDir.deleteRecursively()
+    //}
 
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
@@ -128,28 +129,29 @@ fun StorageSetting(
                     SettingListItem(
                         title = stringResource(R.string.settings_storage_others_cache),
                         supportText = if (loading) stringResource(R.string.settings_storage_calculating)
-                        else "${updateCacheSize + libVLCCacheSize / 1024 / 1024} MB",
+                        //else "${updateCacheSize + libVLCCacheSize / 1024 / 1024} MB",
+                        else "${updateCacheSize / 1024 / 1024} MB",
                         onClick = {
                             clearFun = clearOthersCaches
                             content = context.getString(R.string.settings_storage_others_cache)
-                            size = updateCacheSize + libVLCCacheSize
+                            size = updateCacheSize// + libVLCCacheSize
                             showConfirmDialog = true
                         }
                     )
                 }
-                item {
-                    SettingListItem(
-                        title = stringResource(R.string.settings_storage_libvlc_files),
-                        supportText = if (loading) stringResource(R.string.settings_storage_calculating)
-                        else "${libVLCFileSize / 1024 / 1024} MB",
-                        onClick = {
-                            clearFun = clearLibVLCFiles
-                            content = context.getString(R.string.settings_storage_libvlc_files)
-                            size = libVLCFileSize
-                            showConfirmDialog = true
-                        }
-                    )
-                }
+                //item {
+                //    SettingListItem(
+                //        title = stringResource(R.string.settings_storage_libvlc_files),
+                //        supportText = if (loading) stringResource(R.string.settings_storage_calculating)
+                //        else "${libVLCFileSize / 1024 / 1024} MB",
+                //        onClick = {
+                //            clearFun = clearLibVLCFiles
+                //            content = context.getString(R.string.settings_storage_libvlc_files)
+                //            size = libVLCFileSize
+                //            showConfirmDialog = true
+                //        }
+                //    )
+                //}
             }
         }
     }

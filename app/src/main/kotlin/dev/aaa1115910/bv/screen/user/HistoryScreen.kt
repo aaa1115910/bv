@@ -25,13 +25,16 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
@@ -40,7 +43,10 @@ fun HistoryScreen(
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     LaunchedEffect(Unit) {
         historyViewModel.update()
@@ -61,13 +67,23 @@ fun HistoryScreen(
                         text = stringResource(R.string.user_homepage_recent),
                         fontSize = titleFontSize.sp
                     )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            historyViewModel.histories.size
-                        ),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    if (historyViewModel.noMore) {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count_no_more,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                historyViewModel.histories.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }
@@ -85,7 +101,13 @@ fun HistoryScreen(
                 ) {
                     SmallVideoCard(
                         data = history,
-                        onClick = { VideoInfoActivity.actionStart(context, history.avid) },
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = history.avid,
+                                proxyArea = ProxyArea.checkProxyArea(history.title)
+                            )
+                        },
                         onFocus = {
                             currentIndex = index
                             //预加载

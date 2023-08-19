@@ -9,9 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,17 +23,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.DenseListItem
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.ListItemDefaults
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import androidx.tv.material3.ToggleableSurfaceDefaults
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -51,7 +48,7 @@ fun MenuListItem(
     onClick: () -> Unit
 ) {
     val itemWidth by animateDpAsState(
-        targetValue = if (expanded) 200.dp else 44.dp,
+        targetValue = if (expanded) 200.dp else 66.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessLow
@@ -59,79 +56,65 @@ fun MenuListItem(
         label = "MenuListItem width [$text]"
     )
 
-    Surface(
+    DenseListItem(
         modifier = modifier
-            .height(44.dp)
             .width(itemWidth)
             .onFocusChanged { if (it.hasFocus) onFocus() },
-        checked = selected,
-        onCheckedChange = { onClick() },
-        colors = ToggleableSurfaceDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-            focusedSelectedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedSelectedContainerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
-            pressedContentColor = MaterialTheme.colorScheme.onPrimary,
-            selectedContentColor = MaterialTheme.colorScheme.onPrimary,
-            focusedSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
-            pressedSelectedContentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = ToggleableSurfaceDefaults.shape(MaterialTheme.shapes.small)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(
-                    vertical = 6.dp,
-                    horizontal = if (expanded) 24.dp else 6.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AnimatedVisibility(
-                visible = expanded,
-                label = "MenuListItem text [$text]",
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                //if(expanded){
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = text,
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = textAlign,
-                    maxLines = 1
-                )
-            }
-
-        }
-        Row(
-            modifier = Modifier
-                .padding(6.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            AnimatedVisibility(
-                visible = !expanded,
-                label = "MenuListItem icon [$text]",
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                if (icon == null) {
-                    Box(modifier = Modifier.size(32.dp))
-                } else {
-                    Icon(
-                        modifier = Modifier.size(32.dp),
-                        imageVector = icon,
-                        contentDescription = null
-                    )
+        selected = selected,
+        onClick = onClick,
+        headlineContent = {
+            Box {
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 0.dp,
+                            horizontal = if (expanded) 24.dp else 6.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AnimatedVisibility(
+                        visible = expanded,
+                        label = "MenuListItem text [$text]",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = text,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = textAlign,
+                            maxLines = 1
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    AnimatedVisibility(
+                        visible = !expanded,
+                        label = "MenuListItem icon [$text]",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        if (icon == null) {
+                            Box(modifier = Modifier.size(32.dp))
+                        } else {
+                            Icon(
+                                modifier = Modifier.size(32.dp),
+                                imageVector = icon,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 }
             }
-        }
-    }
+        },
+        colors = ListItemDefaults.colors(
+            selectedContainerColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
+        )
+    )
 }
 
 @Preview

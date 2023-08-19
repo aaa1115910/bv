@@ -19,10 +19,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import androidx.webkit.WebViewClientCompat
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.Prefs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -100,9 +101,11 @@ fun SpeedTestScreen(
         )
 
         if (loading) {
-            SurfaceWithoutClickable(
+            Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color.Black.copy(alpha = 0.9f)
+                colors = NonInteractiveSurfaceDefaults.colors(
+                    containerColor = Color.Black.copy(alpha = 0.9f)
+                )
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

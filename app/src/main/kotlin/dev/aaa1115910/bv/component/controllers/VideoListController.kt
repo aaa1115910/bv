@@ -22,7 +22,8 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.requestFocus
 
@@ -45,9 +46,11 @@ fun VideoListController(
         focusRequester.requestFocus(scope)
     }
 
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(alpha = 0.5f)
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(alpha = 0.5f)
+        )
     ) {
         Box(
             modifier = Modifier

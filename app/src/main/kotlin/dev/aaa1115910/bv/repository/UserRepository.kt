@@ -4,11 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.bv.util.Prefs
 import mu.KotlinLogging
 import java.util.Date
 
-class UserRepository {
+class UserRepository(
+    private val authRepository: AuthRepository
+) {
     companion object {
         private val logger = KotlinLogging.logger { }
     }
@@ -21,6 +24,9 @@ class UserRepository {
     var biliJct by mutableStateOf(Prefs.biliJct)
     var expiredDate by mutableStateOf(Prefs.tokenExpiredData)
 
+    var accessToken by mutableStateOf(Prefs.accessToken)
+    var refreshToken by mutableStateOf(Prefs.refreshToken)
+
     var username by mutableStateOf("")
     var face by mutableStateOf("")
 
@@ -32,6 +38,8 @@ class UserRepository {
         biliJct = Prefs.biliJct
         isLogin = Prefs.isLogin
         expiredDate = Prefs.tokenExpiredData
+        accessToken = Prefs.accessToken
+        refreshToken = Prefs.refreshToken
     }
 
     fun saveToPrefs() {
@@ -42,9 +50,13 @@ class UserRepository {
         Prefs.biliJct = biliJct
         Prefs.isLogin = isLogin
         Prefs.tokenExpiredData = expiredDate
+        Prefs.accessToken = accessToken
+        Prefs.refreshToken = refreshToken
+
+        updateAuthRepository()
     }
 
-    fun setLoginData(
+    fun setCookies(
         uid: Long,
         uidCkMd5: String,
         sid: String,
@@ -62,6 +74,15 @@ class UserRepository {
         saveToPrefs()
     }
 
+    fun setAppToken(
+        accessToken: String,
+        refreshToken: String
+    ) {
+        this.accessToken = accessToken
+        this.refreshToken = refreshToken
+        saveToPrefs()
+    }
+
     fun logout() {
         uid = 0
         uidCkMd5 = ""
@@ -73,4 +94,9 @@ class UserRepository {
         saveToPrefs()
     }
 
+    private fun updateAuthRepository() {
+        authRepository.sessionData = sessData
+        authRepository.biliJct = biliJct
+        authRepository.accessToken = accessToken
+    }
 }

@@ -6,6 +6,7 @@ plugins {
 group = "dev.aaa1115910"
 
 dependencies {
+    implementation(project(":bili-api-grpc"))
     implementation(libs.jsoup)
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktor.content.negotiation)

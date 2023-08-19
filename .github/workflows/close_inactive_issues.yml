@@ -5,7 +5,9 @@ on:
 
 jobs:
   close-issues:
+    name: Close inactive issues
     runs-on: ubuntu-latest
+    if: github.repository == 'aaa1115910/bv'
     permissions:
       issues: write
     steps:
@@ -18,4 +20,4 @@ jobs:
           stale-issue-message: "该 issue 已过时，因为它已经超过 60 天没有任何活动"
           close-issue-message: "该 issue 已关闭，因为它在被标记为过时后 14 天依旧没有任何活动"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          exempt-issue-labels: "bug,新功能,优化,有待讨论"
+          exempt-issue-labels: "bug,新功能,优化,有待讨论,疑难杂症"

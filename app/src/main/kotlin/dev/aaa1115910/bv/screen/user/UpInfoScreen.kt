@@ -27,13 +27,16 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpSpaceScreen(
     modifier: Modifier = Modifier,
@@ -42,7 +45,10 @@ fun UpSpaceScreen(
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
 
     LaunchedEffect(Unit) {
         val intent = (context as Activity).intent
@@ -109,7 +115,13 @@ fun UpSpaceScreen(
                 ) {
                     SmallVideoCard(
                         data = video,
-                        onClick = { VideoInfoActivity.actionStart(context, video.avid) },
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = video.avid,
+                                proxyArea = ProxyArea.checkProxyArea(video.title)
+                            )
+                        },
                         onFocus = {
                             currentIndex = index
                             if (index + 20 > upInfoViewModel.spaceVideos.size) {

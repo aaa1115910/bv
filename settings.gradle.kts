@@ -7,7 +7,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when (requested.id.name) {
-                "crashlytics" -> useModule("com.google.firebase:firebase-crashlytics-gradle:2.9.5")
+                "crashlytics" -> useModule("com.google.firebase:firebase-crashlytics-gradle:2.9.7")
             }
         }
     }
@@ -32,3 +32,4 @@ include(":bili-subtitle")
 include(":bv-player")
 include(":libs:av1Decoder")
 include(":libs:libVLC")
+include(":bili-api-grpc")

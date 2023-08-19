@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.PlayerType
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
 import dev.aaa1115910.bv.screen.VideoPlayerV3Screen
@@ -32,7 +34,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
             subType: Int? = null,
             epid: Int? = null,
             seasonId: Int? = null,
-            isVerticalVideo: Boolean = false
+            isVerticalVideo: Boolean = false,
+            proxyArea: ProxyArea = ProxyArea.MainLand
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerV3Activity::class.java).apply {
@@ -46,6 +49,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("epid", epid)
                     putExtra("seasonId", seasonId)
                     putExtra("isVerticalVideo", isVerticalVideo)
+                    putExtra("proxy_area", proxyArea.ordinal)
                 }
             )
         }
@@ -80,8 +84,14 @@ class VideoPlayerV3Activity : ComponentActivity() {
     private fun initVideoPlayer() {
         logger.info { "Init video player: ${Prefs.playerType.name}" }
         val options = VideoPlayerOptions(
-            userAgent = getString(R.string.video_player_user_agent),
-            referer = getString(R.string.video_player_referer)
+            userAgent = when (Prefs.apiType) {
+                ApiType.Web -> getString(R.string.video_player_user_agent_http)
+                ApiType.App -> getString(R.string.video_player_user_agent_client)
+            },
+            referer = when (Prefs.apiType) {
+                ApiType.Web -> getString(R.string.video_player_referer)
+                ApiType.App -> null
+            }
         )
         val videoPlayer = when (Prefs.playerType) {
             PlayerType.Media3 -> ExoPlayerFactory().create(this, options)
@@ -106,9 +116,14 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val epid = intent.getIntExtra("epid", 0)
             val seasonId = intent.getIntExtra("seasonId", 0)
             val isVerticalVideo = intent.getBooleanExtra("isVerticalVideo", false)
+            val proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
-                loadPlayUrl(aid, cid)
+                loadPlayUrl(
+                    avid = aid,
+                    cid = cid,
+                    epid = epid.takeIf { it != 0 }
+                )
                 this.title = title
                 this.partTitle = partTitle
                 this.lastPlayed = played
@@ -117,6 +132,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.epid = epid
                 this.seasonId = seasonId
                 this.isVerticalVideo = isVerticalVideo
+                this.proxyArea = proxyArea
             }
         } else {
             logger.fInfo { "Null launch parameter" }

@@ -7,9 +7,9 @@ on:
 
 jobs:
   build-alpha:
-
-    runs-on: ubuntu-latest
-
+    name: Build Feature Apk
+    runs-on: macos-latest
+    if: github.repository == 'aaa1115910/bv'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

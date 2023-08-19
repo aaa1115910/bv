@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,14 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
+import androidx.tv.material3.DenseListItem
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.BottomTip
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.entity.DanmakuSize
 import dev.aaa1115910.bv.entity.DanmakuTransparency
 import dev.aaa1115910.bv.entity.Resolution
@@ -80,9 +80,11 @@ fun VideoPlayerMenuController(
         focusRequester.requestFocus(scope)
     }
 
-    SurfaceWithoutClickable(
+    Surface(
         modifier = modifier,
-        color = Color.Black.copy(alpha = 0.5f)
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = Color.Black.copy(alpha = 0.5f)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -610,35 +612,16 @@ fun MenuListItem(
     onFocus: () -> Unit = {},
     onClick: () -> Unit
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    val buttonBackgroundColor =
-        if (hasFocus) MaterialTheme.colorScheme.primary
-        else if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-        else Color.Transparent
-
-    Surface(
+    DenseListItem(
         modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.hasFocus
-                if (hasFocus) onFocus()
-            },
-        color = buttonBackgroundColor,
-        shape = MaterialTheme.shapes.small,
-        onClick = onClick
-    ) {
-        Box {
+            .onFocusChanged { if (it.hasFocus) onFocus() },
+        selected = selected,
+        onClick = onClick,
+        headlineContent = {
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = 6.dp,
-                        horizontal = 24.dp
-                    ),
                 text = text,
-                style = MaterialTheme.typography.titleLarge,
                 textAlign = textAlign
             )
         }
-    }
+    )
 }

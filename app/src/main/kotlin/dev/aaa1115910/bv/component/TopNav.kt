@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,8 +49,11 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.TabRowScope
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
@@ -57,6 +61,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
 @Composable
@@ -73,7 +78,18 @@ fun TopNav(
     val context = LocalContext.current
     var selectedNav by remember { mutableStateOf(TopNavItem.Popular) }
     val navList =
-        listOf(TopNavItem.Search, TopNavItem.Popular, TopNavItem.Anime, TopNavItem.Dynamics)
+        listOf(
+            TopNavItem.Search,
+            TopNavItem.Recommend,
+            TopNavItem.Popular,
+            TopNavItem.Anime,
+            TopNavItem.Dynamics
+        )
+
+    LaunchedEffect(selectedNav) {
+        delay(250)
+        onSelectedChange(selectedNav)
+    }
 
     Box(
         modifier = modifier
@@ -107,10 +123,7 @@ fun TopNav(
                                 topNavItem = tab,
                                 selected = index == selectedTabIndex,
                                 onFocus = {
-                                    if (tab != TopNavItem.Search) {
-                                        onSelectedChange(tab)
-                                        selectedNav = tab
-                                    }
+                                    if (tab != TopNavItem.Search) selectedNav = tab
                                     selectedTabIndex = index
                                 },
                                 onClick = { onClick(tab) }
@@ -156,7 +169,7 @@ fun TopNav(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NavItemTab(
+private fun TabRowScope.NavItemTab(
     modifier: Modifier = Modifier,
     topNavItem: TopNavItem,
     selected: Boolean,
@@ -216,14 +229,17 @@ private fun SettingsIcon(
 ) {
     var hasFocus by remember { mutableStateOf(false) }
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(
+        label = "settings icon infinite transition"
+    )
 
     val iconRotate by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 60f,
         animationSpec = infiniteRepeatable(
             tween(1000, easing = LinearEasing), RepeatMode.Restart
-        )
+        ),
+        label = "settings icon rotate"
     )
 
     IconButton(
@@ -239,7 +255,7 @@ private fun SettingsIcon(
             modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),
             imageVector = Icons.Rounded.Settings,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.inverseSurface
         )
     }
 }
@@ -270,14 +286,16 @@ private fun UserIcon(
         ) {
             Text(
                 text = if (isLogin) username else "未登录",
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.inverseSurface
             )
             Box {
-                SurfaceWithoutClickable(
+                Surface(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),
-                    color = Color.White
+                    colors = NonInteractiveSurfaceDefaults.colors(
+                        containerColor = Color.White
+                    )
                 ) {
                     AsyncImage(
                         modifier = Modifier
@@ -295,6 +313,7 @@ private fun UserIcon(
 
 enum class TopNavItem(private val _displayNameResId: Int) {
     Search(R.string.top_nav_item_search),
+    Recommend(R.string.top_nav_item_recommend),
     Popular(R.string.top_nav_item_popular),
     Partition(R.string.top_nav_item_partition),
     Anime(R.string.top_nav_item_anime),

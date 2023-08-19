@@ -26,11 +26,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.biliapi.entity.video.VideoMoreInfo
-import dev.aaa1115910.bv.component.FocusGroup
+import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
 import dev.aaa1115910.bv.component.controllers2.MenuFocusState
@@ -38,13 +36,14 @@ import dev.aaa1115910.bv.component.controllers2.VideoPlayerClosedCaptionMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import java.text.NumberFormat
 
-@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun ClosedCaptionMenuList(
     modifier: Modifier = Modifier,
-    onSubtitleChange: (VideoMoreInfo.SubtitleItem) -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
@@ -53,6 +52,7 @@ fun ClosedCaptionMenuList(
     val context = LocalContext.current
     val data = LocalVideoPlayerControllerData.current
     val focusState = LocalMenuFocusStateData.current
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     val focusRequester = remember { FocusRequester() }
     var selectedClosedCaptionMenuItem by remember { mutableStateOf(VideoPlayerClosedCaptionMenuItem.Switch) }
@@ -68,7 +68,7 @@ fun ClosedCaptionMenuList(
             when (selectedClosedCaptionMenuItem) {
                 VideoPlayerClosedCaptionMenuItem.Switch -> RadioMenuList(
                     modifier = menuItemsModifier,
-                    items = data.availableSubtitleTracks.map { it.lanDoc },
+                    items = data.availableSubtitleTracks.map { it.langDoc },
                     selected = data.availableSubtitleTracks.indexOfFirst { it.id == data.currentSubtitleId },
                     onSelectedChanged = { onSubtitleChange(data.availableSubtitleTracks[it]) },
                     onFocusBackToParent = {
@@ -110,40 +110,38 @@ fun ClosedCaptionMenuList(
                 )
             }
         }
-        FocusGroup(
-            modifier = Modifier.focusRequester(focusRequester),
-        ) {
-            TvLazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .onPreviewKeyEvent {
-                        if (it.type == KeyEventType.KeyUp) {
-                            if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
-                                return@onPreviewKeyEvent false
-                            }
-                            return@onPreviewKeyEvent true
+
+        TvLazyColumn(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .padding(horizontal = 8.dp)
+                .onPreviewKeyEvent {
+                    if (it.type == KeyEventType.KeyUp) {
+                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                            return@onPreviewKeyEvent false
                         }
-                        when (it.key) {
-                            Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
-                            Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
-                            else -> {}
-                        }
-                        false
-                    },
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                itemsIndexed(VideoPlayerClosedCaptionMenuItem.values()) { index, item ->
-                    val buttonModifier =
-                        if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
-                    MenuListItem(
-                        modifier = buttonModifier,
-                        text = item.getDisplayName(context),
-                        selected = selectedClosedCaptionMenuItem == item,
-                        onClick = {},
-                        onFocus = { selectedClosedCaptionMenuItem = item },
-                    )
+                        return@onPreviewKeyEvent true
+                    }
+                    when (it.key) {
+                        Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
+                        Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
+                        else -> {}
+                    }
+                    false
                 }
+                .then(focusRestorerModifiers.parentModifier),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            itemsIndexed(VideoPlayerClosedCaptionMenuItem.values()) { index, item ->
+                MenuListItem(
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                    text = item.getDisplayName(context),
+                    selected = selectedClosedCaptionMenuItem == item,
+                    onClick = {},
+                    onFocus = { selectedClosedCaptionMenuItem = item },
+                )
             }
         }
     }

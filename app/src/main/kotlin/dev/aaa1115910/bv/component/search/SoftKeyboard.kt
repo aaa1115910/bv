@@ -17,8 +17,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -97,18 +95,16 @@ fun SoftKeyboardKey(
 ) {
     Surface(
         modifier = modifier,
-        colors = ClickableSurfaceDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
     ) {
         Box(
             modifier = Modifier.size(38.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = key, fontSize = 24.sp)
+            Text(
+                text = key,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }
@@ -122,18 +118,16 @@ fun SoftKeyboardButton(
 ) {
     Surface(
         modifier = modifier.height(38.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         onClick = onClick
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = key, fontSize = 24.sp)
+            Text(
+                text = key,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

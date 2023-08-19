@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -22,11 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -35,6 +29,8 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
@@ -42,6 +38,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
@@ -50,6 +47,7 @@ import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowingSeasonScreen(
     modifier: Modifier = Modifier,
@@ -60,8 +58,14 @@ fun FollowingSeasonScreen(
 
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 6 } }
-    val titleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 48f else 24f)
-    val subtitleFontSize by animateFloatAsState(targetValue = if (showLargeTitle) 36f else 24f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 48f else 24f,
+        label = "title font size"
+    )
+    val subtitleFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 36f else 24f,
+        label = "subtitle font size"
+    )
 
     var showFilter by remember { mutableStateOf(false) }
 
@@ -80,6 +84,10 @@ fun FollowingSeasonScreen(
         followingSeasonViewModel.followingSeasonStatus = it
     }
 
+    val onLongClickSeason = {
+        showFilter = true
+    }
+
     LaunchedEffect(followingSeasonType, followingSeasonStatus) {
         logger.fInfo { "Start update search result because filter updated" }
         followingSeasonViewModel.clearData()
@@ -87,22 +95,7 @@ fun FollowingSeasonScreen(
     }
 
     Scaffold(
-        modifier = modifier
-            .onPreviewKeyEvent {
-                when (it.key) {
-                    Key.DirectionCenter, Key.Enter -> {
-                        // 让 Surface 监听到 KeyUp 事件，否则 Surface 将会是一直按下的状态
-                        if (it.type == KeyEventType.KeyUp) return@onPreviewKeyEvent false
-
-                        if (it.nativeKeyEvent.isLongPress) {
-                            showFilter = true
-                            return@onPreviewKeyEvent true
-                        }
-                        if (showFilter) return@onPreviewKeyEvent true
-                    }
-                }
-                false
-            },
+        modifier = modifier,
         topBar = {
             Box(
                 modifier = Modifier.padding(
@@ -159,7 +152,6 @@ fun FollowingSeasonScreen(
                             )
                         }
                     }
-
                 }
             }
         }
@@ -182,17 +174,18 @@ fun FollowingSeasonScreen(
                     onFocus = {
                         currentIndex = index
                         if (index + 30 > followingSeasons.size) {
+                            println("load more by focus")
                             followingSeasonViewModel.loadMore()
                         }
                     },
                     onClick = {
-                        if (!showFilter) {
-                            SeasonInfoActivity.actionStart(
-                                context = context,
-                                seasonId = followingSeason.seasonId
-                            )
-                        }
-                    }
+                        SeasonInfoActivity.actionStart(
+                            context = context,
+                            seasonId = followingSeason.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(followingSeason.title)
+                        )
+                    },
+                    onLongClick = onLongClickSeason
                 )
             }
             if (followingSeasons.isEmpty() && noMore) {
@@ -205,9 +198,10 @@ fun FollowingSeasonScreen(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(text = stringResource(R.string.no_data))
-                            TextButton(onClick = { showFilter = true }) {
+                            OutlinedButton(onClick = { showFilter = true }) {
                                 Text(text = stringResource(R.string.filter_dialog_open_tip_click))
                             }
                         }

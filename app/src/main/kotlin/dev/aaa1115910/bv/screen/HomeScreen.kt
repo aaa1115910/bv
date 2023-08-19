@@ -45,12 +45,14 @@ import dev.aaa1115910.bv.screen.home.AnimeScreen
 import dev.aaa1115910.bv.screen.home.DynamicsScreen
 import dev.aaa1115910.bv.screen.home.PartitionScreen
 import dev.aaa1115910.bv.screen.home.PopularScreen
+import dev.aaa1115910.bv.screen.home.RecommendScreen
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
+import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -59,6 +61,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    recommendViewModel: RecommendViewModel = koinViewModel(),
     popularViewModel: PopularViewModel = koinViewModel(),
     dynamicViewModel: DynamicViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel()
@@ -67,6 +70,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger { }
 
+    val recommendState = rememberTvLazyGridState()
     val popularState = rememberTvLazyGridState()
     val animeState = rememberTvLazyListState()
     val dynamicState = rememberTvLazyGridState()
@@ -86,13 +90,16 @@ fun HomeScreen(
     //启动时刷新数据
     LaunchedEffect(Unit) {
         navFocusRequester.requestFocus()
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
+            recommendViewModel.loadMore()
+        }
+        scope.launch(Dispatchers.IO) {
             popularViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             dynamicViewModel.loadMore()
         }
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             userViewModel.updateUserInfo()
         }
     }
@@ -138,6 +145,10 @@ fun HomeScreen(
                     onSelectedChange = { nav ->
                         selectedTab = nav
                         when (nav) {
+                            TopNavItem.Recommend -> {
+
+                            }
+
                             TopNavItem.Popular -> {
                                 //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
                             }
@@ -164,12 +175,19 @@ fun HomeScreen(
                     },
                     onClick = { nav ->
                         when (nav) {
+                            TopNavItem.Recommend -> {
+                                logger.fInfo { "clear recommend data" }
+                                recommendViewModel.clearData()
+                                logger.fInfo { "reload recommend data" }
+                                scope.launch(Dispatchers.IO) { recommendViewModel.loadMore() }
+                            }
+
                             TopNavItem.Popular -> {
                                 //scope.launch(Dispatchers.Default) { popularState.scrollToItem(0, 0) }
                                 logger.fInfo { "clear popular data" }
                                 popularViewModel.clearData()
                                 logger.fInfo { "reload popular data" }
-                                scope.launch(Dispatchers.Default) { popularViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
                             }
 
                             TopNavItem.Partition -> {
@@ -183,7 +201,7 @@ fun HomeScreen(
                             TopNavItem.Dynamics -> {
                                 //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
                                 dynamicViewModel.clearData()
-                                scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
                             }
 
                             TopNavItem.Search -> {
@@ -200,8 +218,16 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                Crossfade(targetState = selectedTab) { screen ->
+                Crossfade(
+                    targetState = selectedTab,
+                    label = "home content cross fade"
+                ) { screen ->
                     when (screen) {
+                        TopNavItem.Recommend -> RecommendScreen(
+                            tvLazyGridState = recommendState,
+                            onBackNav = onFocusBackToNav
+                        )
+
                         TopNavItem.Popular -> PopularScreen(
                             tvLazyGridState = popularState,
                             onBackNav = onFocusBackToNav

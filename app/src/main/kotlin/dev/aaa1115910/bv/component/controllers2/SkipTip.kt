@@ -14,8 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.NonInteractiveSurfaceDefaults
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.component.SurfaceWithoutClickable
 import dev.aaa1115910.bv.util.formatMinSec
 
 
@@ -75,11 +76,13 @@ fun SkipTip(
         Box(
             modifier = modifier.fillMaxSize()
         ) {
-            SurfaceWithoutClickable(
+            Surface(
                 modifier = modifier
                     .align(Alignment.BottomStart)
                     .padding(bottom = 32.dp),
-                color = Color.Black.copy(alpha = 0.6f),
+                colors = NonInteractiveSurfaceDefaults.colors(
+                    containerColor = Color.Black.copy(alpha = 0.6f)
+                ),
                 shape = MaterialTheme.shapes.medium.copy(
                     topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
                 )

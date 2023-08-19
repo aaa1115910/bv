@@ -23,10 +23,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
@@ -35,9 +33,10 @@ import dev.aaa1115910.bv.component.controllers2.VideoPlayerDanmakuMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.CheckBoxMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import java.text.NumberFormat
 
-@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun DanmakuMenuList(
     modifier: Modifier = Modifier,
@@ -50,6 +49,7 @@ fun DanmakuMenuList(
     val context = LocalContext.current
     val data = LocalVideoPlayerControllerData.current
     val focusState = LocalMenuFocusStateData.current
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     val focusRequester = remember { FocusRequester() }
     var selectedDanmakuMenuItem by remember { mutableStateOf(VideoPlayerDanmakuMenuItem.Switch) }
@@ -112,7 +112,7 @@ fun DanmakuMenuList(
                     modifier = menuItemsModifier,
                     value = data.currentDanmakuScale,
                     step = 0.01f,
-                    range = 0.5f..2f,
+                    range = 0.5f..4f,
                     text = NumberFormat.getPercentInstance()
                         .apply { maximumFractionDigits = 0 }
                         .format(data.currentDanmakuScale),
@@ -146,40 +146,37 @@ fun DanmakuMenuList(
             }
         }
 
-        FocusGroup(
-            modifier = Modifier.focusRequester(focusRequester)
-        ) {
-            TvLazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .onPreviewKeyEvent {
-                        if (it.type == KeyEventType.KeyUp) {
-                            if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
-                                return@onPreviewKeyEvent false
-                            }
-                            return@onPreviewKeyEvent true
+        TvLazyColumn(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .padding(horizontal = 8.dp)
+                .onPreviewKeyEvent {
+                    if (it.type == KeyEventType.KeyUp) {
+                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                            return@onPreviewKeyEvent false
                         }
-                        when (it.key) {
-                            Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
-                            Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
-                            else -> {}
-                        }
-                        false
-                    },
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                itemsIndexed(VideoPlayerDanmakuMenuItem.values()) { index, item ->
-                    val buttonModifier =
-                        if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
-                    MenuListItem(
-                        modifier = buttonModifier,
-                        text = item.getDisplayName(context),
-                        selected = selectedDanmakuMenuItem == item,
-                        onClick = {},
-                        onFocus = { selectedDanmakuMenuItem = item },
-                    )
+                        return@onPreviewKeyEvent true
+                    }
+                    when (it.key) {
+                        Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
+                        Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
+                        else -> {}
+                    }
+                    false
                 }
+                .then(focusRestorerModifiers.parentModifier),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            itemsIndexed(VideoPlayerDanmakuMenuItem.values()) { index, item ->
+                MenuListItem(
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                    text = item.getDisplayName(context),
+                    selected = selectedDanmakuMenuItem == item,
+                    onClick = {},
+                    onFocus = { selectedDanmakuMenuItem = item },
+                )
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
@@ -38,6 +39,7 @@ import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
 import dev.aaa1115910.bv.entity.VideoAspectRatio
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.util.Prefs
@@ -46,6 +48,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
+import dev.aaa1115910.bv.viewmodel.RequestState
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Timer
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerV3Screen(
     modifier: Modifier = Modifier,
@@ -86,6 +90,7 @@ fun VideoPlayerV3Screen(
     var isBuffering by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
     var exception: Exception? by remember { mutableStateOf(null) }
+    var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     val typeFilter by remember { mutableStateOf(TypeFilter()) }
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
@@ -262,7 +267,8 @@ fun VideoPlayerV3Screen(
                     avid = nextVideo.aid,
                     cid = nextVideo.cid,
                     epid = nextVideo.epid,
-                    seasonId = nextVideo.seasonId
+                    seasonId = nextVideo.seasonId,
+                    continuePlayNext = true
                 )
             }
         }
@@ -278,6 +284,19 @@ fun VideoPlayerV3Screen(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(playerViewModel.loadState) {
+        when (playerViewModel.loadState) {
+            RequestState.Ready -> {}
+            RequestState.Doing -> {}
+            RequestState.Done -> {}
+            RequestState.Success -> {}
+            RequestState.Failed -> {
+                exception = Exception(playerViewModel.errorMessage)
+                isError = true
+            }
+        }
     }
 
     DisposableEffect(Unit) {
@@ -351,7 +370,6 @@ fun VideoPlayerV3Screen(
             resolutionMap = playerViewModel.availableQuality,
             availableVideoCodec = playerViewModel.availableVideoCodec,
             availableAudio = playerViewModel.availableAudio,
-            availableSubtitle = playerViewModel.availableSubtitle,
             availableSubtitleTracks = playerViewModel.availableSubtitle,
             availableVideoList = playerViewModel.availableVideoList,
             currentVideoCid = playerViewModel.currentCid,
@@ -379,7 +397,9 @@ fun VideoPlayerV3Screen(
             isError = isError,
             exception = exception,
             clock = clock,
-            showBackToHistory = showBackToHistory
+            showBackToHistory = showBackToHistory,
+            needPay = playerViewModel.needPay,
+            epid = playerViewModel.epid
         )
     ) {
         VideoPlayerController(
@@ -420,7 +440,8 @@ fun VideoPlayerV3Screen(
                     avid = it.aid,
                     cid = it.cid,
                     epid = it.epid,
-                    seasonId = it.seasonId
+                    seasonId = it.seasonId,
+                    continuePlayNext = true
                 )
             },
 

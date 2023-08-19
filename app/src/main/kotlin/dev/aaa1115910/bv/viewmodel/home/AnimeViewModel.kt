@@ -3,10 +3,10 @@ package dev.aaa1115910.bv.viewmodel.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.BiliApi
-import dev.aaa1115910.biliapi.entity.anime.AnimeFeedData
-import dev.aaa1115910.biliapi.entity.anime.AnimeHomepageDataType
-import dev.aaa1115910.biliapi.entity.anime.CarouselItem
+import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
+import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
+import dev.aaa1115910.biliapi.http.entity.anime.CarouselItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
@@ -64,7 +64,7 @@ class AnimeViewModel : ViewModel() {
     private suspend fun updateCarousel() {
         logger.fInfo { "Update anime carousel" }
         runCatching {
-            val items = BiliApi.getAnimeHomepageData(dataType = AnimeHomepageDataType.V2)
+            val items = BiliHttpApi.getAnimeHomepageData(dataType = AnimeHomepageDataType.V2)
                 ?.getCarouselItems() ?: emptyList()
             logger.fInfo { "Find anime carousels, size: ${items.size}" }
             carouselItems.addAll(items)
@@ -81,7 +81,7 @@ class AnimeViewModel : ViewModel() {
         updating = true
         logger.fInfo { "Update anime feed" }
         runCatching {
-            val responseData = BiliApi.getAnimeFeed(cursor = cursor).getResponseData()
+            val responseData = BiliHttpApi.getAnimeFeed(cursor = cursor).getResponseData()
             cursor = responseData.coursor
             hasNext = responseData.hasNext
             updateFeedItems(responseData.items)

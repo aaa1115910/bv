@@ -1,7 +1,6 @@
 package dev.aaa1115910.bv.component
 
 import android.view.KeyEvent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +19,6 @@ import androidx.compose.material.icons.rounded.CrueltyFree
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -32,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
@@ -41,13 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.requestFocus
 
 private val lineHeight = 80.dp
@@ -72,7 +68,7 @@ fun UserPanel(
         focusRequester.requestFocus(scope)
     }
 
-    Card(
+    Surface(
         modifier = modifier
             .width(300.dp)
             .onPreviewKeyEvent {
@@ -84,10 +80,6 @@ fun UserPanel(
                 }
                 false
             },
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
     ) {
         TvLazyVerticalGrid(
             columns = TvGridCells.Fixed(2),
@@ -123,7 +115,6 @@ fun UserPanel(
             item {
                 UserPanelSmallItem(
                     modifier = Modifier
-                        .weight(1f)
                         .onPreviewKeyEvent {
                             when (it.nativeKeyEvent.keyCode) {
                                 KeyEvent.KEYCODE_DPAD_LEFT -> {
@@ -143,8 +134,7 @@ fun UserPanel(
             }
             item {
                 UserPanelSmallItem(
-                    modifier = Modifier
-                        .weight(1f),
+                    modifier = Modifier,
                     title = "私人藏品",
                     icon = Icons.Rounded.FavoriteBorder,
                     onClick = {
@@ -156,7 +146,6 @@ fun UserPanel(
             item {
                 UserPanelSmallItem(
                     modifier = Modifier
-                        .weight(1f)
                         .onPreviewKeyEvent {
                             println(it.nativeKeyEvent)
                             when (it.nativeKeyEvent.keyCode) {
@@ -177,8 +166,7 @@ fun UserPanel(
             }
             item {
                 UserPanelSmallItem(
-                    modifier = Modifier
-                        .weight(1f),
+                    modifier = Modifier,
                     title = "现在不看",
                     icon = Icons.Rounded.Schedule,
                     onClick = {
@@ -191,6 +179,7 @@ fun UserPanel(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelMyItem(
     modifier: Modifier = Modifier,
@@ -198,17 +187,16 @@ private fun UserPanelMyItem(
     face: String,
     onClick: () -> Unit
 ) {
-    Card(
+    Surface(
         modifier = modifier
             .padding(4.dp)
-            .focusedScale(0.98f)
-            .focusedBorder()
             .fillMaxWidth()
-            .height(lineHeight)
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.03f)
+            .height(lineHeight),
+        onClick = onClick,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         )
     ) {
         Row(
@@ -239,6 +227,7 @@ private fun UserPanelMyItem(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelSmallItem(
     modifier: Modifier = Modifier,
@@ -246,16 +235,15 @@ private fun UserPanelSmallItem(
     icon: ImageVector,
     onClick: () -> Unit
 ) {
-    Card(
+    Surface(
         modifier = modifier
             .padding(4.dp)
-            .focusedScale(0.95f)
-            .focusedBorder()
-            .height(lineHeight)
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.03f)
+            .height(lineHeight),
+        onClick = onClick,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         )
     ) {
         Box(
@@ -270,7 +258,7 @@ private fun UserPanelSmallItem(
             )
             Text(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(12.dp)
                     .align(Alignment.BottomStart),
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
