@@ -79,6 +79,7 @@ import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -697,7 +698,8 @@ private fun FollowingAnimeVideosRow(
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = seasonCardData.seasonId
+                            seasonId = seasonCardData.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(seasonCardData.title)
                         )
                     }
                 )

@@ -38,6 +38,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
@@ -180,7 +181,8 @@ fun FollowingSeasonScreen(
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = followingSeason.seasonId
+                            seasonId = followingSeason.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(followingSeason.title)
                         )
                     },
                     onLongClick = onLongClickSeason

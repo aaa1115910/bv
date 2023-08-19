@@ -49,10 +49,16 @@ fun HttpRequestBuilder.encAppGet() {
     val sortedParams = url.encodedParameters.entries()
         .associate { it.key to it.value.first() }
         .toSortedMap()
+        .also {
+            url.parameters.clear()
+            it.entries.forEach { (key, value) -> parameter(key, value) }
+        }
+
+    val sortedParamsString = sortedParams
         .map { (key, value) -> "$key=$value" }
         .joinToString("&")
 
-    val sign = MessageDigest.getInstance("MD5").digest((sortedParams + APP_SEC).toByteArray())
+    val sign = MessageDigest.getInstance("MD5").digest((sortedParamsString + APP_SEC).toByteArray())
         .joinToString("") { "%02x".format(it) }
 
     parameter("sign", sign)

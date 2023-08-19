@@ -71,6 +71,7 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.repositories.UserRepository
@@ -80,6 +81,7 @@ import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
 import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -117,6 +119,7 @@ fun SeasonInfoScreen(
 
     var seasonId: Int? by remember { mutableStateOf(null) }
     var epId: Int? by remember { mutableStateOf(null) }
+    var proxyArea: ProxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     var seasonData: SeasonDetail? by remember { mutableStateOf(null) }
     var lastPlayProgress: SeasonDetail.UserStatus.Progress? by remember { mutableStateOf(null) }
@@ -128,6 +131,7 @@ fun SeasonInfoScreen(
 
     val onClickVideo: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
         { avid, cid, epid, episodeTitle, startTime ->
+            logger.debug { "onClickVideo: [avid=$avid, cid=$cid, epid=$epid, episodeTitle=$episodeTitle, startTime=$startTime]" }
             if (cid != 0) {
                 launchPlayerActivity(
                     context = context,
@@ -139,7 +143,8 @@ fun SeasonInfoScreen(
                     fromSeason = true,
                     subType = seasonData?.subType,
                     epid = epid,
-                    seasonId = seasonData?.seasonId
+                    seasonId = seasonData?.seasonId,
+                    proxyArea = proxyArea
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
@@ -157,7 +162,7 @@ fun SeasonInfoScreen(
                 seasonData = videoDetailRepository.getPgcVideoDetail(
                     seasonId = sId,
                     epid = eId,
-                    preferApiType = Prefs.apiType
+                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 )
                 logger.info { "User status: ${seasonData!!.userStatus}" }
                 isFollowing = seasonData!!.userStatus.follow
@@ -177,7 +182,7 @@ fun SeasonInfoScreen(
                 lastPlayProgress = videoDetailRepository.getPgcVideoDetail(
                     seasonId = seasonId,
                     epid = epId,
-                    preferApiType = Prefs.apiType
+                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 ).userStatus.progress
                 logger.info { "update user status progress: $lastPlayProgress" }
             }.onFailure {
@@ -189,11 +194,13 @@ fun SeasonInfoScreen(
     LaunchedEffect(Unit) {
         val epId1 = intent.getIntExtra("epid", 0)
         val seasonId1 = intent.getIntExtra("seasonid", 0)
-        logger.fInfo { "Read extras from content: [epId=$epId1, seasonId=$seasonId1]" }
+        val proxyArea1 = intent.getIntExtra("proxy_area", 0)
+        logger.fInfo { "Read extras from content: [epId=$epId1, seasonId=$seasonId1, proxyArea=$proxyArea1]" }
 
         epId = intent.getIntExtra("epid", 0).takeIf { it > 0 }
         seasonId = intent.getIntExtra("seasonid", 0).takeIf { it > 0 }
-        logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId]" }
+        proxyArea = ProxyArea.entries[proxyArea1]
+        logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId, proxyArea=$proxyArea]" }
         if (epId != null || seasonId != null) {
             updateSeasonData(seasonId, epId)
         } else {

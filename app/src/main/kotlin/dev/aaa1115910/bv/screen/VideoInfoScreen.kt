@@ -88,12 +88,14 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.biliapi.entity.video.Dimension
 import dev.aaa1115910.biliapi.entity.video.Tag
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
+import dev.aaa1115910.biliapi.http.BiliPlusHttpApi
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.R
@@ -105,6 +107,7 @@ import dev.aaa1115910.bv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.component.videocard.VideosRow
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -119,6 +122,7 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
+import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -151,6 +155,7 @@ fun VideoInfoScreen(
     var tip by remember { mutableStateOf("Loading") }
     var fromSeason by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
+    var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     val containsVerticalScreenVideo by remember {
         derivedStateOf {
@@ -284,8 +289,27 @@ fun VideoInfoScreen(
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
+            proxyArea = ProxyArea.entries[intent.getIntExtra("proxyArea", 0)]
             //获取视频信息
             scope.launch(Dispatchers.IO) {
+                if (proxyArea != ProxyArea.MainLand) {
+                    runCatching {
+                        val seasonId = BiliPlusHttpApi.getSeasonIdByAvid(aid)
+                        logger.info { "Get season id from biliplus: $seasonId" }
+                        seasonId?.let {
+                            logger.fInfo { "Redirect to season $seasonId" }
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                seasonId = seasonId,
+                                proxyArea = proxyArea
+                            )
+                            context.finish()
+                        }
+                    }.onFailure {
+                        logger.fWarn { "Redirect failed: ${it.stackTraceToString()}" }
+                    }
+                }
+
                 runCatching {
                     videoDetailViewModel.loadDetail(aid)
                     updateVideoIsFavoured()
@@ -336,8 +360,40 @@ fun VideoInfoScreen(
                         videoInfoRepository.videoList.addAll(partVideoList)
                     }
                 }.onFailure {
-                    tip = it.localizedMessage ?: "未知错误"
+                    val errorMessage = it.localizedMessage
+                    val isVideoNotFound = when (Prefs.apiType) {
+                        ApiType.Web -> errorMessage == "啥都木有"
+                        ApiType.App -> errorMessage == "访问权限不足"
+                    }
+
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
+                    if (!isVideoNotFound || !Prefs.enableProxy) {
+                        tip = it.localizedMessage ?: "未知错误"
+                        return@onFailure
+                    }
+                    videoDetailViewModel.state = VideoInfoState.Loading
+
+                    logger.fInfo { "Trying get video info through proxy server" }
+                    runCatching {
+                        val seasonId = BiliPlusHttpApi.getSeasonIdByAvid(aid)
+                        logger.info { "Get season id from biliplus: $seasonId" }
+                        seasonId?.let {
+                            logger.fInfo { "Redirect to season $seasonId" }
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                seasonId = seasonId,
+                                proxyArea = ProxyArea.HongKong
+                            )
+                            context.finish()
+                        } ?: let {
+                            tip = "视频不存在"
+                            videoDetailViewModel.state = VideoInfoState.Error
+                        }
+                    }.onFailure { e ->
+                        logger.fWarn { "Redirect failed: ${e.stackTraceToString()}" }
+                        tip = e.localizedMessage ?: "未知错误"
+                        videoDetailViewModel.state = VideoInfoState.Error
+                    }
                 }
             }
         }
@@ -351,7 +407,11 @@ fun VideoInfoScreen(
             if (it.redirectToEp) {
                 runCatching {
                     logger.fInfo { "Redirect to ep ${it.epid}" }
-                    SeasonInfoActivity.actionStart(context, it.epid)
+                    SeasonInfoActivity.actionStart(
+                        context = context,
+                        epId = it.epid,
+                        proxyArea = proxyArea
+                    )
                     context.finish()
                 }.onFailure {
                     logger.fWarn { "Redirect failed: ${it.stackTraceToString()}" }

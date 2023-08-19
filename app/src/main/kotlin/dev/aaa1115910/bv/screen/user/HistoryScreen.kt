@@ -30,6 +30,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -100,7 +101,13 @@ fun HistoryScreen(
                 ) {
                     SmallVideoCard(
                         data = history,
-                        onClick = { VideoInfoActivity.actionStart(context, history.avid) },
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = history.avid,
+                                proxyArea = ProxyArea.checkProxyArea(history.title)
+                            )
+                        },
                         onFocus = {
                             currentIndex = index
                             //预加载
