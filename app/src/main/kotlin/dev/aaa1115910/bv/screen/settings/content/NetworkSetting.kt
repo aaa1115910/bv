@@ -31,7 +31,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.http.ProxyHttpApi
+import dev.aaa1115910.biliapi.entity.ProxyType
+import dev.aaa1115910.biliapi.http.BiliRoamingProxyHttpApi
+import dev.aaa1115910.biliapi.http.BvProxyHttpApi
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SpeedTestActivity
 import dev.aaa1115910.bv.component.settings.SettingListItem
@@ -80,16 +82,33 @@ fun NetworkSetting(
                             onCheckedChange = { enable ->
                                 enableProxy = enable
                                 Prefs.enableProxy = enable
-                                if (enable) ProxyHttpApi.createClient(Prefs.proxyServer)
+                                if (enable) {
+                                    BiliRoamingProxyHttpApi.createClient(Prefs.proxyServer)
+                                    BvProxyHttpApi.createClient(Prefs.proxyServer)
+                                }
                             }
                         )
                         AnimatedVisibility(visible = enableProxy) {
-                            SettingListItem(
-                                modifier = Modifier.padding(top = 12.dp),
-                                title = stringResource(R.string.settings_network_proxy_server_title),
-                                supportText = if (proxyServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyServer,
-                                onClick = { showProxyServerEditDialog = true }
-                            )
+                            Column {
+                                SettingSwitchListItem(
+                                    title = "代理服务器类型（临时开关）",
+                                    supportText = "on: biliroaming, off: bv-proxy",
+                                    checked = Prefs.proxyServerType == ProxyType.BiliRoaming,
+                                    onCheckedChange = { enable ->
+                                        if (enable) {
+                                            Prefs.proxyServerType = ProxyType.BiliRoaming
+                                        } else {
+                                            Prefs.proxyServerType = ProxyType.BvProxy
+                                        }
+                                    }
+                                )
+                                SettingListItem(
+                                    modifier = Modifier.padding(top = 12.dp),
+                                    title = stringResource(R.string.settings_network_proxy_server_title),
+                                    supportText = if (proxyServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyServer,
+                                    onClick = { showProxyServerEditDialog = true }
+                                )
+                            }
                         }
                     }
                 }
@@ -114,7 +133,8 @@ fun NetworkSetting(
         onProxyServerChange = {
             proxyServer = it
             Prefs.proxyServer = it
-            ProxyHttpApi.createClient(it)
+            BiliRoamingProxyHttpApi.createClient(it)
+            BvProxyHttpApi.createClient(it)
         }
     )
 }

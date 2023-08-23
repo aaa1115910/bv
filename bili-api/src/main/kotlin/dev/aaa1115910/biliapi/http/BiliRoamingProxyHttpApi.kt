@@ -22,7 +22,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 
-object ProxyHttpApi {
+object BiliRoamingProxyHttpApi {
     private var client: HttpClient? = null
 
     private val json = Json {

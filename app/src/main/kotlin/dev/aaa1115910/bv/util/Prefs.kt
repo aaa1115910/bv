@@ -13,6 +13,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.ProxyType
 import dev.aaa1115910.biliapi.http.util.generateBuvid
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
@@ -258,6 +259,14 @@ object Prefs {
     var proxyServer: String
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefProxyServerRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefProxyServerKey, value) }
+
+    var proxyServerType: ProxyType
+        get() = runBlocking {
+            ProxyType.values()[dsm.getPreferenceFlow(PrefKeys.prefProxyServerTypeRequest).first()]
+        }
+        set(value) = runBlocking {
+            dsm.editPreference(PrefKeys.prefProxyServerTypeKey, value.ordinal)
+        }
 }
 
 private object PrefKeys {
@@ -296,6 +305,7 @@ private object PrefKeys {
     val prefApiTypeKey = intPreferencesKey("api_type")
     val prefEnableProxyKey = booleanPreferencesKey("enable_proxy")
     val prefProxyServerKey = stringPreferencesKey("proxy_server")
+    val prefProxyServerTypeKey = intPreferencesKey("proxy_server_type")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -341,4 +351,5 @@ private object PrefKeys {
     val prefApiTypeRequest = PreferenceRequest(prefApiTypeKey, 0)
     val prefEnabelProxyRequest = PreferenceRequest(prefEnableProxyKey, false)
     val prefProxyServerRequest = PreferenceRequest(prefProxyServerKey, "")
+    val prefProxyServerTypeRequest = PreferenceRequest(prefProxyServerTypeKey, 0)
 }

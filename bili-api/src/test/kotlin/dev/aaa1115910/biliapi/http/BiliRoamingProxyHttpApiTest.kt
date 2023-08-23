@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.file.Paths
 import java.util.Properties
 
-class ProxyHttpApiTest {
+class BiliRoamingProxyHttpApiTest {
     companion object {
         private val localProperties = Properties().apply {
             val path = Paths.get("../local.properties").toAbsolutePath().toString()
@@ -19,12 +19,12 @@ class ProxyHttpApiTest {
     }
 
     init {
-        ProxyHttpApi.createClient(PROXY_SERVER)
+        BiliRoamingProxyHttpApi.createClient(PROXY_SERVER)
     }
 
     @Test
     fun `get pgc play url with web api`() = runBlocking {
-        val result = ProxyHttpApi.getWebPgcVideoPlayUrl(
+        val result = BiliRoamingProxyHttpApi.getWebPgcVideoPlayUrl(
             cid = 1188129412,
             epid = 759510,
             fnval = 4048,
@@ -39,7 +39,7 @@ class ProxyHttpApiTest {
 
     @Test
     fun `get pgc play url with app api`() = runBlocking {
-        val result = ProxyHttpApi.getAppPgcVideoPlayUrl(
+        val result = BiliRoamingProxyHttpApi.getAppPgcVideoPlayUrl(
             cid = 1188129412,
             epid = 759510,
             fnval = 4048,

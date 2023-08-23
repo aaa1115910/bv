@@ -9,11 +9,13 @@ import bilibili.playershared.videoVod
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.ProxyType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.ProxyHttpApi
+import dev.aaa1115910.biliapi.http.BiliRoamingProxyHttpApi
+import dev.aaa1115910.biliapi.http.BvProxyHttpApi
 import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt as PgcPlayURLGrpcKt
 
 class VideoPlayRepository(
@@ -79,12 +81,14 @@ class VideoPlayRepository(
         preferCodec: CodeType = CodeType.NoCode,
         preferApiType: ApiType = ApiType.Web,
         enableProxy: Boolean = false,
+        proxyType: ProxyType = ProxyType.BiliRoaming,
         proxyArea: String = ""
     ): PlayData {
-        if (enableProxy) {
+        println("get pgc play data: [aid=$aid, cid=$cid, epid=$epid, preferCodec=$preferCodec, preferApiType=$preferApiType, enableProxy=$enableProxy, proxyType=$proxyType, proxyArea=$proxyArea]")
+        if (enableProxy && proxyType == ProxyType.BiliRoaming) {
             return when (preferApiType) {
                 ApiType.Web -> {
-                    val playUrlData = ProxyHttpApi.getWebPgcVideoPlayUrl(
+                    val playUrlData = BiliRoamingProxyHttpApi.getWebPgcVideoPlayUrl(
                         cid = cid,
                         epid = epid,
                         fnval = 4048,
@@ -98,7 +102,7 @@ class VideoPlayRepository(
                 }
 
                 ApiType.App -> {
-                    val playUrlData = ProxyHttpApi.getAppPgcVideoPlayUrl(
+                    val playUrlData = BiliRoamingProxyHttpApi.getAppPgcVideoPlayUrl(
                         cid = cid,
                         epid = epid,
                         fnval = 4048,
@@ -114,21 +118,34 @@ class VideoPlayRepository(
         }
         return when (preferApiType) {
             ApiType.Web -> {
-                val playUrlData = BiliHttpApi.getPgcVideoPlayUrl(
-                    av = aid,
-                    cid = cid,
-                    fnval = 4048,
-                    qn = 127,
-                    fnver = 0,
-                    fourk = 1,
-                    sessData = authRepository.sessionData
-                ).getResponseData()
+                val playUrlData = if (enableProxy) {
+                    BvProxyHttpApi.getPgcVideoPlayUrl(
+                        av = aid,
+                        cid = cid,
+                        fnval = 4048,
+                        qn = 127,
+                        fnver = 0,
+                        fourk = 1,
+                        sessData = authRepository.sessionData
+                    )
+                } else {
+                    BiliHttpApi.getPgcVideoPlayUrl(
+                        av = aid,
+                        cid = cid,
+                        fnval = 4048,
+                        qn = 127,
+                        fnver = 0,
+                        fourk = 1,
+                        sessData = authRepository.sessionData
+                    )
+                }.getResponseData()
+
                 PlayData.fromPlayUrlData(playUrlData)
             }
 
             ApiType.App -> {
                 val pgcPlayViewReply = runCatching {
-                    pgcPlayUrlStub?.playView(playViewReq {
+                    val req = playViewReq {
                         this.epid = epid.toLong()
                         this.cid = cid.toLong()
                         qn = 127
@@ -138,7 +155,17 @@ class VideoPlayRepository(
                         forceHost = 0
                         download = 0
                         preferCodecType = preferCodec.toPgcPlayUrlCodeType()
-                    }) ?: throw IllegalStateException("Pgc play url stub is not initialized")
+                    }
+                    if (enableProxy) {
+                        BvProxyHttpApi.pgcPlayView(
+                            req,
+                            accessKey = authRepository.accessToken,
+                            buvid = authRepository.buvid
+                        )
+                    } else {
+                        pgcPlayUrlStub?.playView(req)
+                            ?: throw IllegalStateException("Pgc play url stub is not initialized")
+                    }
                 }.onFailure { handleGrpcException(it) }.getOrThrow()
                 PlayData.fromPgcPlayViewReply(pgcPlayViewReply)
             }

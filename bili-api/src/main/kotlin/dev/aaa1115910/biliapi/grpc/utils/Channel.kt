@@ -14,8 +14,12 @@ import io.grpc.ForwardingClientCall.SimpleForwardingClientCall
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.MethodDescriptor
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.header
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import io.grpc.Metadata as GrpcMetadata
 
 fun generateChannel(
@@ -103,4 +107,36 @@ fun GrpcMetadata.putNetworkBin() {
             type = NetworkType.WIFI
         }.toByteArray()
     )
+}
+
+@OptIn(ExperimentalEncodingApi::class)
+fun HttpRequestBuilder.generateGrpcProxyHeaders(
+    accessKey: String,
+    buvid: String
+) {
+    header("authorization", "identify_v1 $accessKey")
+    header("x-bili-metadata-bin", Base64.encode(metadata {
+        this.accessKey = accessKey
+        mobiApp = BiliAppConf.MOBI_APP
+        device = BiliAppConf.DEVICE
+        build = BiliAppConf.APP_BUILD_CODE
+        channel = BiliAppConf.CHANNEL
+        this.buvid = buvid
+        platform = BiliAppConf.PLATFORM
+    }.toByteArray()))
+    header("x-bili-device-bin", Base64.encode(device {
+        appId = BiliAppConf.APP_ID
+        mobiApp = BiliAppConf.MOBI_APP
+        device = BiliAppConf.DEVICE
+        build = BiliAppConf.APP_BUILD_CODE
+        channel = BiliAppConf.CHANNEL
+        this.buvid = buvid
+        platform = BiliAppConf.PLATFORM
+    }.toByteArray()))
+    header("x-bili-local-bin", Base64.encode(locale {
+        timezone = BiliAppConf.TIMEZONE
+    }.toByteArray()))
+    header("x-bili-network-bin", Base64.encode(network {
+        type = NetworkType.WIFI
+    }.toByteArray()))
 }
