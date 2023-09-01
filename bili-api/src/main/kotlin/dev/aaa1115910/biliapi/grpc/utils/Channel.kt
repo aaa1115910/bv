@@ -24,10 +24,13 @@ import io.grpc.Metadata as GrpcMetadata
 
 fun generateChannel(
     accessKey: String,
-    buvid: String
+    buvid: String,
+    endPoint: String = BiliAppConf.GRPC_HOST,
+    port: Int = BiliAppConf.GRPC_PORT,
+    enableTransportSecurity: Boolean = true
 ): ManagedChannel = ManagedChannelBuilder
-    .forAddress(BiliAppConf.GRPC_HOST, BiliAppConf.GRPC_PORT)
-    .useTransportSecurity()
+    .forAddress(endPoint, port)
+    .apply { if (enableTransportSecurity) useTransportSecurity() else usePlaintext() }
     .executor(Dispatchers.IO.asExecutor())
     .intercept(MetadataInterceptor(accessKey, buvid))
     .build()

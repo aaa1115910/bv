@@ -1,9 +1,5 @@
 package dev.aaa1115910.biliapi.http
 
-import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt
-import bilibili.pgc.gateway.player.v2.PlayViewReply
-import bilibili.pgc.gateway.player.v2.PlayViewReq
-import dev.aaa1115910.biliapi.grpc.utils.generateGrpcProxyHeaders
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.http.util.encApiSign
@@ -18,20 +14,11 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.toByteArray
-import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
-object BvProxyHttpApi {
+object BiliHttpProxyApi {
     private var client: HttpClient? = null
 
     private val json = Json {
@@ -102,27 +89,4 @@ object BvProxyHttpApi {
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
     }?.body() ?: throw IllegalStateException("no proxy server")
-
-    suspend fun pgcPlayView(
-        playViewReq: PlayViewReq,
-        accessKey: String? = null,
-        buvid: String? = null
-    ): PlayViewReply {
-        val response = client!!.post(PlayURLGrpcKt.playViewMethod.fullMethodName) {
-            generateGrpcProxyHeaders(accessKey ?: "", buvid ?: "")
-            setBody(ByteReadChannel(playViewReq.toByteArray()))
-        }
-        when (response.status) {
-            HttpStatusCode.OK -> {
-                val responseBytes = response.bodyAsChannel().toByteArray()
-                return PlayViewReply.parseFrom(responseBytes)
-            }
-
-            else -> {
-                val responseText = response.bodyAsText()
-                val biliResponse = Json.parseToJsonElement(responseText).jsonObject
-                throw IllegalStateException(biliResponse["message"]!!.jsonPrimitive.content)
-            }
-        }
-    }
 }

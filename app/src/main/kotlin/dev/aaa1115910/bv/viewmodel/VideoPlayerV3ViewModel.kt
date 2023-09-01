@@ -177,7 +177,6 @@ class VideoPlayerV3ViewModel(
                     preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
                     preferApiType = Prefs.apiType,
                     enableProxy = proxyArea != ProxyArea.MainLand,
-                    proxyType = Prefs.proxyServerType,
                     proxyArea = when (proxyArea) {
                         ProxyArea.MainLand -> ""
                         ProxyArea.HongKong -> "hk"

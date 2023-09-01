@@ -4,7 +4,6 @@ import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
-import dev.aaa1115910.biliapi.http.BiliRoamingProxyHttpApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -42,7 +41,6 @@ class VideoPlayRepositoryTest {
         authRepository.sessionData = SESSDATA
         authRepository.accessToken = ACCESS_TOKEN
         authRepository.biliJct = BILI_JCT
-        BiliRoamingProxyHttpApi.createClient(PROXY_SERVER)
     }
 
     @Test
