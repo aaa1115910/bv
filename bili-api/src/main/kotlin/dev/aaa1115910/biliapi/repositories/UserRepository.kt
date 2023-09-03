@@ -174,7 +174,7 @@ class UserRepository(
                 order = order.value,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                sessData = authRepository.sessionData!!
+                sessData = authRepository.sessionData ?: ""
             ).getResponseData().list.vlist
                 .map { SpaceVideo.fromSpaceVideoItem(it) }
 
@@ -183,7 +183,7 @@ class UserRepository(
                 order = order.value,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                accessKey = authRepository.accessToken!!
+                accessKey = authRepository.accessToken ?: ""
             ).getResponseData().item
                 .map { SpaceVideo.fromSpaceVideoItem(it) }
         }
