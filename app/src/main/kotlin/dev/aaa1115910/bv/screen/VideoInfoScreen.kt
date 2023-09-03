@@ -145,6 +145,7 @@ fun VideoInfoScreen(
     val scope = rememberCoroutineScope()
     val intent = (context as Activity).intent
     val logger = KotlinLogging.logger { }
+    val defaultFocusRequester = remember { FocusRequester() }
 
     var showFollowButton by remember { mutableStateOf(false) }
     var isFollowing by remember { mutableStateOf(false) }
@@ -418,6 +419,7 @@ fun VideoInfoScreen(
                 }
             } else {
                 logger.fInfo { "No redirection required" }
+                defaultFocusRequester.requestFocus(scope)
             }
 
             if (!fromSeason) updateFollowingState()
@@ -489,6 +491,7 @@ fun VideoInfoScreen(
                     }
                     item {
                         VideoInfoData(
+                            defaultFocusRequester = defaultFocusRequester,
                             videoDetail = videoDetailViewModel.videoDetail!!,
                             showFollowButton = showFollowButton,
                             isFollowing = isFollowing,
@@ -572,9 +575,10 @@ fun VideoInfoScreen(
                                 }
                             )
                         }
-                    } else {
+                    } else if (videoDetailViewModel.videoDetail?.ugcSeason!!.sections.size == 1) {
                         item {
                             VideoUgcSeasonRow(
+                                title = videoDetailViewModel.videoDetail?.ugcSeason!!.title,
                                 episodes = videoDetailViewModel.videoDetail?.ugcSeason?.sections?.get(
                                     0
                                 )?.episodes
@@ -590,8 +594,31 @@ fun VideoInfoScreen(
                                         context = context,
                                         avid = aid,
                                         cid = cid,
-                                        title = videoDetailViewModel.videoDetail!!.title,
+                                        title = videoDetailViewModel.videoDetail?.ugcSeason!!.title,
                                         partTitle = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
+                                        played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
+                                        fromSeason = false,
+                                        isVerticalVideo = containsVerticalScreenVideo
+                                    )
+                                }
+                            )
+                        }
+                    } else {
+                        items(items = videoDetailViewModel.videoDetail?.ugcSeason!!.sections) { section ->
+                            VideoUgcSeasonRow(
+                                title = section.title,
+                                episodes = section.episodes,
+                                lastPlayedCid = lastPlayedCid,
+                                lastPlayedTime = lastPlayedTime,
+                                enableUgcListDialog = section.episodes.size > 5,
+                                onClick = { aid, cid ->
+                                    logger.fInfo { "Click ugc season part: [av:${videoDetailViewModel.videoDetail?.aid}, bv:${videoDetailViewModel.videoDetail?.bvid}, cid:$cid]" }
+                                    launchPlayerActivity(
+                                        context = context,
+                                        avid = aid,
+                                        cid = cid,
+                                        title = videoDetailViewModel.videoDetail?.ugcSeason!!.title,
+                                        partTitle = section.episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
                                         isVerticalVideo = containsVerticalScreenVideo
@@ -653,6 +680,7 @@ fun ArgueTip(
 @Composable
 fun VideoInfoData(
     modifier: Modifier = Modifier,
+    defaultFocusRequester: FocusRequester,
     videoDetail: VideoDetail,
     showFollowButton: Boolean,
     isFollowing: Boolean,
@@ -668,16 +696,8 @@ fun VideoInfoData(
     onAddToDefaultFavoriteFolder: () -> Unit,
     onUpdateFavoriteFolders: (List<Long>) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     val localDensity = LocalDensity.current
-    val focusRequester = remember { FocusRequester() }
-
     var heightIs by remember { mutableStateOf(0.dp) }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus(scope)
-    }
 
     Row(
         modifier = modifier
@@ -685,7 +705,7 @@ fun VideoInfoData(
     ) {
         Surface(
             modifier = Modifier
-                .focusRequester(focusRequester)
+                .focusRequester(defaultFocusRequester)
                 .weight(3f)
                 .aspectRatio(1.6f)
                 .onGloballyPositioned { coordinates ->
@@ -1075,6 +1095,7 @@ fun VideoPartRow(
 @Composable
 fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
+    title: String,
     episodes: List<Episode>,
     lastPlayedCid: Int = 0,
     lastPlayedTime: Int = 0,
@@ -1097,7 +1118,7 @@ fun VideoUgcSeasonRow(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.video_info_ugc_season_row_title),
+            text = title,
             fontSize = titleFontSize.sp,
             color = titleColor
         )
