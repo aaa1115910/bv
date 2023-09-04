@@ -48,6 +48,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import java.net.URI
 
 class VideoPlayerV3ViewModel(
     private val videoInfoRepository: VideoInfoRepository,
@@ -315,6 +316,9 @@ class VideoPlayerV3ViewModel(
             ?: playData!!.flac.takeIf { it?.codecId == audio.code }
             ?: playData!!.dashAudios.minByOrNull { it.codecId }
         val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
+
+        addLogs("video host: ${URI(videoUrl).host}")
+        addLogs("audio host: ${URI(audioUrl).host}")
 
         logger.fInfo { "Select audio: $audioItem" }
         addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
