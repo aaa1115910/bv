@@ -317,8 +317,8 @@ class VideoPlayerV3ViewModel(
             ?: playData!!.dashAudios.minByOrNull { it.codecId }
         val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
 
-        addLogs("video host: ${URI(videoUrl).host}")
-        addLogs("audio host: ${URI(audioUrl).host}")
+        addLogs("video host: ${with(URI(videoUrl)) { "$scheme://$authority" }}")
+        addLogs("audio host: ${with(URI(audioUrl)) { "$scheme://$authority" }}")
 
         logger.fInfo { "Select audio: $audioItem" }
         addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
