@@ -547,10 +547,13 @@ fun VideoInfoScreen(
                             }
                         )
                     }
-                    item {
-                        VideoDescription(
-                            description = videoDetailViewModel.videoDetail?.description ?: "no desc"
-                        )
+                    if ((videoDetailViewModel.videoDetail?.description ?: "").isNotBlank()) {
+                        item {
+                            VideoDescription(
+                                description = videoDetailViewModel.videoDetail?.description
+                                    ?: "no desc"
+                            )
+                        }
                     }
                     if (videoDetailViewModel.videoDetail?.ugcSeason == null) {
                         item {
