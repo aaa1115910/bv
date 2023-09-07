@@ -7,7 +7,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when (requested.id.name) {
-                "crashlytics" -> useModule("com.google.firebase:firebase-crashlytics-gradle:2.9.8")
+                "crashlytics" -> useModule("com.google.firebase:firebase-crashlytics-gradle:2.9.9")
             }
         }
     }
