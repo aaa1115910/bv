@@ -7,14 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerMenuNavItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 
-@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun MenuNavList(
     modifier: Modifier = Modifier,
@@ -23,28 +22,26 @@ fun MenuNavList(
     isFocusing: Boolean
 ) {
     val context = LocalContext.current
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
-    FocusGroup(
-        modifier = modifier,
+    TvLazyColumn(
+        modifier = modifier
+            .animateContentSize()
+            .then(focusRestorerModifiers.parentModifier),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp)
     ) {
-        TvLazyColumn(
-            modifier = Modifier.animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            itemsIndexed(VideoPlayerMenuNavItem.values()) { index, item ->
-                val buttonModifier =
-                    if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
-                MenuListItem(
-                    modifier = buttonModifier,
-                    text = item.getDisplayName(context),
-                    icon = item.icon,
-                    expanded = isFocusing,
-                    selected = selectedMenu == item,
-                    onClick = {},
-                    onFocus = { onSelectedChanged(item) },
-                )
-            }
+        itemsIndexed(VideoPlayerMenuNavItem.values()) { index, item ->
+            MenuListItem(
+                modifier = Modifier
+                    .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                text = item.getDisplayName(context),
+                icon = item.icon,
+                expanded = isFocusing,
+                selected = selectedMenu == item,
+                onClick = {},
+                onFocus = { onSelectedChanged(item) },
+            )
         }
     }
 }

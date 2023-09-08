@@ -149,7 +149,8 @@ fun LargeVideoCard(
                 }
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     UpIcon()
                     Text(text = data.upName)

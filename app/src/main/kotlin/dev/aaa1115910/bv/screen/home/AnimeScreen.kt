@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.QuestionMark
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -54,10 +52,10 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyListState
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material3.Border
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
@@ -72,6 +70,7 @@ import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
@@ -186,7 +185,8 @@ fun AnimeCarousel(
                 SeasonInfoActivity.actionStart(
                     context = context,
                     epId = data[itemIndex].episodeId,
-                    seasonId = data[itemIndex].seasonId
+                    seasonId = data[itemIndex].seasonId,
+                    proxyArea = ProxyArea.checkProxyArea(data[itemIndex].title)
                 )
             }
         )
@@ -269,17 +269,11 @@ fun AnimeFeatureButton(
     Surface(
         modifier = modifier,
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            pressedContainerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Box(
@@ -337,7 +331,8 @@ fun AnimeFeedVideoRow(
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = feedItem.seasonId
+                            seasonId = feedItem.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(feedItem.title)
                         )
                     }
                 )
@@ -453,7 +448,8 @@ fun AnimeFeedRankRow(
                             onClick = {
                                 SeasonInfoActivity.actionStart(
                                     context = context,
-                                    seasonId = feedItem.seasonId
+                                    seasonId = feedItem.seasonId,
+                                    proxyArea = ProxyArea.checkProxyArea(feedItem.title)
                                 )
                             }
                         )
@@ -461,6 +457,21 @@ fun AnimeFeedRankRow(
                 }
             }
         }
+    }
+}
+
+
+@Preview(device = "id:tv_1080p")
+@Composable
+fun AnimeFeatureButtonsPreview() {
+    BVTheme {
+        AnimeFeatureButtons(
+            modifier = Modifier,
+            onOpenTimeline = {},
+            onOpenFollowing = {},
+            onOpenIndex = {},
+            onOpenUnknown = {}
+        )
     }
 }
 

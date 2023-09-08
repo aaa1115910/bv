@@ -44,25 +44,6 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
 - [AppCenter](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
 
-## 自行编译注意事项
-
-### JDK 版本
-
-`jdk 17`
-
-### google-services.json
-
-该项目使用 Firebase Crashlytics 进行异常日志统计，因此需要用到 `google-services.json` 文件。
-
-你应在 [Firebase](https://console.firebase.google.com/)
-上创建一个新应用，并下载获取你自己的 `google-services.json` 文件，并将其放置于 `app` 目录下。
-
-需添加以下包名：
-
-- `dev.aaa1115910.bv`
-- `dev.aaa1115910.bv.debug`
-- `dev.aaa1115910.bv.r8Test`
-
 ## License
 
 [MIT](LICENSE) © aaa1115910

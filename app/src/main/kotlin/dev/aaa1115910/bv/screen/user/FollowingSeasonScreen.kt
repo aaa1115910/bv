@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -31,6 +30,7 @@ import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
@@ -38,6 +38,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
@@ -151,7 +152,6 @@ fun FollowingSeasonScreen(
                             )
                         }
                     }
-
                 }
             }
         }
@@ -181,7 +181,8 @@ fun FollowingSeasonScreen(
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = followingSeason.seasonId
+                            seasonId = followingSeason.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(followingSeason.title)
                         )
                     },
                     onLongClick = onLongClickSeason
@@ -197,9 +198,10 @@ fun FollowingSeasonScreen(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(text = stringResource(R.string.no_data))
-                            TextButton(onClick = { showFilter = true }) {
+                            OutlinedButton(onClick = { showFilter = true }) {
                                 Text(text = stringResource(R.string.filter_dialog_open_tip_click))
                             }
                         }

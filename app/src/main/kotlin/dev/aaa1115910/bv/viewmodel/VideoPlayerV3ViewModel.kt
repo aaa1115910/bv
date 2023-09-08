@@ -31,6 +31,7 @@ import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
@@ -47,6 +48,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import java.net.URI
 
 class VideoPlayerV3ViewModel(
     private val videoInfoRepository: VideoInfoRepository,
@@ -97,6 +99,7 @@ class VideoPlayerV3ViewModel(
     var epid by mutableIntStateOf(0)
     var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
+    var proxyArea by mutableStateOf(ProxyArea.MainLand)
 
     var needPay by mutableStateOf(false)
 
@@ -120,7 +123,8 @@ class VideoPlayerV3ViewModel(
         avid: Int,
         cid: Int,
         epid: Int? = null,
-        seasonId: Int? = null
+        seasonId: Int? = null,
+        continuePlayNext: Boolean = false
     ) {
         currentAid = avid
         currentCid = cid
@@ -137,10 +141,21 @@ class VideoPlayerV3ViewModel(
             } else {
                 addLogs("av$avid，cid:$cid")
             }
+
+            val lastPlayEnabledSubtitle = currentSubtitleId != -1L
+            if (lastPlayEnabledSubtitle) {
+                logger.info { "Subtitle is enabled, next video will enable subtitle automatic" }
+            }
+
             updateSubtitle()
-            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType)
+            loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType, proxyArea = proxyArea)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
+
+            //如果是继续播放下一集，且之前开启了字幕，就会自动加载第一条字幕，主要用于观看番剧时自动加载字幕
+            if (continuePlayNext) {
+                if (lastPlayEnabledSubtitle) enableFirstSubtitle()
+            }
         }
     }
 
@@ -148,9 +163,10 @@ class VideoPlayerV3ViewModel(
         avid: Int,
         cid: Int,
         epid: Int = 0,
-        preferApi: ApiType = Prefs.apiType
+        preferApi: ApiType = Prefs.apiType,
+        proxyArea: ProxyArea = ProxyArea.MainLand
     ) {
-        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi]" }
+        logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi, proxyArea=$proxyArea]" }
         loadState = RequestState.Ready
         logger.fInfo { "Set request state: ready" }
         runCatching {
@@ -160,7 +176,13 @@ class VideoPlayerV3ViewModel(
                     cid = cid,
                     epid = epid,
                     preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
-                    preferApiType = Prefs.apiType
+                    preferApiType = Prefs.apiType,
+                    enableProxy = proxyArea != ProxyArea.MainLand,
+                    proxyArea = when (proxyArea) {
+                        ProxyArea.MainLand -> ""
+                        ProxyArea.HongKong -> "hk"
+                        ProxyArea.TaiWan -> "tw"
+                    }
                 )
             } else {
                 videoPlayRepository.getPlayData(
@@ -295,6 +317,9 @@ class VideoPlayerV3ViewModel(
             ?: playData!!.dashAudios.minByOrNull { it.codecId }
         val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
 
+        addLogs("video host: ${with(URI(videoUrl)) { "$scheme://$authority" }}")
+        addLogs("audio host: ${with(URI(audioUrl)) { "$scheme://$authority" }}")
+
         logger.fInfo { "Select audio: $audioItem" }
         addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
@@ -349,6 +374,7 @@ class VideoPlayerV3ViewModel(
                 cid = currentCid,
                 preferApiType = Prefs.apiType
             )
+            availableSubtitle.clear()
             availableSubtitle.add(
                 Subtitle(
                     id = -1,
@@ -367,6 +393,20 @@ class VideoPlayerV3ViewModel(
         }.onFailure {
             addLogs("获取字幕失败：${it.localizedMessage}")
             logger.fWarn { "Update subtitle failed: ${it.stackTraceToString()}" }
+        }
+    }
+
+    private fun enableFirstSubtitle() {
+        runCatching {
+            logger.info { "Load first subtitle" }
+            logger.info { "availableSubtitle: ${availableSubtitle.toList()}" }
+            loadSubtitle(
+                availableSubtitle
+                    .firstOrNull { it.id != -1L }?.id
+                    ?: throw IllegalStateException("No available subtitle")
+            )
+        }.onFailure {
+            logger.error { "Load first subtitle failed: ${it.stackTraceToString()}" }
         }
     }
 

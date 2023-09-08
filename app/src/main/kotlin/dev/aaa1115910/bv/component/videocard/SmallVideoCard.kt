@@ -155,7 +155,8 @@ fun SmallVideoCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     UpIcon()
                     Text(

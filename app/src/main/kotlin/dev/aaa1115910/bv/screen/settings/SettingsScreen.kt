@@ -35,10 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.settings.content.AboutSetting
@@ -144,7 +143,7 @@ fun SettingsNav(
         contentPadding = PaddingValues(24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        for (item in SettingsMenuNavItem.values()) {
+        for (item in SettingsMenuNavItem.entries - listOf(SettingsMenuNavItem.PlayerType)) {
             val buttonModifier = if (currentMenu == item) Modifier
                 .focusRequester(focusRequester)
                 .fillMaxWidth()
@@ -222,38 +221,21 @@ fun SettingsMenuButton(
     onClick: () -> Unit = {},
     selected: Boolean
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-
-    val buttonBackgroundColor =
-        if (hasFocus) MaterialTheme.colorScheme.primary
-        else if (selected) Color.White.copy(alpha = 0.1f)
-        else Color.Transparent
-
-    Surface(
+    ListItem(
         modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.hasFocus
-                if (hasFocus) onFocus() else onLoseFocus()
-            },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = buttonBackgroundColor,
-            focusedContainerColor = buttonBackgroundColor,
-            pressedContainerColor = buttonBackgroundColor
-        ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
-        onClick = onClick
-    ) {
-        Box {
+            .onFocusChanged { if (it.hasFocus) onFocus() else onLoseFocus() },
+        selected = selected,
+        onClick = onClick,
+        headlineContent = {
             Text(
                 modifier = Modifier.padding(
-                    vertical = 12.dp,
-                    horizontal = 32.dp
+                    horizontal = 16.dp
                 ),
                 text = text,
                 style = MaterialTheme.typography.titleLarge
             )
         }
-    }
+    )
 }
 
 @Preview

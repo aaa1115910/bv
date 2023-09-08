@@ -5,14 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,20 +19,21 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.FilterChip
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.Button
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.swapList
 
@@ -51,29 +51,24 @@ fun FavoriteButton(
 
     Button(
         modifier = modifier,
-        icon = {
-            if (isFavorite) {
-                Icon(
-                    imageVector = Icons.Rounded.Favorite,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.FavoriteBorder,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            }
-        },
-        text = stringResource(R.string.favorite_button_text),
         onClick = {
             if (showFavoriteDialog) return@Button
             if (isFavorite) {
                 showFavoriteDialog = true
             } else onAddToDefaultFavoriteFolder()
         }
-    )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                contentDescription = null
+            )
+            Text(text = stringResource(R.string.favorite_button_text))
+        }
+    }
 
     FavoriteDialog(
         show = showFavoriteDialog,
@@ -115,7 +110,8 @@ private fun FavoriteDialog(
             title = { Text(text = stringResource(R.string.favorite_dialog_title)) },
             text = {
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     userFavoriteFolders.forEachIndexed { index, userFavoriteFolder ->
                         val selected = selectedFavoriteFolderIds.contains(userFavoriteFolder.id)
@@ -136,26 +132,20 @@ private fun FavoriteDialog(
                                 }
                                 onUpdateFavoriteFolders(selectedFavoriteFolderIds)
                             },
-                            border = if (hasFocus) FilterChipDefaults.filterChipBorder(
-                                borderColor = Color.White,
-                                borderWidth = 2.dp,
-                                selectedBorderColor = Color.White,
-                                selectedBorderWidth = 2.dp
-                            ) else FilterChipDefaults.filterChipBorder(),
-                            label = {
-                                Text(text = userFavoriteFolder.title)
-                            },
                             leadingIcon = {
                                 Row {
                                     AnimatedVisibility(visible = selected) {
                                         Icon(
+                                            modifier = Modifier.size(20.dp),
                                             imageVector = Icons.Rounded.Done,
                                             contentDescription = null
                                         )
                                     }
                                 }
                             }
-                        )
+                        ) {
+                            Text(text = userFavoriteFolder.title)
+                        }
                     }
                 }
             }

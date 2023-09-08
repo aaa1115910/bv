@@ -32,6 +32,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -114,7 +115,13 @@ fun UpSpaceScreen(
                 ) {
                     SmallVideoCard(
                         data = video,
-                        onClick = { VideoInfoActivity.actionStart(context, video.avid) },
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = video.avid,
+                                proxyArea = ProxyArea.checkProxyArea(video.title)
+                            )
+                        },
                         onFocus = {
                             currentIndex = index
                             if (index + 20 > upInfoViewModel.spaceVideos.size) {

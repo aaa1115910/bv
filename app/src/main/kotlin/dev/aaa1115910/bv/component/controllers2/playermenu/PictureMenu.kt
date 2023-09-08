@@ -23,11 +23,9 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import dev.aaa1115910.biliapi.entity.ApiType
-import dev.aaa1115910.bv.component.FocusGroup
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
 import dev.aaa1115910.bv.component.controllers2.MenuFocusState
@@ -35,6 +33,8 @@ import dev.aaa1115910.bv.component.controllers2.VideoPlayerPictureMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
@@ -42,7 +42,6 @@ import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.Prefs
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun PictureMenuList(
     modifier: Modifier = Modifier,
@@ -56,6 +55,7 @@ fun PictureMenuList(
     val context = LocalContext.current
     val focusState = LocalMenuFocusStateData.current
     val data = LocalVideoPlayerControllerData.current
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     val focusRequester = remember { FocusRequester() }
     var selectedPictureMenuItem by remember { mutableStateOf(VideoPlayerPictureMenuItem.Resolution) }
@@ -138,46 +138,44 @@ fun PictureMenuList(
                 )
             }
         }
-        FocusGroup(
-            modifier = Modifier.focusRequester(focusRequester)
-        ) {
-            TvLazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .onPreviewKeyEvent {
-                        if (it.type == KeyEventType.KeyUp) {
-                            if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
-                                return@onPreviewKeyEvent false
-                            }
-                            return@onPreviewKeyEvent true
+
+        TvLazyColumn(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .padding(horizontal = 8.dp)
+                .onPreviewKeyEvent {
+                    if (it.type == KeyEventType.KeyUp) {
+                        if (listOf(Key.Enter, Key.DirectionCenter).contains(it.key)) {
+                            return@onPreviewKeyEvent false
                         }
-                        when (it.key) {
-                            Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
-                            Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
-                            else -> {}
-                        }
-                        false
-                    },
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                val menuList = when (Prefs.apiType) {
-                    ApiType.Web -> VideoPlayerPictureMenuItem.values().toMutableList()
-                    ApiType.App -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
-                        this.remove(VideoPlayerPictureMenuItem.Codec)
+                        return@onPreviewKeyEvent true
                     }
+                    when (it.key) {
+                        Key.DirectionRight -> onFocusStateChange(MenuFocusState.MenuNav)
+                        Key.DirectionLeft -> onFocusStateChange(MenuFocusState.Items)
+                        else -> {}
+                    }
+                    false
                 }
-                itemsIndexed(menuList) { index, item ->
-                    val buttonModifier =
-                        if (index == 0) Modifier.initiallyFocused() else Modifier.restorableFocus()
-                    MenuListItem(
-                        modifier = buttonModifier,
-                        text = item.getDisplayName(context),
-                        selected = selectedPictureMenuItem == item,
-                        onClick = {},
-                        onFocus = { selectedPictureMenuItem = item },
-                    )
+                .then(focusRestorerModifiers.parentModifier),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            val menuList = when (Prefs.apiType) {
+                ApiType.Web -> VideoPlayerPictureMenuItem.values().toMutableList()
+                ApiType.App -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
+                    this.remove(VideoPlayerPictureMenuItem.Codec)
                 }
+            }
+            itemsIndexed(menuList) { index, item ->
+                MenuListItem(
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                    text = item.getDisplayName(context),
+                    selected = selectedPictureMenuItem == item,
+                    onClick = {},
+                    onFocus = { selectedPictureMenuItem = item },
+                )
             }
         }
     }

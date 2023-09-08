@@ -13,6 +13,7 @@
     <string name="audio_dolby_atoms">Dolby Atoms</string>
     <string name="audio_hi_res">Hi-Res</string>
 
+    <string name="common_cancel">取消</string>
     <string name="common_confirm">确定</string>
 
     <string name="confirm">确认</string>
@@ -80,11 +81,15 @@
     <string name="player_controller_menu_item_video_codec">视频编码</string>
     <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
+    <string name="proxy_server_edit_dialog_input_field_label">服务器域名</string>
+    <string name="proxy_server_edit_dialog_title">代理服务器</string>
+    <string name="proxy_server_edit_dialog_warning">请谨慎使用代理服务器，因为您的登录凭证将会发送至代理服务器，使用代理服务器所带来的一切后果均由用户自行承担</string>
+
     <string name="region_block_character_painting">:(</string>
     <string name="region_block_qr_content">扫码也没有用的！</string>
     <string name="region_block_solution_text">不要在中国大陆地区使用该应用</string>
     <string name="region_block_solution_title">该问题的解决方法就是：</string>
-    <string name="region_block_subtitle">您无法在中国大陆区域使用 Bug Video</string>
+    <string name="region_block_subtitle">Bug Video 无法在中国大陆地区使用，您可以按任意键退出应用</string>
     <string name="region_block_title">不支持的使用地区</string>
 
     <string name="resolution_1080p">1080P 高清</string>
@@ -149,13 +154,18 @@
     <string name="settings_item_audio">默认音频编码</string>
     <string name="settings_item_codec">默认视频编码</string>
     <string name="settings_item_info">设备信息</string>
-    <string name="settings_item_network">网络测试</string>
+    <string name="settings_item_network">网络设置</string>
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_player_type">播放器内核</string>
     <string name="settings_item_resolution">默认分辨率</string>
     <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
-    <string name="settings_network_start_button">开始测试</string>
+    <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
+    <string name="settings_network_enable_proxy_title">启用代理</string>
+    <string name="settings_network_proxy_server_content_empty">未填写</string>
+    <string name="settings_network_proxy_server_title">代理服务器地址</string>
+    <string name="settings_network_test_text">使用最后一次播放的视频进行网络测试</string>
+    <string name="settings_network_test_title">网络测试</string>
     <string name="settings_other_alpha_text">获取最新自动构建的 Alpha 版更新</string>
     <string name="settings_other_alpha_title">Alpha 版更新</string>
     <string name="settings_other_cookies_text">该功能不适合使用遥控器操作</string>
@@ -206,6 +216,7 @@
     <string name="top_nav_item_dynamics">动态</string>
     <string name="top_nav_item_partition">分区</string>
     <string name="top_nav_item_popular">热门</string>
+    <string name="top_nav_item_recommend">推荐</string>
     <string name="top_nav_item_search">搜索</string>
 
     <string name="user_homepage_anime">我追的番</string>
@@ -235,7 +246,6 @@
     <string name="video_info_related_video_title">视频推荐</string>
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
-    <string name="video_info_ugc_season_row_title">视频合集</string>
     <string name="video_player_menu_danmaku_area">显示区域</string>
     <string name="video_player_menu_danmaku_opacity">不透明度</string>
     <string name="video_player_menu_danmaku_size">字体缩放</string>

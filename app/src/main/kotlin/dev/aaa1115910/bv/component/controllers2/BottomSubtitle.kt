@@ -34,8 +34,10 @@ fun BottomSubtitle(
     var currentText by remember { mutableStateOf("") }
 
     val updateCurrentText: () -> Unit = {
-        currentText = subtitleData.find { it.isShowing(time) }?.content
-            ?: if (BuildConfig.DEBUG) "【DEBUG】无内容" else ""
+        runCatching {
+            currentText = subtitleData.find { it.isShowing(time) }?.content
+                ?: if (BuildConfig.DEBUG) "【DEBUG】无内容" else ""
+        }
     }
 
     LaunchedEffect(time) {

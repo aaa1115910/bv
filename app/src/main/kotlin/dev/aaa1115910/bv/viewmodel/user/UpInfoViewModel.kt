@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,13 +40,14 @@ class UpInfoViewModel(
 
     private suspend fun updateSpaceVideos() {
         if (updating || noMore) return
-        logger.fInfo { "Updating up space videos from page $pageNumber" }
+        logger.fInfo { "Updating up [mid=$upMid] space videos from page $pageNumber" }
         updating = true
         runCatching {
             val videoList = userRepository.getSpaceVideos(
                 mid = upMid,
                 pageNumber = pageNumber,
-                pageSize = pageSize
+                pageSize = pageSize,
+                preferApiType = Prefs.apiType
             )
             if (videoList.isEmpty()) noMore = true
             videoList.forEach { spaceVideoItem ->

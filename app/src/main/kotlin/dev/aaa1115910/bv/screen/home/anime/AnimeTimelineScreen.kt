@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -33,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.foundation.lazy.list.rememberTvLazyListState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.season.Timeline
 import dev.aaa1115910.biliapi.entity.season.TimelineFilter
@@ -54,6 +55,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.koin.compose.getKoin
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeTimelineScreen(
     modifier: Modifier = Modifier,
@@ -151,6 +153,7 @@ fun AnimeTimelineScreen(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TimelinePerDay(
     modifier: Modifier = Modifier,

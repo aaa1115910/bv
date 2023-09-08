@@ -13,6 +13,7 @@ import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.ProxyHttpApi
 import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt as PgcPlayURLGrpcKt
 
 class VideoPlayRepository(
@@ -76,8 +77,41 @@ class VideoPlayRepository(
         cid: Int,
         epid: Int,
         preferCodec: CodeType = CodeType.NoCode,
-        preferApiType: ApiType = ApiType.Web
+        preferApiType: ApiType = ApiType.Web,
+        enableProxy: Boolean = false,
+        proxyArea: String = ""
     ): PlayData {
+        if (enableProxy) {
+            return when (preferApiType) {
+                ApiType.Web -> {
+                    val playUrlData = ProxyHttpApi.getWebPgcVideoPlayUrl(
+                        cid = cid,
+                        epid = epid,
+                        fnval = 4048,
+                        qn = 127,
+                        fnver = 0,
+                        fourk = 1,
+                        accessKey = authRepository.accessToken,
+                        area = proxyArea
+                    ).getResponseData()
+                    PlayData.fromPlayUrlData(playUrlData)
+                }
+
+                ApiType.App -> {
+                    val playUrlData = ProxyHttpApi.getAppPgcVideoPlayUrl(
+                        cid = cid,
+                        epid = epid,
+                        fnval = 4048,
+                        qn = 127,
+                        fnver = 0,
+                        fourk = 1,
+                        accessKey = authRepository.accessToken,
+                        area = proxyArea
+                    ).getResponseData()
+                    PlayData.fromPlayUrlData(playUrlData)
+                }
+            }
+        }
         return when (preferApiType) {
             ApiType.Web -> {
                 val playUrlData = BiliHttpApi.getPgcVideoPlayUrl(

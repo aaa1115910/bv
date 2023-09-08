@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.screen
 
 import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +61,6 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -73,6 +71,7 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
+import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.repositories.UserRepository
@@ -80,6 +79,9 @@ import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
+import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -117,6 +119,7 @@ fun SeasonInfoScreen(
 
     var seasonId: Int? by remember { mutableStateOf(null) }
     var epId: Int? by remember { mutableStateOf(null) }
+    var proxyArea: ProxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
     var seasonData: SeasonDetail? by remember { mutableStateOf(null) }
     var lastPlayProgress: SeasonDetail.UserStatus.Progress? by remember { mutableStateOf(null) }
@@ -128,6 +131,7 @@ fun SeasonInfoScreen(
 
     val onClickVideo: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
         { avid, cid, epid, episodeTitle, startTime ->
+            logger.debug { "onClickVideo: [avid=$avid, cid=$cid, epid=$epid, episodeTitle=$episodeTitle, startTime=$startTime]" }
             if (cid != 0) {
                 launchPlayerActivity(
                     context = context,
@@ -139,7 +143,8 @@ fun SeasonInfoScreen(
                     fromSeason = true,
                     subType = seasonData?.subType,
                     epid = epid,
-                    seasonId = seasonData?.seasonId
+                    seasonId = seasonData?.seasonId,
+                    proxyArea = proxyArea
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
@@ -157,7 +162,7 @@ fun SeasonInfoScreen(
                 seasonData = videoDetailRepository.getPgcVideoDetail(
                     seasonId = sId,
                     epid = eId,
-                    preferApiType = Prefs.apiType
+                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 )
                 logger.info { "User status: ${seasonData!!.userStatus}" }
                 isFollowing = seasonData!!.userStatus.follow
@@ -177,7 +182,7 @@ fun SeasonInfoScreen(
                 lastPlayProgress = videoDetailRepository.getPgcVideoDetail(
                     seasonId = seasonId,
                     epid = epId,
-                    preferApiType = Prefs.apiType
+                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 ).userStatus.progress
                 logger.info { "update user status progress: $lastPlayProgress" }
             }.onFailure {
@@ -189,11 +194,13 @@ fun SeasonInfoScreen(
     LaunchedEffect(Unit) {
         val epId1 = intent.getIntExtra("epid", 0)
         val seasonId1 = intent.getIntExtra("seasonid", 0)
-        logger.fInfo { "Read extras from content: [epId=$epId1, seasonId=$seasonId1]" }
+        val proxyArea1 = intent.getIntExtra("proxy_area", 0)
+        logger.fInfo { "Read extras from content: [epId=$epId1, seasonId=$seasonId1, proxyArea=$proxyArea1]" }
 
         epId = intent.getIntExtra("epid", 0).takeIf { it > 0 }
         seasonId = intent.getIntExtra("seasonid", 0).takeIf { it > 0 }
-        logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId]" }
+        proxyArea = ProxyArea.entries[proxyArea1]
+        logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId, proxyArea=$proxyArea]" }
         if (epId != null || seasonId != null) {
             updateSeasonData(seasonId, epId)
         } else {
@@ -570,17 +577,11 @@ fun SeasonEpisodeButton(
     Surface(
         modifier = modifier,
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            pressedContainerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.medium
-            )
-        ),
         onClick = onClick
     ) {
         Row {
@@ -781,6 +782,7 @@ fun SeasonEpisodeRow(
     lastPlayedTime: Int = 0,
     onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
@@ -803,7 +805,9 @@ fun SeasonEpisodeRow(
         )
 
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .then(focusRestorerModifiers.parentModifier),
             contentPadding = PaddingValues(horizontal = 50.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
@@ -811,17 +815,11 @@ fun SeasonEpisodeRow(
                 Surface(
                     modifier = modifier.size(60.dp, 80.dp),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        focusedContainerColor = MaterialTheme.colorScheme.primary,
-                        pressedContainerColor = MaterialTheme.colorScheme.primary
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+                        pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = BorderStroke(width = 3.dp, color = Color.White),
-                            shape = MaterialTheme.shapes.medium
-                        )
-                    ),
                     onClick = { showEpisodesDialog = true }
                 ) {
                     Box(
@@ -841,7 +839,8 @@ fun SeasonEpisodeRow(
             itemsIndexed(items = episodes) { index, episode ->
                 val episodeTitle by remember { mutableStateOf(if (episode.longTitle != "") episode.longTitle else episode.title) }
                 SeasonEpisodeButton(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     partTitle = if (title == "正片") {
                         //如果 title 是数字的话，就会返回 "第 x 集"
                         //如果 title 不是数字的话（例如 SP），就会原样使用 title

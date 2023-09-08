@@ -125,6 +125,9 @@ data class DynamicVideo(
 }
 
 private fun convertStringTimeToSeconds(time: String): Int {
+    //部分稿件可能没有时长，Web 接口返回 NaN:NaN:NaN，App 接口返回空字符串
+    if (time.startsWith("NaN") || time.isBlank()) return 0
+
     val parts = time.split(":")
     val hours = if (parts.size == 3) parts[0].toInt() else 0
     val minutes = parts[parts.size - 2].toInt()
@@ -134,8 +137,18 @@ private fun convertStringTimeToSeconds(time: String): Int {
 
 //web 接口获取到的是“xx万”，而 grpc 接口获取到的是“xx.x万播放”
 private fun convertStringPlayCountToNumberPlayCount(play: String): Int {
-    val number = play.replace("弹幕", "").replace("播放", "").substringBefore("万").toFloat()
-    return (if (play.contains("万")) number * 10000 else number).toInt()
+    if (play.startsWith("-")) return 0
+    runCatching {
+        val number = play
+            .replace("弹幕", "")
+            .replace("观看", "")
+            .replace("播放", "")
+            .substringBefore("万").toFloat()
+        return (if (play.contains("万")) number * 10000 else number).toInt()
+    }.onFailure {
+        println("convert play count [$play] failed: ${it.stackTraceToString()}")
+    }
+    return -1
 }
 
 enum class DynamicType {

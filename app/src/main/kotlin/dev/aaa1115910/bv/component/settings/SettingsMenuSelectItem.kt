@@ -1,22 +1,18 @@
 package dev.aaa1115910.bv.component.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.RadioButton
 import androidx.tv.material3.RadioButtonDefaults
@@ -35,10 +31,7 @@ fun SettingsMenuSelectItem(
     var hasFocus by remember { mutableStateOf(defaultHasFocus) }
 
     ListItem(
-        modifier = modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .clip(MaterialTheme.shapes.small)
-            .clickable { onClick() },
+        modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
         headlineContent = { Text(text = text) },
         trailingContent = {
             RadioButton(
@@ -46,13 +39,13 @@ fun SettingsMenuSelectItem(
                 selected = selected,
                 onClick = { },
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = if (hasFocus) Color.White else MaterialTheme.colorScheme.primary
+                    selectedColor = if (hasFocus) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedColor = if (hasFocus) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
         },
-        colors = ListItemDefaults.colors(
-            containerColor = if (hasFocus) MaterialTheme.colorScheme.primary else Color.Transparent
-        )
+        onClick = onClick,
+        selected = selected
     )
 }
 

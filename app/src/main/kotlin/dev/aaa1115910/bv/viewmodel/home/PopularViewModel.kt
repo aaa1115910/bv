@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.entity.rank.PopularVideo
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoPage
-import dev.aaa1115910.biliapi.repositories.PopularVideoRepository
+import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fError
@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 class PopularViewModel(
-    private val popularVideoRepository: PopularVideoRepository
+    private val recommendVideoRepository: RecommendVideoRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
     val popularVideoList = mutableStateListOf<PopularVideo>()
@@ -31,7 +31,7 @@ class PopularViewModel(
         loading = true
         logger.fInfo { "Load more popular videos" }
         runCatching {
-            val popularVideoData = popularVideoRepository.getPopularVideos(
+            val popularVideoData = recommendVideoRepository.getPopularVideos(
                 page = nextPage,
                 preferApiType = Prefs.apiType
             )

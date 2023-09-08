@@ -236,7 +236,7 @@ data class AppFollowingSeason(
     val mtime: Int,
     @SerialName("new_ep")
     val newEp: NewEp,
-    val progress: Progress,
+    val progress: Progress? = null,
     @SerialName("season_id")
     val seasonId: Int,
     @SerialName("season_type")

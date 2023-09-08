@@ -57,7 +57,11 @@ data class SearchResultData(
         result.forEach { searchResultJsonElement ->
             val searchResultJsonObject = searchResultJsonElement.jsonObject
             var resultType = searchResultJsonObject["result_type"]?.jsonPrimitive?.content
-            val json = Json
+            val json = Json {
+                coerceInputValues = true
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            }
             if (resultType != null) {
                 // 综合搜索
                 val searchResultDataJsonArray = searchResultJsonObject["data"]!!.jsonArray
