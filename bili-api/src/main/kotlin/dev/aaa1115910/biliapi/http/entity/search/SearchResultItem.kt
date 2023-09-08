@@ -429,5 +429,14 @@ data class SearchVideoResult(
     @SerialName("enable_vt")
     private val _enableVt: Int = 0,
     @Transient
-    val enableVt: Boolean = _enableVt == 1
+    val enableVt: Boolean = _enableVt == 1,
+    @SerialName("vt_display")
+    val vtDisplay: String,
+    val subtitle: String,
+    @SerialName("episode_count_text")
+    val episodeCountText: String,
+    @SerialName("release_status")
+    val releaseStatus: Int,
+    @SerialName("is_intervene")
+    val isIntervene: Int
 ) : SearchResultItem()

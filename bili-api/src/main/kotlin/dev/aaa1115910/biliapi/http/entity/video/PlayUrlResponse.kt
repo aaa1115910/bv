@@ -137,7 +137,7 @@ data class DashDolby(
 @Serializable
 data class DashFlac(
     val display: Boolean,
-    val audio: DashData
+    val audio: DashData? = null
 )
 
 @Serializable

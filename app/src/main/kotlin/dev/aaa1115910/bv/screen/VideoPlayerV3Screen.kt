@@ -206,7 +206,7 @@ fun VideoPlayerV3Screen(
         override fun onError(error: Exception) {
             logger.info { "onError: $error" }
             isError = true
-            exception = error
+            exception = error.cause as Exception?
         }
 
         override fun onReady() {
