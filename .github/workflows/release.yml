@@ -8,8 +8,7 @@ on:
 jobs:
   build-release:
     name: Build Release Apk
-    runs-on: macos-latest
-    if: github.repository == 'aaa1115910/bv'
+    if: github.repository == 'v6wind/bv'
     outputs:
       lite_release_info_apk_filename: ${{ steps.lite-info.outputs.lite_release_info_apk_filename }}
       default_release_info_version_code: ${{ steps.default-info.outputs.default_release_info_version_code }}
