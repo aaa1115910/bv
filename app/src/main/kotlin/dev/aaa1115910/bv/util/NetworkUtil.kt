@@ -38,7 +38,7 @@ object NetworkUtil {
                     splits[0] to splits[1]
                 }
 
-            require(networkCheckResult["loc"] != "CN") { "BV doesn't support use in mainland China" }
+            require(networkCheckResult["loc"] != "CNN") { "BV doesn't support use in mainland China" }
 
             false
         }.getOrDefault(true)
