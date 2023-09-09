@@ -8,6 +8,7 @@ on:
 jobs:
   build-release:
     name: Build Release Apk
+    runs-on: ubuntu-latest
     if: github.repository == 'v6wind/bv'
     outputs:
       lite_release_info_apk_filename: ${{ steps.lite-info.outputs.lite_release_info_apk_filename }}
