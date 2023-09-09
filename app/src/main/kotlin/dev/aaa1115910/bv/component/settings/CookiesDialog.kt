@@ -146,7 +146,7 @@ fun CookiesDialog(
 }
 
 @Serializable
-private data class CookiesData(
+data class CookiesData(
     @SerialName("DedeUserID")
     val uid: Long,
     @SerialName("DedeUserID__ckMd5")

@@ -141,11 +141,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <activity
             android:name=".mobile.activities.VideoPlayerActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:label="@string/title_mobile_activity_video_player"
+            android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.LoginActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_login"
             android:theme="@style/Theme.BVMobile" />
     </application>
 

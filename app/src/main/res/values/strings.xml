@@ -210,6 +210,7 @@
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
     <string name="title_activity_video_player_v3">视频播放</string>
+    <string name="title_mobile_activity_login">用户登录</string>
     <string name="title_mobile_activity_video_player">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
