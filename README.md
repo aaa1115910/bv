@@ -2,7 +2,7 @@
 
 <img src="app/src/main/res/drawable/ic_banner.webp" style="border-radius: 24px; margin-top: 32px;"/>
 
-# BV
+# BVV
 
 ~~Bug Video~~
 
