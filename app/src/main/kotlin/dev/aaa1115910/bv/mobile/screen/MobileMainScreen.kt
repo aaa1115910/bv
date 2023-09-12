@@ -66,7 +66,7 @@ fun MobileMainScreen(
     val openNavDrawer: () -> Unit = { scope.launch { drawerState.open() } }
 
     LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.Default) { homeViewModel.loadMore() }
+        scope.launch(Dispatchers.IO) { homeViewModel.loadMore() }
     }
 
     LaunchedEffect(Unit) {

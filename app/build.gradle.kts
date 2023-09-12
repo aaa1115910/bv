@@ -3,7 +3,7 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
-import java.util.*
+import java.util.Properties
 
 plugins {
     alias(gradleLibs.plugins.android.application)
@@ -169,6 +169,7 @@ dependencies {
     implementation(androidx.compose.ui.util)
     implementation(androidx.compose.ui.tooling.preview)
     implementation(androidx.compose.material.icons)
+    implementation(androidx.compose.material)
     implementation(androidx.compose.material3)
     implementation(androidx.compose.material3.window.size)
     implementation(androidx.compose.tv.foundation)

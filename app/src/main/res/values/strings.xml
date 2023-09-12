@@ -42,6 +42,8 @@
     <string name="following_season_type_film_and_television">影视</string>
 
     <string name="home_press_back_again_to_exit">再次按下返回键退出 Bug Video</string>
+    <string name="home_tab_popular">热门</string>
+    <string name="home_tab_rcmd">推荐</string>
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_count_no_more">已加载全部共 %1$d 条数据</string>

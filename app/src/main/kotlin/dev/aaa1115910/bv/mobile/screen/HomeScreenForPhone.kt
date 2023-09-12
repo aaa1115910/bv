@@ -41,7 +41,7 @@ fun HomeScreenForPhone(
     var activeSearch by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.Default) { homeViewModel.loadMore() }
+        scope.launch(Dispatchers.IO) { homeViewModel.loadMore() }
     }
 
     LaunchedEffect(Unit) {
@@ -83,10 +83,10 @@ fun HomeScreenForPhone(
             }
         }
     ) { innerPadding ->
+        val modifier = Modifier.padding(innerPadding)
         when (currentScreen) {
             MobileMainScreenNav.Home -> {
                 HomeScreen(
-                    modifier = Modifier.padding(innerPadding),
                     gridState = lazyGridState,
                     windowSize = windowSize,
                     onSearchActiveChange = { activeSearch = it }
@@ -94,9 +94,7 @@ fun HomeScreenForPhone(
             }
 
             MobileMainScreenNav.Dynamic -> {
-                DynamicScreen(
-                    modifier = Modifier.padding(innerPadding),
-                )
+                DynamicScreen()
             }
 
             else -> {}
