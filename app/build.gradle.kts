@@ -3,7 +3,7 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
-import java.util.*
+import java.util.Properties
 
 plugins {
     alias(gradleLibs.plugins.android.application)
@@ -104,6 +104,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
