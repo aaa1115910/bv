@@ -112,6 +112,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "**/*.proto"
         }
 
         if (gradle.startParameter.taskNames.find { it.startsWith("assembleLite") } != null) {
