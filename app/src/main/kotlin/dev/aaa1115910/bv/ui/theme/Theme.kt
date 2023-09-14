@@ -36,9 +36,7 @@ import dev.aaa1115910.bv.util.Prefs
 @Composable
 fun BVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable (
-        onDensityChange: (Float) -> Unit
-    ) -> Unit
+    content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     val fontScale = LocalDensity.current.fontScale
@@ -84,18 +82,10 @@ fun BVTheme(
                     ) {
                         if (showFps) {
                             FpsMonitor {
-                                content(
-                                    onDensityChange = {
-
-                                    }
-                                )
+                                content()
                             }
                         } else {
-                            content(
-                                onDensityChange = {
-
-                                }
-                            )
+                            content()
                         }
                     }
                 }

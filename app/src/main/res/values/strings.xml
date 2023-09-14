@@ -245,7 +245,6 @@
     <string name="video_info_related_video_title">视频推荐</string>
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
-    <string name="video_info_ugc_season_row_title">视频合集</string>
     <string name="video_player_menu_danmaku_area">显示区域</string>
     <string name="video_player_menu_danmaku_opacity">不透明度</string>
     <string name="video_player_menu_danmaku_size">字体缩放</string>

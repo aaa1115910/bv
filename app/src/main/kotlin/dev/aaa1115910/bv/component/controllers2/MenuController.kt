@@ -63,6 +63,7 @@ import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
+import kotlinx.coroutines.delay
 
 @Composable
 fun MenuController(
@@ -86,7 +87,10 @@ fun MenuController(
     val defaultFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(show) {
-        if (show) defaultFocusRequester.requestFocus(scope)
+        if (show) {
+            delay(100)
+            defaultFocusRequester.requestFocus(scope)
+        }
     }
 
     Box(

@@ -47,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
@@ -69,10 +70,9 @@ dependencies {
     implementation(androidx.compose.tv.material)
     implementation(androidx.compose.material)
     implementation(androidx.media3.common)
+    implementation(androidx.media3.datasource.okhttp)
     implementation(androidx.media3.decoder)
     implementation(androidx.media3.exoplayer)
-    implementation(androidx.media3.exoplayer.dash)
-    implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
     implementation(libs.material)
     testImplementation(libs.kotlin.test)

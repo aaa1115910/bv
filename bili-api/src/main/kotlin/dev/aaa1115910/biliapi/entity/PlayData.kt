@@ -20,7 +20,7 @@ data class PlayData(
             val streamList =
                 playViewUniteReply.vodInfo.streamListList.filter { it.dashVideoOrNull != null }
             val audioList = playViewUniteReply.vodInfo.dashAudioList
-            val dolbyItem = playViewUniteReply.vodInfo.dolbyOrNull?.audioList?.first()
+            val dolbyItem = playViewUniteReply.vodInfo.dolbyOrNull?.audioList?.firstOrNull()
             val lossLessItem =
                 playViewUniteReply.vodInfo.lossLessItemOrNull?.audio.takeIf { it?.id != 0 }
 

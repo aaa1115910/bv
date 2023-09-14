@@ -1,7 +1,7 @@
 [versions]
 activity = "1.7.2"
-compose = "1.5.0"
-compose-compiler = "1.5.1"
+compose = "1.5.1"
+compose-compiler = "1.5.3"
 compose-material3 = "1.2.0-alpha05"
 compose-tv = "1.0.0-alpha08"
 core = "1.10.1"
@@ -64,6 +64,7 @@ lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel
 
 # https://developer.android.com/jetpack/androidx/releases/media3
 media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
+media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
 media3-decoder = { module = "androidx.media3:media3-decoder", version.ref = "media3" }
 media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
