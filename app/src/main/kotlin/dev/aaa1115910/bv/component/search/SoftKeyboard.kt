@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -17,6 +19,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Checkbox
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -24,14 +28,18 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SoftKeyboard(
     modifier: Modifier = Modifier,
     firstButtonFocusRequester: FocusRequester,
+    showSearchWithProxy: Boolean,
+    enableSearchWithProxy: Boolean,
     onClick: (String) -> Unit,
     onClear: () -> Unit,
     onDelete: () -> Unit,
-    onSearch: () -> Unit
+    onSearch: () -> Unit,
+    onEnableSearchWithProxyChange: (Boolean) -> Unit
 ) {
     val keys = listOf(
         listOf("A", "B", "C", "D", "E", "F"),
@@ -82,6 +90,30 @@ fun SoftKeyboard(
                 key = stringResource(R.string.search_input_soft_keybord_search),
                 onClick = onSearch
             )
+        }
+        if (showSearchWithProxy) {
+            Surface(
+                modifier = Modifier,
+                onClick = { onEnableSearchWithProxyChange(!enableSearchWithProxy) },
+                colors = ClickableSurfaceDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+                    pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = enableSearchWithProxy,
+                        onCheckedChange = { onEnableSearchWithProxyChange(it) },
+                    )
+                    Text(text = "通过代理搜索")
+                }
+            }
         }
     }
 }
@@ -150,10 +182,13 @@ private fun SoftKeyboardPreview() {
     BVTheme {
         SoftKeyboard(
             firstButtonFocusRequester = firstButtonFocusRequester,
+            showSearchWithProxy = true,
+            enableSearchWithProxy = true,
             onClick = {},
             onClear = {},
             onDelete = {},
-            onSearch = {}
+            onSearch = {},
+            onEnableSearchWithProxyChange = {}
         )
     }
 }

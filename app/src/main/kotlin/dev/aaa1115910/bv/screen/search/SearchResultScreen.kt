@@ -144,7 +144,9 @@ fun SearchResultScreen(
         val intent = (context as Activity).intent
         if (intent.hasExtra("keyword")) {
             searchKeyword = intent.getStringExtra("keyword") ?: ""
+            val enableProxy = intent.getBooleanExtra("enableProxy", false)
             if (searchKeyword == "") context.finish()
+            searchResultViewModel.enableProxySearchResult = enableProxy
             searchResultViewModel.keyword = searchKeyword
         } else {
             context.finish()

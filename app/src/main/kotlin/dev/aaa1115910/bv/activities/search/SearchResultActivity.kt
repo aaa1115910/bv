@@ -10,10 +10,11 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 
 class SearchResultActivity : ComponentActivity() {
     companion object {
-        fun actionStart(context: Context, keyword: String) {
+        fun actionStart(context: Context, keyword: String, enableProxy: Boolean) {
             context.startActivity(
                 Intent(context, SearchResultActivity::class.java).apply {
                     putExtra("keyword", keyword)
+                    putExtra("enableProxy", enableProxy)
                 }
             )
         }

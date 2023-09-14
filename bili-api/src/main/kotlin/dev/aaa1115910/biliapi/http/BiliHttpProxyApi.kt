@@ -1,6 +1,7 @@
 package dev.aaa1115910.biliapi.http
 
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
+import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
 import dev.aaa1115910.biliapi.http.entity.video.PlayUrlData
 import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
@@ -88,5 +89,26 @@ object BiliHttpProxyApi {
         sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
+    }?.body() ?: throw IllegalStateException("no proxy server")
+
+    /**
+     * 分类搜索与[keyword]相关的[type]类型的相关结果
+     */
+    suspend fun searchType(
+        keyword: String,
+        type: String,
+        page: Int = 1,
+        tid: Int? = null,
+        order: String? = null,
+        duration: Int? = null,
+        buvid3: String? = null
+    ): BiliResponse<SearchResultData> = client?.get("/x/web-interface/wbi/search/type") {
+        parameter("keyword", keyword)
+        parameter("search_type", type)
+        parameter("page", page)
+        tid?.let { parameter("tids", it) }
+        order?.let { parameter("order", it) }
+        duration?.let { parameter("duration", it) }
+        header("Cookie", "buvid3=$buvid3;")
     }?.body() ?: throw IllegalStateException("no proxy server")
 }
