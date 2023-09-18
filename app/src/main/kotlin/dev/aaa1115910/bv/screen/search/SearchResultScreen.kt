@@ -56,6 +56,7 @@ import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.screen.user.UpCard
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -114,7 +115,8 @@ fun SearchResultScreen(
             is SearchTypeResult.Pgc -> {
                 SeasonInfoActivity.actionStart(
                     context = context,
-                    seasonId = resultItem.seasonId
+                    seasonId = resultItem.seasonId,
+                    proxyArea = ProxyArea.checkProxyArea(resultItem.title)
                 )
             }
 
