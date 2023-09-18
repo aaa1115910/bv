@@ -7,9 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    drawerState: DrawerState,
     gridState: LazyGridState,
     popularViewModel: PopularViewModel = koinViewModel(),
     recommendViewModel: RecommendViewModel = koinViewModel(),
@@ -45,7 +45,6 @@ fun HomeScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val pageState = rememberPagerState(pageCount = { 2 })
     var searchText by remember { mutableStateOf("") }
     var activeSearch by remember { mutableStateOf(false) }
@@ -67,7 +66,11 @@ fun HomeScreen(
                         activeSearch = it
                         onSearchActiveChange(it)
                     },
-                    onOpenNavDrawer = { scope.launch { drawerState.open() } },
+                    onOpenNavDrawer = {
+                        scope.launch(Dispatchers.Main) {
+                            drawerState.open()
+                        }
+                    },
                     onChangeTabIndex = {
                         scope.launch {
                             pageState.scrollToPage(it)

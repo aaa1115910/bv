@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 
@@ -199,6 +200,7 @@ private fun UserPanel(
 @Composable
 private fun ModalNavDrawerContentPreview() {
     val drawerState = rememberDrawerState(DrawerValue.Open)
+    val navController = rememberNavController()
     BVMobileTheme {
         Surface {
             ModalNavigationDrawer(

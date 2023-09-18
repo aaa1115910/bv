@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,6 +30,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreenForPhone(
     modifier: Modifier = Modifier,
+    drawerState: DrawerState,
     homeViewModel: PopularViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel(),
     currentScreen: MobileMainScreenNav,
@@ -87,6 +89,7 @@ fun HomeScreenForPhone(
         when (currentScreen) {
             MobileMainScreenNav.Home -> {
                 HomeScreen(
+                    drawerState = drawerState,
                     gridState = lazyGridState,
                     windowSize = windowSize,
                     onSearchActiveChange = { activeSearch = it }

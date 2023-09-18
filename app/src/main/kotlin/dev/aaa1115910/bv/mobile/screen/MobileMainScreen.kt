@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.mobile.screen
 import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -32,6 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
@@ -57,6 +61,7 @@ fun MobileMainScreen(
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val lazyGridState = rememberLazyGridState()
+    val navController = rememberNavController()
 
     var searchText by remember { mutableStateOf("") }
     var activeSearch by remember { mutableStateOf(false) }
@@ -65,12 +70,62 @@ fun MobileMainScreen(
 
     val openNavDrawer: () -> Unit = { scope.launch { drawerState.open() } }
 
+    val goHome = {
+        navController.navigate("home") {
+            popUpTo("home")
+            launchSingleTop = true
+        }
+        currentScreen = MobileMainScreenNav.Home
+    }
+
+    val goHistory = {
+        navController.navigate("history") {
+            popUpTo("home")
+        }
+        currentScreen = MobileMainScreenNav.History
+    }
+
+    val goFavorite = {
+        navController.navigate("favorite") {
+            popUpTo("home")
+        }
+        currentScreen = MobileMainScreenNav.Favorite
+    }
+
+    val goSettings = {
+        navController.navigate("setting") {
+            popUpTo("home")
+        }
+        currentScreen = MobileMainScreenNav.Setting
+    }
+
+    val goMyFollowingUser = {
+        navController.navigate("followingUser") {
+            popUpTo("home")
+        }
+        currentScreen = MobileMainScreenNav.FollowingUser
+    }
+
+    val goDynamic = {
+        navController.navigate("dynamic") {
+            popUpTo("dynamic")
+        }
+        currentScreen = MobileMainScreenNav.Dynamic
+    }
+
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) { homeViewModel.loadMore() }
     }
 
     LaunchedEffect(Unit) {
         userViewModel.updateUserInfo()
+
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            logger.info { "current route: ${destination.route}" }
+            if (destination.route == "home") {
+                currentScreen = MobileMainScreenNav.Home
+            }
+        }
     }
 
     ModalNavigationDrawer(
@@ -85,11 +140,11 @@ fun MobileMainScreen(
                 onCloseDrawer = { scope.launch { drawerState.close() } },
                 onLogin = { context.startActivity(Intent(context, LoginActivity::class.java)) },
                 onLogout = { },
-                onGoHome = { currentScreen = MobileMainScreenNav.Home },
-                onGoHistory = { currentScreen = MobileMainScreenNav.History },
-                onGoFavorite = { currentScreen = MobileMainScreenNav.Favorite },
-                onGoSetting = { currentScreen = MobileMainScreenNav.Setting },
-                onGoMyFollowingUser = { currentScreen = MobileMainScreenNav.FollowingUser },
+                onGoHome = goHome,
+                onGoHistory = goHistory,
+                onGoFavorite = goFavorite,
+                onGoSetting = goSettings,
+                onGoMyFollowingUser = goMyFollowingUser,
             )
         }
     ) {
@@ -97,54 +152,58 @@ fun MobileMainScreen(
             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
                 MainNavRail(
                     currentScreen = currentScreen,
-                    onCurrentScreenChange = { currentScreen = it },
+                    onCurrentScreenChange = {
+                        when (it) {
+                            MobileMainScreenNav.Home -> goHome()
+                            MobileMainScreenNav.Search -> goHistory()
+                            MobileMainScreenNav.Dynamic -> goDynamic()
+                            MobileMainScreenNav.Setting -> goSettings()
+                            MobileMainScreenNav.History -> goHistory()
+                            MobileMainScreenNav.Favorite -> goFavorite()
+                            MobileMainScreenNav.FollowingUser -> goMyFollowingUser()
+                        }
+                    },
                 )
             }
 
-            when (currentScreen) {
-                MobileMainScreenNav.Home, MobileMainScreenNav.Dynamic -> {
+            NavHost(
+                modifier = Modifier.fillMaxSize(),
+                navController = navController,
+                startDestination = "home"
+            ) {
+                composable("home") {
                     if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
                         HomeScreenForPhone(
+                            drawerState = drawerState,
                             currentScreen = currentScreen,
                             onCurrentScreenChange = { currentScreen = it },
                             windowSize = windowSizeClass.widthSizeClass,
                         )
                     } else {
-                        when (currentScreen) {
-                            MobileMainScreenNav.Home -> {
-                                HomeScreen(
-                                    gridState = lazyGridState,
-                                    windowSize = windowSizeClass.widthSizeClass,
-                                    onSearchActiveChange = { activeSearch = it }
-                                )
-                            }
-
-                            MobileMainScreenNav.Dynamic -> {
-                                DynamicScreen()
-                            }
-
-                            else -> {}
-                        }
+                        HomeScreen(
+                            drawerState = drawerState,
+                            gridState = lazyGridState,
+                            windowSize = windowSizeClass.widthSizeClass,
+                            onSearchActiveChange = { activeSearch = it }
+                        )
                     }
                 }
-
-                MobileMainScreenNav.History -> {
+                composable("dynamic") {
+                    DynamicScreen()
+                }
+                composable("history") {
                     Text(text = "History")
                 }
-
-                MobileMainScreenNav.Search -> {
+                composable("search") {
                     Text(text = "Search")
                 }
-
-                MobileMainScreenNav.Setting -> {
+                composable("setting") {
                     Text(text = "Setting")
                 }
-
-                MobileMainScreenNav.Favorite -> {
+                composable("favorite") {
                     Text(text = "Favorite")
                 }
-
-                MobileMainScreenNav.FollowingUser -> {
+                composable("followingUser") {
                     Text(text = "FollowingUser")
                 }
             }

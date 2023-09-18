@@ -11,6 +11,7 @@ core-splashscreen = "1.0.1"
 dataStore = "1.0.0"
 lifecycle = "2.6.1"
 media3 = "1.1.1"
+navigation = "2.7.2"
 room = "2.5.2"
 webkit = "1.8.0-rc01"
 
@@ -71,6 +72,9 @@ media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = 
 media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
 media3-exoplayer-hls = { module = "androidx.media3:media3-exoplayer-hls", version.ref = "media3" }
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+
+# https://developer.android.com/jetpack/androidx/releases/guide/navigation
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 
 # https://developer.android.com/jetpack/androidx/releases/room
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
