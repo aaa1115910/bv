@@ -11,15 +11,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,9 +62,12 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
+import dev.aaa1115910.bv.mobile.component.videocard.RelatedVideoItem
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.player.mobile.component.BvPlayer
+import dev.aaa1115910.bv.util.formatPubTimeString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -138,7 +143,7 @@ fun VideoPlayerScreen(
 
     Scaffold { innerPadding ->
         Row(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         ) {
             val leftPartWidth by animateFloatAsState(
                 targetValue = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded && !isVideoFullscreen) 0.6f else 1f,
@@ -214,12 +219,29 @@ fun VideoPlayerScreen(
                                                 ?: 0,
                                             danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
                                                 ?: 0,
-                                            date = playerViewModel.videoDetail?.publishDate?.toString()
-                                                ?: "",
+                                            date = playerViewModel.videoDetail?.publishDate
+                                                ?.formatPubTimeString(context) ?: "",
                                             avid = playerViewModel.videoDetail?.aid ?: 0
                                         )
                                     }
-                                    RelatedVideos()
+                                    items(
+                                        items = playerViewModel.videoDetail?.relatedVideos
+                                            ?: emptyList()
+                                    ) { relatedVideo ->
+                                        RelatedVideoItem(
+                                            relatedVideo = relatedVideo,
+                                            onClick = {
+                                                VideoPlayerActivity.actionStart(
+                                                    context = context,
+                                                    aid = relatedVideo.aid,
+                                                    fromSeason = relatedVideo.jumpToSeason
+                                                )
+                                            }
+                                        )
+                                    }
+                                    item {
+                                        Spacer(modifier = Modifier.navigationBarsPadding())
+                                    }
                                 }
                             }
 
@@ -243,11 +265,28 @@ fun VideoPlayerScreen(
                                 playCount = playerViewModel.videoDetail?.stat?.view ?: 0,
                                 danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
                                     ?: 0,
-                                date = playerViewModel.videoDetail?.publishDate?.toString() ?: "",
+                                date = playerViewModel.videoDetail?.publishDate
+                                    ?.formatPubTimeString(context) ?: "",
                                 avid = playerViewModel.videoDetail?.aid ?: 0
                             )
                         }
-                        RelatedVideos()
+                        items(
+                            items = playerViewModel.videoDetail?.relatedVideos ?: emptyList()
+                        ) { relatedVideo ->
+                            RelatedVideoItem(
+                                relatedVideo = relatedVideo,
+                                onClick = {
+                                    VideoPlayerActivity.actionStart(
+                                        context = context,
+                                        aid = relatedVideo.aid,
+                                        fromSeason = relatedVideo.jumpToSeason
+                                    )
+                                }
+                            )
+                        }
+                        item {
+                            Spacer(modifier = Modifier.navigationBarsPadding())
+                        }
                     }
                 }
             }
@@ -385,19 +424,6 @@ fun VideoComments(
                     }
                 )
             }
-        }
-    }
-}
-
-fun LazyListScope.RelatedVideos(
-) {
-    repeat(100) {
-        item {
-            ListItem(
-                headlineContent = {
-                    Text(text = "This is a related video #$it")
-                }
-            )
         }
     }
 }
