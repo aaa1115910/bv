@@ -154,6 +154,11 @@
             android:exported="false"
             android:label="@string/title_mobile_activity_login"
             android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.UserSpaceActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_user_space"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>

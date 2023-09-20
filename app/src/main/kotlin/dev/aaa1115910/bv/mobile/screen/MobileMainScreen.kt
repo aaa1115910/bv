@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
+import dev.aaa1115910.bv.mobile.screen.home.FollowingUserScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -204,7 +205,9 @@ fun MobileMainScreen(
                     Text(text = "Favorite")
                 }
                 composable("followingUser") {
-                    Text(text = "FollowingUser")
+                    FollowingUserScreen(
+                        onBack = goHome
+                    )
                 }
             }
         }

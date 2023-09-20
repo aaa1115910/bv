@@ -43,7 +43,7 @@ import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
-import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
+import dev.aaa1115910.bv.viewmodel.user.UserSpaceViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -121,7 +121,7 @@ val appModule = module {
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { FavoriteViewModel(get()) }
-    viewModel { UpInfoViewModel(get()) }
+    viewModel { UserSpaceViewModel(get()) }
     viewModel { FollowViewModel(get()) }
     viewModel { SearchInputViewModel(get()) }
     viewModel { SearchResultViewModel(get()) }

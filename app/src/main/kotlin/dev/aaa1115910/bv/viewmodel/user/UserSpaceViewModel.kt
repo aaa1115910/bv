@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aaa1115910.biliapi.entity.user.SpaceVideo
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
@@ -15,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
-class UpInfoViewModel(
+class UserSpaceViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
     companion object {
@@ -24,7 +25,8 @@ class UpInfoViewModel(
 
     var upName by mutableStateOf("")
     var upMid by mutableLongStateOf(0L)
-    var spaceVideos = mutableStateListOf<VideoCardData>()
+    var tvSpaceVideos = mutableStateListOf<VideoCardData>()
+    var spaceVideos = mutableStateListOf<SpaceVideo>()
 
     private var pageNumber = 1
     private var pageSize = 30
@@ -50,8 +52,9 @@ class UpInfoViewModel(
                 preferApiType = Prefs.apiType
             )
             if (videoList.isEmpty()) noMore = true
+            spaceVideos.addAll(videoList)
             videoList.forEach { spaceVideoItem ->
-                spaceVideos.add(
+                tvSpaceVideos.add(
                     VideoCardData(
                         avid = spaceVideoItem.aid,
                         title = spaceVideoItem.title,

@@ -33,14 +33,14 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
-import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
+import dev.aaa1115910.bv.viewmodel.user.UserSpaceViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpSpaceScreen(
     modifier: Modifier = Modifier,
-    upInfoViewModel: UpInfoViewModel = koinViewModel()
+    userSpaceViewModel: UserSpaceViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -55,9 +55,9 @@ fun UpSpaceScreen(
         if (intent.hasExtra("mid")) {
             val mid = intent.getLongExtra("mid", 0)
             val name = intent.getStringExtra("name") ?: ""
-            upInfoViewModel.upMid = mid
-            upInfoViewModel.upName = name
-            upInfoViewModel.update()
+            userSpaceViewModel.upMid = mid
+            userSpaceViewModel.upName = name
+            userSpaceViewModel.update()
         } else {
             context.finish()
         }
@@ -75,7 +75,7 @@ fun UpSpaceScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = upInfoViewModel.upName,
+                        text = userSpaceViewModel.upName,
                         fontSize = titleFontSize.sp
                     )
                     Row(
@@ -84,11 +84,11 @@ fun UpSpaceScreen(
                         Text(
                             text = stringResource(
                                 R.string.load_data_count,
-                                upInfoViewModel.spaceVideos.size
+                                userSpaceViewModel.tvSpaceVideos.size
                             ),
                             color = Color.White.copy(alpha = 0.6f)
                         )
-                        AnimatedVisibility(visible = upInfoViewModel.noMore) {
+                        AnimatedVisibility(visible = userSpaceViewModel.noMore) {
                             Text(
                                 text = stringResource(R.string.load_data_no_more),
                                 color = Color.White.copy(alpha = 0.6f)
@@ -107,7 +107,7 @@ fun UpSpaceScreen(
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             itemsIndexed(
-                items = upInfoViewModel.spaceVideos,
+                items = userSpaceViewModel.tvSpaceVideos,
                 key = { index, _ -> index }
             ) { index, video ->
                 Box(
@@ -124,8 +124,8 @@ fun UpSpaceScreen(
                         },
                         onFocus = {
                             currentIndex = index
-                            if (index + 20 > upInfoViewModel.spaceVideos.size) {
-                                upInfoViewModel.update()
+                            if (index + 20 > userSpaceViewModel.tvSpaceVideos.size) {
+                                userSpaceViewModel.update()
                             }
                         }
                     )
