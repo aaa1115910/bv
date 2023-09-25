@@ -39,10 +39,13 @@ fun FullscreenControllers(
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    currentResolutionName: String,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
-    onSeekToPosition: (Long) -> Unit
+    onSeekToPosition: (Long) -> Unit,
+    onShowResolutionController: () -> Unit,
+    onShowSpeedController: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -62,10 +65,13 @@ fun FullscreenControllers(
             totalTime = totalTime,
             currentSeekPosition = currentSeekPosition,
             bufferedSeekPosition = bufferedSeekPosition,
+            currentResolutionName = currentResolutionName,
             onPlay = onPlay,
             onPause = onPause,
             onExitFullScreen = onExitFullScreen,
-            onSeekToPosition = onSeekToPosition
+            onSeekToPosition = onSeekToPosition,
+            onShowResolutionController = onShowResolutionController,
+            onShowSpeedController = onShowSpeedController
         )
     }
 }
@@ -76,7 +82,7 @@ private fun TopControllers(
 ) {
     Box(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.Black.copy(alpha = 0.6f))
     ) {
         Row(
             modifier = Modifier.height(60.dp),
@@ -101,14 +107,17 @@ private fun BottomControllers(
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    currentResolutionName: String,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
-    onSeekToPosition: (Long) -> Unit
+    onSeekToPosition: (Long) -> Unit,
+    onShowResolutionController: () -> Unit,
+    onShowSpeedController: () -> Unit
 ) {
     Box(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.Black.copy(alpha = 0.6f))
     ) {
         Column {
             ConstraintLayout(
@@ -181,11 +190,11 @@ private fun BottomControllers(
                         TextButton(onClick = { /*TODO*/ }) {
                             Text(text = "选集")
                         }
-                        TextButton(onClick = { /*TODO*/ }) {
+                        TextButton(onClick = onShowSpeedController) {
                             Text(text = "倍速")
                         }
-                        TextButton(onClick = { /*TODO*/ }) {
-                            Text(text = "1080P")
+                        TextButton(onClick = onShowResolutionController) {
+                            Text(text = currentResolutionName)
                         }
                         IconButton(onClick = onExitFullScreen) {
                             Icon(
@@ -211,10 +220,13 @@ fun FullscreenControllerPreview() {
             totalTime = 123456,
             currentSeekPosition = 0.3f,
             bufferedSeekPosition = 0.6f,
+            currentResolutionName = "1080P",
             onPlay = {},
             onPause = {},
             onExitFullScreen = {},
-            onSeekToPosition = {}
+            onSeekToPosition = {},
+            onShowResolutionController = {},
+            onShowSpeedController = {}
         )
     }
 }

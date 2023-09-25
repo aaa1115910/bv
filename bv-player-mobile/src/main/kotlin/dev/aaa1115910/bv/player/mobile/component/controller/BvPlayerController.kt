@@ -22,6 +22,8 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import dev.aaa1115910.bv.player.mobile.component.controller.menu.ResolutionMenuController
+import dev.aaa1115910.bv.player.mobile.component.controller.menu.SpeedMenuController
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -34,16 +36,24 @@ fun BvPlayerController(
     totalTime: Long,
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
+    currentResolutionCode: Int,
+    availableResolutionMap: Map<Int, String>,
+    currentSpeed: Float,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
     onBack: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
+    onChangeResolution: (Int) -> Unit,
+    onChangeSpeed: (Float) -> Unit,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    var showUi by remember { mutableStateOf(false) }
+    var showBaseUi by remember { mutableStateOf(false) }
+
+    var showResolutionController by remember { mutableStateOf(false) }
+    var showSpeedController by remember { mutableStateOf(false) }
 
     //在手势触发的事件中，直接读取 isPlaying currentTime 参数都只会读取到错误的值，原因未知
     var isPlaying2 by remember { mutableStateOf(isPlaying) }
@@ -66,7 +76,13 @@ fun BvPlayerController(
 
     val onTap: () -> Unit = {
         Log.i("BvPlayerController", "Screen tap")
-        showUi = !showUi
+        if (showResolutionController) {
+            showResolutionController = false
+        } else if (showSpeedController) {
+            showSpeedController = false
+        } else {
+            showBaseUi = !showBaseUi
+        }
     }
 
     val onLongPress: () -> Unit = {
@@ -197,7 +213,7 @@ fun BvPlayerController(
             ) {}
         }
 
-        if (showUi) {
+        if (showBaseUi) {
             if (isFullScreen) {
                 FullscreenControllers(
                     isPlaying = isPlaying,
@@ -205,10 +221,20 @@ fun BvPlayerController(
                     totalTime = totalTime,
                     currentSeekPosition = currentSeekPosition,
                     bufferedSeekPosition = bufferedSeekPosition,
+                    currentResolutionName = availableResolutionMap[currentResolutionCode]
+                        ?: "Unknown",
                     onPlay = onPlay,
                     onPause = onPause,
                     onExitFullScreen = onExitFullScreen,
-                    onSeekToPosition = onSeekToPosition
+                    onSeekToPosition = onSeekToPosition,
+                    onShowResolutionController = {
+                        showBaseUi = false
+                        showResolutionController = true
+                    },
+                    onShowSpeedController = {
+                        showBaseUi = false
+                        showSpeedController = true
+                    }
                 )
             } else {
                 MiniControllers(
@@ -225,6 +251,27 @@ fun BvPlayerController(
                 )
             }
         }
+
+        ResolutionMenuController(
+            show = showResolutionController,
+            currentResolutionCode = currentResolutionCode,
+            availableResolutionMap = availableResolutionMap,
+            onHideController = { showResolutionController = false },
+            onClickResolution = { code ->
+                onChangeResolution(code)
+                showResolutionController = false
+            }
+        )
+
+        SpeedMenuController(
+            show = showSpeedController,
+            currentSpeed = currentSpeed,
+            onHideController = { showSpeedController = false },
+            onClickSpeed = { speed ->
+                onChangeSpeed(speed)
+                showSpeedController = false
+            }
+        )
     }
 }
 

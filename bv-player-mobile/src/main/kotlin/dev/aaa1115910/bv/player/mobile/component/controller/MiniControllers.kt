@@ -70,7 +70,7 @@ private fun TopControllers(
 ) {
     Box(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.Black.copy(alpha = 0.6f))
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -107,7 +107,7 @@ private fun BottomControllers(
 ) {
     Box(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(Color.Black.copy(alpha = 0.6f))
     ) {
         ConstraintLayout {
             val (playButton, seekSlider, positionText, fullscreenButton) = createRefs()

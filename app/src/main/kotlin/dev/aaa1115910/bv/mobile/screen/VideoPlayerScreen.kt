@@ -39,6 +39,7 @@ import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -67,7 +68,10 @@ import dev.aaa1115910.bv.mobile.component.videocard.RelatedVideoItem
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.player.mobile.component.BvPlayer
+import dev.aaa1115910.bv.player.mobile.util.LocalMobileVideoPlayerData
+import dev.aaa1115910.bv.player.mobile.util.MobileVideoPlayerData
 import dev.aaa1115910.bv.util.formatPubTimeString
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -136,7 +140,8 @@ fun VideoPlayerScreen(
                     //@SuppressLint("SourceLockedOrientationActivity")
                     //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
                 },
-                onBack = { (context as Activity).finish() }
+                onBack = { (context as Activity).finish() },
+                onChangeResolution = {}
             )
         }
     }
@@ -154,23 +159,36 @@ fun VideoPlayerScreen(
                     .fillMaxWidth(leftPartWidth)
             ) {
                 if (playerViewModel.videoPlayer != null) {
-                    BvPlayer(
-                        modifier = if (isVideoFullscreen) Modifier
-                            .fillMaxSize()
-                            .zIndex(1f)
-                        else Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 9f),
-                        isFullScreen = isVideoFullscreen,
-                        videoPlayer = playerViewModel.videoPlayer!!,
-                        onEnterFullScreen = {
-                            isVideoFullscreen = true
-                        },
-                        onExitFullScreen = {
-                            isVideoFullscreen = false
-                        },
-                        onBack = { (context as Activity).finish() }
-                    )
+                    CompositionLocalProvider(
+                        LocalMobileVideoPlayerData provides MobileVideoPlayerData(
+                            currentResolutionCode = playerViewModel.currentQuality,
+                            availableResolutionMap = playerViewModel.availableQuality
+                        )
+                    ) {
+                        BvPlayer(
+                            modifier = if (isVideoFullscreen) Modifier
+                                .fillMaxSize()
+                                .zIndex(1f)
+                            else Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 9f),
+                            isFullScreen = isVideoFullscreen,
+                            videoPlayer = playerViewModel.videoPlayer!!,
+                            onEnterFullScreen = {
+                                isVideoFullscreen = true
+                            },
+                            onExitFullScreen = {
+                                isVideoFullscreen = false
+                            },
+                            onBack = { (context as Activity).finish() },
+                            onChangeResolution = { code ->
+                                scope.launch(Dispatchers.IO) {
+                                    playerViewModel.currentQuality = code
+                                    playerViewModel.playQuality(code)
+                                }
+                            }
+                        )
+                    }
                 }
                 val titles = listOf("简介", "评论")
                 val pagerState = rememberPagerState(
