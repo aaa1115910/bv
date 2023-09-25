@@ -144,7 +144,7 @@ fun NetworkSetting(
                 channelRepository.initProxyChannel(
                     accessKey = Prefs.accessToken,
                     buvid = Prefs.buvid,
-                    endPoint = it
+                    proxyServer = it
                 )
             }
         }
@@ -193,7 +193,12 @@ fun ProxyServerEditDialog(
             onDismissRequest = onHideDialog,
             confirmButton = {
                 Button(onClick = {
-                    onProxyServerChange(proxyServerString.replace("\n", ""))
+                    onProxyServerChange(
+                        proxyServerString
+                            .replace("\n", "")
+                            .replace("https://", "")
+                            .replace("http://", "")
+                    )
                     onHideDialog()
                 }) {
                     Text(text = stringResource(id = R.string.common_confirm))

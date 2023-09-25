@@ -28,7 +28,7 @@ object BiliHttpProxyApi {
         prettyPrint = true
     }
 
-    fun createClient(endPoint: String) {
+    fun createClient(proxyServer: String) {
         client = HttpClient(OkHttp) {
             BrowserUserAgent()
             install(ContentNegotiation) {
@@ -43,12 +43,19 @@ object BiliHttpProxyApi {
             }
             defaultRequest {
                 url {
+                    val proxyServerSpilt = proxyServer.split(":")
+                    val endPoint = proxyServerSpilt.first()
+                    val port = proxyServerSpilt.getOrNull(1)?.toInt()
                     host = endPoint
                     if (endPoint == "127.0.0.1") {
                         //local debug
-                        port = 8080
+                        this.port = 8080
                     } else {
-                        protocol = URLProtocol.HTTPS
+                        if (port != null) {
+                            this.port = port
+                        } else {
+                            protocol = URLProtocol.HTTPS
+                        }
                     }
                 }
             }
