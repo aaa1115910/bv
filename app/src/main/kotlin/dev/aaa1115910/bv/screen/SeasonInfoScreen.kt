@@ -1,9 +1,13 @@
 package dev.aaa1115910.bv.screen
 
 import android.app.Activity
+import android.os.Build
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +23,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material3.AlertDialog
@@ -26,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -36,11 +44,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -61,9 +73,15 @@ import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.itemsIndexed
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
+import androidx.tv.material3.Border
+import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
+import androidx.tv.material3.ImmersiveList
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -73,6 +91,7 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.season.Episode
+import dev.aaa1115910.biliapi.entity.video.season.PgcSeason
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
@@ -88,7 +107,6 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
-import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.focusedScale
 import dev.aaa1115910.bv.util.launchPlayerActivity
 import dev.aaa1115910.bv.util.requestFocus
@@ -126,6 +144,8 @@ fun SeasonInfoScreen(
     var isFollowing by remember { mutableStateOf(false) }
     var tip by remember { mutableStateOf("Loading") }
     var paused by remember { mutableStateOf(false) }
+
+    var showSeasonSelector by remember { mutableStateOf(false) }
 
     val defaultFocusRequester = remember { FocusRequester() }
 
@@ -267,6 +287,7 @@ fun SeasonInfoScreen(
                         following = isFollowing,
                         isPublished = seasonData!!.publish.isPublished,
                         publishDate = seasonData!!.publish.publishDate,
+                        seasonCount = seasonData!!.seasons.size,
                         onPlay = {
                             logger.fInfo { "Click play button" }
                             var playAid = -1
@@ -380,6 +401,9 @@ fun SeasonInfoScreen(
                                     }
                                 }
                             }
+                        },
+                        onClickCover = {
+                            if (seasonData?.seasons?.isNotEmpty() == true) showSeasonSelector = true
                         }
                     )
                 }
@@ -447,8 +471,26 @@ fun SeasonInfoScreen(
                 }
             }
         }
-
     }
+
+    SeasonSelector(
+        show = showSeasonSelector,
+        onHideSelector = {
+            showSeasonSelector = false
+            runCatching {
+                defaultFocusRequester.requestFocus(scope)
+            }
+        },
+        currentSeasonId = seasonId ?: 0,
+        seasons = seasonData?.seasons ?: emptyList(),
+        onClickSeason = { sid ->
+            if ((seasonId ?: 0) != sid) {
+                seasonData = null
+                updateSeasonData(sid, null)
+                seasonId = sid
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -456,22 +498,61 @@ fun SeasonInfoScreen(
 fun SeasonCover(
     modifier: Modifier = Modifier,
     cover: String,
+    seasonCount: Int,
     onClick: () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
-
-    AsyncImage(
-        modifier = modifier
-            .height(260.dp)
-            .aspectRatio(0.75f)
-            .clip(MaterialTheme.shapes.large)
-            .background(if (isPreview) Color.White else Color.Transparent)
-            .focusedBorder(MaterialTheme.shapes.large)
-            .clickable { onClick() },
-        model = cover,
-        contentDescription = null,
-        contentScale = ContentScale.FillHeight
+    var hasFocus by remember { mutableStateOf(false) }
+    val coverBottomTipHeight by animateDpAsState(
+        targetValue = if (hasFocus && seasonCount != 0) 28.dp else 0.dp,
+        label = "Cover bottom tip height"
     )
+
+    Card(
+        modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
+        onClick = onClick,
+        shape = CardDefaults.shape(shape = MaterialTheme.shapes.large),
+        glow = CardDefaults.glow(
+            focusedGlow = Glow(
+                elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                elevation = 16.dp
+            )
+        ),
+        border = if (Build.VERSION.SDK_INT < 31) {
+            CardDefaults.border()
+        } else {
+            CardDefaults.border(
+                focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+            )
+        }
+    ) {
+        Box {
+            AsyncImage(
+                modifier = Modifier
+                    .height(260.dp)
+                    .aspectRatio(0.75f)
+                    .background(if (isPreview) Color.White else Color.Transparent),
+                model = cover,
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight
+            )
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .width(195.dp)
+                    .height(coverBottomTipHeight)
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = stringResource(R.string.season_count_tip, seasonCount),
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -532,8 +613,10 @@ fun SeasonInfoPart(
     following: Boolean,
     isPublished: Boolean,
     publishDate: String,
+    seasonCount: Int,
     onPlay: () -> Unit,
     onClickFollow: (follow: Boolean) -> Unit,
+    onClickCover: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -543,7 +626,8 @@ fun SeasonInfoPart(
     ) {
         SeasonCover(
             cover = cover,
-            onClick = {}
+            seasonCount = seasonCount,
+            onClick = onClickCover
         )
         SeasonBaseInfo(
             title = title,
@@ -877,6 +961,191 @@ fun SeasonEpisodeRow(
     )
 }
 
+@Composable
+fun SeasonSelector(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onHideSelector: () -> Unit,
+    currentSeasonId: Int,
+    seasons: List<PgcSeason>,
+    onClickSeason: (Int) -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(show) {
+        if (show) {
+            focusRequester.requestFocus()
+        }
+    }
+
+    if (show) {
+        SeasonSelectorContent(
+            modifier = modifier
+                .focusRequester(focusRequester),
+            seasons = seasons,
+            currentSeasonId = currentSeasonId,
+            onClickSeason = { seasonId ->
+                onClickSeason(seasonId)
+                onHideSelector()
+            }
+        )
+    }
+
+    BackHandler(show) {
+        onHideSelector()
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+private fun SeasonSelectorContent(
+    modifier: Modifier = Modifier,
+    currentSeasonId: Int,
+    seasons: List<PgcSeason>,
+    onClickSeason: (Int) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val rowState = rememberTvLazyListState()
+    val logger = KotlinLogging.logger {}
+    val currentSeasonFocusRequester = remember { FocusRequester() }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    var scrolling by remember { mutableStateOf(false) }
+    var currentSeasonIndex by remember { mutableIntStateOf(0) }
+    val isCurrentSeasonInScreen by remember {
+        derivedStateOf {
+            rowState.layoutInfo.visibleItemsInfo.first().index <= currentSeasonIndex
+                    && rowState.layoutInfo.visibleItemsInfo.last().index >= currentSeasonIndex
+        }
+    }
+
+    val scrollToCurrentSeason = {
+        currentSeasonIndex = seasons.indexOfFirst { it.seasonId == currentSeasonId }
+        logger.info { "Season row scroll to index $currentSeasonIndex" }
+        if (currentSeasonIndex != -1) {
+            if (isCurrentSeasonInScreen) {
+                currentSeasonFocusRequester.requestFocus()
+            } else {
+                scope.launch {
+                    scrolling = true
+                    rowState.scrollToItem(currentSeasonIndex)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(rowState.firstVisibleItemScrollOffset) {
+        if (scrolling && isCurrentSeasonInScreen) {
+            scrolling = false
+            currentSeasonFocusRequester.requestFocus()
+        }
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .onFocusChanged {
+                if (it.hasFocus) scrollToCurrentSeason()
+            },
+        shape = RoundedCornerShape(0.dp)
+    ) {
+        ImmersiveList(
+            modifier = Modifier.fillMaxSize(),
+            listAlignment = Alignment.BottomStart,
+            background = { index, _ ->
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    AsyncImage(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .fillMaxHeight(0.7f)
+                            .graphicsLayer { alpha = 0.99f }
+                            .drawWithContent {
+                                val colors = listOf(
+                                    Color.Black,
+                                    Color.Transparent
+                                )
+                                drawContent()
+                                drawRect(
+                                    brush = Brush.horizontalGradient(colors),
+                                    blendMode = BlendMode.DstOut
+                                )
+                                drawRect(
+                                    brush = Brush.verticalGradient(colors),
+                                    blendMode = BlendMode.DstIn
+                                )
+                            },
+                        model = seasons[index].horizontalCover ?: "",
+                        contentDescription = null,
+                        contentScale = ContentScale.FillHeight,
+                        alpha = 1f
+                    )
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(
+                                start = 48.dp,
+                                end = 48.dp,
+                                bottom = 300.dp
+                            )
+                    ) {
+                        Text(
+                            text = seasons[index].title ?: "Unknown Title",
+                            style = MaterialTheme.typography.displayMedium
+                        )
+                    }
+                }
+            }
+        ) {
+            TvLazyRow(
+                modifier = Modifier.padding(bottom = 48.dp),
+                state = rowState,
+                contentPadding = PaddingValues(horizontal = 48.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(items = seasons) { index, season ->
+                    Card(
+                        modifier = Modifier
+                            .immersiveListItem(index)
+                            .ifElse(
+                                season.seasonId == currentSeasonId,
+                                Modifier.focusRequester(currentSeasonFocusRequester)
+                            )
+                            .ifElse(
+                                season.seasonId == currentSeasonId,
+                                Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                            ),
+                        glow = CardDefaults.glow(
+                            focusedGlow = Glow(
+                                elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                                elevation = 16.dp
+                            )
+                        ),
+                        border = if (Build.VERSION.SDK_INT < 31) {
+                            CardDefaults.border()
+                        } else {
+                            CardDefaults.border(
+                                focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+                            )
+                        },
+                        onClick = {
+                            onClickSeason(season.seasonId)
+                        }
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .width(160.dp)
+                                .aspectRatio(0.75f),
+                            model = seasons[index].cover,
+                            contentDescription = null
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Preview(device = "id:tv_1080p")
 @Composable
@@ -893,8 +1162,10 @@ fun SeasonInfoPartPreview() {
             following = false,
             isPublished = true,
             publishDate = "2021-04-30",
+            seasonCount = 0,
             onPlay = {},
-            onClickFollow = {}
+            onClickFollow = {},
+            onClickCover = {}
         )
     }
 }
@@ -924,6 +1195,62 @@ fun SeasonEpisodeRowPreview() {
             title = "正片",
             episodes = episodes,
             onClick = { _, _, _, _, _ -> }
+        )
+    }
+}
+
+@Preview(device = "id:tv_1080p")
+@Composable
+private fun SeasonSelectorPreview() {
+    val seasons = listOf(
+        PgcSeason(
+            seasonId = 25210,
+            title = "命运之夜  06版",
+            shortTitle = "FATE TV",
+            cover = "http://i0.hdslb.com/bfs/bangumi/1113d844ad3a9b42af576d80142146cbecc1b7ff.jpg",
+            horizontalCover = "http://i0.hdslb.com/bfs/bangumi/e3993240914c3d881d97e4527a52efa2a9dcdeaf.jpg"
+        ),
+        PgcSeason(
+            seasonId = 29006,
+            title = "Fate/stay night UNLIMITED BLADE WORKS",
+            shortTitle = "UBW 剧场版",
+            cover = "http://i0.hdslb.com/bfs/bangumi/image/b7ee578ff3c258f173587db3f687fa2d56e3b8c1.jpg",
+            horizontalCover = "http://i0.hdslb.com/bfs/archive/ae6fcc22f6c627a899bfe2d736765cc83cd4e827.png"
+        ),
+        PgcSeason(
+            seasonId = 1586,
+            title = "Fate/stay night [Unlimited Blade Works] 第一季",
+            shortTitle = "UBW第一季",
+            cover = "http://i0.hdslb.com/bfs/bangumi/image/e67e09c9e48a32371a81100e0f65a61b18aabb24.png",
+            horizontalCover = "http://i0.hdslb.com/bfs/bangumi/25e9da6dd71e4aaa23a7dc04b6f97a94ea1ddd9d.jpg"
+        ),
+        PgcSeason(
+            seasonId = 25210,
+            title = "命运之夜  06版",
+            shortTitle = "FATE TV",
+            cover = "http://i0.hdslb.com/bfs/bangumi/1113d844ad3a9b42af576d80142146cbecc1b7ff.jpg",
+            horizontalCover = "http://i0.hdslb.com/bfs/bangumi/e3993240914c3d881d97e4527a52efa2a9dcdeaf.jpg"
+        ),
+        PgcSeason(
+            seasonId = 29006,
+            title = "Fate/stay night UNLIMITED BLADE WORKS",
+            shortTitle = "UBW 剧场版",
+            cover = "http://i0.hdslb.com/bfs/bangumi/image/b7ee578ff3c258f173587db3f687fa2d56e3b8c1.jpg",
+            horizontalCover = "http://i0.hdslb.com/bfs/archive/ae6fcc22f6c627a899bfe2d736765cc83cd4e827.png"
+        ),
+        PgcSeason(
+            seasonId = 1586,
+            title = "Fate/stay night [Unlimited Blade Works] 第一季",
+            shortTitle = "UBW第一季",
+            cover = "http://i0.hdslb.com/bfs/bangumi/image/e67e09c9e48a32371a81100e0f65a61b18aabb24.png",
+            horizontalCover = "http://i0.hdslb.com/bfs/bangumi/25e9da6dd71e4aaa23a7dc04b6f97a94ea1ddd9d.jpg"
+        ),
+    )
+    BVTheme {
+        SeasonSelectorContent(
+            seasons = seasons,
+            currentSeasonId = 25210,
+            onClickSeason = {}
         )
     }
 }

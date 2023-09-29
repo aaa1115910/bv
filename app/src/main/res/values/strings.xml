@@ -138,6 +138,7 @@
     <string name="search_result_type_name_media_ft">影视</string>
     <string name="search_result_type_name_video">视频</string>
 
+    <string name="season_count_tip">系列共 %1$s 部</string>
     <string name="season_feature_film">正片</string>
     <string name="season_no_feature_film">还没有正片</string>
 

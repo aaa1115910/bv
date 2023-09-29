@@ -36,14 +36,18 @@ data class UgcSeason(
 data class PgcSeason(
     val seasonId: Int,
     val title: String?,
-    val shortTitle: String
+    val shortTitle: String,
+    val cover: String,
+    val horizontalCover: String?
 ) {
     companion object {
         fun fromSeason(season: OtherSeason): PgcSeason {
             return PgcSeason(
                 seasonId = season.seasonId,
                 title = season.title,
-                shortTitle = season.seasonTitle
+                shortTitle = season.seasonTitle,
+                cover = season.cover,
+                horizontalCover = season.horizontalCover
             )
         }
     }
