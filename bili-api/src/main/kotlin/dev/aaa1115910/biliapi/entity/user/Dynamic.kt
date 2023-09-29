@@ -71,7 +71,8 @@ data class DynamicVideo(
                 aid = archive.aid.toInt(),
                 bvid = archive.bvid,
                 cid = 0,
-                title = archive.title,
+                title = archive.title
+                    .replace("动态视频｜", ""),
                 cover = archive.cover,
                 author = author.name,
                 duration = convertStringTimeToSeconds(archive.durationText),
@@ -85,6 +86,9 @@ data class DynamicVideo(
                 item.modulesList.first { it.moduleType == DynModuleType.module_author }.moduleAuthor.author
             val dynamic =
                 item.modulesList.first { it.moduleType == DynModuleType.module_dynamic }.moduleDynamic
+            val desc =
+                item.modulesList.firstOrNull { it.moduleType == DynModuleType.module_desc }?.moduleDesc
+            val isDynamicVideo = desc?.text?.startsWith("动态视频") ?: false
             when (dynamic.moduleItemCase) {
                 ModuleDynamic.ModuleItemCase.DYN_ARCHIVE -> {
                     val archive = dynamic.dynArchive
@@ -92,7 +96,7 @@ data class DynamicVideo(
                         aid = archive.avid.toInt(),
                         bvid = archive.bvid,
                         cid = archive.cid.toInt(),
-                        title = archive.title,
+                        title = if (!isDynamicVideo) archive.title else desc!!.text.substring(5),
                         cover = archive.cover,
                         author = author.name,
                         duration = convertStringTimeToSeconds(archive.coverLeftText1),
