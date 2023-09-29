@@ -4,7 +4,7 @@ import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
-import dev.aaa1115910.biliapi.http.ProxyHttpApi
+import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -29,8 +29,10 @@ class VideoPlayRepositoryTest {
             runCatching { localProperties.getProperty("test.access_token") }.getOrNull() ?: ""
         val BUVID: String =
             runCatching { localProperties.getProperty("test.buvid") }.getOrNull() ?: ""
-        val PROXY_SERVER: String =
-            runCatching { localProperties.getProperty("test.proxy_server") }.getOrNull() ?: ""
+        val HTTP_PROXY_SERVER: String =
+            runCatching { localProperties.getProperty("test.http_proxy_server") }.getOrNull() ?: ""
+        val GRPC_PROXY_SERVER: String =
+            runCatching { localProperties.getProperty("test.grpc_proxy_server") }.getOrNull() ?: ""
     }
 
     private val authRepository = AuthRepository()
@@ -39,10 +41,11 @@ class VideoPlayRepositoryTest {
 
     init {
         channelRepository.initDefaultChannel(ACCESS_TOKEN, BUVID)
+        channelRepository.initProxyChannel(ACCESS_TOKEN, BUVID, GRPC_PROXY_SERVER)
+        BiliHttpProxyApi.createClient(HTTP_PROXY_SERVER)
         authRepository.sessionData = SESSDATA
         authRepository.accessToken = ACCESS_TOKEN
         authRepository.biliJct = BILI_JCT
-        ProxyHttpApi.createClient(PROXY_SERVER)
     }
 
     @Test

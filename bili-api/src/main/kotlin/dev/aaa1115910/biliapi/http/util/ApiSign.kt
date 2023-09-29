@@ -91,6 +91,11 @@ suspend fun HttpRequestBuilder.encWbi() {
 
 fun HttpClient.encApiSign() = plugin(HttpSend)
     .intercept { request ->
+        // skip when using grpc proxy
+        if (request.url.encodedPath.startsWith("bilibili.")) {
+            return@intercept execute(request)
+        }
+
         when (request.method) {
             // app 端如果既用到了 wbi get 接口，也用到了 token 去请求，那是先计算 wbi sign 还是 app sign？
             // 目前看来需要计算 wbi sign 的接口之前忘记计算 app sign 都通过校验了🤯

@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.viewmodel
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -309,13 +310,19 @@ class VideoPlayerV3ViewModel(
                 ApiType.App -> it.quality == qn
             }
         }
-        val videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
+        var videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
 
         val audioItem = playData!!.dashAudios.find { it.codecId == audio.code }
             ?: playData!!.dolby.takeIf { it?.codecId == audio.code }
             ?: playData!!.flac.takeIf { it?.codecId == audio.code }
             ?: playData!!.dashAudios.minByOrNull { it.codecId }
-        val audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
+        var audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
+
+        //replace cdn
+        if (Prefs.enableProxy && proxyArea != ProxyArea.MainLand) {
+            videoUrl = videoUrl.replaceUrlDomainWithAliCdn()
+            audioUrl = audioUrl.replaceUrlDomainWithAliCdn()
+        }
 
         addLogs("video host: ${with(URI(videoUrl)) { "$scheme://$authority" }}")
         addLogs("audio host: ${with(URI(audioUrl)) { "$scheme://$authority" }}")
@@ -480,5 +487,19 @@ class VideoPlayerV3ViewModel(
                 addLogs("加载字幕 $subtitleName 成功，数量: ${currentSubtitleData.size}")
             }
         }
+    }
+
+    private fun String.replaceUrlDomainWithAliCdn(): String {
+        val replaceDomainKeywords = listOf(
+            "mirroraliov",
+            "mirrorakam"
+        )
+        if (replaceDomainKeywords.none { this.contains(it) }) return this
+
+        return Uri.parse(this)
+            .buildUpon()
+            .authority("upos-sz-mirrorali.bilivideo.com")
+            .build()
+            .toString()
     }
 }
