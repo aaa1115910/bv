@@ -50,6 +50,7 @@ class SearchInputViewModel(
                 withContext(Dispatchers.Main) {
                     "bilibili 热搜加载失败".toast(BVApp.context)
                 }
+                logger.info { it.stackTraceToString() }
             }
         }
     }
@@ -69,6 +70,7 @@ class SearchInputViewModel(
                 withContext(Dispatchers.Main) {
                     "bilibili 搜索建议加载失败".toast(BVApp.context)
                 }
+                logger.info { it.stackTraceToString() }
             }
         }
     }
