@@ -144,7 +144,6 @@ android {
                     "BV_${AppConfiguration.versionCode}_${AppConfiguration.versionName}.${variant.buildType.name}_${variant.flavorName}_$abi.apk"
                 versionNameOverride =
                     "${variant.versionName}.${variant.buildType.name}"
-                variant.buildConfigField("String", "ABI_TYPE", "\"$abi\"")
             }
         }
     }
