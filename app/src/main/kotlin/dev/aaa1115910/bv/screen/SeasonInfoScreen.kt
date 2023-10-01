@@ -1091,7 +1091,7 @@ private fun SeasonSelectorContent(
                             )
                     ) {
                         Text(
-                            text = seasons[index].title ?: "Unknown Title",
+                            text = seasons[index].title ?: seasons[index].shortTitle,
                             style = MaterialTheme.typography.displayMedium
                         )
                     }

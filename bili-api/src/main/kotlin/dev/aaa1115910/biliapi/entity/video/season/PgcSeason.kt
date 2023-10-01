@@ -47,7 +47,7 @@ data class PgcSeason(
                 title = season.title,
                 shortTitle = season.seasonTitle,
                 cover = season.cover,
-                horizontalCover = season.horizontalCover
+                horizontalCover = season.horizontalCover ?: season.newEp.cover
             )
         }
     }
