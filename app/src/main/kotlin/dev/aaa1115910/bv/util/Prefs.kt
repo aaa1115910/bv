@@ -255,9 +255,13 @@ object Prefs {
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefEnabelProxyRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableProxyKey, value) }
 
-    var proxyServer: String
-        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefProxyServerRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefProxyServerKey, value) }
+    var proxyHttpServer: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefProxyHttpServerRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefProxyHttpServerKey, value) }
+
+    var proxyGRPCServer: String
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefProxyGRPCServerRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefProxyGRPCServerKey, value) }
 }
 
 private object PrefKeys {
@@ -295,7 +299,8 @@ private object PrefKeys {
     val prefRefreshTokenKey = stringPreferencesKey("refresh_token")
     val prefApiTypeKey = intPreferencesKey("api_type")
     val prefEnableProxyKey = booleanPreferencesKey("enable_proxy")
-    val prefProxyServerKey = stringPreferencesKey("proxy_server")
+    val prefProxyHttpServerKey = stringPreferencesKey("proxy_http_server")
+    val prefProxyGRPCServerKey = stringPreferencesKey("proxy_grpc_server")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -340,5 +345,6 @@ private object PrefKeys {
     val prefRefreshTokenRequest = PreferenceRequest(prefRefreshTokenKey, "")
     val prefApiTypeRequest = PreferenceRequest(prefApiTypeKey, 0)
     val prefEnabelProxyRequest = PreferenceRequest(prefEnableProxyKey, false)
-    val prefProxyServerRequest = PreferenceRequest(prefProxyServerKey, "")
+    val prefProxyHttpServerRequest = PreferenceRequest(prefProxyHttpServerKey, "")
+    val prefProxyGRPCServerRequest = PreferenceRequest(prefProxyGRPCServerKey, "")
 }

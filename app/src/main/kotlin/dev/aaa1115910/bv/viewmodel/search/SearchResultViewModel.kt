@@ -44,6 +44,8 @@ class SearchResultViewModel(
     val hasMore = true
     private var page = SearchTypePage()
 
+    var enableProxySearchResult = false
+
     fun update() {
         resetPages()
         clearResults()
@@ -82,7 +84,8 @@ class SearchResultViewModel(
                     tid = selectedChildPartition?.tid ?: selectedPartition?.tid,
                     order = selectedOrder,
                     duration = selectedDuration,
-                    preferApiType = Prefs.apiType
+                    preferApiType = Prefs.apiType,
+                    enableProxy = enableProxySearchResult
                 )
 
                 when (searchType) {

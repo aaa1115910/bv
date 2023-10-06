@@ -15,7 +15,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,6 +38,7 @@ import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.component.search.SearchKeyword
 import dev.aaa1115910.bv.component.search.SoftKeyboard
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,8 +59,10 @@ fun SearchInputScreen(
     val searchHistories = searchInputViewModel.searchHistories
     val suggests = searchInputViewModel.suggests
 
+    var enableProxy by remember { mutableStateOf(false) }
+
     val onSearch: (String) -> Unit = { keyword ->
-        SearchResultActivity.actionStart(context, keyword)
+        SearchResultActivity.actionStart(context, keyword, enableProxy)
         searchInputViewModel.keyword = keyword
         searchInputViewModel.addSearchHistory(keyword)
     }
@@ -121,6 +127,8 @@ fun SearchInputScreen(
                     )
                     SoftKeyboard(
                         firstButtonFocusRequester = softKeyboardFirstButtonFocusRequester,
+                        showSearchWithProxy = Prefs.enableProxy,
+                        enableSearchWithProxy = enableProxy,
                         onClick = {
                             searchInputViewModel.keyword += it
                         },
@@ -132,7 +140,12 @@ fun SearchInputScreen(
                                 searchInputViewModel.keyword = searchKeyword.dropLast(1)
                             }
                         },
-                        onSearch = { onSearch(searchKeyword) }
+                        onSearch = {
+                            onSearch(searchKeyword)
+                        },
+                        onEnableSearchWithProxyChange = {
+                            enableProxy = it
+                        }
                     )
                 }
             }

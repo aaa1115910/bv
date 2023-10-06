@@ -120,7 +120,7 @@ data class SearchTendingData(
     val trackId: String,
     val list: List<Hotword>,
     @SerialName("exp_str")
-    val expStr: String,
+    val expStr: String? = null,
     @SerialName("hotword_egg_info")
     val hotwordEggInfo: Int
 ) {

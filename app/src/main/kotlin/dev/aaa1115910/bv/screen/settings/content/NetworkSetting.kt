@@ -31,7 +31,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.http.ProxyHttpApi
+import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
+import dev.aaa1115910.biliapi.repositories.ChannelRepository
+import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SpeedTestActivity
 import dev.aaa1115910.bv.component.settings.SettingListItem
@@ -39,16 +41,20 @@ import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
+import org.koin.compose.getKoin
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun NetworkSetting(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    channelRepository: ChannelRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     var enableProxy by remember { mutableStateOf(Prefs.enableProxy) }
-    var proxyServer by remember { mutableStateOf(Prefs.proxyServer) }
-    var showProxyServerEditDialog by remember { mutableStateOf(false) }
+    var proxyHttpServer by remember { mutableStateOf(Prefs.proxyHttpServer) }
+    var proxyGRPCServer by remember { mutableStateOf(Prefs.proxyGRPCServer) }
+    var showProxyHttpServerEditDialog by remember { mutableStateOf(false) }
+    var showProxyGRPCServerEditDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -80,16 +86,24 @@ fun NetworkSetting(
                             onCheckedChange = { enable ->
                                 enableProxy = enable
                                 Prefs.enableProxy = enable
-                                if (enable) ProxyHttpApi.createClient(Prefs.proxyServer)
+                                if (enable) BVApp.instance?.initProxy()
                             }
                         )
                         AnimatedVisibility(visible = enableProxy) {
-                            SettingListItem(
-                                modifier = Modifier.padding(top = 12.dp),
-                                title = stringResource(R.string.settings_network_proxy_server_title),
-                                supportText = if (proxyServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyServer,
-                                onClick = { showProxyServerEditDialog = true }
-                            )
+                            Column {
+                                SettingListItem(
+                                    modifier = Modifier.padding(top = 12.dp),
+                                    title = stringResource(R.string.settings_network_proxy_http_server_title),
+                                    supportText = if (proxyHttpServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyHttpServer,
+                                    onClick = { showProxyHttpServerEditDialog = true }
+                                )
+                                SettingListItem(
+                                    modifier = Modifier.padding(top = 12.dp),
+                                    title = stringResource(R.string.settings_network_proxy_grpc_server_title),
+                                    supportText = if (proxyGRPCServer.isBlank()) stringResource(R.string.settings_network_proxy_server_content_empty) else proxyGRPCServer,
+                                    onClick = { showProxyGRPCServerEditDialog = true }
+                                )
+                            }
                         }
                     }
                 }
@@ -108,13 +122,31 @@ fun NetworkSetting(
     }
 
     ProxyServerEditDialog(
-        show = showProxyServerEditDialog,
-        onHideDialog = { showProxyServerEditDialog = false },
-        proxyServer = proxyServer,
+        show = showProxyHttpServerEditDialog,
+        onHideDialog = { showProxyHttpServerEditDialog = false },
+        title = stringResource(R.string.settings_network_proxy_http_server_title),
+        proxyServer = proxyHttpServer,
         onProxyServerChange = {
-            proxyServer = it
-            Prefs.proxyServer = it
-            ProxyHttpApi.createClient(it)
+            proxyHttpServer = it
+            Prefs.proxyHttpServer = it
+            BiliHttpProxyApi.createClient(it)
+        }
+    )
+    ProxyServerEditDialog(
+        show = showProxyGRPCServerEditDialog,
+        onHideDialog = { showProxyGRPCServerEditDialog = false },
+        title = stringResource(R.string.settings_network_proxy_grpc_server_title),
+        proxyServer = proxyGRPCServer,
+        onProxyServerChange = {
+            proxyGRPCServer = it
+            Prefs.proxyGRPCServer = it
+            runCatching {
+                channelRepository.initProxyChannel(
+                    accessKey = Prefs.accessToken,
+                    buvid = Prefs.buvid,
+                    proxyServer = it
+                )
+            }
         }
     )
 }
@@ -125,6 +157,7 @@ fun ProxyServerEditDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideDialog: () -> Unit,
+    title: String,
     proxyServer: String,
     onProxyServerChange: (String) -> Unit
 ) {
@@ -133,7 +166,7 @@ fun ProxyServerEditDialog(
     if (show) {
         AlertDialog(
             modifier = modifier,
-            title = { Text(text = stringResource(R.string.proxy_server_edit_dialog_title)) },
+            title = { Text(text = title) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -160,7 +193,12 @@ fun ProxyServerEditDialog(
             onDismissRequest = onHideDialog,
             confirmButton = {
                 Button(onClick = {
-                    onProxyServerChange(proxyServerString.replace("\n", ""))
+                    onProxyServerChange(
+                        proxyServerString
+                            .replace("\n", "")
+                            .replace("https://", "")
+                            .replace("http://", "")
+                    )
                     onHideDialog()
                 }) {
                     Text(text = stringResource(id = R.string.common_confirm))
@@ -182,6 +220,7 @@ fun ProxyServerEditDialogPreview() {
         ProxyServerEditDialog(
             show = true,
             onHideDialog = {},
+            title = "title",
             proxyServer = "",
             onProxyServerChange = {}
         )

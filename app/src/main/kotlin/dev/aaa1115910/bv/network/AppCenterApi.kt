@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.network
 
 import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.util.AbiUtil
 import dev.aaa1115910.bv.util.Prefs
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -128,8 +129,17 @@ object AppCenterApi {
         }
     }
 
-    private fun getGroupName() = GroupData(BuildConfig.FLAVOR, BuildConfig.ABI_TYPE).getGroupName()
-    private fun getGroupId() = GroupData(BuildConfig.FLAVOR, BuildConfig.ABI_TYPE).getGroupId()
+    private fun getGroupName() = GroupData(BuildConfig.FLAVOR, getAbiType()).getGroupName()
+    private fun getGroupId() = GroupData(BuildConfig.FLAVOR, getAbiType()).getGroupId()
+
+    private fun getAbiType(): String {
+        val abiSet = AbiUtil.getApkSupportedAbiSet()
+
+        return when {
+            abiSet.size > 1 || abiSet.isEmpty() -> "universal"
+            else -> abiSet.first()
+        }
+    }
 
     suspend fun getPackageList() = getPackageList(
         ownerName = OWNER_NAME,

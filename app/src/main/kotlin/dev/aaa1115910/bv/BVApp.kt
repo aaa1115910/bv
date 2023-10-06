@@ -10,7 +10,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
-import dev.aaa1115910.biliapi.http.ProxyHttpApi
+import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
@@ -60,6 +60,7 @@ class BVApp : Application() {
         lateinit var dataStoreManager: DataStoreManager
         lateinit var koinApplication: KoinApplication
         lateinit var firebaseAnalytics: FirebaseAnalytics
+        var instance: BVApp? = null
 
         fun getAppDatabase(context: Context = this.context) = AppDatabase.getDatabase(context)
     }
@@ -77,6 +78,7 @@ class BVApp : Application() {
         firebaseAnalytics = Firebase.analytics
         initRepository()
         initProxy()
+        instance = this
     }
 
     private fun initRepository() {
@@ -89,10 +91,22 @@ class BVApp : Application() {
         authRepository.accessToken = Prefs.accessToken.takeIf { it.isNotEmpty() }
         authRepository.mid = Prefs.uid.takeIf { it != 0L }
         authRepository.buvid3 = Prefs.buvid3
+        authRepository.buvid = Prefs.buvid
     }
 
-    private fun initProxy() {
-        if (Prefs.enableProxy) ProxyHttpApi.createClient(Prefs.proxyServer)
+    fun initProxy() {
+        if (Prefs.enableProxy) {
+            BiliHttpProxyApi.createClient(Prefs.proxyHttpServer)
+
+            val channelRepository by koinApplication.koin.inject<ChannelRepository>()
+            runCatching {
+                channelRepository.initProxyChannel(
+                    Prefs.accessToken,
+                    Prefs.buvid,
+                    Prefs.proxyGRPCServer
+                )
+            }
+        }
     }
 }
 
