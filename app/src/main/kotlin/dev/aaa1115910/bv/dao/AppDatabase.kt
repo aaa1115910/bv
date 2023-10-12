@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.dao
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,19 +9,23 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.entity.db.SearchHistoryDB
+import dev.aaa1115910.bv.entity.db.UserDB
 import mu.KotlinLogging
 import java.util.Date
 import java.util.concurrent.Executors
 
 @Database(
-    entities = [SearchHistoryDB::class],
-    version = 1,
+    entities = [SearchHistoryDB::class, UserDB::class],
+    version = 2,
     exportSchema = true,
-    autoMigrations = []
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun searchHistoryDao(): SearchHistoryDao
+    abstract fun userDao(): UserDao
 
     companion object {
         private var instance: AppDatabase? = null

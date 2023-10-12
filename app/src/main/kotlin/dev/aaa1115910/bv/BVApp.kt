@@ -3,6 +3,7 @@ package dev.aaa1115910.bv
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -22,8 +23,11 @@ import dev.aaa1115910.biliapi.repositories.SeasonRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
+import dev.aaa1115910.bv.entity.AuthData
+import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
+import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
@@ -35,7 +39,6 @@ import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import dev.aaa1115910.bv.viewmodel.login.AppQrLoginViewModel
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
-import dev.aaa1115910.bv.viewmodel.login.WebQrLoginViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
@@ -44,6 +47,7 @@ import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -79,9 +83,10 @@ class BVApp : Application() {
         initRepository()
         initProxy()
         instance = this
+        updateMigration()
     }
 
-    private fun initRepository() {
+    fun initRepository() {
         val channelRepository by koinApplication.koin.inject<ChannelRepository>()
         channelRepository.initDefaultChannel(Prefs.accessToken, Prefs.buvid)
 
@@ -108,6 +113,30 @@ class BVApp : Application() {
             }
         }
     }
+
+    private fun updateMigration() {
+        val lastVersionCode = Prefs.lastVersionCode
+        if (lastVersionCode >= BuildConfig.VERSION_CODE) return
+        Log.i("BVApp", "updateMigration from $lastVersionCode")
+        if (lastVersionCode < 576) {
+            // 从 Prefs 中读取登录数据写入 UserDB
+            if (Prefs.isLogin) {
+                runBlocking {
+                    val existedUser = getAppDatabase().userDao().findUserByUid(Prefs.uid)
+                    if (existedUser == null) {
+                        val user = UserDB(
+                            uid = Prefs.uid,
+                            username = "Unknown",
+                            avatar = "",
+                            auth = AuthData.fromPrefs().toJson()
+                        )
+                        getAppDatabase().userDao().insert(user)
+                    }
+                }
+            }
+        }
+        Prefs.lastVersionCode = BuildConfig.VERSION_CODE
+    }
 }
 
 val appModule = module {
@@ -127,8 +156,7 @@ val appModule = module {
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
-    viewModel { WebQrLoginViewModel(get(), get()) }
-    viewModel { AppQrLoginViewModel(get(), get(), get()) }
+    viewModel { AppQrLoginViewModel(get(), get()) }
     viewModel { SmsLoginViewModel(get(), get()) }
     viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
@@ -143,6 +171,7 @@ val appModule = module {
     viewModel { TagViewModel() }
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
     viewModel { VideoDetailViewModel(get()) }
+    viewModel { UserSwitchViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

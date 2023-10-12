@@ -22,6 +22,11 @@
     <string name="date_format_just_now">刚刚</string>
     <string name="date_format_minutes_age">%1$d 分钟前</string>
 
+    <string name="delete_account_confirm_dialog_confirm">gkd 别墨迹</string>
+    <string name="delete_account_confirm_dialog_dismiss">不，我不想</string>
+    <string name="delete_account_confirm_dialog_text">是否移除账号 %1$s\nUID:%2$d</string>
+    <string name="delete_account_confirm_dialog_title">移除账号</string>
+
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
     <string name="favorite_button_text">收藏</string>
@@ -208,6 +213,7 @@
     <string name="title_activity_tag">视频标签</string>
     <string name="title_activity_up_info">UP 投稿</string>
     <string name="title_activity_user_info">用户信息</string>
+    <string name="title_activity_user_switch">用户切换</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
     <string name="title_activity_video_player_v3">视频播放</string>
@@ -223,11 +229,18 @@
     <string name="user_homepage_favorite">私人藏品</string>
     <string name="user_homepage_follow">已关注</string>
     <string name="user_homepage_recent">最近播放记录</string>
+    <string name="user_homepage_user_switch">账户管理</string>
     <string name="user_info_Incognito_mode_off">未开启</string>
     <string name="user_info_Incognito_mode_on">已开启</string>
     <string name="user_info_Incognito_mode_title">隐身模式</string>
     <string name="user_info_level">Lv%1$s</string>
     <string name="user_info_uid">UID: %1$s</string>
+    <string name="user_switch_add_user">添加账号</string>
+    <string name="user_switch_button_exit_manage_account">退出管理</string>
+    <string name="user_switch_button_manage_account">管理账号</string>
+    <string name="user_switch_menu_delete_account">移除账号</string>
+    <string name="user_switch_menu_show_token">显示 Token</string>
+    <string name="user_switch_title">选择账号</string>
 
     <string name="video_aspect_ratio_default">默认</string>
     <string name="video_aspect_ratio_four_to_three">4:3</string>
