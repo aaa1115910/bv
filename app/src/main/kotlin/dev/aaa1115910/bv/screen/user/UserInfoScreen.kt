@@ -1,12 +1,10 @@
 package dev.aaa1115910.bv.screen.user
 
 import android.content.Intent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -42,7 +39,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -56,7 +55,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.Border
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -123,19 +123,10 @@ fun UserInfoScreen(
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
     var followingUpCount by remember { mutableIntStateOf(0) }
-    val animateFollowingNumber by animateIntAsState(
-        targetValue = followingUpCount,
-        label = "animate following number"
-    )
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
-
-    var focusOnUserInfo by remember { mutableStateOf(false) }
-    var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
-    var focusOnFollowedUserCard by remember { mutableStateOf(false) }
-    var focusOnUserSwitchCard by remember { mutableStateOf(false) }
 
     val updateHistories = {
         scope.launch(Dispatchers.IO) {
@@ -330,83 +321,37 @@ fun UserInfoScreen(
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
-                TvLazyRow(
-                    modifier = Modifier.padding(horizontal = 50.dp, vertical = 28.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
-                ) {
-                    item {
-                        UserInfo(
-                            modifier = Modifier
-                                .focusRequester(focusRequester),
-                            face = userViewModel.face,
-                            username = userViewModel.username,
-                            uid = userViewModel.responseData?.mid ?: 0,
-                            level = userViewModel.responseData?.level ?: 0,
-                            currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
-                            nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
-                                if (this == null) {
-                                    1
-                                } else if (this <= 0) {
-                                    userViewModel.responseData?.levelExp?.currentExp ?: 1
-                                } else {
-                                    (userViewModel.responseData?.levelExp?.currentExp ?: 1)
-                                    +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
-                                }
-                            },
-                            showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
-                            labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic
-                                ?: "",
-                            onFocusChange = { hasFocus ->
-                                focusOnUserInfo = hasFocus
-                                showLargeTitle =
-                                    focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
-                            },
-                            onClick = { }
-                        )
+                UserRow(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            showLargeTitle = it.hasFocus
+                        },
+                    username = userViewModel.username,
+                    face = userViewModel.face,
+                    uid = userViewModel.responseData?.mid ?: 0,
+                    level = userViewModel.responseData?.level ?: 0,
+                    currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
+                    nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
+                        if (this == null) {
+                            1
+                        } else if (this <= 0) {
+                            userViewModel.responseData?.levelExp?.currentExp ?: 1
+                        } else {
+                            (userViewModel.responseData?.levelExp?.currentExp ?: 1)
+                            +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
+                        }
+                    },
+                    showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
+                    labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic ?: "",
+                    followingUpCount = followingUpCount,
+                    onOpenFollowingUser = {
+                        context.startActivity(Intent(context, FollowActivity::class.java))
+                    },
+                    onOpenUserSwitch = {
+                        context.startActivity(Intent(context, UserSwitchActivity::class.java))
                     }
-                    item {
-                        IncognitoModeCard(
-                            onFocusChange = { hasFocus ->
-                                focusOnIncognitoModeCard = hasFocus
-                                showLargeTitle =
-                                    focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard || focusOnUserSwitchCard
-                            },
-                            onClick = {
-                                Prefs.incognitoMode = !Prefs.incognitoMode
-                            }
-                        )
-                    }
-                    item {
-                        FollowedUserCard(
-                            onFocusChange = { hasFocus ->
-                                focusOnFollowedUserCard = hasFocus
-                                showLargeTitle =
-                                    focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard || focusOnUserSwitchCard
-                            },
-                            size = animateFollowingNumber,
-                            onClick = {
-                                context.startActivity(Intent(context, FollowActivity::class.java))
-                            }
-                        )
-                    }
-                    item {
-                        UserSwitchCard(
-                            onFocusChange = { hasFocus ->
-                                focusOnUserSwitchCard = hasFocus
-                                showLargeTitle =
-                                    focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard || focusOnUserSwitchCard
-                            },
-                            onClick = {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        UserSwitchActivity::class.java
-                                    )
-                                )
-                            }
-                        )
-                    }
-                }
+                )
             }
             item {
                 RecentVideosRow(
@@ -448,9 +393,9 @@ private fun UserInfo(
     nextLevelExp: Int,
     showLabel: Boolean,
     labelUrl: String,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
+    var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
         animationSpec = tween(
@@ -462,20 +407,10 @@ private fun UserInfo(
 
     Surface(
         modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .size(480.dp, 140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
+            .size(480.dp, 140.dp)
+            .onFocusChanged { hasFocus = it.hasFocus },
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Row(
@@ -541,53 +476,64 @@ private fun UserInfo(
                     Text(text = stringResource(R.string.user_info_uid, uid))
                 }
 
+                val sliderColor = if (hasFocus) {
+                    SliderDefaults.colors(
+                        disabledThumbColor = Color.Transparent,
+                        disabledActiveTrackColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        disabledInactiveTrackColor = MaterialTheme.colorScheme.inverseOnSurface.copy(
+                            alpha = 0.3f
+                        )
+                    )
+                } else {
+                    SliderDefaults.colors(
+                        disabledThumbColor = Color.Transparent,
+                        disabledActiveTrackColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
                 Slider(
                     enabled = false,
                     value = levelSlider,
                     onValueChange = {},
-                    colors = SliderDefaults.colors(
-                        disabledThumbColor = Color.Transparent,
-                        disabledActiveTrackColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors = sliderColor
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun IncognitoModeCard(
-    modifier: Modifier = Modifier,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
-    onClick: () -> Unit
+private fun IncognitoModeCard(
+    modifier: Modifier = Modifier
 ) {
-    var enabled by remember { mutableStateOf(Prefs.incognitoMode) }
-    val backgroundColor by animateColorAsState(
-        targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer,
-        label = "Incognito background switch"
-    )
+    var enabled by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-            pressedContainerColor = backgroundColor
-        ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
+    LaunchedEffect(Unit) {
+        enabled = Prefs.incognitoMode
+    }
+
+    IncognitoModeCardContent(
+        modifier = modifier,
+        enabled = enabled,
         onClick = {
             enabled = !enabled
-            onClick()
+            Prefs.incognitoMode = enabled
         }
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun IncognitoModeCardContent(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -601,7 +547,7 @@ fun IncognitoModeCard(
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = if (enabled) stringResource(R.string.user_info_Incognito_mode_on)
+                text = if (enabled) "\uD83D\uDC7B" + stringResource(R.string.user_info_Incognito_mode_on)
                 else stringResource(R.string.user_info_Incognito_mode_off),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -611,28 +557,15 @@ fun IncognitoModeCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun FollowedUserCard(
+private fun FollowedUserCard(
     modifier: Modifier = Modifier,
     size: Int,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Column(
@@ -656,27 +589,14 @@ fun FollowedUserCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun UserSwitchCard(
+private fun UserSwitchCard(
     modifier: Modifier = Modifier,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Column(
@@ -689,6 +609,62 @@ fun UserSwitchCard(
             Text(
                 text = stringResource(R.string.user_homepage_user_switch),
                 style = MaterialTheme.typography.titleLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun UserRow(
+    modifier: Modifier = Modifier,
+    username: String,
+    face: String,
+    uid: Long,
+    level: Int,
+    currentExp: Int,
+    nextLevelExp: Int,
+    showLabel: Boolean,
+    labelUrl: String,
+    followingUpCount: Int,
+    onOpenFollowingUser: () -> Unit,
+    onOpenUserSwitch: () -> Unit
+) {
+    val animateFollowingNumber by animateIntAsState(
+        targetValue = followingUpCount,
+        label = "animate following number"
+    )
+
+    TvLazyRow(
+        modifier = modifier.padding(vertical = 28.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+        contentPadding = PaddingValues(horizontal = 50.dp)
+    ) {
+        item {
+            UserInfo(
+                modifier = Modifier,
+                face = face,
+                username = username,
+                uid = uid,
+                level = level,
+                currentExp = currentExp,
+                nextLevelExp = nextLevelExp,
+                showLabel = showLabel,
+                labelUrl = labelUrl,
+                onClick = { }
+            )
+        }
+        item {
+            IncognitoModeCard()
+        }
+        item {
+            FollowedUserCard(
+                size = animateFollowingNumber,
+                onClick = onOpenFollowingUser
+            )
+        }
+        item {
+            UserSwitchCard(
+                onClick = onOpenUserSwitch
             )
         }
     }
@@ -718,26 +694,37 @@ private fun FollowingAnimeVideosRow(
     showMore: () -> Unit
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
+    var rowHeight by remember { mutableStateOf(0.dp) }
 
     Column(
         modifier = modifier
             .padding(vertical = 8.dp)
-            .padding(start = 50.dp)
             .onFocusChanged { hasFocus = it.hasFocus }
     ) {
         Text(
+            modifier = Modifier.padding(start = 50.dp),
             text = stringResource(R.string.user_homepage_anime),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .onGloballyPositioned {
+                    rowHeight = with(density) {
+                        it.size.height.toDp()
+                    }
+                },
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(end = 50.dp, start = 12.dp)
+            contentPadding = PaddingValues(horizontal = 62.dp)
         ) {
             items(items = videos) { seasonCardData ->
                 SeasonCard(
@@ -753,10 +740,17 @@ private fun FollowingAnimeVideosRow(
                 )
             }
             item {
-                TextButton(onClick = {
-                    showMore()
-                }) {
-                    Text(text = "显示更多")
+                Button(
+                    modifier = Modifier.height(rowHeight),
+                    shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.large),
+                    onClick = showMore
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(text = "显示更多")
+                    }
                 }
             }
         }
@@ -792,7 +786,6 @@ private fun UserInfoPreview() {
             nextLevelExp = 2345,
             showLabel = false,
             labelUrl = "",
-            onFocusChange = {},
             onClick = {}
         )
     }
@@ -800,11 +793,88 @@ private fun UserInfoPreview() {
 
 @Preview
 @Composable
-private fun IncognitoModeCardPreview() {
+private fun UserInfoFocusedPreview() {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     BVTheme {
-        IncognitoModeCard(
-            onFocusChange = {},
+        UserInfo(
+            modifier = Modifier.focusRequester(focusRequester),
+            face = "",
+            username = "Username",
+            uid = 12345,
+            level = 6,
+            currentExp = 1234,
+            nextLevelExp = 2345,
+            showLabel = false,
+            labelUrl = "",
             onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IncognitoModeCardOnPreview() {
+    BVTheme {
+        IncognitoModeCardContent(
+            enabled = true,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IncognitoModeCardOffPreview() {
+    BVTheme {
+        IncognitoModeCardContent(
+            enabled = false,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FollowedUserCardPreview() {
+    BVTheme {
+        FollowedUserCard(
+            size = 466,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun UserSwitchCardPreview() {
+    BVTheme {
+        UserSwitchCard(
+            onClick = {}
+        )
+    }
+}
+
+@Preview(device = "id:tv_1080p")
+@Composable
+private fun UserRowPreview() {
+    BVTheme {
+        UserRow(
+            username = "Username",
+            face = "",
+            uid = 1234567890,
+            level = 4,
+            currentExp = 123,
+            nextLevelExp = 431,
+            showLabel = false,
+            labelUrl = "",
+            followingUpCount = 466,
+            onOpenFollowingUser = { },
+            onOpenUserSwitch = {}
         )
     }
 }
