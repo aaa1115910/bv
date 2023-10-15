@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.mobile.screen.home
 
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarCompact
 import dev.aaa1115910.bv.mobile.component.home.HomeSearchTopBarExpanded
 import dev.aaa1115910.bv.mobile.screen.home.home.PopularPage
 import dev.aaa1115910.bv.mobile.screen.home.home.RcmdPage
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +43,8 @@ fun HomeScreen(
     popularViewModel: PopularViewModel = koinViewModel(),
     recommendViewModel: RecommendViewModel = koinViewModel(),
     windowSize: WindowWidthSizeClass,
-    onSearchActiveChange: (Boolean) -> Unit = {}
+    onSearchActiveChange: (Boolean) -> Unit = {},
+    onShowSwitchUser: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -52,6 +56,7 @@ fun HomeScreen(
     //LaunchedEffect(Unit) {
     //    homeViewModel.loadMore()
     //}
+
 
     Scaffold(
         modifier = modifier,
@@ -75,6 +80,13 @@ fun HomeScreen(
                         scope.launch {
                             pageState.scrollToPage(it)
                         }
+                    },
+                    onSwitchUser = {
+                        if (Prefs.isLogin) {
+                            onShowSwitchUser()
+                        } else {
+                            context.startActivity(Intent(context, LoginActivity::class.java))
+                        }
                     }
                 )
             }
@@ -93,7 +105,8 @@ fun HomeScreen(
                     onActiveChange = { activeSearch = it }
                 )
             }
-            val gridTopPadding = if (windowSize == WindowWidthSizeClass.Expanded) 68.dp else 8.dp
+            val gridTopPadding =
+                if (windowSize == WindowWidthSizeClass.Expanded) 68.dp else 8.dp
             HorizontalPager(
                 modifier = Modifier,
                 state = pageState,

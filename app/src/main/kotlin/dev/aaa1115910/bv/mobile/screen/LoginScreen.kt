@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,10 +50,9 @@ import com.geetest.sdk.GT3GeetestUtils
 import com.geetest.sdk.GT3Listener
 import dev.aaa1115910.biliapi.repositories.SendSmsState
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.settings.CookiesData
+import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.repository.UserRepository
-import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.login.GeetestResult
@@ -64,7 +64,6 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,7 +222,7 @@ fun LoginScreen(
         }
     }
 
-    CookiesLoginDialog(
+    AuthDataLoginDialog(
         show = showCookiesLoginDialog,
         onHideDialog = { showCookiesLoginDialog = false }
     )
@@ -344,7 +343,7 @@ fun SmsLoginInputsPreview() {
 }
 
 @Composable
-private fun CookiesLoginDialog(
+private fun AuthDataLoginDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideDialog: () -> Unit,
@@ -352,22 +351,22 @@ private fun CookiesLoginDialog(
     userViewModel: UserViewModel = getKoin().get()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var inputText by remember { mutableStateOf("") }
+
+    LaunchedEffect(show) {
+        if (show) {
+            inputText = ""
+        }
+    }
 
     val parseCookies: (String) -> Unit = { json ->
         runCatching {
-            val cookies = Json.decodeFromString<CookiesData>(json)
-            Prefs.uid = cookies.uid
-            Prefs.uidCkMd5 = cookies.uidCkMd5
-            Prefs.sid = cookies.sid
-            Prefs.biliJct = cookies.biliJct
-            Prefs.sessData = cookies.sessData
-            Prefs.tokenExpiredData = Date(cookies.tokenExpiredData)
-            Prefs.accessToken = cookies.accessToken
-            Prefs.refreshToken = cookies.refreshToken
-            Prefs.isLogin = true
-            userRepository.reloadFromPrefs()
-            userViewModel.updateUserInfo()
+            scope.launch(Dispatchers.IO) {
+                val authData = Json.decodeFromString<AuthData>(json)
+                userRepository.addUser(authData)
+                userViewModel.updateUserInfo()
+            }
         }.onFailure {
             println(it.stackTraceToString())
             "无法解析".toast(context)

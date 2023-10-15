@@ -70,6 +70,7 @@ import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.requestFocus
 import io.github.g0dkar.qrcode.QRCode
 import kotlinx.coroutines.Dispatchers
@@ -642,6 +643,7 @@ class UserSwitchViewModel(
     private val db: AppDatabase = BVApp.getAppDatabase()
 ) : ViewModel() {
     var loading by mutableStateOf(true)
+    var currentUser by mutableStateOf(UserDB(-1, -1, "", "", ""))
     val userDbList = mutableStateListOf<UserDB>()
 
     init {
@@ -655,6 +657,7 @@ class UserSwitchViewModel(
         withContext(Dispatchers.Main) {
             userDbList.clear()
             userDbList.addAll(db.userDao().getAll())
+            currentUser = userDbList.find { it.uid == Prefs.uid } ?: UserDB(-1, -1, "", "", "")
         }
     }
 

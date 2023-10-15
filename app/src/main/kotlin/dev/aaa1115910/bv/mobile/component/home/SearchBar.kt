@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,7 +47,8 @@ fun HomeSearchTopBarCompact(
     onQueryChange: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
     onOpenNavDrawer: () -> Unit,
-    onChangeTabIndex: (Int) -> Unit
+    onChangeTabIndex: (Int) -> Unit,
+    onSwitchUser: () -> Unit
 ) {
     val context = LocalContext.current
     var currentTab by remember { mutableStateOf(HomeTab.Recommend) }
@@ -63,7 +64,8 @@ fun HomeSearchTopBarCompact(
                     active = active,
                     onQueryChange = onQueryChange,
                     onActiveChange = onActiveChange,
-                    onOpenNavDrawer = onOpenNavDrawer
+                    onOpenNavDrawer = onOpenNavDrawer,
+                    onSwitchUser = onSwitchUser
                 )
             }
 
@@ -154,7 +156,8 @@ private fun HomeSearchBar(
     active: Boolean,
     onQueryChange: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
-    onOpenNavDrawer: () -> Unit
+    onOpenNavDrawer: () -> Unit,
+    onSwitchUser: () -> Unit
 ) {
     SearchBar(
         modifier = modifier,
@@ -174,7 +177,9 @@ private fun HomeSearchBar(
         },
         trailingIcon = {
             if (!active) {
-                Icon(imageVector = Icons.Default.Star, contentDescription = null)
+                IconButton(onClick = onSwitchUser) {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = null)
+                }
             }
         },
     ) { }

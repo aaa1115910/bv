@@ -185,7 +185,8 @@ fun MobileMainScreen(
                             drawerState = drawerState,
                             gridState = lazyGridState,
                             windowSize = windowSizeClass.widthSizeClass,
-                            onSearchActiveChange = { activeSearch = it }
+                            onSearchActiveChange = { activeSearch = it },
+                            onShowSwitchUser = {}
                         )
                     }
                 }
