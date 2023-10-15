@@ -23,6 +23,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.user.UserSwitchActivity"
+            android:exported="true"
+            android:label="@string/title_activity_user_switch"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.video.VideoPlayerV3Activity"
             android:exported="true"
             android:label="@string/title_activity_video_player_v3"

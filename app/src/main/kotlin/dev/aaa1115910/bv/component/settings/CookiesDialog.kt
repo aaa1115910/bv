@@ -28,18 +28,15 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.util.toast
 import io.github.g0dkar.qrcode.QRCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.util.Date
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -50,20 +47,7 @@ fun CookiesDialog(
 ) {
     val context = LocalContext.current
     var qrImage by remember { mutableStateOf(ImageBitmap(1, 1, ImageBitmapConfig.Argb8888)) }
-    val defaultCookies by remember {
-        mutableStateOf(
-            CookiesData(
-                uid = Prefs.uid,
-                uidCkMd5 = Prefs.uidCkMd5,
-                sid = Prefs.sid,
-                biliJct = Prefs.biliJct,
-                sessData = Prefs.sessData,
-                tokenExpiredData = Prefs.tokenExpiredData.time,
-                accessToken = Prefs.accessToken,
-                refreshToken = Prefs.refreshToken
-            )
-        )
-    }
+    val defaultCookies by remember { mutableStateOf(AuthData.fromPrefs()) }
 
     var json by remember { mutableStateOf(Json.encodeToString(defaultCookies)) }
 
@@ -116,16 +100,8 @@ fun CookiesDialog(
             confirmButton = {
                 TextButton(onClick = {
                     runCatching {
-                        val cookies = Json.decodeFromString<CookiesData>(json)
-                        Prefs.uid = cookies.uid
-                        Prefs.uidCkMd5 = cookies.uidCkMd5
-                        Prefs.sid = cookies.sid
-                        Prefs.biliJct = cookies.biliJct
-                        Prefs.sessData = cookies.sessData
-                        Prefs.tokenExpiredData = Date(cookies.tokenExpiredData)
-                        Prefs.accessToken = cookies.accessToken
-                        Prefs.refreshToken = cookies.refreshToken
-                        Prefs.isLogin = true
+                        val authData = AuthData.fromJson(json)
+                        authData.saveToPrefs()
                     }.onFailure {
                         println(it.stackTraceToString())
                         "无法解析".toast(context)
@@ -144,22 +120,3 @@ fun CookiesDialog(
         )
     }
 }
-
-@Serializable
-data class CookiesData(
-    @SerialName("DedeUserID")
-    val uid: Long,
-    @SerialName("DedeUserID__ckMd5")
-    val uidCkMd5: String,
-    val sid: String,
-    @SerialName("bili_jct")
-    val biliJct: String,
-    @SerialName("SESSDATA")
-    val sessData: String,
-    @SerialName("expired_date")
-    val tokenExpiredData: Long,
-    @SerialName("access_token")
-    val accessToken: String = "",
-    @SerialName("refresh_token")
-    val refreshToken: String = ""
-)

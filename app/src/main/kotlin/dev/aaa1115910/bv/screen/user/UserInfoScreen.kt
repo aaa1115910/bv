@@ -1,13 +1,10 @@
 package dev.aaa1115910.bv.screen.user
 
-import android.app.Activity
 import android.content.Intent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,13 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,18 +39,24 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.Border
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -74,6 +76,7 @@ import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.FollowActivity
 import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
+import dev.aaa1115910.bv.activities.user.UserSwitchActivity
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.component.videocard.VideosRow
@@ -86,7 +89,6 @@ import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.formatMinSec
-import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -108,10 +110,10 @@ fun UserInfoScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val logger = KotlinLogging.logger { }
     val focusRequester = remember { FocusRequester() }
     var showLargeTitle by remember { mutableStateOf(true) }
-    var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
     val titleFontSize by animateFloatAsState(
         targetValue = if (showLargeTitle) 48f else 24f,
@@ -121,41 +123,19 @@ fun UserInfoScreen(
     val title by remember { mutableStateOf(randomTitleList.random()) }
 
     var followingUpCount by remember { mutableIntStateOf(0) }
-    val animateFollowingNumber by animateIntAsState(
-        targetValue = followingUpCount,
-        label = "animate following number"
-    )
 
     val histories = remember { mutableStateListOf<VideoCardData>() }
     val animes = remember { mutableStateListOf<SeasonCardData>() }
     val favorites = remember { mutableStateListOf<VideoCardData>() }
 
-    var focusOnUserInfo by remember { mutableStateOf(false) }
-    var focusOnIncognitoModeCard by remember { mutableStateOf(false) }
-    var focusOnFollowedUserCard by remember { mutableStateOf(false) }
-
-    val updateFollowingUpCount = {
-        scope.launch(Dispatchers.Default) {
-            logger.fInfo { "Update following up count with user ${Prefs.uid}" }
-            followingUpCount = userRepository.getFollowingUpCount(
-                mid = Prefs.uid,
-                preferApiType = Prefs.apiType
-            )
-            logger.fInfo { "Following up count: $followingUpCount" }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        userViewModel.updateUserInfo()
-
-        //update histories
+    val updateHistories = {
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val data = historyRepository.getHistories(
                     cursor = 0,
                     preferApiType = Prefs.apiType
                 )
+                histories.clear()
                 data.data.forEach { historyItem ->
                     histories.add(
                         VideoCardData(
@@ -187,8 +167,9 @@ fun UserInfoScreen(
                 }
             }
         }
+    }
 
-        //update followed animes
+    val updateFollowedAnimes = {
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val followingSeasonData = seasonRepository.getFollowingSeasons(
@@ -198,6 +179,7 @@ fun UserInfoScreen(
                     pageSize = 15,
                     preferApiType = Prefs.apiType
                 )
+                animes.clear()
                 followingSeasonData.list.forEach { followedSeason ->
                     animes.add(
                         SeasonCardData(
@@ -223,8 +205,9 @@ fun UserInfoScreen(
                 }
             }
         }
+    }
 
-        //update favorite videos
+    val updateFavoriteVideos = {
         scope.launch(Dispatchers.IO) {
             var defaultFolderId: Long = 0
             runCatching {
@@ -248,6 +231,7 @@ fun UserInfoScreen(
                     mediaId = defaultFolderId,
                     preferApiType = Prefs.apiType
                 ).medias
+                favorites.clear()
                 favoriteItems.forEach { favoriteItem ->
                     favorites.add(
                         VideoCardData(
@@ -274,8 +258,48 @@ fun UserInfoScreen(
                 }
             }
         }
+    }
 
+    val updateFollowingUpCount = {
+        scope.launch(Dispatchers.IO) {
+            logger.fInfo { "Update following up count with user ${Prefs.uid}" }
+            followingUpCount = userRepository.getFollowingUpCount(
+                mid = Prefs.uid,
+                preferApiType = Prefs.apiType
+            )
+            logger.fInfo { "Following up count: $followingUpCount" }
+        }
+    }
+
+    val updateData = {
+        userViewModel.updateUserInfo(forceUpdate = true)
+        updateHistories()
+        updateFollowedAnimes()
+        updateFavoriteVideos()
         updateFollowingUpCount()
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        updateData()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        var leaveFromThisPage = false
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                leaveFromThisPage = true
+            } else if (event == Lifecycle.Event.ON_RESUME) {
+                if (leaveFromThisPage) updateData()
+                leaveFromThisPage = false
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     Scaffold(
@@ -297,60 +321,37 @@ fun UserInfoScreen(
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
-                Row(
-                    modifier = Modifier.padding(horizontal = 50.dp, vertical = 28.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
-                ) {
-                    UserInfo(
-                        modifier = Modifier
-                            .focusRequester(focusRequester),
-                        face = userViewModel.face,
-                        username = userViewModel.username,
-                        uid = userViewModel.responseData?.mid ?: 0,
-                        level = userViewModel.responseData?.level ?: 0,
-                        currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
-                        nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
-                            if (this == null) {
-                                1
-                            } else if (this <= 0) {
-                                userViewModel.responseData?.levelExp?.currentExp ?: 1
-                            } else {
-                                (userViewModel.responseData?.levelExp?.currentExp ?: 1)
-                                +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
-                            }
+                UserRow(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            showLargeTitle = it.hasFocus
                         },
-                        showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
-                        labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic
-                            ?: "",
-                        onFocusChange = { hasFocus ->
-                            focusOnUserInfo = hasFocus
-                            showLargeTitle =
-                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
-                        },
-                        onClick = { showLogoutConfirmDialog = true }
-                    )
-                    IncognitoModeCard(
-                        onFocusChange = { hasFocus ->
-                            focusOnIncognitoModeCard = hasFocus
-                            showLargeTitle =
-                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
-                        },
-                        onClick = {
-                            Prefs.incognitoMode = !Prefs.incognitoMode
+                    username = userViewModel.username,
+                    face = userViewModel.face,
+                    uid = userViewModel.responseData?.mid ?: 0,
+                    level = userViewModel.responseData?.level ?: 0,
+                    currentExp = userViewModel.responseData?.levelExp?.currentExp ?: 0,
+                    nextLevelExp = with(userViewModel.responseData?.levelExp?.nextExp) {
+                        if (this == null) {
+                            1
+                        } else if (this <= 0) {
+                            userViewModel.responseData?.levelExp?.currentExp ?: 1
+                        } else {
+                            (userViewModel.responseData?.levelExp?.currentExp ?: 1)
+                            +(userViewModel.responseData?.levelExp?.nextExp ?: 0)
                         }
-                    )
-                    FollowedUserCard(
-                        onFocusChange = { hasFocus ->
-                            focusOnFollowedUserCard = hasFocus
-                            showLargeTitle =
-                                focusOnUserInfo || focusOnIncognitoModeCard || focusOnFollowedUserCard
-                        },
-                        size = animateFollowingNumber,
-                        onClick = {
-                            context.startActivity(Intent(context, FollowActivity::class.java))
-                        }
-                    )
-                }
+                    },
+                    showLabel = userViewModel.responseData?.vip?.avatarSubscript == 1,
+                    labelUrl = userViewModel.responseData?.vip?.label?.imgLabelUriHansStatic ?: "",
+                    followingUpCount = followingUpCount,
+                    onOpenFollowingUser = {
+                        context.startActivity(Intent(context, FollowActivity::class.java))
+                    },
+                    onOpenUserSwitch = {
+                        context.startActivity(Intent(context, UserSwitchActivity::class.java))
+                    }
+                )
             }
             item {
                 RecentVideosRow(
@@ -378,54 +379,6 @@ fun UserInfoScreen(
             }
         }
     }
-
-    LogoutConfirmDialog(
-        show = showLogoutConfirmDialog,
-        onHideDialog = { showLogoutConfirmDialog = false },
-        onConfirm = {
-            userViewModel.logout()
-            (context as Activity).finish()
-        }
-    )
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun LogoutConfirmDialog(
-    modifier: Modifier = Modifier,
-    show: Boolean,
-    onHideDialog: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(show) {
-        if (show) focusRequester.requestFocus(scope)
-    }
-
-    if (show) {
-        AlertDialog(
-            modifier = modifier,
-            onDismissRequest = { onHideDialog() },
-            title = { Text(text = stringResource(R.string.logout_dialog_title)) },
-            text = { Text(text = stringResource(R.string.logout_dialog_text, Prefs.uid)) },
-            confirmButton = {
-                TextButton(onClick = { onConfirm() }) {
-                    Text(text = stringResource(R.string.logout_dialog_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    modifier = Modifier
-                        .focusRequester(focusRequester),
-                    onClick = { onHideDialog() }
-                ) {
-                    Text(text = stringResource(R.string.logout_dialog_dismiss))
-                }
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -440,9 +393,9 @@ private fun UserInfo(
     nextLevelExp: Int,
     showLabel: Boolean,
     labelUrl: String,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
+    var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
         targetValue = currentExp.toFloat() / nextLevelExp,
         animationSpec = tween(
@@ -454,20 +407,10 @@ private fun UserInfo(
 
     Surface(
         modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .size(480.dp, 140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
+            .size(480.dp, 140.dp)
+            .onFocusChanged { hasFocus = it.hasFocus },
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Row(
@@ -533,53 +476,64 @@ private fun UserInfo(
                     Text(text = stringResource(R.string.user_info_uid, uid))
                 }
 
+                val sliderColor = if (hasFocus) {
+                    SliderDefaults.colors(
+                        disabledThumbColor = Color.Transparent,
+                        disabledActiveTrackColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        disabledInactiveTrackColor = MaterialTheme.colorScheme.inverseOnSurface.copy(
+                            alpha = 0.3f
+                        )
+                    )
+                } else {
+                    SliderDefaults.colors(
+                        disabledThumbColor = Color.Transparent,
+                        disabledActiveTrackColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
                 Slider(
                     enabled = false,
                     value = levelSlider,
                     onValueChange = {},
-                    colors = SliderDefaults.colors(
-                        disabledThumbColor = Color.Transparent,
-                        disabledActiveTrackColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors = sliderColor
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun IncognitoModeCard(
-    modifier: Modifier = Modifier,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
-    onClick: () -> Unit
+private fun IncognitoModeCard(
+    modifier: Modifier = Modifier
 ) {
-    var enabled by remember { mutableStateOf(Prefs.incognitoMode) }
-    val backgroundColor by animateColorAsState(
-        targetValue = if (enabled) Color.Black else MaterialTheme.colorScheme.secondaryContainer,
-        label = "Incognito background switch"
-    )
+    var enabled by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-            pressedContainerColor = backgroundColor
-        ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
+    LaunchedEffect(Unit) {
+        enabled = Prefs.incognitoMode
+    }
+
+    IncognitoModeCardContent(
+        modifier = modifier,
+        enabled = enabled,
         onClick = {
             enabled = !enabled
-            onClick()
+            Prefs.incognitoMode = enabled
         }
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun IncognitoModeCardContent(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -593,7 +547,7 @@ fun IncognitoModeCard(
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = if (enabled) stringResource(R.string.user_info_Incognito_mode_on)
+                text = if (enabled) "\uD83D\uDC7B" + stringResource(R.string.user_info_Incognito_mode_on)
                 else stringResource(R.string.user_info_Incognito_mode_off),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -603,28 +557,15 @@ fun IncognitoModeCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun FollowedUserCard(
+private fun FollowedUserCard(
     modifier: Modifier = Modifier,
     size: Int,
-    onFocusChange: (hasFocus: Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .height(140.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
-            )
-        ),
         onClick = onClick
     ) {
         Column(
@@ -641,6 +582,89 @@ fun FollowedUserCard(
             Text(
                 text = "$size",
                 style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun UserSwitchCard(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier.height(140.dp),
+        colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 24.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.user_homepage_user_switch),
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun UserRow(
+    modifier: Modifier = Modifier,
+    username: String,
+    face: String,
+    uid: Long,
+    level: Int,
+    currentExp: Int,
+    nextLevelExp: Int,
+    showLabel: Boolean,
+    labelUrl: String,
+    followingUpCount: Int,
+    onOpenFollowingUser: () -> Unit,
+    onOpenUserSwitch: () -> Unit
+) {
+    val animateFollowingNumber by animateIntAsState(
+        targetValue = followingUpCount,
+        label = "animate following number"
+    )
+
+    TvLazyRow(
+        modifier = modifier.padding(vertical = 28.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+        contentPadding = PaddingValues(horizontal = 50.dp)
+    ) {
+        item {
+            UserInfo(
+                modifier = Modifier,
+                face = face,
+                username = username,
+                uid = uid,
+                level = level,
+                currentExp = currentExp,
+                nextLevelExp = nextLevelExp,
+                showLabel = showLabel,
+                labelUrl = labelUrl,
+                onClick = { }
+            )
+        }
+        item {
+            IncognitoModeCard()
+        }
+        item {
+            FollowedUserCard(
+                size = animateFollowingNumber,
+                onClick = onOpenFollowingUser
+            )
+        }
+        item {
+            UserSwitchCard(
+                onClick = onOpenUserSwitch
             )
         }
     }
@@ -670,26 +694,37 @@ private fun FollowingAnimeVideosRow(
     showMore: () -> Unit
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
-    val titleFontSize by animateFloatAsState(if (hasFocus) 30f else 14f)
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (hasFocus) 30f else 14f,
+        label = "title font size"
+    )
+    var rowHeight by remember { mutableStateOf(0.dp) }
 
     Column(
         modifier = modifier
             .padding(vertical = 8.dp)
-            .padding(start = 50.dp)
             .onFocusChanged { hasFocus = it.hasFocus }
     ) {
         Text(
+            modifier = Modifier.padding(start = 50.dp),
             text = stringResource(R.string.user_homepage_anime),
             fontSize = titleFontSize.sp,
             color = titleColor
         )
         TvLazyRow(
-            modifier = Modifier.padding(top = 15.dp),
+            modifier = Modifier
+                .padding(top = 15.dp)
+                .onGloballyPositioned {
+                    rowHeight = with(density) {
+                        it.size.height.toDp()
+                    }
+                },
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(end = 50.dp, start = 12.dp)
+            contentPadding = PaddingValues(horizontal = 62.dp)
         ) {
             items(items = videos) { seasonCardData ->
                 SeasonCard(
@@ -705,10 +740,17 @@ private fun FollowingAnimeVideosRow(
                 )
             }
             item {
-                TextButton(onClick = {
-                    showMore()
-                }) {
-                    Text(text = "显示更多")
+                Button(
+                    modifier = Modifier.height(rowHeight),
+                    shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.large),
+                    onClick = showMore
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(text = "显示更多")
+                    }
                 }
             }
         }
@@ -744,7 +786,6 @@ private fun UserInfoPreview() {
             nextLevelExp = 2345,
             showLabel = false,
             labelUrl = "",
-            onFocusChange = {},
             onClick = {}
         )
     }
@@ -752,11 +793,88 @@ private fun UserInfoPreview() {
 
 @Preview
 @Composable
-private fun IncognitoModeCardPreview() {
+private fun UserInfoFocusedPreview() {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     BVTheme {
-        IncognitoModeCard(
-            onFocusChange = {},
+        UserInfo(
+            modifier = Modifier.focusRequester(focusRequester),
+            face = "",
+            username = "Username",
+            uid = 12345,
+            level = 6,
+            currentExp = 1234,
+            nextLevelExp = 2345,
+            showLabel = false,
+            labelUrl = "",
             onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IncognitoModeCardOnPreview() {
+    BVTheme {
+        IncognitoModeCardContent(
+            enabled = true,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IncognitoModeCardOffPreview() {
+    BVTheme {
+        IncognitoModeCardContent(
+            enabled = false,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FollowedUserCardPreview() {
+    BVTheme {
+        FollowedUserCard(
+            size = 466,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun UserSwitchCardPreview() {
+    BVTheme {
+        UserSwitchCard(
+            onClick = {}
+        )
+    }
+}
+
+@Preview(device = "id:tv_1080p")
+@Composable
+private fun UserRowPreview() {
+    BVTheme {
+        UserRow(
+            username = "Username",
+            face = "",
+            uid = 1234567890,
+            level = 4,
+            currentExp = 123,
+            nextLevelExp = 431,
+            showLabel = false,
+            labelUrl = "",
+            followingUpCount = 466,
+            onOpenFollowingUser = { },
+            onOpenUserSwitch = {}
         )
     }
 }

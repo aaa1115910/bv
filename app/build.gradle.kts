@@ -104,6 +104,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
@@ -111,6 +112,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "**/*.proto"
         }
 
         if (gradle.startParameter.taskNames.find { it.startsWith("assembleLite") } != null) {
@@ -142,7 +144,6 @@ android {
                     "BV_${AppConfiguration.versionCode}_${AppConfiguration.versionName}.${variant.buildType.name}_${variant.flavorName}_$abi.apk"
                 versionNameOverride =
                     "${variant.versionName}.${variant.buildType.name}"
-                variant.buildConfigField("String", "ABI_TYPE", "\"$abi\"")
             }
         }
     }

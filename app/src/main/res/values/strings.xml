@@ -22,6 +22,11 @@
     <string name="date_format_just_now">刚刚</string>
     <string name="date_format_minutes_age">%1$d 分钟前</string>
 
+    <string name="delete_account_confirm_dialog_confirm">gkd 别墨迹</string>
+    <string name="delete_account_confirm_dialog_dismiss">不，我不想</string>
+    <string name="delete_account_confirm_dialog_text">是否移除账号 %1$s\nUID:%2$d</string>
+    <string name="delete_account_confirm_dialog_title">移除账号</string>
+
     <string name="exception_auth_failure">用户身份认证已失效，请重新登录</string>
 
     <string name="favorite_button_text">收藏</string>
@@ -84,7 +89,6 @@
     <string name="player_tip_need_pay">请先购买影片再进行观看\n不支持试看</string>
 
     <string name="proxy_server_edit_dialog_input_field_label">服务器域名</string>
-    <string name="proxy_server_edit_dialog_title">代理服务器</string>
     <string name="proxy_server_edit_dialog_warning">请谨慎使用代理服务器，因为您的登录凭证将会发送至代理服务器，使用代理服务器所带来的一切后果均由用户自行承担</string>
 
     <string name="region_block_character_painting">:(</string>
@@ -141,6 +145,7 @@
     <string name="search_result_type_name_media_ft">影视</string>
     <string name="search_result_type_name_video">视频</string>
 
+    <string name="season_count_tip">系列共 %1$s 部</string>
     <string name="season_feature_film">正片</string>
     <string name="season_no_feature_film">还没有正片</string>
 
@@ -164,8 +169,9 @@
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
     <string name="settings_network_enable_proxy_title">启用代理</string>
+    <string name="settings_network_proxy_grpc_server_title">gRPC 接口代理服务器</string>
+    <string name="settings_network_proxy_http_server_title">HTTP 接口代理服务器</string>
     <string name="settings_network_proxy_server_content_empty">未填写</string>
-    <string name="settings_network_proxy_server_title">代理服务器地址</string>
     <string name="settings_network_test_text">使用最后一次播放的视频进行网络测试</string>
     <string name="settings_network_test_title">网络测试</string>
     <string name="settings_other_alpha_text">获取最新自动构建的 Alpha 版更新</string>
@@ -209,6 +215,7 @@
     <string name="title_activity_tag">视频标签</string>
     <string name="title_activity_up_info">UP 投稿</string>
     <string name="title_activity_user_info">用户信息</string>
+    <string name="title_activity_user_switch">用户切换</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
     <string name="title_activity_video_player_v3">视频播放</string>
@@ -227,11 +234,18 @@
     <string name="user_homepage_favorite">私人藏品</string>
     <string name="user_homepage_follow">已关注</string>
     <string name="user_homepage_recent">最近播放记录</string>
+    <string name="user_homepage_user_switch">账户管理</string>
     <string name="user_info_Incognito_mode_off">未开启</string>
     <string name="user_info_Incognito_mode_on">已开启</string>
     <string name="user_info_Incognito_mode_title">隐身模式</string>
     <string name="user_info_level">Lv%1$s</string>
     <string name="user_info_uid">UID: %1$s</string>
+    <string name="user_switch_add_user">添加账号</string>
+    <string name="user_switch_button_exit_manage_account">退出管理</string>
+    <string name="user_switch_button_manage_account">管理账号</string>
+    <string name="user_switch_menu_delete_account">移除账号</string>
+    <string name="user_switch_menu_show_token">显示 Token</string>
+    <string name="user_switch_title">选择账号</string>
 
     <string name="video_aspect_ratio_default">默认</string>
     <string name="video_aspect_ratio_four_to_three">4:3</string>
