@@ -1,6 +1,9 @@
 package dev.aaa1115910.biliapi.repositories
 
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.reply.CommentPage
+import dev.aaa1115910.biliapi.entity.reply.CommentSort
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -201,6 +204,67 @@ class VideoDetailRepositoryTest {
                     preferApiType = ApiType.App
                 )
                 println(result)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    @Test
+    fun `get video comments`() {
+        runBlocking {
+            runCatching {
+                //val aid = 234771846
+                val aid = 491985062
+                val sort = CommentSort.Time
+                /*val page = CommentPage(
+                    nextWebPage = """{"type":1,"direction":1,"Data":{"cursor":90}}""",
+                    nextAppPage = 90
+                )*/
+                val page = CommentPage()
+                val webResult = videoDetailRepository.getComments(
+                    aid = aid,
+                    sort = sort,
+                    page = page,
+                    preferApiType = ApiType.Web
+                )
+                val appResult = videoDetailRepository.getComments(
+                    aid = aid,
+                    sort = sort,
+                    page = page,
+                    preferApiType = ApiType.App
+                )
+                println(webResult)
+                println(appResult)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    @Test
+    fun `get all comments with web api`() {
+        runBlocking {
+            runCatching {
+                var page = CommentPage()
+                val aid = 234771846
+                val sort = CommentSort.Hot
+                var hasNext = true
+
+                while (hasNext) {
+                    val webResult = videoDetailRepository.getComments(
+                        aid = aid,
+                        sort = sort,
+                        page = page,
+                        preferApiType = ApiType.Web
+                    )
+                    page = webResult.nextPage
+                    webResult.comments.forEach {
+                        println(it.content)
+                    }
+                    hasNext = webResult.hasNext
+                    delay(3000)
+                }
             }.onFailure {
                 it.printStackTrace()
             }

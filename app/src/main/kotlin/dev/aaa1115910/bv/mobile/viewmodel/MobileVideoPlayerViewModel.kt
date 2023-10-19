@@ -12,6 +12,9 @@ import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.reply.Comment
+import dev.aaa1115910.biliapi.entity.reply.CommentPage
+import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
@@ -32,6 +35,7 @@ import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
 import dev.aaa1115910.bv.util.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
@@ -48,6 +52,13 @@ class MobileVideoPlayerViewModel(
     var videoDetail: VideoDetail? by mutableStateOf(null)
     private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
+    var comments = mutableStateListOf<Comment>()
+
+    var hasMoreComments = true
+    var refreshingComments by mutableStateOf(false)
+    var updatingComments = false
+    var nextCommentPage = CommentPage()
+    var commentSort by mutableStateOf(CommentSort.Hot)
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
@@ -243,5 +254,51 @@ class MobileVideoPlayerViewModel(
             videoPlayer!!.prepare()
             // showBuffering = true
         }
+    }
+
+    suspend fun loadMoreComment() {
+        if (updatingComments) return
+        updatingComments = true
+        if (!hasMoreComments) {
+            updatingComments = false
+            delay(300)
+            refreshingComments = false
+            return
+        }
+        logger.fInfo { "Load more comment, page=$nextCommentPage" }
+        runCatching {
+            val commentsData = videoDetailRepository.getComments(
+                aid = avid,
+                page = nextCommentPage,
+                sort = commentSort,
+                preferApiType = Prefs.apiType
+            )
+            nextCommentPage = commentsData.nextPage
+            hasMoreComments = commentsData.hasNext
+            comments.addAll(commentsData.comments)
+        }.onFailure {
+            logger.fException(it) { "Load more comment failed" }
+            withContext(Dispatchers.Main) {
+                "加载评论失败：${it.localizedMessage}".toast(BVApp.context)
+            }
+        }
+        updatingComments = false
+        delay(300)
+        refreshingComments = false
+    }
+
+    suspend fun switchCommentSort(newSort: CommentSort) {
+        logger.fInfo { "Switch comment sort to ${newSort.name}" }
+        commentSort = newSort
+        refreshComments()
+    }
+
+    suspend fun refreshComments() {
+        refreshingComments = true
+        logger.fInfo { "refresh comment" }
+        nextCommentPage = CommentPage()
+        hasMoreComments = true
+        comments.clear()
+        loadMoreComment()
     }
 }

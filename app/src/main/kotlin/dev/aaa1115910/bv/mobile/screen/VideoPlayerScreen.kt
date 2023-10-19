@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.WindowManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -22,12 +23,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
@@ -35,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -42,8 +49,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,9 +70,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.origeek.imageViewer.previewer.ImagePreviewer
+import com.origeek.imageViewer.previewer.ImagePreviewerState
+import com.origeek.imageViewer.previewer.VerticalDragType
+import com.origeek.imageViewer.previewer.rememberPreviewerState
+import dev.aaa1115910.biliapi.entity.reply.Comment
+import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
+import dev.aaa1115910.bv.mobile.component.reply.CommentItem
 import dev.aaa1115910.bv.mobile.component.videocard.RelatedVideoItem
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
@@ -88,6 +106,20 @@ fun VideoPlayerScreen(
     var isVideoFullscreen by rememberSaveable { mutableStateOf(false) }
     val forcePortrait =
         windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+
+    val pictures = remember { mutableStateListOf<Comment.Picture>() }
+    val previewerState = rememberPreviewerState(
+        verticalDragType = VerticalDragType.UpAndDown,
+        pageCount = { pictures.size },
+        getKey = { pictures[it].url }
+    )
+
+    val setPreviewerPictures: (List<Comment.Picture>, () -> Unit) -> Unit =
+        { newPictures, afterSetPictures ->
+            pictures.clear()
+            pictures.addAll(newPictures)
+            afterSetPictures()
+        }
 
     SideEffect {
         systemUiController.isStatusBarVisible = !isVideoFullscreen
@@ -119,6 +151,12 @@ fun VideoPlayerScreen(
             (context as Activity).window.clearFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
+        }
+    }
+
+    BackHandler(previewerState.canClose || previewerState.animating) {
+        if (previewerState.canClose) scope.launch {
+            previewerState.closeTransform()
         }
     }
 
@@ -264,7 +302,26 @@ fun VideoPlayerScreen(
                             }
 
                             1 -> {
-                                VideoComments()
+                                VideoComments(
+                                    previewerState = previewerState,
+                                    comments = playerViewModel.comments,
+                                    commentSort = playerViewModel.commentSort,
+                                    refreshingComments = playerViewModel.refreshingComments,
+                                    onLoadMoreComments = {
+                                        scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                                    },
+                                    onRefreshComments = {
+                                        scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                                    },
+                                    onSwitchCommentSort = {
+                                        scope.launch(Dispatchers.IO) {
+                                            playerViewModel.switchCommentSort(
+                                                it
+                                            )
+                                        }
+                                    },
+                                    onShowPreviewer = setPreviewerPictures
+                                )
                             }
                         }
                     }
@@ -309,10 +366,39 @@ fun VideoPlayerScreen(
                 }
             }
             VideoComments(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                previewerState = previewerState,
+                comments = playerViewModel.comments,
+                commentSort = playerViewModel.commentSort,
+                refreshingComments = playerViewModel.refreshingComments,
+                onLoadMoreComments = {
+                    scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                },
+                onRefreshComments = {
+                    scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                },
+                onSwitchCommentSort = {
+                    scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
+                },
+                onShowPreviewer = setPreviewerPictures
             )
         }
     }
+
+    ImagePreviewer(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = previewerState,
+        imageLoader = { index ->
+            val imageRequest = ImageRequest.Builder(LocalContext.current)
+                .data(pictures[index].url)
+                .size(coil.size.Size.ORIGINAL)
+                .build()
+            // 获取图片的初始大小
+            rememberAsyncImagePainter(imageRequest)
+            //rememberAsyncImagePainter(pictures[index].url)
+        }
+    )
 }
 
 @Composable
@@ -427,22 +513,97 @@ fun VideoPlayerInfo(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun VideoComments(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    previewerState: ImagePreviewerState,
+    comments: List<Comment>,
+    commentSort: CommentSort,
+    refreshingComments: Boolean,
+    onLoadMoreComments: () -> Unit,
+    onRefreshComments: () -> Unit,
+    onSwitchCommentSort: (CommentSort) -> Unit,
+    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit
 ) {
-    LazyColumn(
+    val listState = rememberLazyListState()
+    val pullRefreshState = rememberPullRefreshState(refreshingComments, { onRefreshComments() })
+
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 10
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) onLoadMoreComments()
+    }
+
+    Box(
         modifier = modifier
+            .fillMaxSize()
+            .pullRefresh(state = pullRefreshState)
     ) {
-        repeat(100) {
+        LazyColumn(
+            state = listState
+        ) {
             item {
-                ListItem(
-                    headlineContent = {
-                        Text(text = "This is a comment #$it")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = when (commentSort) {
+                            CommentSort.Hot -> "热门评论"
+                            CommentSort.Time -> "最新评论"
+                            else -> ""
+                        },
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    TextButton(onClick = {
+                        onSwitchCommentSort(
+                            when (commentSort) {
+                                CommentSort.Hot -> CommentSort.Time
+                                CommentSort.Time -> CommentSort.Hot
+                                else -> CommentSort.Hot
+                            }
+                        )
+                    }) {
+                        Text(
+                            text = when (commentSort) {
+                                CommentSort.Hot -> "按热度"
+                                CommentSort.Time -> "按时间"
+                                else -> ""
+                            }
+                        )
                     }
-                )
+                }
+            }
+
+            itemsIndexed(items = comments) { index, comment ->
+                Box {
+                    CommentItem(
+                        comment = comment,
+                        previewerState = previewerState,
+                        onShowPreviewer = onShowPreviewer
+                    )
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.navigationBarsPadding())
             }
         }
+        PullRefreshIndicator(
+            refreshingComments,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

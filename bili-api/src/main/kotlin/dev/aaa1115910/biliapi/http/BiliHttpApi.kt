@@ -14,6 +14,7 @@ import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
+import dev.aaa1115910.biliapi.http.entity.reply.CommentData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1312,6 +1313,32 @@ object BiliHttpApi {
         client.get("https://app.bilibili.com/x/v2/feed/index") {
             parameter("idx", idx)
             accessKey?.let { parameter("access_key", it) }
+        }.body()
+
+    /**
+     * 获取评论
+     *
+     * @param type 评论类型
+     * @param oid 评论区id
+     * @param mode 评论排序方式 默认为 3， 0 3：仅按热度 1：按热度+按时间 2：仅按时间
+     * @param paginationStr 分页参数
+     */
+    suspend fun getComments(
+        type: Int,
+        oid: Int,
+        mode: Int = 3,
+        paginationStr: String = """{"offset":""}""",
+        //webLocation: Int = 1815875,
+        sessData: String? = null,
+        buvid3: String? = null
+    ): BiliResponse<CommentData> =
+        client.get("/x/v2/reply/wbi/main") {
+            parameter("type", type)
+            parameter("oid", oid)
+            parameter("mode", mode)
+            parameter("pagination_str", paginationStr)
+            //parameter("web_location", webLocation)
+            sessData?.let { header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3;") }
         }.body()
 }
 
