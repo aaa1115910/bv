@@ -33,6 +33,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -42,6 +43,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -82,6 +84,7 @@ import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.reply.CommentItem
+import dev.aaa1115910.bv.mobile.component.reply.ReplySheetScaffold
 import dev.aaa1115910.bv.mobile.component.videocard.RelatedVideoItem
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
@@ -93,7 +96,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun VideoPlayerScreen(
     playerViewModel: MobileVideoPlayerViewModel = koinViewModel(),
@@ -111,8 +114,9 @@ fun VideoPlayerScreen(
     val previewerState = rememberPreviewerState(
         verticalDragType = VerticalDragType.UpAndDown,
         pageCount = { pictures.size },
-        getKey = { pictures[it].url }
+        getKey = { pictures[it].key }
     )
+    val replySheetState = rememberBottomSheetScaffoldState()
 
     val setPreviewerPictures: (List<Comment.Picture>, () -> Unit) -> Unit =
         { newPictures, afterSetPictures ->
@@ -235,93 +239,111 @@ fun VideoPlayerScreen(
                     pageCount = { 2 }
                 )
                 if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage
+                    ReplySheetScaffold(
+                        aid = playerViewModel.avid,
+                        rpid = playerViewModel.rpid,
+                        repliesCount = playerViewModel.rpCount,
+                        sheetState = replySheetState,
+                        previewerState = previewerState,
+                        onShowPreviewer = setPreviewerPictures
                     ) {
-                        titles.forEachIndexed { index, title ->
-                            Tab(
-                                selected = pagerState.currentPage == index,
-                                onClick = { scope.launch { pagerState.scrollToPage(index) } },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
+                        Column {
+                            TabRow(
+                                selectedTabIndex = pagerState.currentPage
+                            ) {
+                                titles.forEachIndexed { index, title ->
+                                    Tab(
+                                        selected = pagerState.currentPage == index,
+                                        onClick = { scope.launch { pagerState.scrollToPage(index) } },
+                                        text = {
+                                            Text(
+                                                text = title,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
                                     )
                                 }
-                            )
-                        }
-                    }
-                    HorizontalPager(
-                        state = pagerState
-                    ) { page ->
-                        when (page) {
-                            0 -> {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    item {
-                                        VideoPlayerInfo(
-                                            modifier = Modifier.padding(12.dp),
-                                            upAvatar = playerViewModel.videoDetail?.author?.face
-                                                ?: "",
-                                            upName = playerViewModel.videoDetail?.author?.name
-                                                ?: "",
-                                            upFansCount = 0,
-                                            title = playerViewModel.videoDetail?.title ?: "",
-                                            description = playerViewModel.videoDetail?.description
-                                                ?: "",
-                                            playCount = playerViewModel.videoDetail?.stat?.view
-                                                ?: 0,
-                                            danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
-                                                ?: 0,
-                                            date = playerViewModel.videoDetail?.publishDate
-                                                ?.formatPubTimeString(context) ?: "",
-                                            avid = playerViewModel.videoDetail?.aid ?: 0
-                                        )
-                                    }
-                                    items(
-                                        items = playerViewModel.videoDetail?.relatedVideos
-                                            ?: emptyList()
-                                    ) { relatedVideo ->
-                                        RelatedVideoItem(
-                                            relatedVideo = relatedVideo,
-                                            onClick = {
-                                                VideoPlayerActivity.actionStart(
-                                                    context = context,
-                                                    aid = relatedVideo.aid,
-                                                    fromSeason = relatedVideo.jumpToSeason
+                            }
+                            HorizontalPager(
+                                state = pagerState
+                            ) { page ->
+                                when (page) {
+                                    0 -> {
+                                        LazyColumn(
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            item {
+                                                VideoPlayerInfo(
+                                                    modifier = Modifier.padding(12.dp),
+                                                    upAvatar = playerViewModel.videoDetail?.author?.face
+                                                        ?: "",
+                                                    upName = playerViewModel.videoDetail?.author?.name
+                                                        ?: "",
+                                                    upFansCount = 0,
+                                                    title = playerViewModel.videoDetail?.title
+                                                        ?: "",
+                                                    description = playerViewModel.videoDetail?.description
+                                                        ?: "",
+                                                    playCount = playerViewModel.videoDetail?.stat?.view
+                                                        ?: 0,
+                                                    danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
+                                                        ?: 0,
+                                                    date = playerViewModel.videoDetail?.publishDate
+                                                        ?.formatPubTimeString(context) ?: "",
+                                                    avid = playerViewModel.videoDetail?.aid ?: 0
                                                 )
+                                            }
+                                            items(
+                                                items = playerViewModel.videoDetail?.relatedVideos
+                                                    ?: emptyList()
+                                            ) { relatedVideo ->
+                                                RelatedVideoItem(
+                                                    relatedVideo = relatedVideo,
+                                                    onClick = {
+                                                        VideoPlayerActivity.actionStart(
+                                                            context = context,
+                                                            aid = relatedVideo.aid,
+                                                            fromSeason = relatedVideo.jumpToSeason
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                            item {
+                                                Spacer(modifier = Modifier.navigationBarsPadding())
+                                            }
+                                        }
+                                    }
+
+                                    1 -> {
+                                        VideoComments(
+                                            previewerState = previewerState,
+                                            comments = playerViewModel.comments,
+                                            commentSort = playerViewModel.commentSort,
+                                            refreshingComments = playerViewModel.refreshingComments,
+                                            onLoadMoreComments = {
+                                                scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                                            },
+                                            onRefreshComments = {
+                                                scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                                            },
+                                            onSwitchCommentSort = {
+                                                scope.launch(Dispatchers.IO) {
+                                                    playerViewModel.switchCommentSort(
+                                                        it
+                                                    )
+                                                }
+                                            },
+                                            onShowPreviewer = setPreviewerPictures,
+                                            onShowReplies = { rpId, repliesCount ->
+                                                //logger.info { "show reply sheet: rpid=$replyId" }
+                                                playerViewModel.rpid = rpId
+                                                playerViewModel.rpCount = repliesCount
+                                                scope.launch { replySheetState.bottomSheetState.expand() }
                                             }
                                         )
                                     }
-                                    item {
-                                        Spacer(modifier = Modifier.navigationBarsPadding())
-                                    }
                                 }
-                            }
-
-                            1 -> {
-                                VideoComments(
-                                    previewerState = previewerState,
-                                    comments = playerViewModel.comments,
-                                    commentSort = playerViewModel.commentSort,
-                                    refreshingComments = playerViewModel.refreshingComments,
-                                    onLoadMoreComments = {
-                                        scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
-                                    },
-                                    onRefreshComments = {
-                                        scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
-                                    },
-                                    onSwitchCommentSort = {
-                                        scope.launch(Dispatchers.IO) {
-                                            playerViewModel.switchCommentSort(
-                                                it
-                                            )
-                                        }
-                                    },
-                                    onShowPreviewer = setPreviewerPictures
-                                )
                             }
                         }
                     }
@@ -365,23 +387,38 @@ fun VideoPlayerScreen(
                     }
                 }
             }
-            VideoComments(
-                modifier = Modifier.fillMaxWidth(),
+            ReplySheetScaffold(
+                aid = playerViewModel.avid,
+                rpid = playerViewModel.rpid,
+                repliesCount = playerViewModel.rpCount,
+                sheetState = replySheetState,
                 previewerState = previewerState,
-                comments = playerViewModel.comments,
-                commentSort = playerViewModel.commentSort,
-                refreshingComments = playerViewModel.refreshingComments,
-                onLoadMoreComments = {
-                    scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
-                },
-                onRefreshComments = {
-                    scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
-                },
-                onSwitchCommentSort = {
-                    scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
-                },
                 onShowPreviewer = setPreviewerPictures
-            )
+            ) {
+                VideoComments(
+                    modifier = Modifier.fillMaxWidth(),
+                    previewerState = previewerState,
+                    comments = playerViewModel.comments,
+                    commentSort = playerViewModel.commentSort,
+                    refreshingComments = playerViewModel.refreshingComments,
+                    onLoadMoreComments = {
+                        scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                    },
+                    onRefreshComments = {
+                        scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                    },
+                    onSwitchCommentSort = {
+                        scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
+                    },
+                    onShowPreviewer = setPreviewerPictures,
+                    onShowReplies = { rpId, repliesCount ->
+                        //logger.info { "show reply sheet: rpid=$replyId" }
+                        playerViewModel.rpid = rpId
+                        playerViewModel.rpCount = repliesCount
+                        scope.launch { replySheetState.bottomSheetState.expand() }
+                    }
+                )
+            }
         }
     }
 
@@ -524,7 +561,8 @@ fun VideoComments(
     onLoadMoreComments: () -> Unit,
     onRefreshComments: () -> Unit,
     onSwitchCommentSort: (CommentSort) -> Unit,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit
+    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowReplies: (rpId: Long, repliesCount: Int) -> Unit
 ) {
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(refreshingComments, { onRefreshComments() })
@@ -591,7 +629,10 @@ fun VideoComments(
                     CommentItem(
                         comment = comment,
                         previewerState = previewerState,
-                        onShowPreviewer = onShowPreviewer
+                        onShowPreviewer = onShowPreviewer,
+                        onShowReply = { rpId ->
+                            onShowReplies(rpId, comment.repliesCount)
+                        }
                     )
                 }
             }

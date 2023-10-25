@@ -4,10 +4,13 @@ import bilibili.app.view.v1.ViewGrpcKt
 import bilibili.app.view.v1.viewReq
 import bilibili.main.community.reply.v1.Mode
 import bilibili.main.community.reply.v1.ReplyGrpcKt
-import bilibili.main.community.reply.v1.cursorReq
+import bilibili.main.community.reply.v1.detailListReq
 import bilibili.main.community.reply.v1.mainListReq
+import bilibili.pagination.feedPagination
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.reply.CommentPage
+import dev.aaa1115910.biliapi.entity.reply.CommentRepliesData
+import dev.aaa1115910.biliapi.entity.reply.CommentReplyPage
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.biliapi.entity.reply.CommentsData
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
@@ -146,17 +149,68 @@ class VideoDetailRepository(
                     mainListReq {
                         oid = aid.toLong()
                         type = 1
-                        cursor = cursorReq {
+                        /*cursor = cursorReq {
                             next = page.nextAppPage.toLong()
                             mode = when (sort) {
                                 CommentSort.Hot -> Mode.MAIN_LIST_HOT
                                 CommentSort.HotAndTime -> Mode.DEFAULT
                                 CommentSort.Time -> Mode.MAIN_LIST_TIME
                             }
+                        }*/
+                        mode = when (sort) {
+                            CommentSort.Hot -> Mode.MAIN_LIST_HOT
+                            CommentSort.HotAndTime -> Mode.DEFAULT
+                            CommentSort.Time -> Mode.MAIN_LIST_TIME
+                        }
+                        pagination = feedPagination {
+                            offset = page.nextAppPage
                         }
                     }
                 ) ?: throw IllegalStateException("Reply stub is not initialized")
                 return CommentsData.fromMainListReply(appComments)
+            }
+        }
+    }
+
+    suspend fun getCommentReplies(
+        aid: Int,
+        commentId: Long,
+        page: CommentReplyPage = CommentReplyPage(),
+        sort: CommentSort = CommentSort.Hot,
+        preferApiType: ApiType = ApiType.Web
+    ): CommentRepliesData {
+        when (preferApiType) {
+            ApiType.Web -> {
+                val webReplies = BiliHttpApi.getCommentReplies(
+                    oid = aid,
+                    type = 1,
+                    root = commentId,
+                    pageSize = 20,
+                    pageNumber = page.nextWebPage,
+                ).getResponseData()
+                return CommentRepliesData.fromCommentReplyData(webReplies)
+            }
+
+            ApiType.App -> {
+                val appReplies = replyStub?.detailList(
+                    detailListReq {
+                        oid = aid.toLong()
+                        type = 1
+                        root = commentId
+                        /*cursor = cursorReq {
+                            next = page.nextAppPage.toLong()
+                        }*/
+                        mode = when (sort) {
+                            CommentSort.Hot -> Mode.MAIN_LIST_HOT
+                            CommentSort.HotAndTime -> Mode.DEFAULT
+                            CommentSort.Time -> Mode.MAIN_LIST_TIME
+                        }
+                        pagination = feedPagination {
+                            offset = page.nextAppPage
+                        }
+                    }
+                ) ?: throw IllegalStateException("Reply stub is not initialized")
+                return CommentRepliesData.fromCommentReplyList(appReplies)
             }
         }
     }

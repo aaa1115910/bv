@@ -15,6 +15,7 @@ import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
 import dev.aaa1115910.biliapi.http.entity.reply.CommentData
+import dev.aaa1115910.biliapi.http.entity.reply.CommentReplyData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1340,6 +1341,20 @@ object BiliHttpApi {
             //parameter("web_location", webLocation)
             sessData?.let { header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3;") }
         }.body()
+
+    suspend fun getCommentReplies(
+        oid: Int,
+        type: Int,
+        root: Long,
+        pageSize: Int = 10,
+        pageNumber: Int = 1
+    ): BiliResponse<CommentReplyData> = client.get("/x/v2/reply/reply") {
+        parameter("oid", oid)
+        parameter("type", type)
+        parameter("root", root)
+        parameter("ps", pageSize)
+        parameter("pn", pageNumber)
+    }.body()
 }
 
 private fun checkToken(accessKey: String?, sessData: String?) {

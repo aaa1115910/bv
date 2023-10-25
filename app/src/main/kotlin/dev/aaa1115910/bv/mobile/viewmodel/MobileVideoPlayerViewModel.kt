@@ -1,6 +1,8 @@
 package dev.aaa1115910.bv.mobile.viewmodel
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +61,8 @@ class MobileVideoPlayerViewModel(
     var updatingComments = false
     var nextCommentPage = CommentPage()
     var commentSort by mutableStateOf(CommentSort.Hot)
+    var rpid by mutableLongStateOf(0L)
+    var rpCount by mutableIntStateOf(0)
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()

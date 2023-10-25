@@ -63,7 +63,8 @@ fun CommentItem(
     comment: Comment,
     previewerState: ImagePreviewerState,
     showReplies: Boolean = true,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit
+    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowReply: (rpid: Long) -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -142,7 +143,8 @@ fun CommentItem(
                 if (showReplies && comment.replies.isNotEmpty()) {
                     CommentReplies(
                         replies = comment.replies,
-                        repliesCount = comment.repliesCount
+                        repliesCount = comment.repliesCount,
+                        onOpenCommentSheet = { onShowReply(comment.rpid) }
                     )
                 }
             }
@@ -222,7 +224,7 @@ private fun CommentPictures(
     modifier: Modifier = Modifier,
     pictures: List<Comment.Picture>,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit
+    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val imageBaseShape = MaterialTheme.shapes.medium
@@ -255,7 +257,7 @@ private fun CommentPictures(
                         TransformImageView(
                             modifier = Modifier.clickable { onClickPicture(0, itemState) },
                             painter = rememberAsyncImagePainter(pictures.first().url),
-                            key = pictures.first().url,
+                            key = pictures.first().key,
                             itemState = itemState,
                             previewerState = previewerState,
                         )
@@ -289,7 +291,7 @@ private fun CommentPictures(
                             TransformImageView(
                                 modifier = Modifier.clickable { onClickPicture(index, itemState) },
                                 painter = rememberAsyncImagePainter(picture.url),
-                                key = picture.url,
+                                key = picture.key,
                                 itemState = itemState,
                                 previewerState = previewerState,
                             )
@@ -324,7 +326,7 @@ private fun CommentPictures(
                             TransformImageView(
                                 modifier = Modifier.clickable { onClickPicture(index, itemState) },
                                 painter = rememberAsyncImagePainter(picture.url),
-                                key = picture.url,
+                                key = picture.key,
                                 itemState = itemState,
                                 previewerState = previewerState,
                             )
@@ -358,17 +360,18 @@ fun CommentReplies(
     modifier: Modifier = Modifier,
     replies: List<Comment>,
     repliesCount: Int,
-    onOpenCommentSheet: (replies: List<Comment>) -> Unit = {}
+    onOpenCommentSheet: () -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
+        onClick = onOpenCommentSheet
     ) {
         Column(
             modifier = modifier.padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            replies.take(2).forEach { reply ->
+            replies.forEach { reply ->
                 val replyContent = if (reply.content.firstOrNull()?.startsWith("回复") == true) {
                     listOf("${reply.member.name} ")
                 } else {
@@ -381,7 +384,7 @@ fun CommentReplies(
                     showMoreButton = false
                 )
             }
-            if (replies.size > 2) {
+            if (repliesCount > replies.size) {
                 Text(
                     text = "共 $repliesCount 条回复",
                     style = MaterialTheme.typography.bodySmall
@@ -449,7 +452,8 @@ private class CommentItemPreviewParameterProvider :
                 Comment.Picture(
                     url = "",
                     width = 0,
-                    height = 0
+                    height = 0,
+                    key = ""
                 )
             ),
             replies = emptyList(),
@@ -465,8 +469,8 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0)
+                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "2")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -481,9 +485,9 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0)
+                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "3")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -498,10 +502,10 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0)
+                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "3"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "4")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -516,10 +520,10 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0),
-                Comment.Picture(url = "", width = 0, height = 0)
+                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "3"),
+                Comment.Picture(url = "", width = 0, height = 0, key = "4")
             ),
             replies = listOf(
                 Comment(

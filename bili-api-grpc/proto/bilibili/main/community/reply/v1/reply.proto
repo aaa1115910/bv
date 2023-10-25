@@ -4,15 +4,16 @@ package bilibili.main.community.reply.v1;
 
 option java_multiple_files = true;
 
+import "bilibili/pagination/pagination.proto";
 import "google/protobuf/any.proto";
 
 // 评论区
 service Reply {
-  // 主评论列表接口
-  rpc MainList(MainListReq) returns (MainListReply);
-  // 二级评论明细接口
-  rpc DetailList(DetailListReq) returns (DetailListReply);
-  // 对话评论树接口
+    // 主评论列表接口
+    rpc MainList(MainListReq) returns (MainListReply);
+    // 二级评论明细接口
+    rpc DetailList(DetailListReq) returns (DetailListReply);
+    // 对话评论树接口
     rpc DialogList(DialogListReq) returns (DialogListReply);
     // 评论预览接口
     rpc PreviewList(PreviewListReq) returns (PreviewListReply);
@@ -170,6 +171,14 @@ message DetailListReply {
     Activity activity = 4;
     //
     LikeInfo likes = 5;
+    // 排序方式
+    Mode mode = 6;
+    // 当前排序mode在切换按钮上的展示文案
+    string mode_text = 7;
+    // 分页
+    bilibili.pagination.FeedPaginationReply pagination_reply = 8;
+    //
+    string session_id = 9;
 }
 
 // 二级评论明细-请求
@@ -186,13 +195,17 @@ message DetailListReq {
     CursorReq cursor = 5;
     // 来源标识
     DetailListScene scene = 6;
+    // 排序方式
+    Mode mode = 7;
+    // 分页
+    bilibili.pagination.FeedPagination pagination = 8;
 }
 
 // 来源标识
 enum DetailListScene {
-    REPLY    = 0; // 评论区展开
+    REPLY = 0; // 评论区展开
     MSG_FEED = 1; // 回复消息推送
-    NOTIFY   = 2; //
+    NOTIFY = 2; //
 }
 
 // 对话评论树-响应
@@ -336,6 +349,20 @@ message MainListReply {
     QoeInfo qoe = 15;
     //
     map<string, int32> callbacks = 16;
+    //
+    OperationV2 operation_v2 = 17;
+    // 排序方式
+    Mode mode = 18;
+    // 当前排序mode在切换按钮上的展示文案
+    string mode_text = 19;
+    // 分页
+    bilibili.pagination.FeedPaginationReply pagination_reply = 20;
+    //
+    string session_id = 21;
+    //
+    string report_params = 22;
+    //
+    VoteCard vote_card = 23;
 }
 
 // 主评论列表-请求
@@ -356,6 +383,10 @@ message MainListReq {
     int64 seek_rpid = 7;
     // 评论区筛选类型 取值可为: ["全部" "粉丝评论" "笔记长评"]
     string filter_tag_name = 8;
+    // 排序方式
+    Mode mode = 9;
+    // 分页
+    bilibili.pagination.FeedPagination pagination = 10;
 }
 
 // 用户信息
@@ -654,6 +685,30 @@ message Operation {
     string report_extra = 6;
     //
     string icon = 7;
+}
+
+//
+message OperationV2 {
+    //
+    int32 type = 1;
+    //
+    string prefix_text = 2;
+    //
+    OperationIcon icon = 3;
+    //
+    string title = 4;
+    //
+    string link = 5;
+    //
+    string report_extra = 6;
+}
+
+//
+message OperationIcon {
+    //
+    int32 position = 1;
+    //
+    string url = 2;
 }
 
 //
@@ -1239,5 +1294,29 @@ message Vote {
     // 投票标题
     string title = 2;
     // 参与人数
+    int64 count = 3;
+}
+
+//
+message VoteCard{
+    // 投票id
+    int64 vote_id = 1;
+    // 投票标题
+    string title = 2;
+    //
+    int64 count = 3;
+    //
+    repeated VoteCardOption options = 4;
+    //
+    int64 my_vote_option = 5;
+}
+
+//
+message VoteCardOption{
+    //
+    int64 idx = 1;
+    //
+    string desc = 2;
+    //
     int64 count = 3;
 }

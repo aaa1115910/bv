@@ -1,5 +1,7 @@
 package dev.aaa1115910.biliapi.entity.reply
 
+import java.util.UUID
+
 data class CommentsData(
     val comments: List<Comment> = emptyList(),
     val nextPage: CommentPage = CommentPage(),
@@ -21,7 +23,7 @@ data class CommentsData(
             return CommentsData(
                 comments = mainListReply.repliesList.map { Comment.fromReplyInfo(it) },
                 nextPage = CommentPage(
-                    nextAppPage = mainListReply.cursor.next.toInt()
+                    nextAppPage = mainListReply.paginationReply.nextOffset
                 ),
                 hasNext = mainListReply.cursor.isEnd.not()
             )
@@ -114,17 +116,27 @@ data class Comment(
         }
     }
 
+    /**
+     * 评论图片
+     *
+     * @param url 图片链接
+     * @param width 图片宽度
+     * @param height 图片高度
+     * @param key 使用 [com.origeek.imageViewer.previewer.TransformImageView] [com.origeek.imageViewer.previewer.ImagePreviewer] 浏览图片缩放时需要用到的 key
+     */
     data class Picture(
         val url: String,
         val width: Int,
-        val height: Int
+        val height: Int,
+        val key: String
     ) {
         companion object {
             fun fromPicture(picture: dev.aaa1115910.biliapi.http.entity.reply.CommentData.Reply.Content.Picture): Picture {
                 return Picture(
                     url = picture.imgSrc,
                     width = picture.imgWidth,
-                    height = picture.imgHeight
+                    height = picture.imgHeight,
+                    key = UUID.randomUUID().toString()
                 )
             }
 
@@ -132,7 +144,8 @@ data class Comment(
                 return Picture(
                     url = picture.imgSrc,
                     width = picture.imgWidth.toInt(),
-                    height = picture.imgHeight.toInt()
+                    height = picture.imgHeight.toInt(),
+                    key = UUID.randomUUID().toString()
                 )
             }
         }

@@ -36,62 +36,6 @@ data class CommentData(
     )
 
     /**
-     * 评论区显示控制
-     */
-    @Serializable
-    data class Config(
-        @SerialName("read_only")
-        val readOnly: Boolean,
-        @SerialName("show_up_flag")
-        val showUpFlag: Boolean,
-        @SerialName("showtopic")
-        val showtopic: Int
-    )
-
-    /**
-     * 评论区输入属性
-     */
-    @Serializable
-    data class Control(
-        @SerialName("answer_guide_android_url")
-        val answerGuideAndroidUrl: String,
-        @SerialName("answer_guide_icon_url")
-        val answerGuideIconUrl: String,
-        @SerialName("answer_guide_ios_url")
-        val answerGuideIosUrl: String,
-        @SerialName("answer_guide_text")
-        val answerGuideText: String,
-        @SerialName("bg_text")
-        val bgText: String,
-        @SerialName("child_input_text")
-        val childInputText: String,
-        @SerialName("disable_jump_emote")
-        val disableJumpEmote: Boolean,
-        @SerialName("empty_page")
-        val emptyPage: JsonElement? = null,
-        @SerialName("enable_charged")
-        val enableCharged: Boolean,
-        @SerialName("enable_cm_biz_helper")
-        val enableCmBizHelper: Boolean,
-        @SerialName("giveup_input_text")
-        val giveupInputText: String,
-        @SerialName("input_disable")
-        val inputDisable: Boolean,
-        @SerialName("root_input_text")
-        val rootInputText: String,
-        @SerialName("screenshot_icon_state")
-        val screenshotIconState: Int,
-        @SerialName("show_text")
-        val showText: String,
-        @SerialName("show_type")
-        val showType: Int,
-        @SerialName("upload_picture_icon_state")
-        val uploadPictureIconState: Int,
-        @SerialName("web_selection")
-        val webSelection: Boolean
-    )
-
-    /**
      * 游标信息
      */
     @Serializable
@@ -510,9 +454,65 @@ data class CommentData(
         @SerialName("pending_count")
         val pendingCount: Int
     )
-
-    @Serializable
-    data class Upper(
-        val mid: Long
-    )
 }
+
+/**
+ * 评论区显示控制
+ */
+@Serializable
+data class Config(
+    @SerialName("read_only")
+    val readOnly: Boolean,
+    @SerialName("show_up_flag")
+    val showUpFlag: Boolean,
+    @SerialName("showtopic")
+    val showtopic: Int
+)
+
+/**
+ * 评论区输入属性
+ */
+@Serializable
+data class Control(
+    @SerialName("answer_guide_android_url")
+    val answerGuideAndroidUrl: String,
+    @SerialName("answer_guide_icon_url")
+    val answerGuideIconUrl: String,
+    @SerialName("answer_guide_ios_url")
+    val answerGuideIosUrl: String,
+    @SerialName("answer_guide_text")
+    val answerGuideText: String,
+    @SerialName("bg_text")
+    val bgText: String,
+    @SerialName("child_input_text")
+    val childInputText: String,
+    @SerialName("disable_jump_emote")
+    val disableJumpEmote: Boolean,
+    @SerialName("empty_page")
+    val emptyPage: JsonElement? = null,
+    @SerialName("enable_charged")
+    val enableCharged: Boolean,
+    @SerialName("enable_cm_biz_helper")
+    val enableCmBizHelper: Boolean,
+    @SerialName("giveup_input_text")
+    val giveupInputText: String,
+    @SerialName("input_disable")
+    val inputDisable: Boolean,
+    @SerialName("root_input_text")
+    val rootInputText: String,
+    @SerialName("screenshot_icon_state")
+    val screenshotIconState: Int,
+    @SerialName("show_text")
+    val showText: String,
+    @SerialName("show_type")
+    val showType: Int,
+    @SerialName("upload_picture_icon_state")
+    val uploadPictureIconState: Int,
+    @SerialName("web_selection")
+    val webSelection: Boolean
+)
+
+@Serializable
+data class Upper(
+    val mid: Long
+)
