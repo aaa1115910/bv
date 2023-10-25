@@ -1,6 +1,6 @@
 package dev.aaa1115910.biliapi.http
 
-import com.tfowl.ktor.client.features.JsoupPlugin
+import com.tfowl.ktor.client.plugins.JsoupPlugin
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData

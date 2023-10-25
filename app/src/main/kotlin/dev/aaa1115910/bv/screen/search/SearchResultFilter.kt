@@ -117,7 +117,7 @@ fun SearchResultVideoFilter(
                         },
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace)
                     ) {
-                        items(items = SearchFilterDuration.values()) { duration ->
+                        items(items = SearchFilterDuration.entries) { duration ->
                             FilterDialogFilterChip(
                                 focusRequester = durationFocusRequester,
                                 selected = duration == selectedDuration,

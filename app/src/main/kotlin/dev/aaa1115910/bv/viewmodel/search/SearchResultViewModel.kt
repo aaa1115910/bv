@@ -49,7 +49,7 @@ class SearchResultViewModel(
     fun update() {
         resetPages()
         clearResults()
-        SearchType.values().forEach { loadMore(it, true) }
+        SearchType.entries.forEach { loadMore(it, true) }
     }
 
     private fun resetPages() {

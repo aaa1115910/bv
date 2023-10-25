@@ -82,7 +82,7 @@ fun PictureMenuList(
                     modifier = menuItemsModifier,
                     items = resolutionMap.keys.toList().map { resolutionCode ->
                         runCatching {
-                            Resolution.values().find { it.code == resolutionCode }!!
+                            Resolution.entries.find { it.code == resolutionCode }!!
                                 .getShortDisplayName(context)
                         }.getOrDefault("unknown: $resolutionCode")
                     },
@@ -107,9 +107,9 @@ fun PictureMenuList(
 
                 VideoPlayerPictureMenuItem.AspectRatio -> RadioMenuList(
                     modifier = menuItemsModifier,
-                    items = VideoAspectRatio.values().map { it.getDisplayName(context) },
-                    selected = VideoAspectRatio.values().indexOf(data.currentVideoAspectRatio),
-                    onSelectedChanged = { onAspectRatioChange(VideoAspectRatio.values()[it]) },
+                    items = VideoAspectRatio.entries.map { it.getDisplayName(context) },
+                    selected = VideoAspectRatio.entries.indexOf(data.currentVideoAspectRatio),
+                    onSelectedChanged = { onAspectRatioChange(VideoAspectRatio.entries[it]) },
                     onFocusBackToParent = {
                         onFocusStateChange(MenuFocusState.Menu)
                         focusRequester.requestFocus()
@@ -162,8 +162,8 @@ fun PictureMenuList(
             contentPadding = PaddingValues(8.dp)
         ) {
             val menuList = when (Prefs.apiType) {
-                ApiType.Web -> VideoPlayerPictureMenuItem.values().toMutableList()
-                ApiType.App -> VideoPlayerPictureMenuItem.values().toMutableList().apply {
+                ApiType.Web -> VideoPlayerPictureMenuItem.entries.toMutableList()
+                ApiType.App -> VideoPlayerPictureMenuItem.entries.toMutableList().apply {
                     this.remove(VideoPlayerPictureMenuItem.Codec)
                 }
             }

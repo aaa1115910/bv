@@ -19,7 +19,6 @@ package dev.aaa1115910.bv.component
  */
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -50,7 +49,7 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
  * @param content the content that is present within the group and can use focus-group modifier
  * extensions.
  */
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvFoundationApi
 @Deprecated("Use focusRestorer instead")
 @Composable

@@ -52,7 +52,7 @@ fun AudioSetting(
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = Audio.values()) { audio ->
+                items(items = Audio.entries) { audio ->
                     SettingsMenuSelectItem(
                         text = audio.getDisplayName(context),
                         selected = selectedAudio == audio,

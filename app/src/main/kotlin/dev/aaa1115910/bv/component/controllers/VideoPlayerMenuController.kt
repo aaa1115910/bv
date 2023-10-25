@@ -146,7 +146,7 @@ private fun VideoPlayerMenuControllerNav(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
     ) {
-        items(items = VideoPlayerMenuItem.values(), key = { it.ordinal }) { item ->
+        items(items = VideoPlayerMenuItem.entries, key = { it.ordinal }) { item ->
             val buttonModifier = if (currentMenu == item) Modifier
                 .focusRequester(focusRequester)
                 .fillMaxWidth()
@@ -283,7 +283,7 @@ private fun ResolutionMenuContent(
             MenuListItem(
                 modifier = Modifier.fillMaxWidth(),
                 text = runCatching {
-                    Resolution.values().find { it.code == id }!!.getShortDisplayName(context)
+                    Resolution.entries.find { it.code == id }!!.getShortDisplayName(context)
                 }.getOrDefault("unknown: $id"),
                 selected = currentResolution == id
             ) { onResolutionChange(id) }
@@ -328,7 +328,7 @@ private fun VideoAspectRatioMenuContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
     ) {
-        items(items = VideoAspectRatio.values()) { aspectRatio ->
+        items(items = VideoAspectRatio.entries) { aspectRatio ->
             MenuListItem(
                 modifier = Modifier.fillMaxWidth(),
                 text = aspectRatio.getDisplayName(context),
@@ -377,7 +377,7 @@ private fun DanmakuSizeMenuContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
     ) {
-        items(items = DanmakuSize.values()) { danmakuSize ->
+        items(items = DanmakuSize.entries) { danmakuSize ->
             MenuListItem(
                 modifier = Modifier.fillMaxWidth(),
                 text = "${danmakuSize.scale}x",
@@ -398,7 +398,7 @@ private fun DanmakuTransparencyMenuContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
     ) {
-        items(items = DanmakuTransparency.values()) { danmakuTransparency ->
+        items(items = DanmakuTransparency.entries) { danmakuTransparency ->
             MenuListItem(
                 modifier = Modifier.fillMaxWidth(),
                 text = "${danmakuTransparency.transparency}",

@@ -65,11 +65,11 @@ fun DanmakuMenuList(
             when (selectedDanmakuMenuItem) {
                 VideoPlayerDanmakuMenuItem.Switch -> CheckBoxMenuList(
                     modifier = menuItemsModifier,
-                    items = DanmakuType.values().map { it.getDisplayName(context) },
+                    items = DanmakuType.entries.map { it.getDisplayName(context) },
                     selected = data.currentDanmakuEnabledList.map { it.ordinal },
                     onSelectedChanged = {
                         val newEnabledDanmakuList = it
-                            .map { index -> DanmakuType.values()[index] }
+                            .map { index -> DanmakuType.entries[index] }
                             .toMutableList()
 
                         if (
@@ -77,7 +77,7 @@ fun DanmakuMenuList(
                             !data.currentDanmakuEnabledList.contains(DanmakuType.All)
                         ) {
                             // 勾选了全部
-                            onDanmakuSwitchChange(DanmakuType.values().toList())
+                            onDanmakuSwitchChange(DanmakuType.entries)
                         } else if (
                             data.currentDanmakuEnabledList.contains(DanmakuType.All) &&
                             !newEnabledDanmakuList.contains(DanmakuType.All)
@@ -94,10 +94,10 @@ fun DanmakuMenuList(
                             onDanmakuSwitchChange(newEnabledDanmakuList)
                         } else if (
                             !data.currentDanmakuEnabledList.contains(DanmakuType.All) &&
-                            newEnabledDanmakuList.size == DanmakuType.values().size - 1
+                            newEnabledDanmakuList.size == DanmakuType.entries.size - 1
                         ) {
                             // 在勾选了全部之外的所有项时，勾选全部项
-                            onDanmakuSwitchChange(DanmakuType.values().toList())
+                            onDanmakuSwitchChange(DanmakuType.entries)
                         } else {
                             onDanmakuSwitchChange(newEnabledDanmakuList)
                         }
@@ -168,7 +168,7 @@ fun DanmakuMenuList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(8.dp)
         ) {
-            itemsIndexed(VideoPlayerDanmakuMenuItem.values()) { index, item ->
+            itemsIndexed(VideoPlayerDanmakuMenuItem.entries) { index, item ->
                 MenuListItem(
                     modifier = Modifier
                         .ifElse(index == 0, focusRestorerModifiers.childModifier),

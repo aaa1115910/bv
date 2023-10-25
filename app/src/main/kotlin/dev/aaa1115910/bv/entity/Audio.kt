@@ -12,7 +12,7 @@ enum class Audio(val code: Int, private val strRes: Int) {
 
     companion object {
         fun fromCode(code: Int) = runCatching {
-            Audio.values().find { it.code == code }
+            entries.find { it.code == code }
         }.getOrDefault(A64K)
     }
 

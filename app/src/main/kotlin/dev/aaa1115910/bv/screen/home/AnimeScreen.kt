@@ -22,9 +22,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -233,7 +233,7 @@ private fun AnimeFeatureButtons(
         ),
         Triple(
             stringResource(R.string.anime_home_button_index),
-            Icons.Rounded.List,
+            Icons.AutoMirrored.Rounded.List,
             onOpenIndex
         ),
         Triple(

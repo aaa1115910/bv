@@ -122,7 +122,7 @@ fun VideoPlayerV3Screen(
     val initDanmakuConfig: () -> Unit = {
         val danmakuTypes = playerViewModel.currentDanmakuTypes
         if (!danmakuTypes.contains(DanmakuType.All)) {
-            val types = DanmakuType.values().toMutableList()
+            val types = DanmakuType.entries.toMutableList()
             types.remove(DanmakuType.All)
             types.removeAll(danmakuTypes)
             val filterTypes = types.mapNotNull {
@@ -149,7 +149,7 @@ fun VideoPlayerV3Screen(
         val danmakuTypes = playerViewModel.currentDanmakuTypes
         typeFilter.clear()
         if (!danmakuTypes.contains(DanmakuType.All)) {
-            val types = DanmakuType.values().toMutableList()
+            val types = DanmakuType.entries.toMutableList()
             types.remove(DanmakuType.All)
             types.removeAll(danmakuTypes)
             val filterTypes = types.mapNotNull {

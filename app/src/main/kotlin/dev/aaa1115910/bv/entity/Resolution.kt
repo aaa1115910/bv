@@ -19,7 +19,7 @@ enum class Resolution(val code: Int, private val strResLong: Int, private val st
 
     companion object {
         fun fromCode(code: Int) = runCatching {
-            Resolution.values().find { it.code == code }
+            entries.find { it.code == code }
         }.getOrDefault(R1080P)
     }
 

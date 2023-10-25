@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -45,7 +44,7 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SmsLoginContent(
     modifier: Modifier = Modifier,

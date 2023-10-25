@@ -224,7 +224,7 @@ fun SearchResultScreen(
                     selectedTabIndex = searchResultViewModel.searchType.ordinal,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
                 ) {
-                    SearchType.values().forEach { type ->
+                    SearchType.entries.forEach { type ->
                         val isSelected = type == searchResultViewModel.searchType
                         val tabModifier =
                             if (isSelected) Modifier.focusRequester(tabRowFocusRequester) else Modifier
