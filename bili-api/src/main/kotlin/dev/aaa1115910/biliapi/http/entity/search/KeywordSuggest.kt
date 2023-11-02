@@ -14,14 +14,14 @@ data class KeywordSuggest(
     @SerialName("exp_str")
     val expStr: String,
     val code: Int,
-    val cost: Cost,
+    //val cost: Cost,
     val msg: String? = null,
     val result: JsonElement? = null,
     @Transient
     val suggests: MutableList<Result.Tag> = mutableListOf(),
-    @SerialName("page caches")
-    val pageCaches: PageCaches,
-    val sengine: Sengine,
+    //@SerialName("page caches")
+    //val pageCaches: PageCaches,
+    //val sengine: Sengine,
     val stoken: String
 ) {
     @Serializable

@@ -524,7 +524,8 @@ internal class BiliHttpApiTest {
         runBlocking {
             println(
                 BiliHttpApi.getKeywordSuggest(
-                    term = "和奥托一起泡温泉"
+                    term = "和奥托一起泡温泉",
+                    buvid = BUVID
                 )
             )
         }
