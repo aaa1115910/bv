@@ -30,6 +30,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.settings.SettingListItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
+import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.fInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,6 +49,7 @@ fun StorageSetting(
     var loading by remember { mutableStateOf(false) }
     var imageCacheSize by remember { mutableLongStateOf(0L) }
     var updateCacheSize by remember { mutableLongStateOf(0L) }
+    var crashLogsSize by remember { mutableLongStateOf(0L) }
     //var libVLCCacheSize by remember { mutableLongStateOf(0L) }
     //var libVLCFileSize by remember { mutableLongStateOf(0L) }
 
@@ -59,11 +61,13 @@ fun StorageSetting(
     val calSize = {
         val imageCacheDir = File(context.cacheDir, "image_cache")
         val updateCacheDir = File(context.cacheDir, "update_downloader")
+        val crashLogsDir = File(context.filesDir, LogCatcherUtil.LOG_DIR)
         //val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
         //val libVLCFileDir = File(context.filesDir, "vlc_libs")
 
         imageCacheSize = getFolderSize(imageCacheDir)
         updateCacheSize = getFolderSize(updateCacheDir)
+        crashLogsSize = getFolderSize(crashLogsDir)
         //libVLCCacheSize = getFolderSize(libVLCCacheDir)
         //libVLCFileSize = getFolderSize(libVLCFileDir)
     }
@@ -72,6 +76,12 @@ fun StorageSetting(
         logger.fInfo { "clearImageCaches" }
         val imageCacheDir = File(context.cacheDir, "image_cache")
         imageCacheDir.deleteRecursively()
+    }
+
+    val clearCrashLogs: () -> Unit = {
+        logger.fInfo { "clearCrashLogs" }
+        val crashLogsDir = File(context.filesDir, LogCatcherUtil.LOG_DIR)
+        crashLogsDir.deleteRecursively()
     }
 
     val clearOthersCaches: () -> Unit = {
@@ -152,6 +162,20 @@ fun StorageSetting(
                 //        }
                 //    )
                 //}
+
+                item {
+                    SettingListItem(
+                        title = stringResource(R.string.settings_storage_crash_logs),
+                        supportText = if (loading) stringResource(R.string.settings_storage_calculating)
+                        else "${crashLogsSize / 1024 / 1024} MB",
+                        onClick = {
+                            clearFun = clearCrashLogs
+                            content = context.getString(R.string.settings_storage_crash_logs)
+                            size = crashLogsSize
+                            showConfirmDialog = true
+                        }
+                    )
+                }
             }
         }
     }

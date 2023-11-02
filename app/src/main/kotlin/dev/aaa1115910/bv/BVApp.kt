@@ -25,9 +25,11 @@ import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
+import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
+import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
@@ -80,10 +82,12 @@ class BVApp : Application() {
             modules(appModule)
         }
         firebaseAnalytics = Firebase.analytics
+        LogCatcherUtil.installLogCatcher()
         initRepository()
         initProxy()
         instance = this
         updateMigration()
+        HttpServer.startServer()
     }
 
     fun initRepository() {

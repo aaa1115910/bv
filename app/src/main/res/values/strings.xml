@@ -54,6 +54,11 @@
 
     <string name="loading" tools:ignore="TypographyEllipsis">加载中...</string>
 
+    <string name="log_list_empty">无日志</string>
+    <string name="log_save_now_button">手动保存日志</string>
+    <string name="log_type_crash">崩溃</string>
+    <string name="log_type_manual">手动</string>
+
     <string name="login_error">出现错误</string>
     <string name="login_expired">二维码已过期</string>
     <string name="login_requesting">请求二维码中</string>
@@ -147,6 +152,10 @@
     <string name="season_feature_film">正片</string>
     <string name="season_no_feature_film">还没有正片</string>
 
+    <string name="settings_crash_test_text">点一下崩一下，崩溃不花一份钱</string>
+    <string name="settings_crash_test_title">崩溃测试</string>
+    <string name="settings_create_logs_text">查看最近的崩溃日志，也可以手动保存日志</string>
+    <string name="settings_create_logs_title">查看日志</string>
     <string name="settings_info_manufacturer">厂商: %1$s</string>
     <string name="settings_info_memory">内存: 可用 %1$s 共 %2$s</string>
     <string name="settings_info_model">型号: %1$s (%2$s)</string>
@@ -183,6 +192,7 @@
     <string name="settings_other_old_player_text">使用旧版播放器，旧版播放器不会再有任何新特性更新，并且将在后续版本内移除</string>
     <string name="settings_other_old_player_title">旧版播放器</string>
     <string name="settings_storage_calculating">计算中</string>
+    <string name="settings_storage_crash_logs">崩溃日志</string>
     <string name="settings_storage_image_cache">图片缓存</string>
     <string name="settings_storage_libvlc_files">LibVLC 文件</string>
     <string name="settings_storage_others_cache">其他缓存</string>
@@ -205,6 +215,7 @@
     <string name="title_activity_following_season">正在追</string>
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
+    <string name="title_activity_logs">日志列表</string>
     <string name="title_activity_search_input">搜索输入</string>
     <string name="title_activity_search_result">搜索结果</string>
     <string name="title_activity_season_info">剧集信息</string>

@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.screen.settings.content
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +24,9 @@ import androidx.tv.material3.Text
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.activities.settings.LogsActivity
 import dev.aaa1115910.bv.component.settings.CookiesDialog
 import dev.aaa1115910.bv.component.settings.SettingListItem
 import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
@@ -111,6 +114,26 @@ fun OtherSetting(
                         Prefs.updateAlpha = it
                     }
                 )
+            }
+            item {
+                SettingListItem(
+                    title = stringResource(R.string.settings_create_logs_title),
+                    supportText = stringResource(R.string.settings_create_logs_text),
+                    onClick = {
+                        context.startActivity(Intent(context, LogsActivity::class.java))
+                    }
+                )
+            }
+            if (BuildConfig.DEBUG) {
+                item {
+                    SettingListItem(
+                        title = stringResource(R.string.settings_crash_test_title),
+                        supportText = stringResource(R.string.settings_crash_test_text),
+                        onClick = {
+                            throw Exception("Boom!")
+                        }
+                    )
+                }
             }
         }
     }
