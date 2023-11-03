@@ -10,7 +10,7 @@ import androidx.room.TypeConverters
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.entity.db.SearchHistoryDB
 import dev.aaa1115910.bv.entity.db.UserDB
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Date
 import java.util.concurrent.Executors
 

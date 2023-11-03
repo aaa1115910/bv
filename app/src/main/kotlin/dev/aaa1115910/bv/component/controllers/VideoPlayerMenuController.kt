@@ -51,7 +51,7 @@ import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.util.requestFocus
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.text.NumberFormat
 
 @OptIn(ExperimentalTvMaterial3Api::class)

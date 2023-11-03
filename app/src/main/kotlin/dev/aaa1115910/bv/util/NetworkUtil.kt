@@ -1,11 +1,11 @@
 package dev.aaa1115910.bv.util
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
-import mu.KotlinLogging
 
 object NetworkUtil {
     private lateinit var client: HttpClient

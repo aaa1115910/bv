@@ -42,7 +42,7 @@ import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.util
 
 import dev.aaa1115910.bv.BVApp
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader

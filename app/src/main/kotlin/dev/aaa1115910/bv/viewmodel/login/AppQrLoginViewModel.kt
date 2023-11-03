@@ -19,11 +19,11 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.util.toast
 import io.github.g0dkar.qrcode.QRCode
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Timer

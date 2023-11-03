@@ -50,10 +50,10 @@ import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.viewmodel.RequestState
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Timer
