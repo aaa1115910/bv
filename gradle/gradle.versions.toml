@@ -2,10 +2,10 @@
 agp = "8.2.0-beta02"
 firebase-crashlytics = "2.9.9"
 gms = "4.4.0"
-kotlin = "1.9.10"
-ksp = "1.9.10-1.0.13"
+kotlin = "1.9.20"
+ksp = "1.9.20-1.0.13"
 protobuf = "0.9.4"
-versions = "0.48.0"
+versions = "0.49.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
