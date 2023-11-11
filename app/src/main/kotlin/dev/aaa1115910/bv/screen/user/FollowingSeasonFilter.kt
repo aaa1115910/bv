@@ -60,7 +60,7 @@ fun FollowingSeasonFilter(
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace),
                         contentPadding = PaddingValues(horizontal = filterRowSpace)
                     ) {
-                        items(items = FollowingSeasonType.values()) { type ->
+                        items(items = FollowingSeasonType.entries) { type ->
                             FilterDialogFilterChip(
                                 modifier = Modifier
                                     .ifElse(
@@ -79,7 +79,7 @@ fun FollowingSeasonFilter(
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace),
                         contentPadding = PaddingValues(horizontal = filterRowSpace)
                     ) {
-                        items(items = FollowingSeasonStatus.values()) { status ->
+                        items(items = FollowingSeasonStatus.entries) { status ->
                             FilterDialogFilterChip(
                                 modifier = Modifier
                                     .ifElse(

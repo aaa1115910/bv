@@ -1,6 +1,6 @@
 package dev.aaa1115910.biliapi.http
 
-import com.tfowl.ktor.client.features.JsoupPlugin
+import com.tfowl.ktor.client.plugins.JsoupPlugin
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
@@ -77,6 +77,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.InternalAPI
+import io.ktor.util.toByteArray
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -1103,23 +1105,29 @@ object BiliHttpApi {
      *
      * 如果请求中包含了 [highlight]，在返回的结果中 [KeywordSuggest.Result.tag] 的 name 会包含高亮的 html 标签
      */
+    @OptIn(InternalAPI::class)
     suspend fun getKeywordSuggest(
         term: String,
         mainVer: String = "v1",
-        highlight: String? = null
+        highlight: String? = null,
+        buvid: String
     ): KeywordSuggest {
-        val response: KeywordSuggest = client.get("https://s.search.bilibili.com/main/suggest") {
+        // 需手动解析 json，因为返回的 Content-Type 为 null，会导致 Ktor 抛出异常
+        // io.ktor.client.call.NoTransformationFoundException: Expected response body of the type 'class dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest (Kotlin reflection is not available)' but was 'class io.ktor.utils.io.ByteBufferChannel (Kotlin reflection is not available)'
+        // In response from `https://s.search.bilibili.com/main/suggest?term=xxx`
+        // Response status `200 `
+        // Response header `ContentType: null`
+        // Request header `Accept: application/json`
+        val responseText = client.get("https://s.search.bilibili.com/main/suggest") {
             parameter("term", term)
             parameter("main_ver", mainVer)
             highlight?.let { parameter("highlight", it) }
-        }.body()
-        if (response.code == 0) {
-            runCatching {
-                val result = json.decodeFromJsonElement<KeywordSuggest.Result>(response.result!!)
-                response.suggests.addAll(result.tag)
-            }
-        }
-        return response
+            parameter("buvid", buvid)
+        }.content.toByteArray().toString(Charsets.UTF_8)
+        val keywordSuggest = json.decodeFromString<KeywordSuggest>(responseText)
+        val result = json.decodeFromJsonElement<KeywordSuggest.Result>(keywordSuggest.result!!)
+        keywordSuggest.suggests.addAll(result.tag)
+        return keywordSuggest
     }
 
     /**

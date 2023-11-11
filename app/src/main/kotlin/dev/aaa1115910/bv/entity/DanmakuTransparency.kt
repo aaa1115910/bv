@@ -5,7 +5,7 @@ enum class DanmakuTransparency(val transparency: Float) {
     T6(0.5f), T7(0.3f), T8(0.2f), T9(0.1f);
 
     companion object {
-        fun fromOrdinal(ordinal: Int) = runCatching { DanmakuTransparency.values()[ordinal] }
+        fun fromOrdinal(ordinal: Int) = runCatching { entries[ordinal] }
             .getOrDefault(T1)
     }
 

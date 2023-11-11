@@ -52,7 +52,7 @@ fun VideoCodecSetting(
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items=VideoCodec.values()){videoCodec->
+                items(items = VideoCodec.entries) { videoCodec ->
                     SettingsMenuSelectItem(
                         text = videoCodec.getDisplayName(context),
                         selected = selectedVideoCodec == videoCodec,

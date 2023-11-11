@@ -43,8 +43,8 @@ data class Relation(
 
 private object RelationTypeSerializer : CommonEnumIntSerializer<RelationType>(
     "RelationType",
-    RelationType.values(),
-    RelationType.values().serial()
+    RelationType.entries.toTypedArray(),
+    RelationType.entries.toTypedArray().serial()
 )
 
 @Serializable(with = RelationTypeSerializer::class)

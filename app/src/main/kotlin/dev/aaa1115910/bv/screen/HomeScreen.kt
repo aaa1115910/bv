@@ -53,9 +53,9 @@ import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

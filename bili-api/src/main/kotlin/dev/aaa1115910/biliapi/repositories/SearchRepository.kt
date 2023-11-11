@@ -90,7 +90,8 @@ class SearchRepository(
     ): List<String> {
         return when (preferApiType) {
             ApiType.Web -> BiliHttpApi.getKeywordSuggest(
-                term = keyword
+                term = keyword,
+                buvid = authRepository.buvid ?: "",
             ).suggests.map { it.value }
 
             //TODO 返回的关键词提示中可能包含通过avid/bvid/专栏id等的直达跳转结果项，需要过滤掉或进行单独处理

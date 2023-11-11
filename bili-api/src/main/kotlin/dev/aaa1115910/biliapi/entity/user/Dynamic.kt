@@ -2,7 +2,7 @@ package dev.aaa1115910.biliapi.entity.user
 
 import bilibili.app.dynamic.v2.DynModuleType
 import bilibili.app.dynamic.v2.ModuleDynamic
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 data class DynamicVideoData(
     val videos: List<DynamicVideo>,

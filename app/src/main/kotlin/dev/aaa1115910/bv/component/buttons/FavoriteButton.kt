@@ -11,7 +11,6 @@ import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,10 +78,7 @@ fun FavoriteButton(
     )
 }
 
-@OptIn(
-    ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalTvMaterial3Api::class
-)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
 private fun FavoriteDialog(
     modifier: Modifier = Modifier,

@@ -20,7 +20,7 @@ import dev.aaa1115910.bv.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerActivity : ComponentActivity() {

@@ -18,6 +18,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://repo1.maven.org/maven2/")
+        maven("https://androidx.dev/storage/compose-compiler/repository/")
         //maven("https://artifact.bytedance.com/repository/releases/")
     }
     versionCatalogs {

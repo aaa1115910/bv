@@ -13,11 +13,11 @@ enum class VideoCodec(private val strRes: Int, val prefix: String) {
 
     companion object {
         fun fromCode(code: Int?) = runCatching {
-            values().find { it.ordinal == code }!!
+            entries.find { it.ordinal == code }!!
         }.getOrDefault(AVC)
 
         fun fromCodecString(codec: String) = runCatching {
-            values().forEach {
+            entries.forEach {
                 if (codec.startsWith(it.prefix)) return@runCatching it
             }
             return@runCatching null

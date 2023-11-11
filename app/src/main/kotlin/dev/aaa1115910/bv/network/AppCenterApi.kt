@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.network
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.util.AbiUtil
 import dev.aaa1115910.bv.util.Prefs
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.content.ProgressListener
@@ -34,7 +35,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import mu.KotlinLogging
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date

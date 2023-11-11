@@ -52,7 +52,7 @@ fun ResolutionSetting(
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = Resolution.values().reversed()) { resolution ->
+                items(items = Resolution.entries.reversed()) { resolution ->
                     SettingsMenuSelectItem(
                         text = resolution.getDisplayName(context),
                         selected = selectedResolution == resolution,

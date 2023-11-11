@@ -12,9 +12,9 @@ import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 
 class UserSpaceViewModel(
     private val userRepository: UserRepository

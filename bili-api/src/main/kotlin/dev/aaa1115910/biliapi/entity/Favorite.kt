@@ -26,7 +26,7 @@ enum class FavoriteItemType(val value: Int) {
     VideoCollection(21);
 
     companion object {
-        fun fromValue(typeId: Int) = values().first { it.value == typeId }
+        fun fromValue(typeId: Int) = entries.first { it.value == typeId }
     }
 }
 

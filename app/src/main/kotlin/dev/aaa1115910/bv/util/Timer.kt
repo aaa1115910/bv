@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.util
 
 import android.os.CountDownTimer
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Timer
 import java.util.TimerTask
 

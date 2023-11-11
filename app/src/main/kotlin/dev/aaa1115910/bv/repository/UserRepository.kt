@@ -12,7 +12,7 @@ import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Date
 
 class UserRepository(

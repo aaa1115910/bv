@@ -123,10 +123,10 @@ import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil

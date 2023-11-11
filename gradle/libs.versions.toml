@@ -1,21 +1,21 @@
 [versions]
 accompanist = "0.31.0-alpha"
 akdanmaku = "1.0.3"
-coil = "2.4.0"
-firebase-bom = "32.3.1"
-geetest-sensebot = "4.4.1"
-grpc = "1.58.0"
+coil = "2.5.0"
+firebase-bom = "32.5.0"
+geetest-sensebot = "4.4.2"
+grpc = "1.59.0"
 grpc-kotlin = "1.4.0"
-jsoup = "1.16.1"
+jsoup = "1.16.2"
 koin = "3.5.0"
 koin-compose = "3.5.0"
 kotlinx-coroutines = "1.7.3"
 kotlinx-serialization = "1.6.0"
 ktor = "2.3.5"
 ktor-jsoup = "2.3.0"
-logging = "3.0.5"
+logging = "5.1.0"
 material = "1.10.0"
-protobuf = "3.24.4"
+protobuf = "3.25.0"
 qrcode = "3.3.0"
 rememberPreference = "1.0.1"
 slf4j-android-mvysny = "2.0.4"
@@ -70,19 +70,21 @@ kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 # https://ktor.io/docs
-ktor-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
-ktor-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-serialization-kotlinx = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ktor-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-serialization-kotlinx = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 
 # https://github.com/T-Fowl/ktor-jsoup
 ktor-jsoup = { module = "com.tfowl.ktor:ktor-jsoup", version.ref = "ktor-jsoup" }
 
 # https://github.com/MicroUtils/kotlin-logging
-logging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "logging" }
+logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "logging" }
 
 # https://github.com/material-components/material-components-android
 material = { module = "com.google.android.material:material", version.ref = "material" }

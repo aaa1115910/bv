@@ -12,11 +12,11 @@ import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.toast
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import mu.KotlinLogging
 import java.net.URL
 
 class SmsLoginViewModel(

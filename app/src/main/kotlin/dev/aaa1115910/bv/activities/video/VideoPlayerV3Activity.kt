@@ -17,7 +17,7 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerV3Activity : ComponentActivity() {
