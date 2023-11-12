@@ -36,10 +36,10 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
 import dev.aaa1115910.bv.util.toast
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 
 class MobileVideoPlayerViewModel(
     private val videoDetailRepository: VideoDetailRepository,

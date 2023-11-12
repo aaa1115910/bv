@@ -13,9 +13,9 @@ import dev.aaa1115910.bv.mobile.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.util.fInfo
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerActivity : ComponentActivity() {
