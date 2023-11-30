@@ -67,6 +67,7 @@ fun BvPlayerController(
     var moveMs by remember { mutableStateOf(0L) }
 
     var isMovingBrightness by remember { mutableStateOf(false) }
+    var movedBrightness by remember { mutableStateOf(false) }
     var moveStartBrightness by remember { mutableStateOf(0f) }
     var currentBrightnessProgress by remember { mutableStateOf(0f) }
 
@@ -103,18 +104,22 @@ fun BvPlayerController(
     val onMovingBrightness: (Float) -> Unit = { move ->
         Log.i("BvPlayerController", "Left screen vertical drag: $move")
         val window = (context as Activity).window
+        val attr = window.attributes
         if (isMovingBrightness.not()) {
-            val oldBrightness = Settings.System.getInt(
-                context.contentResolver,
-                Settings.System.SCREEN_BRIGHTNESS
-            ) / 255f
-            //moveStartBrightness = window.attributes.screenBrightness
+            // Settings.System.SCREEN_BRIGHTNESS [0, 255]
+            // attr.screenBrightness [0, 1f]
+            val oldBrightness = if (movedBrightness) attr.screenBrightness else {
+                Settings.System.getInt(
+                    context.contentResolver,
+                    Settings.System.SCREEN_BRIGHTNESS
+                ) / 255f
+            }
             moveStartBrightness = oldBrightness
             isMovingBrightness = true
+            movedBrightness = true
         }
         val newBrightness = (moveStartBrightness - move / 600).coerceIn(0f, 1f)
         Log.i("BvPlayerController", "Brightness: $moveStartBrightness -> $newBrightness")
-        val attr = window.attributes
         attr.screenBrightness = newBrightness
         window.attributes = attr
         //window.attributes.screenBrightness = newBrightness
