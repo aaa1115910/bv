@@ -14,6 +14,7 @@ import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
+import dev.aaa1115910.biliapi.http.entity.index.IndexResultData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1321,6 +1322,199 @@ object BiliHttpApi {
             parameter("idx", idx)
             accessKey?.let { parameter("access_key", it) }
         }.body()
+
+    private suspend fun seasonIndexResult(
+        seasonIndexType: SeasonIndexType,
+        order: Int? = null,
+        seasonVersion: Int? = null,
+        spokenLanguageType: Int? = null,
+        area: Int? = null,
+        isFinish: Int? = null,
+        copyright: Int? = null,
+        seasonStatus: Int? = null,
+        seasonMonth: Int? = null,
+        year: String? = null,
+        releaseDate: String? = null,
+        styleId: Int? = null,
+        producerId: Int? = null,
+        sort: Int? = null,
+        page: Int? = null,
+        pagesize: Int? = null,
+        type: Int? = null
+    ): BiliResponse<IndexResultData> = client.get("/pgc/season/index/result") {
+        parameter("st", seasonIndexType.id)
+        order?.let { parameter("order", it) }
+        seasonVersion?.let { parameter("season_version", it) }
+        spokenLanguageType?.let { parameter("spoken_language_type", it) }
+        area?.let { parameter("area", it) }
+        isFinish?.let { parameter("is_finish", it) }
+        copyright?.let { parameter("copyright", it) }
+        seasonStatus?.let { parameter("season_status", it) }
+        seasonMonth?.let { parameter("season_month", it) }
+        year?.let { parameter("year", it) }
+        releaseDate?.let { parameter("release_date", it) }
+        styleId?.let { parameter("style_id", it) }
+        producerId?.let { parameter("producer_id", it) }
+        sort?.let { parameter("sort", it) }
+        page?.let { parameter("page", it) }
+        parameter("season_type", seasonIndexType.id)
+        pagesize?.let { parameter("pagesize", it) }
+        type?.let { parameter("type", it) }
+    }.body()
+
+    suspend fun seasonIndexAnimeResult(
+        order: Int = 0,
+        seasonVersion: Int = -1,
+        spokenLanguageType: Int = -1,
+        area: Int = -1,
+        isFinish: Int = -1,
+        copyright: Int = -1,
+        seasonStatus: Int = -1,
+        seasonMonth: Int = -1,
+        year: String = "-1",
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Anime,
+        order = order,
+        seasonVersion = seasonVersion,
+        spokenLanguageType = spokenLanguageType,
+        area = area,
+        isFinish = isFinish,
+        copyright = copyright,
+        seasonStatus = seasonStatus,
+        seasonMonth = seasonMonth,
+        year = year,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexGuochuangResult(
+        order: Int = 0,
+        seasonVersion: Int = -1,
+        isFinish: Int = -1,
+        copyright: Int = -1,
+        seasonStatus: Int = -1,
+        year: String = "-1",
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Guochuang,
+        order = order,
+        seasonVersion = seasonVersion,
+        isFinish = isFinish,
+        copyright = copyright,
+        seasonStatus = seasonStatus,
+        year = year,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexVarietyResult(
+        order: Int = 0,
+        seasonStatus: Int = -1,
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Variety,
+        order = order,
+        seasonStatus = seasonStatus,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexMovieResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Movie,
+        order = order,
+        area = area,
+        styleId = styleId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexTvResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Tv,
+        order = order,
+        area = area,
+        styleId = styleId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexDocumentaryResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        producerId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Documentary,
+        order = order,
+        area = area,
+        styleId = styleId,
+        producerId = producerId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+}
+
+enum class SeasonIndexType(val id: Int) {
+    Anime(1), Movie(2), Documentary(3), Guochuang(4), Tv(5), Variety(7)
 }
 
 private fun checkToken(accessKey: String?, sessData: String?) {

@@ -627,4 +627,40 @@ internal class BiliHttpApiTest {
         val result = BiliHttpApi.getFeedIndex()
         println(result)
     }
+
+    @Test
+    fun `get anime index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexAnimeResult()
+        println(result.data?.list?.map { it.title })
+    }
+
+    @Test
+    fun `get guochuang index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexGuochuangResult()
+        println(result.data?.list?.map { it.title })
+    }
+
+    @Test
+    fun `get movie index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexMovieResult()
+        println(result.data?.list?.map { it.title })
+    }
+
+    @Test
+    fun `get tv index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexTvResult()
+        println(result.data?.list?.map { it.title })
+    }
+
+    @Test
+    fun `get variety season index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexVarietyResult()
+        println(result.data?.list?.map { it.title })
+    }
+
+    @Test
+    fun `get documentary season index`() = runBlocking {
+        val result = BiliHttpApi.seasonIndexDocumentaryResult()
+        println(result.data?.list?.map { it.title })
+    }
 }
