@@ -3,11 +3,11 @@ package dev.aaa1115910.biliapi.repositories
 import dev.aaa1115910.biliapi.entity.season.IndexResultData
 import dev.aaa1115910.biliapi.entity.season.IndexResultPage
 import dev.aaa1115910.biliapi.http.BiliHttpApi
-import dev.aaa1115910.biliapi.http.entity.index.IndexSort
+import dev.aaa1115910.biliapi.http.entity.index.IndexOrder
 
 class IndexRepository {
     suspend fun getAnimeIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         seasonVersion: Int = -1,
         spokenLanguageType: Int = -1,
         area: Int = -1,
@@ -39,7 +39,7 @@ class IndexRepository {
     }
 
     suspend fun getGuochuangIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         seasonVersion: Int = -1,
         isFinish: Int = -1,
         copyright: Int = -1,
@@ -65,7 +65,7 @@ class IndexRepository {
     }
 
     suspend fun getVarietyIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         seasonStatus: Int = -1,
         styleId: Int = -1,
         desc: Boolean = true,
@@ -83,7 +83,7 @@ class IndexRepository {
     }
 
     suspend fun getMovieIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         area: Int = -1,
         releaseDate: String = "-1",
         seasonStatus: Int = -1,
@@ -105,7 +105,7 @@ class IndexRepository {
     }
 
     suspend fun getTvIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         area: Int = -1,
         releaseDate: String = "-1",
         seasonStatus: Int = -1,
@@ -127,7 +127,7 @@ class IndexRepository {
     }
 
     suspend fun getDocumentaryIndex(
-        sort: IndexSort = IndexSort.PlayCount,
+        sort: IndexOrder = IndexOrder.PlayCount,
         area: Int = -1,
         releaseDate: String = "-1",
         seasonStatus: Int = -1,

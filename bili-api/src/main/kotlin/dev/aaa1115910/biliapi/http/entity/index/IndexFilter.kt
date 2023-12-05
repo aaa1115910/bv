@@ -1,6 +1,6 @@
 package dev.aaa1115910.biliapi.http.entity.index
 
-val indexFilterSeasonType = mapOf(
+val indexFilterSeasonVersion = mapOf(
     -1 to "全部",
     1 to "正片",
     2 to "电影",
