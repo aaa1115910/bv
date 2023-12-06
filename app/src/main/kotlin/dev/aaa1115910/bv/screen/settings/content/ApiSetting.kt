@@ -52,7 +52,7 @@ fun ApiSetting(
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = ApiType.values()) { apiType ->
+                items(items = ApiType.entries) { apiType ->
                     SettingsMenuSelectItem(
                         text = apiType.name,
                         selected = selectedApiType == apiType,

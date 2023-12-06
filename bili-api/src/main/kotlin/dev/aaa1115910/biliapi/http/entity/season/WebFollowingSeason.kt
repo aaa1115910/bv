@@ -189,7 +189,7 @@ data class WebFollowingSeason(
     @Serializable
     data class Section(
         @SerialName("ban_area_show")
-        val banAreaShow: Int,
+        val banAreaShow: Int? = null,
         val copyright: String,
         @SerialName("episode_ids")
         val episodeIds: List<Int>,

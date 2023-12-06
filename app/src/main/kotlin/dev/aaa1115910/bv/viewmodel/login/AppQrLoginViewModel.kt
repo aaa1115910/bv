@@ -10,29 +10,27 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.login.QrLoginState
-import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.repository.UserRepository
-import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.util.toast
 import io.github.g0dkar.qrcode.QRCode
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Timer
 
 class AppQrLoginViewModel(
     private val userRepository: UserRepository,
-    private val loginRepository: LoginRepository,
-    private val authRepository: AuthRepository
+    private val loginRepository: LoginRepository
 ) : ViewModel() {
     var state by mutableStateOf(QrLoginState.Ready)
     private val logger = KotlinLogging.logger { }
@@ -97,27 +95,17 @@ class AppQrLoginViewModel(
                 QrLoginState.Success -> {
                     logger.fInfo { "Login success" }
 
-                    userRepository.setCookies(
+                    val authData = AuthData(
                         uid = qrLoginResult.cookies!!.dedeUserId,
                         uidCkMd5 = qrLoginResult.cookies!!.dedeUserIdCkMd5,
                         sid = qrLoginResult.cookies!!.sid,
                         biliJct = qrLoginResult.cookies!!.biliJct,
                         sessData = qrLoginResult.cookies!!.sessData,
-                        expiredDate = qrLoginResult.cookies!!.expiredDate
-                    )
-
-                    userRepository.setAppToken(
+                        tokenExpiredData = qrLoginResult.cookies!!.expiredDate.time,
                         accessToken = qrLoginResult.accessToken!!,
                         refreshToken = qrLoginResult.refreshToken!!
                     )
-
-                    authRepository.apply {
-                        sessionData = qrLoginResult.cookies!!.sessData
-                        biliJct = qrLoginResult.cookies!!.biliJct
-                        accessToken = qrLoginResult.accessToken!!
-                        mid = qrLoginResult.cookies!!.dedeUserId
-                        buvid3 = Prefs.buvid3
-                    }
+                    userRepository.addUser(authData)
 
                     timer.cancel()
                 }

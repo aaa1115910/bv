@@ -44,7 +44,7 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalTvMaterial3Api::class)

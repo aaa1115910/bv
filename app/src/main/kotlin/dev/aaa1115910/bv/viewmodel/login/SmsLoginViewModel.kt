@@ -8,14 +8,15 @@ import dev.aaa1115910.biliapi.http.util.generateBuvid
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.SendSmsState
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.toast
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import mu.KotlinLogging
 import java.net.URL
 
 class SmsLoginViewModel(
@@ -107,18 +108,18 @@ class SmsLoginViewModel(
                 captchaKey = captchaKey!!
             )
             if (loginResult.status == 0) {
-                userRepository.setCookies(
+                val authData = AuthData(
                     uid = loginResult.dedeUserId,
                     uidCkMd5 = loginResult.dedeUserIdCkMd5,
                     sid = loginResult.sid,
                     sessData = loginResult.sessData,
                     biliJct = loginResult.biliJct,
-                    expiredDate = loginResult.expiredDate
-                )
-                userRepository.setAppToken(
+                    tokenExpiredData = loginResult.expiredDate.time,
                     accessToken = loginResult.accessToken,
                     refreshToken = loginResult.refreshToken
                 )
+                userRepository.addUser(authData)
+
                 withContext(Dispatchers.Main) {
                     "登录成功".toast(BVApp.context)
                 }

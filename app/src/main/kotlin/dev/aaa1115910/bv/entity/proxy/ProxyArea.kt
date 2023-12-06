@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.entity.proxy
 
 import dev.aaa1115910.bv.util.Prefs
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 enum class ProxyArea {
     MainLand, HongKong, TaiWan;

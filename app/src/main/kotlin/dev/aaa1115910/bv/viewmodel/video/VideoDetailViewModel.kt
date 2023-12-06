@@ -11,7 +11,7 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class VideoDetailViewModel(
     private val videoDetailRepository: VideoDetailRepository

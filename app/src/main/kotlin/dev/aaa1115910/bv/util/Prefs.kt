@@ -21,10 +21,10 @@ import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import java.util.Date
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -123,7 +123,7 @@ object Prefs {
             if (danmakuTypeIdsString == "") {
                 emptyList()
             } else {
-                danmakuTypeIdsString.split(",").map { DanmakuType.values()[it.toInt()] }
+                danmakuTypeIdsString.split(",").map { DanmakuType.entries[it.toInt()] }
             }
         }
         set(value) = runBlocking {
@@ -219,7 +219,7 @@ object Prefs {
     var playerType: PlayerType
         get() = runBlocking {
             runCatching {
-                PlayerType.values()[dsm.getPreferenceFlow(PrefKeys.prefPlayerTypeRequest).first()]
+                PlayerType.entries[dsm.getPreferenceFlow(PrefKeys.prefPlayerTypeRequest).first()]
             }.getOrDefault(PlayerType.Media3)
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerTypeKey, value.ordinal) }
@@ -247,7 +247,7 @@ object Prefs {
 
     var apiType: ApiType
         get() = runBlocking {
-            ApiType.values()[dsm.getPreferenceFlow(PrefKeys.prefApiTypeRequest).first()]
+            ApiType.entries[dsm.getPreferenceFlow(PrefKeys.prefApiTypeRequest).first()]
         }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefApiTypeKey, value.ordinal) }
 
@@ -262,6 +262,10 @@ object Prefs {
     var proxyGRPCServer: String
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefProxyGRPCServerRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefProxyGRPCServerKey, value) }
+
+    var lastVersionCode: Int
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefLastVersionCodeRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefLastVersionCodeKey, value) }
 }
 
 private object PrefKeys {
@@ -301,6 +305,7 @@ private object PrefKeys {
     val prefEnableProxyKey = booleanPreferencesKey("enable_proxy")
     val prefProxyHttpServerKey = stringPreferencesKey("proxy_http_server")
     val prefProxyGRPCServerKey = stringPreferencesKey("proxy_grpc_server")
+    val prefLastVersionCodeKey = intPreferencesKey("last_version_code")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -347,4 +352,5 @@ private object PrefKeys {
     val prefEnabelProxyRequest = PreferenceRequest(prefEnableProxyKey, false)
     val prefProxyHttpServerRequest = PreferenceRequest(prefProxyHttpServerKey, "")
     val prefProxyGRPCServerRequest = PreferenceRequest(prefProxyGRPCServerKey, "")
+    val prefLastVersionCodeRequest = PreferenceRequest(prefLastVersionCodeKey, 0)
 }

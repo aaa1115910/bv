@@ -389,8 +389,8 @@ fun MenuControllerPreview() {
                             4 to "480",
                             5 to "360"
                         ),
-                        availableVideoCodec = VideoCodec.values().toList(),
-                        availableAudio = Audio.values().toList(),
+                        availableVideoCodec = VideoCodec.entries,
+                        availableAudio = Audio.entries,
 
                         currentResolution = currentResolution,
                         currentVideoCodec = currentCodec,

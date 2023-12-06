@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.Composable
@@ -117,7 +116,7 @@ fun SearchResultVideoFilter(
                         },
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace)
                     ) {
-                        items(items = SearchFilterDuration.values()) { duration ->
+                        items(items = SearchFilterDuration.entries) { duration ->
                             FilterDialogFilterChip(
                                 focusRequester = durationFocusRequester,
                                 selected = duration == selectedDuration,
@@ -212,7 +211,6 @@ fun SearchResultVideoFilter(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FilterDialogFilterChip(
     modifier: Modifier = Modifier,
@@ -232,12 +230,17 @@ private fun FilterDialogFilterChip(
         onClick = onClick,
         label = label,
         border = if (hasFocus) FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
             borderColor = Color.White,
             borderWidth = 2.dp,
             selectedBorderColor = Color.White,
             selectedBorderWidth = 2.dp
         )
-        else FilterChipDefaults.filterChipBorder()
+        else FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected
+        )
     )
 }
 

@@ -31,7 +31,7 @@ fun MenuNavList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        itemsIndexed(VideoPlayerMenuNavItem.values()) { index, item ->
+        itemsIndexed(VideoPlayerMenuNavItem.entries) { index, item ->
             MenuListItem(
                 modifier = Modifier
                     .ifElse(index == 0, focusRestorerModifiers.childModifier),

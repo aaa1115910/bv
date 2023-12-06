@@ -1,6 +1,6 @@
 package dev.aaa1115910.biliapi.http
 
-import com.tfowl.ktor.client.features.JsoupPlugin
+import com.tfowl.ktor.client.plugins.JsoupPlugin
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
@@ -14,6 +14,7 @@ import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
+import dev.aaa1115910.biliapi.http.entity.index.IndexResultData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -75,6 +76,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.InternalAPI
+import io.ktor.util.toByteArray
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -1101,23 +1104,29 @@ object BiliHttpApi {
      *
      * 如果请求中包含了 [highlight]，在返回的结果中 [KeywordSuggest.Result.tag] 的 name 会包含高亮的 html 标签
      */
+    @OptIn(InternalAPI::class)
     suspend fun getKeywordSuggest(
         term: String,
         mainVer: String = "v1",
-        highlight: String? = null
+        highlight: String? = null,
+        buvid: String
     ): KeywordSuggest {
-        val response: KeywordSuggest = client.get("https://s.search.bilibili.com/main/suggest") {
+        // 需手动解析 json，因为返回的 Content-Type 为 null，会导致 Ktor 抛出异常
+        // io.ktor.client.call.NoTransformationFoundException: Expected response body of the type 'class dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest (Kotlin reflection is not available)' but was 'class io.ktor.utils.io.ByteBufferChannel (Kotlin reflection is not available)'
+        // In response from `https://s.search.bilibili.com/main/suggest?term=xxx`
+        // Response status `200 `
+        // Response header `ContentType: null`
+        // Request header `Accept: application/json`
+        val responseText = client.get("https://s.search.bilibili.com/main/suggest") {
             parameter("term", term)
             parameter("main_ver", mainVer)
             highlight?.let { parameter("highlight", it) }
-        }.body()
-        if (response.code == 0) {
-            runCatching {
-                val result = json.decodeFromJsonElement<KeywordSuggest.Result>(response.result!!)
-                response.suggests.addAll(result.tag)
-            }
-        }
-        return response
+            parameter("buvid", buvid)
+        }.content.toByteArray().toString(Charsets.UTF_8)
+        val keywordSuggest = json.decodeFromString<KeywordSuggest>(responseText)
+        val result = json.decodeFromJsonElement<KeywordSuggest.Result>(keywordSuggest.result!!)
+        keywordSuggest.suggests.addAll(result.tag)
+        return keywordSuggest
     }
 
     /**
@@ -1313,6 +1322,199 @@ object BiliHttpApi {
             parameter("idx", idx)
             accessKey?.let { parameter("access_key", it) }
         }.body()
+
+    private suspend fun seasonIndexResult(
+        seasonIndexType: SeasonIndexType,
+        order: Int? = null,
+        seasonVersion: Int? = null,
+        spokenLanguageType: Int? = null,
+        area: Int? = null,
+        isFinish: Int? = null,
+        copyright: Int? = null,
+        seasonStatus: Int? = null,
+        seasonMonth: Int? = null,
+        year: String? = null,
+        releaseDate: String? = null,
+        styleId: Int? = null,
+        producerId: Int? = null,
+        sort: Int? = null,
+        page: Int? = null,
+        pagesize: Int? = null,
+        type: Int? = null
+    ): BiliResponse<IndexResultData> = client.get("/pgc/season/index/result") {
+        parameter("st", seasonIndexType.id)
+        order?.let { parameter("order", it) }
+        seasonVersion?.let { parameter("season_version", it) }
+        spokenLanguageType?.let { parameter("spoken_language_type", it) }
+        area?.let { parameter("area", it) }
+        isFinish?.let { parameter("is_finish", it) }
+        copyright?.let { parameter("copyright", it) }
+        seasonStatus?.let { parameter("season_status", it) }
+        seasonMonth?.let { parameter("season_month", it) }
+        year?.let { parameter("year", it) }
+        releaseDate?.let { parameter("release_date", it) }
+        styleId?.let { parameter("style_id", it) }
+        producerId?.let { parameter("producer_id", it) }
+        sort?.let { parameter("sort", it) }
+        page?.let { parameter("page", it) }
+        parameter("season_type", seasonIndexType.id)
+        pagesize?.let { parameter("pagesize", it) }
+        type?.let { parameter("type", it) }
+    }.body()
+
+    suspend fun seasonIndexAnimeResult(
+        order: Int = 0,
+        seasonVersion: Int = -1,
+        spokenLanguageType: Int = -1,
+        area: Int = -1,
+        isFinish: Int = -1,
+        copyright: Int = -1,
+        seasonStatus: Int = -1,
+        seasonMonth: Int = -1,
+        year: String = "-1",
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Anime,
+        order = order,
+        seasonVersion = seasonVersion,
+        spokenLanguageType = spokenLanguageType,
+        area = area,
+        isFinish = isFinish,
+        copyright = copyright,
+        seasonStatus = seasonStatus,
+        seasonMonth = seasonMonth,
+        year = year,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexGuochuangResult(
+        order: Int = 0,
+        seasonVersion: Int = -1,
+        isFinish: Int = -1,
+        copyright: Int = -1,
+        seasonStatus: Int = -1,
+        year: String = "-1",
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Guochuang,
+        order = order,
+        seasonVersion = seasonVersion,
+        isFinish = isFinish,
+        copyright = copyright,
+        seasonStatus = seasonStatus,
+        year = year,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexVarietyResult(
+        order: Int = 0,
+        seasonStatus: Int = -1,
+        styleId: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Variety,
+        order = order,
+        seasonStatus = seasonStatus,
+        styleId = styleId,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexMovieResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Movie,
+        order = order,
+        area = area,
+        styleId = styleId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexTvResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Tv,
+        order = order,
+        area = area,
+        styleId = styleId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+
+    suspend fun seasonIndexDocumentaryResult(
+        order: Int = 0,
+        area: Int = -1,
+        styleId: Int = -1,
+        producerId: Int = -1,
+        releaseDate: String = "-1",
+        seasonStatus: Int = -1,
+        sort: Int = 0,
+        page: Int = 1,
+        pagesize: Int = 20,
+        type: Int = 1
+    ) = seasonIndexResult(
+        seasonIndexType = SeasonIndexType.Documentary,
+        order = order,
+        area = area,
+        styleId = styleId,
+        producerId = producerId,
+        releaseDate = releaseDate,
+        seasonStatus = seasonStatus,
+        sort = sort,
+        page = page,
+        pagesize = pagesize,
+        type = type
+    )
+}
+
+enum class SeasonIndexType(val id: Int) {
+    Anime(1), Movie(2), Documentary(3), Guochuang(4), Tv(5), Variety(7)
 }
 
 private fun checkToken(accessKey: String?, sessData: String?) {

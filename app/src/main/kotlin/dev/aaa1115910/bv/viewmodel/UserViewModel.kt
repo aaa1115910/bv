@@ -15,10 +15,10 @@ import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 
 class UserViewModel(
     private val userRepository: UserRepository
@@ -27,21 +27,27 @@ class UserViewModel(
     private val logger = KotlinLogging.logger { }
     val isLogin get() = userRepository.isLogin
     val username get() = userRepository.username
-    val face get() = userRepository.face
+    val face get() = userRepository.avatar
 
     var responseData: MyInfoData? by mutableStateOf(null)
 
-    fun updateUserInfo() {
-        if (!shouldUpdateInfo || !userRepository.isLogin) return
+    fun updateUserInfo(forceUpdate: Boolean = false) {
+        if (!forceUpdate) {
+            if (!shouldUpdateInfo || !userRepository.isLogin) return
+        } else {
+            if (!userRepository.isLogin) return
+        }
         logger.fInfo { "Update user info" }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.reloadAvatar()
+
             runCatching {
                 responseData =
                     BiliHttpApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
                 logger.fInfo { "Update user info success" }
                 shouldUpdateInfo = false
                 userRepository.username = responseData!!.name
-                userRepository.face = responseData!!.face
+                userRepository.avatar = responseData!!.face
             }.onFailure {
                 when (it) {
                     is AuthFailureException -> {
@@ -64,11 +70,13 @@ class UserViewModel(
     }
 
     fun logout() {
-        userRepository.logout()
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.logout()
+        }
     }
 
     fun clearUserInfo() {
         userRepository.username = ""
-        userRepository.face = ""
+        userRepository.avatar = ""
     }
 }

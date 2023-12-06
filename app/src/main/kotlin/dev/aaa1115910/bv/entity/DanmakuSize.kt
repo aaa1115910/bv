@@ -5,7 +5,7 @@ enum class DanmakuSize(val scale: Float) {
     S8(1.1f), S9(1.2f), S10(1.3f), S11(1.4f), S12(1.5f), S13(2f);
 
     companion object {
-        fun fromOrdinal(ordinal: Int) = runCatching { DanmakuSize.values()[ordinal] }
+        fun fromOrdinal(ordinal: Int) = runCatching { entries[ordinal] }
             .getOrDefault(S2)
     }
 }

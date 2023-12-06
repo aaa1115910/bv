@@ -11,10 +11,12 @@ class ChannelRepository {
     var proxyChannel: ManagedChannel? = null
 
     fun initDefaultChannel(accessKey: String, buvid: String) {
+        defaultChannel?.shutdownNow()
         defaultChannel = generateChannel(accessKey, buvid)
     }
 
     fun initProxyChannel(accessKey: String, buvid: String, proxyServer: String) {
+        proxyChannel?.shutdownNow()
         val proxyServerSpilt = proxyServer.split(":")
         val endPoint = proxyServerSpilt.first()
         val port = proxyServerSpilt.getOrNull(1)?.toInt()

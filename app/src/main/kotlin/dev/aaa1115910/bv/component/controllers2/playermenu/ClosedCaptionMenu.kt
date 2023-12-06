@@ -133,7 +133,7 @@ fun ClosedCaptionMenuList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(8.dp)
         ) {
-            itemsIndexed(VideoPlayerClosedCaptionMenuItem.values()) { index, item ->
+            itemsIndexed(VideoPlayerClosedCaptionMenuItem.entries) { index, item ->
                 MenuListItem(
                     modifier = Modifier
                         .ifElse(index == 0, focusRestorerModifiers.childModifier),

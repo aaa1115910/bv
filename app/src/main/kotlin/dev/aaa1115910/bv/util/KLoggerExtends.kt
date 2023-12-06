@@ -3,8 +3,7 @@ package dev.aaa1115910.bv.util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import dev.aaa1115910.bv.BuildConfig
-import mu.KLogger
-import mu.internal.ErrorMessageProducer
+import io.github.oshai.kotlinlogging.KLogger
 
 fun KLogger.fInfo(msg: () -> Any?) {
     info(msg)
@@ -40,5 +39,15 @@ internal inline fun (() -> Any?).toStringSafe(): String {
         invoke().toString()
     } catch (e: Exception) {
         ErrorMessageProducer.getErrorLog(e)
+    }
+}
+
+internal object ErrorMessageProducer {
+    fun getErrorLog(e: Exception): String {
+        if (System.getProperties().containsKey("kotlin-logging.throwOnMessageError")) {
+            throw e
+        } else {
+            return "Log message invocation failed: $e"
+        }
     }
 }

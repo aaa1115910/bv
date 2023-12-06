@@ -54,7 +54,7 @@ fun PlayerTypeSetting(
             TvLazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = PlayerType.values()) { playerType ->
+                items(items = PlayerType.entries) { playerType ->
                     SettingsMenuSelectItem(
                         text = playerType.name,
                         selected = selectedPlayerType == playerType,
