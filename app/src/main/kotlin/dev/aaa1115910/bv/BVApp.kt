@@ -16,6 +16,7 @@ import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
+import dev.aaa1115910.biliapi.repositories.IndexRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.biliapi.repositories.SearchRepository
@@ -40,6 +41,7 @@ import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
+import dev.aaa1115910.bv.viewmodel.index.AnimeIndexViewModel
 import dev.aaa1115910.bv.viewmodel.login.AppQrLoginViewModel
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
@@ -158,6 +160,7 @@ val appModule = module {
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
+    single { IndexRepository() }
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
@@ -178,6 +181,7 @@ val appModule = module {
     viewModel { VideoDetailViewModel(get()) }
     viewModel { MobileVideoPlayerViewModel(get(), get()) }
     viewModel { UserSwitchViewModel(get()) }
+    viewModel { AnimeIndexViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

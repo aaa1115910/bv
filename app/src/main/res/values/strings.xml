@@ -50,6 +50,14 @@
     <string name="home_tab_popular">热门</string>
     <string name="home_tab_rcmd">推荐</string>
 
+    <string name="index_order_danmaku_count">弹幕数量</string>
+    <string name="index_order_follow_count">追番人数</string>
+    <string name="index_order_play_count">播放数量</string>
+    <string name="index_order_publish_time">上映时间</string>
+    <string name="index_order_score">最高评分</string>
+    <string name="index_order_start_time">开播时间</string>
+    <string name="index_order_update_time">更新时间</string>
+
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_count_no_more">已加载全部共 %1$d 条数据</string>
     <string name="load_data_no_more">就只有这么多了</string>
