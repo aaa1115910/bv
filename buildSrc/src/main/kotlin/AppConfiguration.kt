@@ -5,9 +5,13 @@ object AppConfiguration {
     const val targetSdk = 34
     private const val major = 0
     private const val minor = 2
-    private const val patch = 5
+    private const val patch = 6
+    private const val bugFix = 0
+
+    @Suppress("KotlinConstantConditions")
     val versionName: String by lazy {
-        "$major.$minor.$patch.r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
+        "$major.$minor.$patch${".$bugFix".takeIf { bugFix != 0 }}" +
+                ".r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
     }
     val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() }
     const val libVLCVersion = "3.0.18"
