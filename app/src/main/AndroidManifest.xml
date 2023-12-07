@@ -27,6 +27,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.video.RemoteControllerPanelDemoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_remote_controller_panel_demo"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.settings.LogsActivity"
             android:exported="false"
             android:label="@string/title_activity_logs"
