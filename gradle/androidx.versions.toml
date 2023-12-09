@@ -4,6 +4,8 @@ compose = "1.5.4"
 compose-compiler = "1.5.5-dev-k1.9.21-163bb051fe5"
 compose-constraintlayout = "1.0.1"
 compose-material3 = "1.2.0-alpha12"
+compose-material3-adaptive = "1.0.0-alpha02"
+compose-material3-adaptive-navigation-suite = "1.0.0-alpha01"
 compose-tv = "1.0.0-alpha10"
 core = "1.12.0"
 core-splashscreen = "1.0.1"
@@ -44,6 +46,8 @@ compose-material-icons = { module = "androidx.compose.material:material-icons-ex
 
 # https://developer.android.com/jetpack/androidx/releases/compose-material3
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-material3-adaptive = { module = "androidx.compose.material3:material3-adaptive", version.ref = "compose-material3-adaptive" }
+compose-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "compose-material3-adaptive-navigation-suite" }
 compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "compose-material3" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-runtime

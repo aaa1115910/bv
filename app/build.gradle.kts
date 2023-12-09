@@ -172,6 +172,8 @@ dependencies {
     implementation(androidx.compose.material.icons)
     implementation(androidx.compose.material)
     implementation(androidx.compose.material3)
+    implementation(androidx.compose.material3.adaptive)
+    implementation(androidx.compose.material3.adaptive.navigation.suite)
     implementation(androidx.compose.material3.window.size)
     implementation(androidx.compose.tv.foundation)
     implementation(androidx.compose.tv.material)
