@@ -37,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
+import dev.aaa1115910.bv.mobile.activities.SettingsActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
 import dev.aaa1115910.bv.mobile.screen.home.FollowingUserScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
@@ -94,10 +95,11 @@ fun MobileMainScreen(
     }
 
     val goSettings = {
-        navController.navigate("setting") {
+        /*navController.navigate("setting") {
             popUpTo("home")
         }
-        currentScreen = MobileMainScreenNav.Setting
+        currentScreen = MobileMainScreenNav.Setting*/
+        context.startActivity(Intent(context, SettingsActivity::class.java))
     }
 
     val goMyFollowingUser = {
