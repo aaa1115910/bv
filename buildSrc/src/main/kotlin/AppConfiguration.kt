@@ -10,7 +10,7 @@ object AppConfiguration {
 
     @Suppress("KotlinConstantConditions")
     val versionName: String by lazy {
-        "$major.$minor.$patch${".$bugFix".takeIf { bugFix != 0 }}" +
+        "$major.$minor.$patch${".$bugFix".takeIf { bugFix != 0 } ?: ""}" +
                 ".r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
     }
     val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() }

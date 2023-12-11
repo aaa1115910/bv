@@ -6,8 +6,8 @@
 
 ~~Bug Video~~
 
-[![App Center Release](https://img.shields.io/endpoint?url=https%3A%2F%2Funtitled-ecso9wcazr6c.runkit.sh)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
-[![App Center Alpha](https://img.shields.io/endpoint?url=https%3A%2F%2Funtitled-q0r11y8pnjaw.runkit.sh)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
+[![App Center Release](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Drelease)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
+[![App Center Alpha](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Dalpha)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
 
 [![Workflow Release](https://github.com/aaa1115910/bv/actions/workflows/release.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
 [![Workflow Alpha](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
