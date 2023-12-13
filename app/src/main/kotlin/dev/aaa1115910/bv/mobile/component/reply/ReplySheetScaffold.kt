@@ -100,7 +100,7 @@ fun ReplySheetScaffold(
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
                 ?: return@derivedStateOf true
 
-            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 10
+            rpid != 0L && lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 10
         }
     }
 
