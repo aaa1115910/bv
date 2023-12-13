@@ -76,6 +76,7 @@ dependencies {
     implementation(androidx.media3.exoplayer.dash)
     implementation(androidx.media3.exoplayer.hls)
     implementation(androidx.media3.ui)
+    implementation(libs.akdanmaku)
     implementation(libs.material)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(androidx.compose.ui.test.junit4)

@@ -9,6 +9,8 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.exoplayer.ExoPlayer
+import com.kuaishou.akdanmaku.render.SimpleRenderer
+import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.mobile.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
@@ -37,6 +39,7 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initVideoPlayer()
+        initDanmakuPlayer()
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             BVMobileTheme {
@@ -55,6 +58,12 @@ class VideoPlayerActivity : ComponentActivity() {
         parseIntent()
     }
 
+    private fun initDanmakuPlayer() {
+        if (playerViewModel.danmakuPlayer != null) return
+        logger.fInfo { "initDanmakuPlayer" }
+        playerViewModel.danmakuPlayer = DanmakuPlayer(SimpleRenderer())
+    }
+
     private fun parseIntent() {
         val aid = intent.getIntExtra("aid", 0)
         lifecycleScope.launch(Dispatchers.IO) {
@@ -71,5 +80,6 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         playerViewModel.videoPlayer?.pause()
+        playerViewModel.danmakuPlayer?.pause()
     }
 }

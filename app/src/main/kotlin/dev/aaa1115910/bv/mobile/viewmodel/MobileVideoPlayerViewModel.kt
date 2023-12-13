@@ -7,9 +7,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import com.kuaishou.akdanmaku.data.DanmakuItemData
+import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
@@ -21,6 +24,7 @@ import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Section
+import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
@@ -33,6 +37,7 @@ import dev.aaa1115910.bv.player.mobile.component.playUrl
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapMap
 import dev.aaa1115910.bv.util.toast
@@ -104,10 +109,14 @@ class MobileVideoPlayerViewModel(
         val video = videoDetail?.pages?.first() ?: videoDetail?.ugcSeason?.sections?.first()
         println(video)
         require(video != null) { "没有可播放视频" }
+        releaseDanmakuPlayer()
+        reInitDanmakuPlayer()
+        val cid = if (video is VideoPage) video.cid else (video as Section).id
         loadPlayUrl(
             avid = avid,
-            cid = if (video is VideoPage) video.cid else (video as Section).id
+            cid = cid
         )
+        loadDanmaku(cid)
     }
 
     private suspend fun loadPlayUrl(
@@ -291,6 +300,34 @@ class MobileVideoPlayerViewModel(
         refreshingComments = false
     }
 
+    private suspend fun loadDanmaku(cid: Int) {
+        runCatching {
+            val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
+
+            danmakuData.clear()
+            danmakuData.addAll(danmakuXmlData.data.map {
+                DanmakuItemData(
+                    danmakuId = it.dmid,
+                    position = (it.time * 1000).toLong(),
+                    content = it.text,
+                    mode = when (it.type) {
+                        4 -> DanmakuItemData.DANMAKU_MODE_CENTER_TOP
+                        5 -> DanmakuItemData.DANMAKU_MODE_CENTER_BOTTOM
+                        else -> DanmakuItemData.DANMAKU_MODE_ROLLING
+                    },
+                    textSize = it.size,
+                    textColor = Color(it.color).toArgb()
+                )
+            })
+            danmakuPlayer?.updateData(danmakuData)
+            danmakuPlayer?.start()
+        }.onFailure {
+            logger.fWarn { "Load danmaku filed: ${it.stackTraceToString()}" }
+        }.onSuccess {
+            logger.fInfo { "Load danmaku success, size=${danmakuData.size}" }
+        }
+    }
+
     suspend fun switchCommentSort(newSort: CommentSort) {
         logger.fInfo { "Switch comment sort to ${newSort.name}" }
         commentSort = newSort
@@ -304,5 +341,13 @@ class MobileVideoPlayerViewModel(
         hasMoreComments = true
         comments.clear()
         loadMoreComment()
+    }
+
+    private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
+        danmakuPlayer?.release()
+    }
+
+    private suspend fun reInitDanmakuPlayer() = withContext(Dispatchers.Main) {
+        danmakuPlayer = DanmakuPlayer(SimpleRenderer())
     }
 }

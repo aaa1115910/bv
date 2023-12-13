@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.player.mobile.component.controller.BvPlayerController
 import dev.aaa1115910.bv.player.mobile.util.LocalMobileVideoPlayerData
 import kotlinx.coroutines.delay
@@ -23,7 +24,8 @@ fun BvPlayer(
     onExitFullScreen: () -> Unit,
     onBack: () -> Unit,
     onChangeResolution: (Int) -> Unit,
-    videoPlayer: ExoPlayer
+    videoPlayer: ExoPlayer,
+    danmakuPlayer: DanmakuPlayer
 ) {
     val mobileVideoPlayerData = LocalMobileVideoPlayerData.current
     var isPlaying by rememberSaveable { mutableStateOf(false) }
@@ -51,6 +53,33 @@ fun BvPlayer(
         videoPlayer.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
                 isPlaying = playing
+                if (isPlaying) {
+                    danmakuPlayer.start()
+                } else {
+                    danmakuPlayer.pause()
+                }
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_READY -> {
+                        danmakuPlayer.seekTo(videoPlayer.currentPosition)
+                        if (!isPlaying) danmakuPlayer.pause()
+                    }
+
+                    Player.STATE_ENDED -> danmakuPlayer.pause()
+                    Player.STATE_IDLE -> {}
+                    Player.STATE_BUFFERING -> danmakuPlayer.pause()
+                    else -> danmakuPlayer.pause()
+                }
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                if (playWhenReady) {
+                    danmakuPlayer.start()
+                } else {
+                    danmakuPlayer.pause()
+                }
             }
         })
     }
@@ -76,5 +105,8 @@ fun BvPlayer(
         onChangeSpeed = videoPlayer::setPlaybackSpeed
     ) {
         Media3VideoPlayer(videoPlayer = videoPlayer)
+        AkDanmakuPlayer(
+            danmakuPlayer = danmakuPlayer
+        )
     }
 }

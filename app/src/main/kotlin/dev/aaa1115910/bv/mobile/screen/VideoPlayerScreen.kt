@@ -173,6 +173,7 @@ fun VideoPlayerScreen(
                 modifier = modifier,
                 isFullScreen = isLandscape,
                 videoPlayer = playerViewModel.videoPlayer!!,
+                danmakuPlayer = playerViewModel.danmakuPlayer!!,
                 onEnterFullScreen = {
                     isVideoFullscreen = true
                     //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
@@ -216,6 +217,7 @@ fun VideoPlayerScreen(
                                 .aspectRatio(16f / 9f),
                             isFullScreen = isVideoFullscreen,
                             videoPlayer = playerViewModel.videoPlayer!!,
+                            danmakuPlayer = playerViewModel.danmakuPlayer!!,
                             onEnterFullScreen = {
                                 isVideoFullscreen = true
                             },
