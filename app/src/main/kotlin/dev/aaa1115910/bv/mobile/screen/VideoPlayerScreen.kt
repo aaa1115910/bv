@@ -53,7 +53,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,7 +90,9 @@ import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.player.mobile.component.BvPlayer
 import dev.aaa1115910.bv.player.mobile.util.LocalMobileVideoPlayerData
 import dev.aaa1115910.bv.player.mobile.util.MobileVideoPlayerData
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.formatPubTimeString
+import dev.aaa1115910.bv.util.swapList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -164,7 +165,7 @@ fun VideoPlayerScreen(
         }
     }
 
-    val bvPlayerContent = remember {
+    /*val bvPlayerContent = remember {
         // TODO movableContentOf here doesn't avoid Media from recreating its surface view when
         // screen rotation changed. Seems like a bug of Compose.
         // see: https://kotlinlang.slack.com/archives/CJLTWPH7S/p1654734644676989
@@ -184,10 +185,10 @@ fun VideoPlayerScreen(
                     //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
                 },
                 onBack = { (context as Activity).finish() },
-                onChangeResolution = {}
+                onChangeResolution = {},
             )
         }
-    }
+    }*/
 
     Scaffold { innerPadding ->
         Row(
@@ -205,7 +206,12 @@ fun VideoPlayerScreen(
                     CompositionLocalProvider(
                         LocalMobileVideoPlayerData provides MobileVideoPlayerData(
                             currentResolutionCode = playerViewModel.currentQuality,
-                            availableResolutionMap = playerViewModel.availableQuality
+                            availableResolutionMap = playerViewModel.availableQuality,
+                            enabledDanmaku = playerViewModel.currentDanmakuEnabled,
+                            currentDanmakuTypes = playerViewModel.currentDanmakuTypes,
+                            currentDanmakuScale = playerViewModel.currentDanmakuScale,
+                            currentDanmakuOpacity = playerViewModel.currentDanmakuOpacity,
+                            currentDanmakuArea = playerViewModel.currentDanmakuArea
                         )
                     ) {
                         BvPlayer(
@@ -230,6 +236,25 @@ fun VideoPlayerScreen(
                                     playerViewModel.currentQuality = code
                                     playerViewModel.playQuality(code)
                                 }
+                            },
+                            onToggleDanmaku = { enabled ->
+                                playerViewModel.currentDanmakuEnabled = enabled
+                                Prefs.defaultDanmakuEnabled = enabled
+                            },
+                            onEnabledDanmakuTypesChange = { types ->
+                                playerViewModel.currentDanmakuTypes.swapList(types)
+                            },
+                            onDanmakuOpacityChange = { opacity ->
+                                playerViewModel.currentDanmakuOpacity = opacity
+                                Prefs.defaultDanmakuOpacity = opacity
+                            },
+                            onDanmakuScaleChange = { scale ->
+                                playerViewModel.currentDanmakuScale = scale
+                                Prefs.defaultDanmakuScale = scale
+                            },
+                            onDanmakuAreaChange = { area ->
+                                playerViewModel.currentDanmakuArea = area
+                                Prefs.defaultDanmakuArea = area
                             }
                         )
                     }

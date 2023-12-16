@@ -40,12 +40,15 @@ fun FullscreenControllers(
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
     currentResolutionName: String,
+    enabledDanmaku: Boolean,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
     onShowResolutionController: () -> Unit,
-    onShowSpeedController: () -> Unit
+    onShowSpeedController: () -> Unit,
+    onToggleDanmaku: (Boolean) -> Unit,
+    onShowDanmakuController: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -66,12 +69,15 @@ fun FullscreenControllers(
             currentSeekPosition = currentSeekPosition,
             bufferedSeekPosition = bufferedSeekPosition,
             currentResolutionName = currentResolutionName,
+            enabledDanmaku = enabledDanmaku,
             onPlay = onPlay,
             onPause = onPause,
             onExitFullScreen = onExitFullScreen,
             onSeekToPosition = onSeekToPosition,
             onShowResolutionController = onShowResolutionController,
-            onShowSpeedController = onShowSpeedController
+            onShowSpeedController = onShowSpeedController,
+            onToggleDanmaku = onToggleDanmaku,
+            onShowDanmakuController = onShowDanmakuController
         )
     }
 }
@@ -108,12 +114,15 @@ private fun BottomControllers(
     currentSeekPosition: Float,
     bufferedSeekPosition: Float,
     currentResolutionName: String,
+    enabledDanmaku: Boolean,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
     onShowResolutionController: () -> Unit,
-    onShowSpeedController: () -> Unit
+    onShowSpeedController: () -> Unit,
+    onToggleDanmaku: (Boolean) -> Unit,
+    onShowDanmakuController: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -175,10 +184,10 @@ private fun BottomControllers(
                             onPlay = onPlay,
                             onPause = onPause
                         )
-                        TextButton(onClick = { /*TODO*/ }) {
-                            Text(text = "弹幕开关")
+                        TextButton(onClick = { onToggleDanmaku(enabledDanmaku) }) {
+                            Text(text = "弹幕开关" + if (enabledDanmaku) "✔" else "✖")
                         }
-                        TextButton(onClick = { /*TODO*/ }) {
+                        TextButton(onClick = onShowDanmakuController) {
                             Text(text = "弹幕设置")
                         }
                     }
@@ -221,12 +230,15 @@ fun FullscreenControllerPreview() {
             currentSeekPosition = 0.3f,
             bufferedSeekPosition = 0.6f,
             currentResolutionName = "1080P",
+            enabledDanmaku = false,
             onPlay = {},
             onPause = {},
             onExitFullScreen = {},
             onSeekToPosition = {},
             onShowResolutionController = {},
-            onShowSpeedController = {}
+            onShowSpeedController = {},
+            onToggleDanmaku = {},
+            onShowDanmakuController = {}
         )
     }
 }

@@ -22,6 +22,8 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import dev.aaa1115910.bv.player.mobile.component.DanmakuType
+import dev.aaa1115910.bv.player.mobile.component.controller.menu.DanmakuMenuController
 import dev.aaa1115910.bv.player.mobile.component.controller.menu.ResolutionMenuController
 import dev.aaa1115910.bv.player.mobile.component.controller.menu.SpeedMenuController
 import kotlin.math.absoluteValue
@@ -39,6 +41,11 @@ fun BvPlayerController(
     currentResolutionCode: Int,
     availableResolutionMap: Map<Int, String>,
     currentSpeed: Float,
+    enabledDanmaku: Boolean,
+    enabledDanmakuTypes: List<DanmakuType>,
+    danmakuOpacity: Float,
+    danmakuScale: Float,
+    danmakuArea: Float,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
     onBack: () -> Unit,
@@ -47,6 +54,11 @@ fun BvPlayerController(
     onSeekToPosition: (Long) -> Unit,
     onChangeResolution: (Int) -> Unit,
     onChangeSpeed: (Float) -> Unit,
+    onToggleDanmaku: (Boolean) -> Unit,
+    onEnabledDanmakuTypesChange: (List<DanmakuType>) -> Unit,
+    onDanmakuOpacityChange: (Float) -> Unit,
+    onDanmakuScaleChange: (Float) -> Unit,
+    onDanmakuAreaChange: (Float) -> Unit,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -54,6 +66,7 @@ fun BvPlayerController(
 
     var showResolutionController by remember { mutableStateOf(false) }
     var showSpeedController by remember { mutableStateOf(false) }
+    var showDanmakuController by remember { mutableStateOf(false) }
 
     //在手势触发的事件中，直接读取 isPlaying currentTime 参数都只会读取到错误的值，原因未知
     var isPlaying2 by remember { mutableStateOf(isPlaying) }
@@ -228,6 +241,7 @@ fun BvPlayerController(
                     bufferedSeekPosition = bufferedSeekPosition,
                     currentResolutionName = availableResolutionMap[currentResolutionCode]
                         ?: "Unknown",
+                    enabledDanmaku = enabledDanmaku,
                     onPlay = onPlay,
                     onPause = onPause,
                     onExitFullScreen = onExitFullScreen,
@@ -239,6 +253,11 @@ fun BvPlayerController(
                     onShowSpeedController = {
                         showBaseUi = false
                         showSpeedController = true
+                    },
+                    onToggleDanmaku = onToggleDanmaku,
+                    onShowDanmakuController = {
+                        showBaseUi = false
+                        showDanmakuController = true
                     }
                 )
             } else {
@@ -276,6 +295,19 @@ fun BvPlayerController(
                 onChangeSpeed(speed)
                 showSpeedController = false
             }
+        )
+
+        DanmakuMenuController(
+            show = showDanmakuController,
+            onHideController = { showDanmakuController = false },
+            enabledDanmakuTypes = enabledDanmakuTypes,
+            danmakuOpacity = danmakuOpacity,
+            danmakuScale = danmakuScale,
+            danmakuArea = danmakuArea,
+            onEnabledDanmakuTypesChange = onEnabledDanmakuTypesChange,
+            onDanmakuOpacityChange = onDanmakuOpacityChange,
+            onDanmakuScaleChange = onDanmakuScaleChange,
+            onDanmakuAreaChange = onDanmakuAreaChange
         )
     }
 }

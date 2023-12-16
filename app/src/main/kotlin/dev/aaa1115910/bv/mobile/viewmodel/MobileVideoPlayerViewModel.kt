@@ -29,10 +29,10 @@ import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.player.mobile.component.DanmakuType
 import dev.aaa1115910.bv.player.mobile.component.playUrl
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -81,7 +81,14 @@ class MobileVideoPlayerViewModel(
     var currentDanmakuOpacity by mutableStateOf(Prefs.defaultDanmakuOpacity)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
     val currentDanmakuTypes = mutableStateListOf<DanmakuType>().apply {
-        addAll(Prefs.defaultDanmakuTypes)
+        addAll(Prefs.defaultDanmakuTypes.map {
+            when (it) {
+                dev.aaa1115910.bv.component.controllers2.DanmakuType.All -> DanmakuType.All
+                dev.aaa1115910.bv.component.controllers2.DanmakuType.Rolling -> DanmakuType.Rolling
+                dev.aaa1115910.bv.component.controllers2.DanmakuType.Top -> DanmakuType.Top
+                dev.aaa1115910.bv.component.controllers2.DanmakuType.Bottom -> DanmakuType.Bottom
+            }
+        })
     }
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
     var currentSubtitleId by mutableStateOf(-1L)
