@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import dev.aaa1115910.bv.player.mobile.component.noRippleClickable
 import dev.aaa1115910.bv.player.mobile.util.formatMinSec
 
 @Composable
@@ -58,11 +59,13 @@ fun FullscreenControllers(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth()
+                .noRippleClickable { }
         )
         BottomControllers(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .noRippleClickable { },
             isPlaying = isPlaying,
             currentTime = currentTime,
             totalTime = totalTime,
