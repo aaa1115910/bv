@@ -175,8 +175,9 @@ class UserRepository(
                 pageNumber = pageNumber,
                 pageSize = pageSize,
                 sessData = authRepository.sessionData ?: ""
-            ).getResponseData().list.vlist
-                .map { SpaceVideo.fromSpaceVideoItem(it) }
+            ).getResponseData().list?.vlist
+                ?.map { SpaceVideo.fromSpaceVideoItem(it) }
+                ?: emptyList()
 
             ApiType.App -> BiliHttpApi.getAppUserSpaceVideos(
                 mid = mid,
