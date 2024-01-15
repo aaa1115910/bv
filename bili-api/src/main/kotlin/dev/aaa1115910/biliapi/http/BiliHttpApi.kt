@@ -752,16 +752,14 @@ object BiliHttpApi {
 
     suspend fun getAppUserSpaceVideos(
         mid: Long,
+        lastAvid: Int,
         order: String = "pubdate",
-        pageNumber: Int = 1,
-        pageSize: Int = 30,
         accessKey: String
     ): BiliResponse<AppSpaceVideoData> =
         client.get("https://app.bilibili.com/x/v2/space/archive/cursor") {
             parameter("vmid", mid)
+            parameter("aid", lastAvid)
             parameter("order", order)
-            parameter("pn", pageNumber)
-            parameter("ps", pageSize)
             parameter("access_key", accessKey)
         }.body()
 
