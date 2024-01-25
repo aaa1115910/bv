@@ -15,9 +15,11 @@ import dev.aaa1115910.bv.mobile.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerActivity : ComponentActivity() {
@@ -67,8 +69,20 @@ class VideoPlayerActivity : ComponentActivity() {
     private fun parseIntent() {
         val aid = intent.getIntExtra("aid", 0)
         lifecycleScope.launch(Dispatchers.IO) {
-            playerViewModel.updateVideoInfo(aid)
-            playerViewModel.playFirstPartVideo()
+            runCatching {
+                playerViewModel.updateVideoInfo(aid)
+            }.onFailure {
+                withContext(Dispatchers.Main) {
+                    it.message?.toast(this@VideoPlayerActivity)
+                }
+            }
+            runCatching {
+                playerViewModel.playFirstPartVideo()
+            }.onFailure {
+                withContext(Dispatchers.Main) {
+                    it.message?.toast(this@VideoPlayerActivity)
+                }
+            }
         }
     }
 
