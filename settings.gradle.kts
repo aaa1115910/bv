@@ -30,7 +30,7 @@ rootProject.name = "BV"
 include(":app")
 include(":bili-api")
 include(":bili-subtitle")
-include(":bv-player")
+include(":bv-player-core")
 include(":bv-player-mobile")
 include(":libs:av1Decoder")
 include(":libs:libVLC")

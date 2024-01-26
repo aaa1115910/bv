@@ -3,7 +3,6 @@ package dev.aaa1115910.bv.player.mobile.component
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,13 +10,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
+import dev.aaa1115910.bv.player.AbstractVideoPlayer
+import dev.aaa1115910.bv.player.BvVideoPlayer
+import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.player.mobile.component.controller.BvPlayerController
 import dev.aaa1115910.bv.player.mobile.util.LocalMobileVideoPlayerData
 import kotlinx.coroutines.delay
@@ -35,11 +35,14 @@ fun BvPlayer(
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuScaleChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
-    videoPlayer: ExoPlayer,
-    danmakuPlayer: DanmakuPlayer
+    videoPlayer: AbstractVideoPlayer,
+    danmakuPlayer: DanmakuPlayer?
 ) {
     val mobileVideoPlayerData = LocalMobileVideoPlayerData.current
     var isPlaying by rememberSaveable { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
+    var isBuffering by remember { mutableStateOf(false) }
+    var exception by remember { mutableStateOf<Exception?>(null) }
 
     var enabledDanmaku by rememberSaveable { mutableStateOf(mobileVideoPlayerData.enabledDanmaku) }
     val typeFilter by remember { mutableStateOf(TypeFilter()) }
@@ -75,6 +78,13 @@ fun BvPlayer(
         }
     }
 
+    // 直接调用 danmakuPlayer 会始终为 null
+    var mDanmakuPlayer: DanmakuPlayer? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(danmakuPlayer) {
+        mDanmakuPlayer = danmakuPlayer
+    }
+
     val initDanmakuConfig: () -> Unit = {
         updateEnabledDanmakuTypeFilter(mobileVideoPlayerData.currentDanmakuTypes)
         danmakuConfig = danmakuConfig.copy(
@@ -83,19 +93,19 @@ fun BvPlayer(
             dataFilter = listOf(typeFilter)
         )
         danmakuConfig.updateFilter()
-        danmakuPlayer.updateConfig(danmakuConfig)
+        mDanmakuPlayer?.updateConfig(danmakuConfig)
     }
 
     val updateDanmakuConfigTypeFilter: () -> Unit = {
         updateEnabledDanmakuTypeFilter(mobileVideoPlayerData.currentDanmakuTypes)
         danmakuConfig.updateFilter()
-        danmakuPlayer.updateConfig(danmakuConfig)
+        mDanmakuPlayer?.updateConfig(danmakuConfig)
     }
 
     val toggleDanmakuEnabled: (Boolean) -> Unit = { enabled ->
         updateEnabledDanmakuTypeFilter(if (enabled) mobileVideoPlayerData.currentDanmakuTypes else listOf())
         danmakuConfig.updateFilter()
-        danmakuPlayer.updateConfig(danmakuConfig)
+        mDanmakuPlayer?.updateConfig(danmakuConfig)
     }
 
     val updateDanmakuConfig: () -> Unit = {
@@ -103,7 +113,102 @@ fun BvPlayer(
             retainerPolicy = RETAINER_BILIBILI,
             textSizeScale = mobileVideoPlayerData.currentDanmakuScale,
         )
-        danmakuPlayer.updateConfig(danmakuConfig)
+        mDanmakuPlayer?.updateConfig(danmakuConfig)
+    }
+
+    val videoPlayerListener = object : VideoPlayerListener {
+        override fun onError(error: Exception) {
+            println("onError: $error")
+            isError = true
+            exception = error.cause as Exception?
+        }
+
+        override fun onReady() {
+            println("onReady")
+            isError = false
+            exception = null
+            initDanmakuConfig()
+
+            videoPlayer.start()
+
+            //updateVideoAspectRatio()
+
+            //reset default play speed
+            //logger.info { "Reset default play speed: $currentPlaySpeed" }
+            //videoPlayer.speed = currentPlaySpeed
+            //playerViewModel.danmakuPlayer?.updatePlaySpeed(currentPlaySpeed)
+        }
+
+        override fun onPlay() {
+            println("onPlay")
+            //logger.info { "onPlay" }
+            println("start danmaku player, ${danmakuPlayer != null}")
+            mDanmakuPlayer?.start()
+            isPlaying = true
+            isBuffering = false
+
+            //if (playerViewModel.lastPlayed > 0 && hideBackToHistoryTimer == null) {
+            //    showBackToHistory = true
+            //    hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
+            //        showBackToHistory = false
+            //        hideBackToHistoryTimer = null
+            //        playerViewModel.lastPlayed = 0
+            //    }
+            //}
+        }
+
+        override fun onPause() {
+            println("onPause")
+            println("pause danmaku player 1")
+            mDanmakuPlayer?.pause()
+            isPlaying = false
+        }
+
+        override fun onBuffering() {
+            println("onBuffering")
+            isBuffering = true
+            println("pause danmaku player 2")
+            mDanmakuPlayer?.pause()
+        }
+
+        override fun onEnd() {
+            println("onEnd")
+            println("pause danmaku player 3")
+            mDanmakuPlayer?.pause()
+            isPlaying = false
+            //if (!Prefs.incognitoMode) sendHeartbeat()
+
+            //val videoListIndex = playerViewModel.availableVideoList.indexOfFirst {
+            //    it.cid == playerViewModel.currentCid
+            //}
+            //if (videoListIndex + 1 < playerViewModel.availableVideoList.size) {
+            //    val nextVideo = playerViewModel.availableVideoList[videoListIndex + 1]
+            //    logger.info { "Play next video: $nextVideo" }
+            //    playerViewModel.partTitle = nextVideo.title
+            //    playerViewModel.loadPlayUrl(
+            //        avid = nextVideo.aid,
+            //        cid = nextVideo.cid,
+            //        epid = nextVideo.epid,
+            //        seasonId = nextVideo.seasonId,
+            //        continuePlayNext = true
+            //    )
+            //}
+        }
+
+        override fun onIdle() {
+            println("onIdle")
+            println("pause danmaku player 4")
+            mDanmakuPlayer?.pause()
+        }
+
+        override fun onSeekBack(seekBackIncrementMs: Long) {
+            mDanmakuPlayer?.seekTo(currentTime)
+        }
+
+        override fun onSeekForward(seekForwardIncrementMs: Long) {
+            mDanmakuPlayer?.seekTo(currentTime)
+        }
+
     }
 
     LaunchedEffect(Unit) {
@@ -111,42 +216,6 @@ fun BvPlayer(
             updatePosition()
             delay(200)
         }
-    }
-
-    SideEffect {
-        videoPlayer.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-                if (isPlaying) {
-                    danmakuPlayer.start()
-                } else {
-                    danmakuPlayer.pause()
-                }
-            }
-
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                when (playbackState) {
-                    Player.STATE_READY -> {
-                        initDanmakuConfig()
-                        danmakuPlayer.seekTo(videoPlayer.currentPosition)
-                        if (!isPlaying) danmakuPlayer.pause()
-                    }
-
-                    Player.STATE_ENDED -> danmakuPlayer.pause()
-                    Player.STATE_IDLE -> {}
-                    Player.STATE_BUFFERING -> danmakuPlayer.pause()
-                    else -> danmakuPlayer.pause()
-                }
-            }
-
-            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                if (playWhenReady) {
-                    danmakuPlayer.start()
-                } else {
-                    danmakuPlayer.pause()
-                }
-            }
-        })
     }
 
     BvPlayerController(
@@ -168,11 +237,15 @@ fun BvPlayer(
         onEnterFullScreen = onEnterFullScreen,
         onExitFullScreen = onExitFullScreen,
         onBack = onBack,
-        onPlay = { videoPlayer.play() },
+        onPlay = { videoPlayer.start() },
         onPause = { videoPlayer.pause() },
-        onSeekToPosition = videoPlayer::seekTo,
+        onSeekToPosition = { position ->
+            mDanmakuPlayer?.seekTo(position)
+            mDanmakuPlayer?.pause()
+            videoPlayer.seekTo(position)
+        },
         onChangeResolution = onChangeResolution,
-        onChangeSpeed = videoPlayer::setPlaybackSpeed,
+        onChangeSpeed = { videoPlayer.speed = it },
         onToggleDanmaku = {
             enabledDanmaku = !enabledDanmaku
             toggleDanmakuEnabled(enabledDanmaku)
@@ -189,12 +262,13 @@ fun BvPlayer(
         },
         onDanmakuAreaChange = onDanmakuAreaChange
     ) {
-        Media3VideoPlayer(videoPlayer = videoPlayer)
+        //Media3VideoPlayer(videoPlayer = videoPlayer)
+        BvVideoPlayer(videoPlayer = videoPlayer, playerListener = videoPlayerListener)
         AkDanmakuPlayer(
             modifier = Modifier
                 .alpha(mobileVideoPlayerData.currentDanmakuOpacity)
                 .fillMaxHeight(mobileVideoPlayerData.currentDanmakuArea),
-            danmakuPlayer = danmakuPlayer
+            danmakuPlayer = mDanmakuPlayer
         )
     }
 }

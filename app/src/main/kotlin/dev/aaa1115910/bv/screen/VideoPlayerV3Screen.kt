@@ -273,6 +273,10 @@ fun VideoPlayerV3Screen(
             }
         }
 
+        override fun onIdle() {
+            //TODO("Not yet implemented")
+        }
+
         override fun onSeekBack(seekBackIncrementMs: Long) {
             playerViewModel.danmakuPlayer?.seekTo(currentPosition)
         }

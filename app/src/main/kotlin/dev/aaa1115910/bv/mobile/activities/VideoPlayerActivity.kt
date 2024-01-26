@@ -8,12 +8,17 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.exoplayer.ExoPlayer
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
+import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.mobile.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
+import dev.aaa1115910.bv.player.VideoPlayerOptions
+import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -55,7 +60,20 @@ class VideoPlayerActivity : ComponentActivity() {
     private fun initVideoPlayer() {
         if (playerViewModel.videoPlayer != null) return
         logger.fInfo { "initVideoPlayer" }
-        playerViewModel.videoPlayer = ExoPlayer.Builder(this).build()
+        val options = VideoPlayerOptions(
+            userAgent = when (Prefs.apiType) {
+                ApiType.Web -> getString(R.string.video_player_user_agent_http)
+                ApiType.App -> getString(R.string.video_player_user_agent_client)
+            },
+            referer = when (Prefs.apiType) {
+                ApiType.Web -> getString(R.string.video_player_referer)
+                ApiType.App -> null
+            }
+        )
+        val videoPlayer = when (Prefs.playerType) {
+            PlayerType.Media3 -> ExoPlayerFactory().create(this, options)
+        }
+        playerViewModel.videoPlayer = videoPlayer
         //TODO 还没处理旋转后的一些判断，就先放这了
         parseIntent()
     }

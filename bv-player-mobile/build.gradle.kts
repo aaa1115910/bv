@@ -59,6 +59,7 @@ java {
 }
 
 dependencies {
+    implementation(project(":bv-player-core"))
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
     implementation(androidx.compose.ui)

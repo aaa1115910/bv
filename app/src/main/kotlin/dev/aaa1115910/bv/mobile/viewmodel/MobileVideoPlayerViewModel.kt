@@ -32,6 +32,7 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.mobile.component.DanmakuType
 import dev.aaa1115910.bv.player.mobile.component.playUrl
 import dev.aaa1115910.bv.util.Prefs
@@ -52,7 +53,7 @@ class MobileVideoPlayerViewModel(
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
 
-    var videoPlayer: ExoPlayer? by mutableStateOf(null)
+    var videoPlayer: AbstractVideoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
 
     var avid: Int = 0
@@ -327,7 +328,6 @@ class MobileVideoPlayerViewModel(
                 )
             })
             danmakuPlayer?.updateData(danmakuData)
-            danmakuPlayer?.start()
         }.onFailure {
             logger.fWarn { "Load danmaku filed: ${it.stackTraceToString()}" }
         }.onSuccess {
@@ -351,10 +351,12 @@ class MobileVideoPlayerViewModel(
     }
 
     private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
+        println("release danmaku player")
         danmakuPlayer?.release()
     }
 
     private suspend fun reInitDanmakuPlayer() = withContext(Dispatchers.Main) {
+        println("set new danmaku player")
         danmakuPlayer = DanmakuPlayer(SimpleRenderer())
     }
 }

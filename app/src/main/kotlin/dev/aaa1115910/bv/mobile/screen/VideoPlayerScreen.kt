@@ -223,7 +223,7 @@ fun VideoPlayerScreen(
                                 .aspectRatio(16f / 9f),
                             isFullScreen = isVideoFullscreen,
                             videoPlayer = playerViewModel.videoPlayer!!,
-                            danmakuPlayer = playerViewModel.danmakuPlayer!!,
+                            danmakuPlayer = playerViewModel.danmakuPlayer,
                             onEnterFullScreen = {
                                 isVideoFullscreen = true
                             },
