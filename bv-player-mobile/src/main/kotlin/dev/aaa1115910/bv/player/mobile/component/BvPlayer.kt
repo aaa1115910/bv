@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.player.mobile.component
 
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import com.kuaishou.akdanmaku.DanmakuConfig
@@ -53,6 +55,11 @@ fun BvPlayer(
     var currentSeekPosition by remember { mutableStateOf(0f) }
     var bufferedSeekPosition by remember { mutableStateOf(0f) }
 
+    // 直接调用 danmakuPlayer 会始终为 null
+    var mDanmakuPlayer: DanmakuPlayer? by remember { mutableStateOf(null) }
+
+    var aspectRatio by remember { mutableStateOf(16 / 9f) }
+
     val updatePosition = {
         currentTime = videoPlayer.currentPosition
         totalTime = videoPlayer.duration
@@ -78,12 +85,6 @@ fun BvPlayer(
         }
     }
 
-    // 直接调用 danmakuPlayer 会始终为 null
-    var mDanmakuPlayer: DanmakuPlayer? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(danmakuPlayer) {
-        mDanmakuPlayer = danmakuPlayer
-    }
 
     val initDanmakuConfig: () -> Unit = {
         updateEnabledDanmakuTypeFilter(mobileVideoPlayerData.currentDanmakuTypes)
@@ -116,6 +117,11 @@ fun BvPlayer(
         mDanmakuPlayer?.updateConfig(danmakuConfig)
     }
 
+    val updateVideoAspectRatio: () -> Unit = {
+        val aspectRatioValue = videoPlayer.videoWidth / videoPlayer.videoHeight.toFloat()
+        aspectRatio = if (aspectRatioValue > 0) aspectRatioValue else 16 / 9f
+    }
+
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: Exception) {
             println("onError: $error")
@@ -129,9 +135,8 @@ fun BvPlayer(
             exception = null
             initDanmakuConfig()
 
+            updateVideoAspectRatio()
             videoPlayer.start()
-
-            //updateVideoAspectRatio()
 
             //reset default play speed
             //logger.info { "Reset default play speed: $currentPlaySpeed" }
@@ -218,6 +223,10 @@ fun BvPlayer(
         }
     }
 
+    LaunchedEffect(danmakuPlayer) {
+        mDanmakuPlayer = danmakuPlayer
+    }
+
     BvPlayerController(
         modifier = modifier,
         isPlaying = isPlaying,
@@ -263,7 +272,12 @@ fun BvPlayer(
         onDanmakuAreaChange = onDanmakuAreaChange
     ) {
         //Media3VideoPlayer(videoPlayer = videoPlayer)
-        BvVideoPlayer(videoPlayer = videoPlayer, playerListener = videoPlayerListener)
+        BvVideoPlayer(
+            modifier = Modifier
+                .aspectRatio(aspectRatio)
+                .align(Alignment.Center),
+            videoPlayer = videoPlayer, playerListener = videoPlayerListener
+        )
         AkDanmakuPlayer(
             modifier = Modifier
                 .alpha(mobileVideoPlayerData.currentDanmakuOpacity)
