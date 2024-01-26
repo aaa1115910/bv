@@ -124,7 +124,7 @@ class ExoMediaPlayer(
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
-            Player.STATE_IDLE -> {}
+            Player.STATE_IDLE -> mPlayerEventListener?.onIdle()
             Player.STATE_BUFFERING -> mPlayerEventListener?.onBuffering()
             Player.STATE_READY -> mPlayerEventListener?.onReady()
             Player.STATE_ENDED -> mPlayerEventListener?.onEnd()

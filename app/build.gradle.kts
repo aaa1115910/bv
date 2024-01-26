@@ -215,7 +215,7 @@ dependencies {
     implementation(libs.slf4j.android.mvysny)
     implementation(project(mapOf("path" to ":bili-api")))
     implementation(project(mapOf("path" to ":bili-subtitle")))
-    implementation(project(mapOf("path" to ":bv-player")))
+    implementation(project(mapOf("path" to ":bv-player-core")))
     implementation(project(mapOf("path" to ":bv-player-mobile")))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)

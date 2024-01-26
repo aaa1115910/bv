@@ -21,6 +21,9 @@ interface VideoPlayerListener {
     /** 播放结束 */
     fun onEnd()
 
+    /** 空闲，例如播放前 */
+    fun onIdle()
+
     /** 后退 */
     fun onSeekBack(seekBackIncrementMs: Long)
 
