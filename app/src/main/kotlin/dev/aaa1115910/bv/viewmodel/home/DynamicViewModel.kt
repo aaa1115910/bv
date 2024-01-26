@@ -21,7 +21,10 @@ class DynamicViewModel(
     private val bvUserRepository: BvUserRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private val logger = KotlinLogging.logger {}
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+
     val dynamicList = mutableStateListOf<DynamicVideo>()
 
     private var currentPage = 0
