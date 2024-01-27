@@ -1,8 +1,263 @@
 package dev.aaa1115910.biliapi.entity.user
 
 import bilibili.app.dynamic.v2.DynModuleType
-import bilibili.app.dynamic.v2.ModuleDynamic
+import bilibili.app.dynamic.v2.Module
+import bilibili.app.dynamic.v2.ModuleDynamic.ModuleItemCase
+import bilibili.app.dynamic.v2.Paragraph
 import io.github.oshai.kotlinlogging.KotlinLogging
+
+data class DynamicData(
+    val dynamics: List<DynamicItem>,
+    val hasMore: Boolean,
+    val historyOffset: String,
+    val updateBaseline: String
+) {
+    companion object {
+        private val logger = KotlinLogging.logger { }
+        private val availableWebDynamicTypes = listOf(
+            DynamicType.Av,
+            DynamicType.Draw
+        ).map { it.string }
+        private val availableAppDynamicTypes = listOf(
+            bilibili.app.dynamic.v2.DynamicType.av,
+            bilibili.app.dynamic.v2.DynamicType.draw
+        )
+
+        fun fromDynamicData(data: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData) =
+            DynamicData(
+                dynamics = data.items
+                    .mapNotNull {
+                        if (!availableWebDynamicTypes.contains(it.type)) {
+                            logger.warn { "unknown dynamic type ${it.type}, up: ${it.modules.moduleAuthor.name}, date: ${it.modules.moduleAuthor.pubTime}" }
+                            return@mapNotNull null
+                        }
+                        DynamicItem.fromDynamicItem(it)
+                    },
+                hasMore = data.hasMore,
+                historyOffset = data.offset,
+                updateBaseline = data.updateBaseline
+            ).also {
+                logger.info { "updateBaseline: ${data.updateBaseline}" }
+                logger.info { "offset: ${data.offset}" }
+            }
+
+        fun fromDynamicData(data: bilibili.app.dynamic.v2.DynAllReply) = DynamicData(
+            dynamics = data.dynamicList.listList
+                .mapNotNull {
+                    if (!availableAppDynamicTypes.contains(it.cardType)) {
+                        logger.warn { "unknown dynamic type ${it.cardType.name}, up: ${it.getAuthorModule()?.author?.name}, date: ${it.getAuthorModule()?.ptimeLabelText}" }
+                        return@mapNotNull null
+                    }
+                    DynamicItem.fromDynamicItem(it)
+                },
+            hasMore = data.dynamicList.hasMore,
+            historyOffset = data.dynamicList.historyOffset,
+            updateBaseline = data.dynamicList.updateBaseline
+        ).also {
+            logger.info { "updateBaseline: ${data.dynamicList.updateBaseline}" }
+            logger.info { "historyOffset: ${data.dynamicList.historyOffset}" }
+        }
+    }
+}
+
+data class DynamicItem(
+    val type: DynamicType,
+    val author: DynamicAuthorModule,
+    var video: DynamicVideoModule? = null,
+    var draw: DynamicDrawModule? = null,
+    val footer: DynamicFooterModule,
+) {
+    companion object {
+        fun fromDynamicItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicItem {
+            val dynamicType = DynamicType.fromString(item.type)
+                ?: throw IllegalArgumentException("unknown type ${item.type}")
+            val dynamicItem = DynamicItem(
+                type = dynamicType,
+                author = DynamicAuthorModule.fromModuleAuthor(item.modules.moduleAuthor),
+                footer = DynamicFooterModule.fromModuleStat(item.modules.moduleStat)
+            )
+            when (dynamicType) {
+                DynamicType.Av -> dynamicItem.video =
+                    DynamicVideoModule.fromModuleArchive(item.modules.moduleDynamic.major!!.archive!!)
+
+                DynamicType.UgcSeason -> TODO()
+                DynamicType.Forward -> TODO()
+                DynamicType.Word -> TODO()
+                DynamicType.Draw -> dynamicItem.draw =
+                    DynamicDrawModule.fromModuleDynamic(item.modules.moduleDynamic)
+            }
+            return dynamicItem
+        }
+
+        fun fromDynamicItem(item: bilibili.app.dynamic.v2.DynamicItem): DynamicItem {
+            val dynamicType = when (item.cardType) {
+                bilibili.app.dynamic.v2.DynamicType.av -> DynamicType.Av
+                bilibili.app.dynamic.v2.DynamicType.draw -> DynamicType.Draw
+                else -> throw IllegalArgumentException("unknown type ${item.cardType.name}")
+            }
+            val dynamicItem = DynamicItem(
+                type = dynamicType,
+                author = DynamicAuthorModule.fromModuleAuthor(item.getAuthorModule()!!),
+                video = item.getDynamicModule()?.let {
+                    DynamicVideoModule.fromModuleArchive(it.dynArchive).apply {
+                        text = item.getDescModule()?.text ?: ""
+                    }
+                },
+                footer = DynamicFooterModule.fromModuleStat(item.getStatModule()!!)
+            )
+
+            when (dynamicType) {
+                DynamicType.Av -> dynamicItem.video = item.getDynamicModule()?.let {
+                    DynamicVideoModule.fromModuleArchive(it.dynArchive).apply {
+                        text = item.getDescModule()?.text ?: ""
+                    }
+                }
+
+                DynamicType.Draw -> dynamicItem.draw =
+                    DynamicDrawModule.fromModuleOpusSummaryAndModuleDynamic(
+                        item.getOpusSummaryModule()!!,
+                        item.getDynamicModule()!!
+                    )
+
+                else -> TODO()
+            }
+
+            return dynamicItem
+        }
+    }
+
+    data class DynamicAuthorModule(
+        val author: String,
+        val avatar: String,
+        val mid: Long,
+        val pubTime: String,
+        val pubAction: String
+    ) {
+        companion object {
+            fun fromModuleAuthor(moduleAuthor: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Author) =
+                DynamicAuthorModule(
+                    author = moduleAuthor.name,
+                    avatar = moduleAuthor.face,
+                    mid = moduleAuthor.mid,
+                    pubTime = moduleAuthor.pubTime,
+                    pubAction = moduleAuthor.pubAction
+                )
+
+            fun fromModuleAuthor(moduleAuthor: bilibili.app.dynamic.v2.ModuleAuthor) =
+                DynamicAuthorModule(
+                    author = moduleAuthor.author.name,
+                    avatar = moduleAuthor.author.face,
+                    mid = moduleAuthor.author.mid,
+                    pubTime = moduleAuthor.ptimeLabelText,
+                    pubAction = ""
+                )
+        }
+    }
+
+    data class DynamicVideoModule(
+        val aid: Int,
+        val bvid: String? = null,
+        val cid: Int,
+        val epid: Int? = null,
+        val seasonId: Int? = null,
+        val title: String,
+        var text: String,
+        val cover: String,
+        val duration: String,
+        val play: String,
+        val danmaku: String
+    ) {
+        companion object {
+            fun fromModuleArchive(moduleArchive: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic.Major.Archive) =
+                DynamicVideoModule(
+                    aid = moduleArchive.aid.toInt(),
+                    bvid = moduleArchive.bvid,
+                    cid = 0,
+                    title = moduleArchive.title,
+                    text = moduleArchive.desc,
+                    cover = moduleArchive.cover,
+                    duration = moduleArchive.durationText,
+                    play = moduleArchive.stat.play,
+                    danmaku = moduleArchive.stat.danmaku,
+                )
+
+            fun fromModuleArchive(moduleArchive: bilibili.app.dynamic.v2.MdlDynArchive) =
+                DynamicVideoModule(
+                    aid = moduleArchive.avid.toInt(),
+                    bvid = moduleArchive.bvid,
+                    cid = moduleArchive.cid.toInt(),
+                    epid = moduleArchive.episodeId.toInt(),
+                    seasonId = moduleArchive.pgcSeasonId.toInt(),
+                    title = moduleArchive.title,
+                    text = "",
+                    cover = moduleArchive.cover,
+                    duration = moduleArchive.coverLeftText1,
+                    play = moduleArchive.coverLeftText2,
+                    danmaku = moduleArchive.coverLeftText3
+                )
+        }
+    }
+
+    data class DynamicFooterModule(
+        val like: Int,
+        val comment: Int,
+        val share: Int
+    ) {
+        companion object {
+            fun fromModuleStat(moduleStat: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Stat) =
+                DynamicFooterModule(
+                    like = moduleStat.like.count,
+                    comment = moduleStat.comment.count,
+                    share = moduleStat.forward.count
+                )
+
+            fun fromModuleStat(moduleStat: bilibili.app.dynamic.v2.ModuleStat) =
+                DynamicFooterModule(
+                    like = moduleStat.like.toInt(),
+                    comment = moduleStat.reply.toInt(),
+                    share = moduleStat.repost.toInt()
+                )
+        }
+    }
+
+    data class DynamicDrawModule(
+        val text: String,
+        val images: List<String>
+    ) {
+        companion object {
+            fun fromModuleDynamic(moduleDynamic: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic) =
+                DynamicDrawModule(
+                    text = moduleDynamic.desc!!.text,
+                    images = moduleDynamic.major!!.draw!!.items.map { it.src }
+                )
+
+            fun fromModuleOpusSummaryAndModuleDynamic(
+                moduleOpusSummary: bilibili.app.dynamic.v2.ModuleOpusSummary,
+                moduleDynamic: bilibili.app.dynamic.v2.ModuleDynamic
+            ): DynamicDrawModule {
+                var text = ""
+                val images = mutableListOf<String>()
+
+                when (val summaryContentType = moduleOpusSummary.summary.contentCase) {
+                    Paragraph.ContentCase.TEXT -> text = moduleOpusSummary.summary.text.nodesList
+                        .joinToString("") { it.rawText }
+
+                    else -> println("not implemented: ModuleOpusSummary summaryContentType: $summaryContentType")
+                }
+
+                when (val dynamicItemType = moduleDynamic.moduleItemCase) {
+                    ModuleItemCase.DYN_DRAW -> images.addAll(moduleDynamic.dynDraw.itemsList.map { it.src })
+                    else -> println("not implemented: ModuleOpusSummary dynamicItemType $dynamicItemType")
+                }
+
+                return DynamicDrawModule(
+                    text = text,
+                    images = images
+                )
+            }
+        }
+    }
+}
 
 data class DynamicVideoData(
     val videos: List<DynamicVideo>,
@@ -49,6 +304,7 @@ data class DynamicVideoData(
  * @property duration 视频时长，单位秒
  * @property play 视频播放量
  * @property danmaku 视频弹幕数
+ * @property avatar 视频作者头像
  */
 data class DynamicVideo(
     val aid: Int,
@@ -61,7 +317,9 @@ data class DynamicVideo(
     val author: String,
     val duration: Int,
     val play: Int,
-    val danmaku: Int
+    val danmaku: Int,
+    val avatar: String,
+    val time: Long = 0L,
 ) {
     companion object {
         fun fromDynamicVideoItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicVideo {
@@ -77,7 +335,8 @@ data class DynamicVideo(
                 author = author.name,
                 duration = convertStringTimeToSeconds(archive.durationText),
                 play = convertStringPlayCountToNumberPlayCount(archive.stat.play),
-                danmaku = convertStringPlayCountToNumberPlayCount(archive.stat.danmaku)
+                danmaku = convertStringPlayCountToNumberPlayCount(archive.stat.danmaku),
+                avatar = author.face,
             )
         }
 
@@ -90,7 +349,7 @@ data class DynamicVideo(
                 item.modulesList.firstOrNull { it.moduleType == DynModuleType.module_desc }?.moduleDesc
             val isDynamicVideo = desc?.text?.startsWith("动态视频") ?: false
             when (dynamic.moduleItemCase) {
-                ModuleDynamic.ModuleItemCase.DYN_ARCHIVE -> {
+                ModuleItemCase.DYN_ARCHIVE -> {
                     val archive = dynamic.dynArchive
                     return DynamicVideo(
                         aid = archive.avid.toInt(),
@@ -101,11 +360,12 @@ data class DynamicVideo(
                         author = author.name,
                         duration = convertStringTimeToSeconds(archive.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(archive.coverLeftText2),
-                        danmaku = convertStringPlayCountToNumberPlayCount(archive.coverLeftText3)
+                        danmaku = convertStringPlayCountToNumberPlayCount(archive.coverLeftText3),
+                        avatar = author.face
                     )
                 }
 
-                ModuleDynamic.ModuleItemCase.DYN_PGC -> {
+                ModuleItemCase.DYN_PGC -> {
                     val pgc = dynamic.dynPgc
                     return DynamicVideo(
                         aid = pgc.aid.toInt(),
@@ -118,7 +378,8 @@ data class DynamicVideo(
                         author = author.name,
                         duration = convertStringTimeToSeconds(pgc.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText2),
-                        danmaku = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText3)
+                        danmaku = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText3),
+                        avatar = author.face
                     )
                 }
 
@@ -155,6 +416,38 @@ private fun convertStringPlayCountToNumberPlayCount(play: String): Int {
     return -1
 }
 
-enum class DynamicType {
-    Video
+enum class DynamicType(val string: String) {
+    Av("DYNAMIC_TYPE_AV"),
+    UgcSeason("DYNAMIC_TYPE_UGC_SEASON"),
+    Forward("DYNAMIC_TYPE_FORWARD"),
+    Word("DYNAMIC_TYPE_WORD"),
+    Draw("DYNAMIC_TYPE_DRAW");
+
+    companion object {
+        fun fromString(string: String) = entries.firstOrNull { it.string == string }
+    }
 }
+
+private fun Module.isAuthorModule() = moduleType == DynModuleType.module_author
+private fun Module.isDescModule() = moduleType == DynModuleType.module_desc
+private fun Module.isDynamicModule() = moduleType == DynModuleType.module_dynamic
+private fun Module.isModuleOpusSummary() = moduleType == DynModuleType.module_opus_summary
+private fun Module.isStatModule() = moduleType == DynModuleType.module_stat
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getAuthorModule() =
+    modulesList.firstOrNull { it.isAuthorModule() }?.moduleAuthor
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getDescModule() =
+    modulesList.firstOrNull { it.isDescModule() }?.moduleDesc
+
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getDynamicModule() =
+    modulesList.firstOrNull { it.isDynamicModule() }?.moduleDynamic
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getOpusSummaryModule() =
+    modulesList.firstOrNull { it.isModuleOpusSummary() }?.moduleOpusSummary
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getStatModule() =
+    modulesList.firstOrNull { it.isStatModule() }?.moduleStat
+
+

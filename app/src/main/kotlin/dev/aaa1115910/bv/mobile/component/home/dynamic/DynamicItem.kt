@@ -38,7 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.entity.user.DynamicVideo
+import dev.aaa1115910.biliapi.entity.user.DynamicItem
+import dev.aaa1115910.biliapi.entity.user.DynamicType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.component.user.UserAvatar
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
@@ -49,7 +50,7 @@ import dev.aaa1115910.bv.util.resizedImageUrl
 @Composable
 fun DynamicItem(
     modifier: Modifier = Modifier,
-    dynamicVideo: DynamicVideo,
+    dynamicItem: DynamicItem,
     onClick: () -> Unit = {}
 ) {
     Surface(
@@ -61,21 +62,23 @@ fun DynamicItem(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DynamicHeader(
-                avatar = "",
-                author = dynamicVideo.author,
-                time = 0L
+                author = dynamicItem.author
             )
-            DynamicVideoContent(
-                cover = dynamicVideo.cover,
-                playCount = dynamicVideo.play.toString(),
-                danmakuCount = dynamicVideo.danmaku.toString(),
-                duration = dynamicVideo.duration.toString(),
-                title = dynamicVideo.title
-            )
+            when (dynamicItem.type) {
+                DynamicType.Av -> DynamicVideoContent(
+                    video = dynamicItem.video!!
+                )
+
+                DynamicType.UgcSeason -> TODO()
+                DynamicType.Forward -> TODO()
+                DynamicType.Word -> TODO()
+                DynamicType.Draw -> DynamicDraw(
+                    draw = dynamicItem.draw!!
+                )
+            }
+
             DynamicFooter(
-                shareCount = 0,
-                commentCount = 0,
-                likeCount = 0,
+                footer = dynamicItem.footer,
                 isLike = false,
                 onShare = {
                     //TODO 动态分享按钮
@@ -97,15 +100,14 @@ fun DynamicItem(
 @Composable
 fun DynamicVideoContent(
     modifier: Modifier = Modifier,
-    cover: String,
-    playCount: String,
-    danmakuCount: String,
-    duration: String,
-    title: String
+    video: DynamicItem.DynamicVideoModule
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        if (video.text.isNotBlank()) {
+            Text(text = video.text)
+        }
         Card(
             modifier = modifier
                 .fillMaxWidth()
@@ -119,7 +121,7 @@ fun DynamicVideoContent(
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
                         .clip(MaterialTheme.shapes.large),
-                    model = cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
+                    model = video.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
                 )
@@ -147,7 +149,7 @@ fun DynamicVideoContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        if (playCount.isNotBlank()) {
+                        if (video.play.isNotBlank()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -159,13 +161,13 @@ fun DynamicVideoContent(
                                     tint = Color.White
                                 )
                                 Text(
-                                    text = playCount,
+                                    text = video.play,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White
                                 )
                             }
                         }
-                        if (danmakuCount.isNotBlank()) {
+                        if (video.danmaku.isNotBlank()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -177,7 +179,7 @@ fun DynamicVideoContent(
                                     tint = Color.White
                                 )
                                 Text(
-                                    text = danmakuCount,
+                                    text = video.danmaku,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White
                                 )
@@ -185,7 +187,7 @@ fun DynamicVideoContent(
                         }
                     }
                     Text(
-                        text = duration,
+                        text = video.duration,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )
@@ -193,16 +195,14 @@ fun DynamicVideoContent(
             }
 
         }
-        Text(text = title)
+        Text(text = video.title)
     }
 }
 
 @Composable
 fun DynamicHeader(
     modifier: Modifier = Modifier,
-    avatar: String,
-    author: String,
-    time: Long,
+    author: DynamicItem.DynamicAuthorModule
 ) {
     Box(
         modifier = modifier
@@ -217,7 +217,7 @@ fun DynamicHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             UserAvatar(
-                avatar = avatar,
+                avatar = author.avatar,
                 size = 48.dp
             )
             Column(
@@ -225,11 +225,11 @@ fun DynamicHeader(
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
-                    text = author,
+                    text = author.author,
                     maxLines = 1
                 )
                 Text(
-                    text = "time",
+                    text = author.pubTime + " ${author.pubAction}",
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface.copy(0.8f),
                     fontSize = 14.sp,
@@ -256,9 +256,7 @@ fun DynamicHeader(
 @Composable
 fun DynamicFooter(
     modifier: Modifier = Modifier,
-    shareCount: Int = 0,
-    commentCount: Int = 0,
-    likeCount: Int = 0,
+    footer: DynamicItem.DynamicFooterModule,
     isLike: Boolean = false,
     onShare: (() -> Unit)? = null,
     onShowComment: (() -> Unit)? = null,
@@ -272,15 +270,15 @@ fun DynamicFooter(
     ) {
         DynamicFooterButton(
             icon = Icons.Default.Share,
-            number = shareCount
+            number = footer.share
         ) { onShare?.invoke() }
         DynamicFooterButton(
             icon = Icons.AutoMirrored.Filled.Comment,
-            number = commentCount
+            number = footer.comment
         ) { onShowComment?.invoke() }
         DynamicFooterButton(
             icon = if (isLike) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-            number = likeCount
+            number = footer.like
         ) { onLike?.invoke() }
     }
 }
@@ -308,15 +306,25 @@ fun DynamicFooterButton(
     }
 }
 
+//TODO 富文本
+@Composable
+fun DynamicDraw(
+    modifier: Modifier = Modifier,
+    draw: DynamicItem.DynamicDrawModule
+) {
+    Text(
+        modifier = modifier,
+        text = draw.text
+    )
+}
+
 @Preview
 @Composable
 private fun DynamicHeaderPreview() {
     BVMobileTheme {
         Surface {
             DynamicHeader(
-                avatar = "https://i0.hdslb.com/bfs/article/b6b843d84b84a3ba5526b09ebf538cd4b4c8c3f3.jpg",
-                author = "bishi",
-                time = 0L
+                author = emptyDynamicVideoData.author
             )
         }
     }
@@ -327,31 +335,73 @@ private fun DynamicHeaderPreview() {
 private fun DynamicFooterPreview() {
     BVMobileTheme {
         Surface {
-            DynamicFooter()
+            DynamicFooter(
+                footer = emptyDynamicVideoData.footer
+            )
         }
     }
 }
 
-private val emptyDynamicVideoData = DynamicVideo(
+private val exampleAuthorData = DynamicItem.DynamicAuthorModule(
+    author = "author",
+    avatar = "",
+    mid = 0,
+    pubTime = "54 分钟前 投稿了视频",
+    pubAction = ""
+)
+
+private val exampleFooterData = DynamicItem.DynamicFooterModule(
+    like = 2,
+    comment = 61,
+    share = 8,
+)
+
+private val exampleVideoData = DynamicItem.DynamicVideoModule(
     aid = 0,
-    cid = 0,
     title = "title",
     cover = "",
-    duration = 0,
-    play = 0,
-    danmaku = 0,
-    author = "author"
+    duration = "23:45",
+    play = "xx play",
+    danmaku = "xx dm",
+    seasonId = 0,
+    cid = 0,
+    text = "desc"
+)
+
+private val emptyDynamicVideoData = DynamicItem(
+    type = DynamicType.Av,
+    author = exampleAuthorData,
+    video = exampleVideoData,
+    footer = exampleFooterData
 )
 
 @Preview
 @Composable
-private fun DynamicItemPreview() {
+private fun DynamicVideoItemPreview() {
     BVMobileTheme {
         Surface {
             DynamicItem(
                 modifier = Modifier.padding(vertical = 8.dp),
-                dynamicVideo = emptyDynamicVideoData
+                dynamicItem = emptyDynamicVideoData
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun DynamicDrawItemPreview() {
+    BVMobileTheme {
+        Surface {
+            DynamicItem(
+                modifier = Modifier.padding(vertical = 8.dp),
+                dynamicItem = DynamicItem(
+                    type = DynamicType.Draw,
+                    author = exampleAuthorData,
+                    footer = exampleFooterData
+                )
+            )
+
         }
     }
 }
@@ -367,7 +417,7 @@ private fun DynamicItemListPreview() {
                 items(3) {
                     DynamicItem(
                         modifier = Modifier.padding(bottom = 8.dp),
-                        dynamicVideo = emptyDynamicVideoData
+                        dynamicItem = emptyDynamicVideoData
                     )
                 }
             }

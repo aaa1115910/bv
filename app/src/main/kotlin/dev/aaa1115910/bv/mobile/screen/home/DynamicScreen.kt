@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.biliapi.entity.user.DynamicType
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.dynamic.DynamicItem
 import dev.aaa1115910.bv.util.isScrolledToEnd
@@ -39,11 +40,11 @@ fun DynamicScreen(
     val endOfListReached by remember { derivedStateOf { videoListState.isScrolledToEnd() } }
 
     LaunchedEffect(Unit) {
-        dynamicViewModel.loadMore()
+        dynamicViewModel.loadMoreAll()
     }
 
     LaunchedEffect(endOfListReached) {
-        dynamicViewModel.loadMore()
+        dynamicViewModel.loadMoreAll()
     }
 
     Scaffold(
@@ -64,15 +65,16 @@ fun DynamicScreen(
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
                 state = videoListState
             ) {
-                items(items = dynamicViewModel.dynamicList) { dynamicVideo ->
+                items(items = dynamicViewModel.dynamicAllList) { dynamicItem ->
                     DynamicItem(
                         modifier = Modifier.padding(bottom = 12.dp),
-                        dynamicVideo = dynamicVideo,
+                        dynamicItem = dynamicItem,
                         onClick = {
+                            if (dynamicItem.type ==DynamicType.Av)
                             VideoPlayerActivity.actionStart(
                                 context = context,
-                                aid = dynamicVideo.aid,
-                                fromSeason = dynamicVideo.seasonId != 0
+                                aid = dynamicItem.video!!.aid,
+                                fromSeason = dynamicItem.video!!.seasonId != 0
                             )
                         }
                     )

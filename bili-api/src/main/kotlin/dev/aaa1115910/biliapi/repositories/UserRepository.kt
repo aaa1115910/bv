@@ -2,8 +2,10 @@ package dev.aaa1115910.biliapi.repositories
 
 import bilibili.app.dynamic.v2.DynamicGrpcKt
 import bilibili.app.dynamic.v2.Refresh
+import bilibili.app.dynamic.v2.dynAllReq
 import bilibili.app.dynamic.v2.dynVideoReq
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.user.DynamicData
 import dev.aaa1115910.biliapi.entity.user.DynamicVideoData
 import dev.aaa1115910.biliapi.entity.user.FollowedUser
 import dev.aaa1115910.biliapi.entity.user.SpaceVideo
@@ -218,6 +220,43 @@ class UserRepository(
                             if (offset == "") Refresh.refresh_new else Refresh.refresh_history
                     })
                     result = DynamicVideoData.fromDynamicData(dynVideoReply!!)
+                }.onFailure {
+                    handleGrpcException(it)
+                }
+                result!!
+            }
+        }
+    }
+
+    suspend fun getDynamics(
+        page: Int,
+        offset: String,
+        updateBaseline: String,
+        preferApiType: ApiType = ApiType.Web
+    ): DynamicData {
+        return when (preferApiType) {
+            ApiType.Web -> {
+                val responseData = BiliHttpApi.getDynamicList(
+                    type = "all",
+                    page = page,
+                    offset = offset,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
+                DynamicData.fromDynamicData(responseData)
+            }
+
+            ApiType.App -> {
+                var result: DynamicData? = null
+                runCatching {
+                    val dynAllReply = dynamicStub?.dynAll(dynAllReq {
+                        this.page = page
+                        this.offset = offset
+                        this.updateBaseline = updateBaseline
+                        localTime = 8
+                        refreshType =
+                            if (offset == "") Refresh.refresh_new else Refresh.refresh_history
+                    })
+                    result = DynamicData.fromDynamicData(dynAllReply!!)
                 }.onFailure {
                     handleGrpcException(it)
                 }

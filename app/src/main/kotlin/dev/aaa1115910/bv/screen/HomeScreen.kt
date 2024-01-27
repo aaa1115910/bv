@@ -97,7 +97,7 @@ fun HomeScreen(
             popularViewModel.loadMore()
         }
         scope.launch(Dispatchers.IO) {
-            dynamicViewModel.loadMore()
+            dynamicViewModel.loadMoreVideo()
         }
         scope.launch(Dispatchers.IO) {
             userViewModel.updateUserInfo()
@@ -163,8 +163,8 @@ fun HomeScreen(
 
                             TopNavItem.Dynamics -> {
                                 //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
-                                if (!dynamicViewModel.loading && dynamicViewModel.isLogin && dynamicViewModel.dynamicList.isEmpty()) {
-                                    scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+                                if (!dynamicViewModel.loadingVideo && dynamicViewModel.isLogin && dynamicViewModel.dynamicVideoList.isEmpty()) {
+                                    scope.launch(Dispatchers.Default) { dynamicViewModel.loadMoreVideo() }
                                 }
                             }
 
@@ -200,8 +200,8 @@ fun HomeScreen(
 
                             TopNavItem.Dynamics -> {
                                 //scope.launch(Dispatchers.Default) { dynamicState.scrollToItem(0, 0) }
-                                dynamicViewModel.clearData()
-                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
+                                dynamicViewModel.clearVideoData()
+                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMoreVideo() }
                             }
 
                             TopNavItem.Search -> {

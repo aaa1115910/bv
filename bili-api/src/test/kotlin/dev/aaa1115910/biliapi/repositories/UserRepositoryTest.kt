@@ -2,6 +2,7 @@ package dev.aaa1115910.biliapi.repositories
 
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoOrder
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -85,6 +86,44 @@ class UserRepositoryTest {
             preferApiType = ApiType.App
         )
         println(result)
+    }
+
+    @Test
+    fun `get dynamics with web api`() = runBlocking {
+        val totalPage = 10
+        var historyOffset = ""
+        var updateBaseline = ""
+        for (i in 1..totalPage) {
+            val dynamicData = userRepository.getDynamics(
+                page = i,
+                offset = historyOffset,
+                updateBaseline = updateBaseline,
+                preferApiType = ApiType.Web
+            )
+            historyOffset = dynamicData.historyOffset
+            updateBaseline = dynamicData.updateBaseline
+            println("page $i: $dynamicData")
+            delay((1000L..3000L).random())
+        }
+    }
+
+    @Test
+    fun `get dynamics with grpc api`() = runBlocking {
+        val totalPage = 10
+        var historyOffset = ""
+        var updateBaseline = ""
+        for (i in 1..totalPage) {
+            val dynamicData = userRepository.getDynamics(
+                page = i,
+                offset = historyOffset,
+                updateBaseline = updateBaseline,
+                preferApiType = ApiType.App
+            )
+            historyOffset = dynamicData.historyOffset
+            updateBaseline = dynamicData.updateBaseline
+            println("page $i: $dynamicData")
+            delay((1000L..3000L).random())
+        }
     }
 
     @Test

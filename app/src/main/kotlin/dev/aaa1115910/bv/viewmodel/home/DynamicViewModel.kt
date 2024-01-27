@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicVideo
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.biliapi.repositories.UserRepository
@@ -25,43 +26,55 @@ class DynamicViewModel(
         private val logger = KotlinLogging.logger {}
     }
 
-    val dynamicList = mutableStateListOf<DynamicVideo>()
+    val dynamicVideoList = mutableStateListOf<DynamicVideo>()
+    val dynamicAllList = mutableStateListOf<DynamicItem>()
 
-    private var currentPage = 0
-    var loading = false
-    var hasMore = true
-    private var historyOffset: String? = null
-    private var updateBaseline: String? = null
+    private var currentVideoPage = 0
+    var loadingVideo = false
+    var videoHasMore = true
+    private var videoHistoryOffset: String? = null
+    private var videoUpdateBaseline: String? = null
+
+    private var currentAllPage=0
+    var loadingAll=false
+    var allHasMore=true
+    private var allHistoryOffset: String? = null
+    private var allUpdateBaseline: String? = null
+
     val isLogin get() = bvUserRepository.isLogin
 
-    suspend fun loadMore() {
-        if (!loading) loadData()
+    suspend fun loadMoreVideo() {
+        if (!loadingVideo) loadVideoData()
     }
 
-    private suspend fun loadData() {
-        if (!hasMore || !bvUserRepository.isLogin) return
-        loading = true
-        logger.fInfo { "Load more dynamic videos [apiType=${Prefs.apiType}, offset=$historyOffset, page=${currentPage + 1}]" }
+    suspend fun loadMoreAll() {
+        if (!loadingAll) loadAllData()
+    }
+
+    private suspend fun loadVideoData() {
+        if (!videoHasMore || !bvUserRepository.isLogin) return
+        loadingVideo = true
+        logger.fInfo { "Load more dynamic videos [apiType=${Prefs.apiType}, offset=$videoHistoryOffset, page=${currentVideoPage + 1}]" }
         runCatching {
             val dynamicVideoData = userRepository.getDynamicVideos(
-                page = ++currentPage,
-                offset = historyOffset ?: "",
-                updateBaseline = updateBaseline ?: "",
+                page = ++currentVideoPage,
+                offset = videoHistoryOffset ?: "",
+                updateBaseline = videoUpdateBaseline ?: "",
                 preferApiType = Prefs.apiType
             )
-            dynamicList.addAll(dynamicVideoData.videos)
-            historyOffset = dynamicVideoData.historyOffset
-            updateBaseline = dynamicVideoData.updateBaseline
-            hasMore = dynamicVideoData.hasMore
+            dynamicVideoList.addAll(dynamicVideoData.videos)
+            videoHistoryOffset = dynamicVideoData.historyOffset
+            videoUpdateBaseline = dynamicVideoData.updateBaseline
+            videoHasMore = dynamicVideoData.hasMore
 
-            logger.fInfo { "Load dynamic list page: ${currentPage},size: ${dynamicVideoData.videos.size}" }
+            logger.fInfo { "Load dynamic video list page: ${currentVideoPage},size: ${dynamicVideoData.videos.size}" }
             val avList = dynamicVideoData.videos.map {
                 it.aid
             }
-            logger.fInfo { "Load dynamic size: ${avList.size}" }
-            logger.info { "Load dynamic list ${avList}}" }
+            logger.fInfo { "Load dynamic video size: ${avList.size}" }
+            logger.info { "Load dynamic video list ${avList}}" }
         }.onFailure {
-            logger.fWarn { "Load dynamic list failed: ${it.stackTraceToString()}" }
+            logger.fWarn { "Load dynamic video list failed: ${it.stackTraceToString()}" }
             when (it) {
                 is AuthFailureException -> {
                     withContext(Dispatchers.Main) {
@@ -79,14 +92,60 @@ class DynamicViewModel(
                 }
             }
         }
-        loading = false
+        loadingVideo = false
     }
 
-    fun clearData() {
-        dynamicList.clear()
-        currentPage = 0
-        loading = false
-        hasMore = true
-        historyOffset = null
+    private suspend fun loadAllData(){
+        if (!allHasMore || !bvUserRepository.isLogin) return
+        loadingAll = true
+        logger.fInfo { "Load more dynamic all [apiType=${Prefs.apiType}, offset=$allHistoryOffset, page=${currentVideoPage + 1}]" }
+        runCatching {
+            val dynamicData = userRepository.getDynamics(
+                page = ++currentVideoPage,
+                offset = allHistoryOffset ?: "",
+                updateBaseline = allUpdateBaseline ?: "",
+                preferApiType = Prefs.apiType
+            )
+            dynamicAllList.addAll(dynamicData.dynamics)
+            allHistoryOffset = dynamicData.historyOffset
+            allUpdateBaseline = dynamicData.updateBaseline
+            allHasMore = dynamicData.hasMore
+
+            logger.fInfo { "Load dynamic all list page: ${currentVideoPage},size: ${dynamicData.dynamics.size}" }
+        }.onFailure {
+            logger.fWarn { "Load dynamic all list failed: ${it.stackTraceToString()}" }
+            when (it) {
+                is AuthFailureException -> {
+                    withContext(Dispatchers.Main) {
+                        BVApp.context.getString(R.string.exception_auth_failure)
+                            .toast(BVApp.context)
+                    }
+                    logger.fInfo { "User auth failure" }
+                }
+
+                else -> {
+                    withContext(Dispatchers.Main) {
+                        "加载动态失败: ${it.localizedMessage}".toast(BVApp.context)
+                    }
+                }
+            }
+        }
+        loadingAll = false
+    }
+
+    fun clearVideoData() {
+        dynamicVideoList.clear()
+        currentVideoPage = 0
+        loadingVideo = false
+        videoHasMore = true
+        videoHistoryOffset = null
+    }
+
+    fun clearAllData() {
+        dynamicAllList.clear()
+        currentAllPage = 0
+        loadingAll = false
+        allHasMore = true
+        allHistoryOffset = null
     }
 }

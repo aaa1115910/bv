@@ -51,8 +51,8 @@ fun DynamicsScreen(
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(currentFocusedIndex) {
-        if (currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size) {
-            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+        if (currentFocusedIndex + 24 > dynamicViewModel.dynamicVideoList.size) {
+            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMoreVideo() }
         }
     }
 
@@ -85,7 +85,7 @@ fun DynamicsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            itemsIndexed(dynamicViewModel.dynamicList) { index, dynamic ->
+            itemsIndexed(dynamicViewModel.dynamicVideoList) { index, dynamic ->
                 SmallVideoCard(
                     data = VideoCardData(
                         avid = dynamic.aid,
@@ -106,7 +106,7 @@ fun DynamicsScreen(
                     onFocus = { currentFocusedIndex = index }
                 )
             }
-            if (dynamicViewModel.loading)
+            if (dynamicViewModel.loadingVideo)
                 item(
                     span = { TvGridItemSpan(4) }
                 ) {
@@ -118,7 +118,7 @@ fun DynamicsScreen(
                     }
                 }
 
-            if (!dynamicViewModel.hasMore)
+            if (!dynamicViewModel.videoHasMore)
                 item(
                     span = { TvGridItemSpan(4) }
                 ) {
