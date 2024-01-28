@@ -29,7 +29,7 @@ class UpInfoViewModel(
 
     private var page = SpaceVideoPage()
     private var updating = false
-    val noMore get() = page.hasNext
+    val noMore get() = !page.hasNext
 
     fun update() {
         viewModelScope.launch(Dispatchers.Default) {
