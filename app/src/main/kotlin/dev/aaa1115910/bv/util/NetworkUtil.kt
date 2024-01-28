@@ -9,7 +9,7 @@ import io.ktor.client.statement.bodyAsText
 
 object NetworkUtil {
     private lateinit var client: HttpClient
-    private const val LOC_CHECK_URL = "https://www.cloudflare.com/cdn-cgi/trace"
+    private const val LOC_CHECK_URL = "https://1.1.1.1/cdn-cgi/trace"
     private val logger = KotlinLogging.logger { }
     var networkCheckResult: Map<String, String> = emptyMap()
 
