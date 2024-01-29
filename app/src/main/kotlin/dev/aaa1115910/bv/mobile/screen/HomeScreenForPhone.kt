@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
@@ -46,7 +47,9 @@ fun HomeScreenForPhone(
     userSwitchViewModel: UserSwitchViewModel = koinViewModel(),
     currentScreen: MobileMainScreenNav,
     onCurrentScreenChange: (MobileMainScreenNav) -> Unit,
-    windowSize: WindowWidthSizeClass
+    windowSize: WindowWidthSizeClass,
+    previewerState: ImagePreviewerState,
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -140,7 +143,10 @@ fun HomeScreenForPhone(
                 }
 
                 MobileMainScreenNav.Dynamic -> {
-                    DynamicScreen()
+                    DynamicScreen(
+                        previewerState = previewerState,
+                        onShowPreviewer = onShowPreviewer
+                    )
                 }
 
                 else -> {}

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.biliapi.entity.user.DynamicType
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.dynamic.DynamicItem
@@ -32,7 +33,9 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DynamicScreen(
     modifier: Modifier = Modifier,
-    dynamicViewModel: DynamicViewModel = koinViewModel()
+    dynamicViewModel: DynamicViewModel = koinViewModel(),
+    previewerState: ImagePreviewerState,
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -69,13 +72,15 @@ fun DynamicScreen(
                     DynamicItem(
                         modifier = Modifier.padding(bottom = 12.dp),
                         dynamicItem = dynamicItem,
+                        previewerState = previewerState,
+                        onShowPreviewer = onShowPreviewer,
                         onClick = {
-                            if (dynamicItem.type ==DynamicType.Av)
-                            VideoPlayerActivity.actionStart(
-                                context = context,
-                                aid = dynamicItem.video!!.aid,
-                                fromSeason = dynamicItem.video!!.seasonId != 0
-                            )
+                            if (dynamicItem.type == DynamicType.Av)
+                                VideoPlayerActivity.actionStart(
+                                    context = context,
+                                    aid = dynamicItem.video!!.aid,
+                                    fromSeason = dynamicItem.video!!.seasonId != 0
+                                )
                         }
                     )
                 }

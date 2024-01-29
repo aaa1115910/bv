@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.mobile.screen
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -26,6 +27,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,12 +38,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
+import com.origeek.imageViewer.previewer.ImagePreviewer
+import com.origeek.imageViewer.previewer.VerticalDragType
+import com.origeek.imageViewer.previewer.rememberPreviewerState
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.SettingsActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
 import dev.aaa1115910.bv.mobile.screen.home.FollowingUserScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -69,6 +78,13 @@ fun MobileMainScreen(
     var activeSearch by remember { mutableStateOf(false) }
 
     var currentScreen by remember { mutableStateOf(MobileMainScreenNav.Home) }
+
+    val pictures = remember { mutableStateListOf<String>() }
+    val previewerState = rememberPreviewerState(
+        verticalDragType = VerticalDragType.UpAndDown,
+        pageCount = { pictures.size },
+        getKey = { pictures[it] }
+    )
 
     val openNavDrawer: () -> Unit = { scope.launch { drawerState.open() } }
 
@@ -116,6 +132,12 @@ fun MobileMainScreen(
         currentScreen = MobileMainScreenNav.Dynamic
     }
 
+    val onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit =
+        { newPictures, afterSetPictures ->
+            pictures.swapList(newPictures)
+            afterSetPictures()
+        }
+
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) { homeViewModel.loadMore() }
     }
@@ -128,6 +150,12 @@ fun MobileMainScreen(
             if (destination.route == "home") {
                 currentScreen = MobileMainScreenNav.Home
             }
+        }
+    }
+
+    BackHandler(previewerState.canClose || previewerState.animating) {
+        if (previewerState.canClose) scope.launch {
+            previewerState.closeTransform()
         }
     }
 
@@ -181,6 +209,8 @@ fun MobileMainScreen(
                             currentScreen = currentScreen,
                             onCurrentScreenChange = { currentScreen = it },
                             windowSize = windowSizeClass.widthSizeClass,
+                            previewerState = previewerState,
+                            onShowPreviewer = onShowPreviewer,
                         )
                     } else {
                         HomeScreen(
@@ -193,7 +223,10 @@ fun MobileMainScreen(
                     }
                 }
                 composable("dynamic") {
-                    DynamicScreen()
+                    DynamicScreen(
+                        previewerState = previewerState,
+                        onShowPreviewer = onShowPreviewer
+                    )
                 }
                 composable("history") {
                     Text(text = "History")
@@ -215,6 +248,19 @@ fun MobileMainScreen(
             }
         }
     }
+
+    ImagePreviewer(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = previewerState,
+        imageLoader = { index ->
+            val imageRequest = ImageRequest.Builder(LocalContext.current)
+                .data(pictures[index])
+                .size(Size.ORIGINAL)
+                .build()
+            rememberAsyncImagePainter(imageRequest)
+        }
+    )
 }
 
 @Composable

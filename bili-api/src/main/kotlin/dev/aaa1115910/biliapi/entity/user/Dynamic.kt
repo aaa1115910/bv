@@ -16,11 +16,13 @@ data class DynamicData(
         private val logger = KotlinLogging.logger { }
         private val availableWebDynamicTypes = listOf(
             DynamicType.Av,
-            DynamicType.Draw
+            DynamicType.Draw,
+            DynamicType.Word
         ).map { it.string }
         private val availableAppDynamicTypes = listOf(
             bilibili.app.dynamic.v2.DynamicType.av,
-            bilibili.app.dynamic.v2.DynamicType.draw
+            bilibili.app.dynamic.v2.DynamicType.draw,
+            bilibili.app.dynamic.v2.DynamicType.word
         )
 
         fun fromDynamicData(data: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData) =
@@ -61,10 +63,11 @@ data class DynamicData(
 }
 
 data class DynamicItem(
-    val type: DynamicType,
+    var type: DynamicType,
     val author: DynamicAuthorModule,
     var video: DynamicVideoModule? = null,
     var draw: DynamicDrawModule? = null,
+    var word: DynamicWordModule? = null,
     val footer: DynamicFooterModule,
 ) {
     companion object {
@@ -82,7 +85,9 @@ data class DynamicItem(
 
                 DynamicType.UgcSeason -> TODO()
                 DynamicType.Forward -> TODO()
-                DynamicType.Word -> TODO()
+                DynamicType.Word -> dynamicItem.word =
+                    DynamicWordModule.fromModuleDynamic(item.modules.moduleDynamic)
+
                 DynamicType.Draw -> dynamicItem.draw =
                     DynamicDrawModule.fromModuleDynamic(item.modules.moduleDynamic)
             }
@@ -93,6 +98,7 @@ data class DynamicItem(
             val dynamicType = when (item.cardType) {
                 bilibili.app.dynamic.v2.DynamicType.av -> DynamicType.Av
                 bilibili.app.dynamic.v2.DynamicType.draw -> DynamicType.Draw
+                bilibili.app.dynamic.v2.DynamicType.word -> DynamicType.Word
                 else -> throw IllegalArgumentException("unknown type ${item.cardType.name}")
             }
             val dynamicItem = DynamicItem(
@@ -118,6 +124,9 @@ data class DynamicItem(
                         item.getOpusSummaryModule()!!,
                         item.getDynamicModule()!!
                     )
+
+                DynamicType.Word -> dynamicItem.word =
+                    DynamicWordModule.fromModuleOpusSummary(item.getOpusSummaryModule()!!)
 
                 else -> TODO()
             }
@@ -228,7 +237,7 @@ data class DynamicItem(
             fun fromModuleDynamic(moduleDynamic: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic) =
                 DynamicDrawModule(
                     text = moduleDynamic.desc!!.text,
-                    images = moduleDynamic.major!!.draw!!.items.map { it.src }
+                    images = moduleDynamic.major!!.draw!!.items.map { it.src }.distinct()
                 )
 
             fun fromModuleOpusSummaryAndModuleDynamic(
@@ -252,9 +261,26 @@ data class DynamicItem(
 
                 return DynamicDrawModule(
                     text = text,
-                    images = images
+                    images = images.distinct()
                 )
             }
+        }
+    }
+
+    data class DynamicWordModule(
+        val text: String
+    ) {
+        companion object {
+            fun fromModuleDynamic(moduleDynamic: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic) =
+                DynamicWordModule(
+                    text = moduleDynamic.desc!!.text
+                )
+
+            fun fromModuleOpusSummary(moduleOpusSummary: bilibili.app.dynamic.v2.ModuleOpusSummary) =
+                DynamicWordModule(
+                    text = moduleOpusSummary.summary.text.nodesList
+                        .joinToString("") { it.rawText }
+                )
         }
     }
 }

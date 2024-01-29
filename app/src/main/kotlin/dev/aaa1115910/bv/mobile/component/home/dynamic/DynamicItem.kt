@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.Favorite
@@ -26,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,9 +38,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import com.origeek.imageViewer.previewer.ImagePreviewerState
+import com.origeek.imageViewer.previewer.TransformImageView
+import com.origeek.imageViewer.previewer.TransformItemState
+import com.origeek.imageViewer.previewer.rememberPreviewerState
+import com.origeek.imageViewer.previewer.rememberTransformItemState
 import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicType
 import dev.aaa1115910.bv.R
@@ -46,11 +57,14 @@ import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.notYetImplemented
 import dev.aaa1115910.bv.util.resizedImageUrl
+import kotlinx.coroutines.launch
 
 @Composable
 fun DynamicItem(
     modifier: Modifier = Modifier,
     dynamicItem: DynamicItem,
+    previewerState: ImagePreviewerState = rememberPreviewerState(pageCount = { 0 }),
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit = { _, _ -> },
     onClick: () -> Unit = {}
 ) {
     Surface(
@@ -71,9 +85,14 @@ fun DynamicItem(
 
                 DynamicType.UgcSeason -> TODO()
                 DynamicType.Forward -> TODO()
-                DynamicType.Word -> TODO()
+                DynamicType.Word -> DynamicWord(
+                    word = dynamicItem.word!!
+                )
+
                 DynamicType.Draw -> DynamicDraw(
-                    draw = dynamicItem.draw!!
+                    draw = dynamicItem.draw!!,
+                    previewerState = previewerState,
+                    onShowPreviewer = onShowPreviewer
                 )
             }
 
@@ -310,11 +329,171 @@ fun DynamicFooterButton(
 @Composable
 fun DynamicDraw(
     modifier: Modifier = Modifier,
-    draw: DynamicItem.DynamicDrawModule
+    draw: DynamicItem.DynamicDrawModule,
+    previewerState: ImagePreviewerState,
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(text = draw.text)
+        DynamicPictures(
+            pictures = draw.images,
+            previewerState = previewerState,
+            onShowPreviewer = onShowPreviewer
+        )
+    }
+}
+
+
+@Composable
+fun DynamicPictures(
+    modifier: Modifier = Modifier,
+    pictures: List<String>,
+    previewerState: ImagePreviewerState,
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val imageBaseShape = MaterialTheme.shapes.medium
+
+    val onClickPicture: (index: Int, itemState: TransformItemState) -> Unit = { index, itemState ->
+        onShowPreviewer(pictures) {
+            scope.launch {
+                previewerState.openTransform(
+                    index = index,
+                    itemState = itemState,
+                )
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+    ) {
+        when {
+            pictures.size == 1 -> {
+                Row {
+                    val itemState = rememberTransformItemState()
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(2f),
+                        shape = imageBaseShape,
+                        onClick = {
+                            onClickPicture(0, itemState)
+                        }
+                    ) {
+                        TransformImageView(
+                            painter = rememberAsyncImagePainter(pictures.first()),
+                            key = pictures.first(),
+                            itemState = itemState,
+                            previewerState = previewerState,
+                        )
+                    }
+                }
+            }
+
+            pictures.size == 2 -> {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    pictures.forEachIndexed { index, picture ->
+                        val itemState = rememberTransformItemState()
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f),
+                            shape = when (index) {
+                                0 -> imageBaseShape.copy(
+                                    topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)
+                                )
+
+                                1 -> imageBaseShape.copy(
+                                    topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
+                                )
+
+                                else -> RoundedCornerShape(0.dp)
+                            },
+                            onClick = {
+                                onClickPicture(index, itemState)
+                            }
+                        ) {
+                            TransformImageView(
+                                painter = rememberAsyncImagePainter(picture),
+                                key = picture,
+                                itemState = itemState,
+                                previewerState = previewerState,
+                            )
+                        }
+                    }
+                }
+            }
+
+            pictures.size >= 3 -> {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    pictures.take(3).forEachIndexed { index, picture ->
+                        val itemState = rememberTransformItemState()
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f),
+                            shape = when (index) {
+                                0 -> imageBaseShape.copy(
+                                    topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)
+                                )
+
+                                2 -> imageBaseShape.copy(
+                                    topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
+                                )
+
+                                else -> RoundedCornerShape(0.dp)
+                            },
+                            onClick = {
+                                onClickPicture(index, itemState)
+                            }
+                        ) {
+                            TransformImageView(
+                                painter = rememberAsyncImagePainter(picture),
+                                key = picture,
+                                itemState = itemState,
+                                previewerState = previewerState,
+                            )
+                        }
+                    }
+                }
+
+                if (pictures.size > 3) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .clip(
+                                MaterialTheme.shapes.medium.copy(
+                                    topEnd = CornerSize(0.dp),
+                                    bottomStart = CornerSize(0.dp)
+                                )
+                            )
+                            .background(Color.Black.copy(alpha = 0.2f))
+                            .padding(horizontal = 8.dp),
+                        text = "+${pictures.size - 3}",
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DynamicWord(
+    modifier: Modifier = Modifier,
+    word: DynamicItem.DynamicWordModule
 ) {
     Text(
         modifier = modifier,
-        text = draw.text
+        text = word.text
     )
 }
 
@@ -368,10 +547,26 @@ private val exampleVideoData = DynamicItem.DynamicVideoModule(
     text = "desc"
 )
 
+private val emptyDynamicData = DynamicItem(
+    type = DynamicType.Av,
+    author = exampleAuthorData,
+    footer = exampleFooterData
+)
+
 private val emptyDynamicVideoData = DynamicItem(
     type = DynamicType.Av,
     author = exampleAuthorData,
     video = exampleVideoData,
+    footer = exampleFooterData
+)
+
+private val emptyDynamicDrawData = DynamicItem(
+    type = DynamicType.Draw,
+    author = exampleAuthorData,
+    draw = DynamicItem.DynamicDrawModule(
+        text = "draw",
+        images = emptyList()
+    ),
     footer = exampleFooterData
 )
 
@@ -388,20 +583,27 @@ private fun DynamicVideoItemPreview() {
     }
 }
 
+private class DynamicDrawItemProvider : PreviewParameterProvider<DynamicItem> {
+    override val values = List(5) { index ->
+        emptyDynamicData.copy(
+            type = DynamicType.Draw,
+            draw = DynamicItem.DynamicDrawModule(
+                text = "this is $index picture draw",
+                images = Array(index) { "" }.toList()
+            )
+        )
+    }.asSequence()
+}
+
 @Preview
 @Composable
-private fun DynamicDrawItemPreview() {
+private fun DynamicDrawItemPreview(@PreviewParameter(DynamicDrawItemProvider::class) dynamicItem: DynamicItem) {
     BVMobileTheme {
         Surface {
             DynamicItem(
                 modifier = Modifier.padding(vertical = 8.dp),
-                dynamicItem = DynamicItem(
-                    type = DynamicType.Draw,
-                    author = exampleAuthorData,
-                    footer = exampleFooterData
-                )
+                dynamicItem = dynamicItem
             )
-
         }
     }
 }
