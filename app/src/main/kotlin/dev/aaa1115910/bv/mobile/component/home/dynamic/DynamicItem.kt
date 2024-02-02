@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.mobile.component.home.dynamic
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,39 +66,58 @@ fun DynamicItem(
     dynamicItem: DynamicItem,
     previewerState: ImagePreviewerState = rememberPreviewerState(pageCount = { 0 }),
     onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit = { _, _ -> },
-    onClick: () -> Unit = {}
+    onClick: (DynamicItem) -> Unit = {}
 ) {
+    val paddingSize = 12.dp
+
     Surface(
         modifier = modifier,
-        onClick = onClick
+        onClick = { onClick(dynamicItem) }
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(vertical = paddingSize),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DynamicHeader(
+                modifier = Modifier.padding(horizontal = paddingSize),
                 author = dynamicItem.author
             )
             when (dynamicItem.type) {
                 DynamicType.Av -> DynamicVideoContent(
+                    modifier = Modifier.padding(horizontal = paddingSize),
                     video = dynamicItem.video!!
                 )
 
-                DynamicType.UgcSeason -> TODO()
-                DynamicType.Forward -> TODO()
-                DynamicType.Word -> DynamicWord(
-                    word = dynamicItem.word!!
-                )
-
                 DynamicType.Draw -> DynamicDraw(
+                    modifier = Modifier.padding(horizontal = paddingSize),
                     draw = dynamicItem.draw!!,
                     previewerState = previewerState,
                     onShowPreviewer = onShowPreviewer
                 )
+
+                DynamicType.Forward -> DynamicForward(
+                    dynamicItem = dynamicItem.orig!!,
+                    previewerState = previewerState,
+                    onShowPreviewer = onShowPreviewer,
+                    onClick = { onClick(dynamicItem.orig!!) }
+                )
+
+                DynamicType.LiveRcmd -> DynamicLiveRcmd(
+                    modifier = Modifier.padding(horizontal = paddingSize),
+                    liveRcmd = dynamicItem.liveRcmd!!
+                )
+
+                DynamicType.UgcSeason -> TODO()
+
+                DynamicType.Word -> DynamicWord(
+                    modifier = Modifier.padding(horizontal = paddingSize),
+                    word = dynamicItem.word!!
+                )
             }
 
             DynamicFooter(
-                footer = dynamicItem.footer,
+                modifier = Modifier.padding(horizontal = paddingSize),
+                footer = dynamicItem.footer!!,
                 isLike = false,
                 onShare = {
                     //TODO 动态分享按钮
@@ -122,13 +142,14 @@ fun DynamicVideoContent(
     video: DynamicItem.DynamicVideoModule
 ) {
     Column(
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (video.text.isNotBlank()) {
             Text(text = video.text)
         }
         Card(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1.6f)
         ) {
@@ -269,7 +290,45 @@ fun DynamicHeader(
             Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
         }
     }
+}
 
+@Composable
+fun DynamicForwardHeader(
+    modifier: Modifier = Modifier,
+    author: DynamicItem.DynamicAuthorModule
+) {
+    Box(
+        modifier = modifier
+            .height(24.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            UserAvatar(
+                avatar = author.avatar,
+                size = 20.dp
+            )
+
+            Text(
+                text = author.author,
+                maxLines = 1,
+                fontSize = 14.sp,
+                lineHeight = 14.sp
+            )
+            Text(
+                text = author.pubTime + " ${author.pubAction}",
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSurface.copy(0.8f),
+                fontSize = 14.sp,
+                lineHeight = 14.sp
+            )
+        }
+    }
 }
 
 @Composable
@@ -497,6 +556,115 @@ fun DynamicWord(
     )
 }
 
+@Composable
+fun DynamicForward(
+    modifier: Modifier = Modifier,
+    dynamicItem: DynamicItem,
+    previewerState: ImagePreviewerState,
+    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DynamicForwardHeader(
+                    author = dynamicItem.author
+                )
+                when (dynamicItem.type) {
+                    DynamicType.Av -> DynamicVideoContent(
+                        video = dynamicItem.video!!
+                    )
+
+                    DynamicType.Draw -> DynamicDraw(
+                        draw = dynamicItem.draw!!,
+                        previewerState = previewerState,
+                        onShowPreviewer = onShowPreviewer
+                    )
+
+                    DynamicType.Forward -> {}
+
+                    DynamicType.LiveRcmd -> DynamicLiveRcmd(
+                        liveRcmd = dynamicItem.liveRcmd!!
+                    )
+
+                    DynamicType.UgcSeason -> TODO()
+
+                    DynamicType.Word -> DynamicWord(
+                        word = dynamicItem.word!!
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DynamicLiveRcmd(
+    modifier: Modifier = Modifier,
+    liveRcmd: DynamicItem.DynamicLiveRcmdModule
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.6f)
+        ) {
+            Box(
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1.6f)
+                        .clip(MaterialTheme.shapes.large),
+                    model = liveRcmd.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.3f)
+                                )
+                            )
+                        )
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp, 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "${liveRcmd.roomId}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+        Text(text = liveRcmd.title)
+    }
+}
+
 @Preview
 @Composable
 private fun DynamicHeaderPreview() {
@@ -511,11 +679,23 @@ private fun DynamicHeaderPreview() {
 
 @Preview
 @Composable
+private fun DynamicForwardHeaderPreview() {
+    BVMobileTheme {
+        Surface {
+            DynamicForwardHeader(
+                author = emptyDynamicVideoData.author
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
 private fun DynamicFooterPreview() {
     BVMobileTheme {
         Surface {
             DynamicFooter(
-                footer = emptyDynamicVideoData.footer
+                footer = exampleFooterData
             )
         }
     }
@@ -570,6 +750,24 @@ private val emptyDynamicDrawData = DynamicItem(
     footer = exampleFooterData
 )
 
+private val exampleDynamicForwardData = DynamicItem(
+    type = DynamicType.Forward,
+    author = exampleAuthorData,
+    orig = emptyDynamicVideoData,
+    footer = exampleFooterData
+)
+
+private val exampleDynamicLiveRcmdData = DynamicItem(
+    type = DynamicType.LiveRcmd,
+    author = exampleAuthorData,
+    liveRcmd = DynamicItem.DynamicLiveRcmdModule(
+        cover = "",
+        title = "title",
+        roomId = 3
+    ),
+    footer = exampleFooterData
+)
+
 @Preview
 @Composable
 private fun DynamicVideoItemPreview() {
@@ -603,6 +801,33 @@ private fun DynamicDrawItemPreview(@PreviewParameter(DynamicDrawItemProvider::cl
             DynamicItem(
                 modifier = Modifier.padding(vertical = 8.dp),
                 dynamicItem = dynamicItem
+            )
+        }
+    }
+}
+
+@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun DynamicForwardItemPreview() {
+    BVMobileTheme {
+        Surface {
+            DynamicItem(
+                modifier = Modifier.padding(vertical = 8.dp),
+                dynamicItem = exampleDynamicForwardData
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun DynamicLiveRcmdItemPreview() {
+    BVMobileTheme {
+        Surface {
+            DynamicItem(
+                modifier = Modifier.padding(vertical = 8.dp),
+                dynamicItem = exampleDynamicLiveRcmdData
             )
         }
     }

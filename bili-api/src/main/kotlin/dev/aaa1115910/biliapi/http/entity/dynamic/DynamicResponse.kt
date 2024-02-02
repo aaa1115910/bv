@@ -17,12 +17,21 @@ data class DynamicData(
     val items: List<DynamicItem> = emptyList()
 )
 
+/**
+ * @param basic 基础信息
+ * @param idStr 动态 id
+ * @param modules 动态内容
+ * @param orig 转发内容
+ * @param type 动态类型
+ * @param visible 是否可见
+ */
 @Serializable
 data class DynamicItem(
     val basic: Basic,
     @SerialName("id_str")
     val idStr: String,
     val modules: Modules,
+    val orig: DynamicItem? = null,
     val type: String,
     val visible: Boolean
 ) {
@@ -49,6 +58,12 @@ data class DynamicItem(
         )
     }
 
+    /**
+     * @param moduleAuthor 作者信息
+     * @param moduleDynamic 动态内容
+     * @param moduleMore 更多菜单按钮信息 当位于转发内容 [DynamicItem.orig] 时，该项为 null
+     * @param moduleStat 动态底部按钮信息 当位于转发内容 [DynamicItem.orig] 时，该项为 null
+     */
     @Serializable
     data class Modules(
         @SerialName("module_author")
@@ -56,9 +71,9 @@ data class DynamicItem(
         @SerialName("module_dynamic")
         val moduleDynamic: Dynamic,
         @SerialName("module_more")
-        val moduleMore: More,
+        val moduleMore: More? = null,
         @SerialName("module_stat")
-        val moduleStat: Stat
+        val moduleStat: Stat? = null
     ) {
         @Serializable
         data class Author(

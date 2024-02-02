@@ -5,6 +5,10 @@ import bilibili.app.dynamic.v2.Module
 import bilibili.app.dynamic.v2.ModuleDynamic.ModuleItemCase
 import bilibili.app.dynamic.v2.Paragraph
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 data class DynamicData(
     val dynamics: List<DynamicItem>,
@@ -14,16 +18,15 @@ data class DynamicData(
 ) {
     companion object {
         private val logger = KotlinLogging.logger { }
-        private val availableWebDynamicTypes = listOf(
+        private val availableDynamicTypes = listOf(
             DynamicType.Av,
             DynamicType.Draw,
-            DynamicType.Word
-        ).map { it.string }
-        private val availableAppDynamicTypes = listOf(
-            bilibili.app.dynamic.v2.DynamicType.av,
-            bilibili.app.dynamic.v2.DynamicType.draw,
-            bilibili.app.dynamic.v2.DynamicType.word
+            DynamicType.Forward,
+            DynamicType.Word,
+            DynamicType.LiveRcmd
         )
+        private val availableWebDynamicTypes = availableDynamicTypes.map { it.webValue }
+        private val availableAppDynamicTypes = availableDynamicTypes.map { it.appValue }
 
         fun fromDynamicData(data: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData) =
             DynamicData(
@@ -33,6 +36,14 @@ data class DynamicData(
                             logger.warn { "unknown dynamic type ${it.type}, up: ${it.modules.moduleAuthor.name}, date: ${it.modules.moduleAuthor.pubTime}" }
                             return@mapNotNull null
                         }
+
+                        if (it.type == DynamicType.Forward.webValue) {
+                            if (!availableWebDynamicTypes.contains(it.orig?.type)) {
+                                logger.warn { "unknown dynamic forward type ${it.orig?.type}, up: ${it.modules.moduleAuthor.name}, date: ${it.modules.moduleAuthor.pubTime}" }
+                                return@mapNotNull null
+                            }
+                        }
+
                         DynamicItem.fromDynamicItem(it)
                     },
                 hasMore = data.hasMore,
@@ -50,6 +61,14 @@ data class DynamicData(
                         logger.warn { "unknown dynamic type ${it.cardType.name}, up: ${it.getAuthorModule()?.author?.name}, date: ${it.getAuthorModule()?.ptimeLabelText}" }
                         return@mapNotNull null
                     }
+
+                    if (it.cardType == bilibili.app.dynamic.v2.DynamicType.forward) {
+                        if (!availableAppDynamicTypes.contains(it.getDynamicModule()?.dynForward?.item?.cardType)) {
+                            logger.warn { "unknown dynamic forward type ${it.getDynamicModule()?.dynForward?.item?.cardType}, up: ${it.getAuthorModule()?.author?.name}, date: ${it.getAuthorModule()?.ptimeLabelText}" }
+                            return@mapNotNull null
+                        }
+                    }
+
                     DynamicItem.fromDynamicItem(it)
                 },
             hasMore = data.dynamicList.hasMore,
@@ -68,12 +87,13 @@ data class DynamicItem(
     var video: DynamicVideoModule? = null,
     var draw: DynamicDrawModule? = null,
     var word: DynamicWordModule? = null,
-    val footer: DynamicFooterModule,
+    var liveRcmd: DynamicLiveRcmdModule? = null,
+    val footer: DynamicFooterModule? = null,
+    var orig: DynamicItem? = null
 ) {
     companion object {
         fun fromDynamicItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicItem {
-            val dynamicType = DynamicType.fromString(item.type)
-                ?: throw IllegalArgumentException("unknown type ${item.type}")
+            val dynamicType = DynamicType.fromWebValue(item.type)
             val dynamicItem = DynamicItem(
                 type = dynamicType,
                 author = DynamicAuthorModule.fromModuleAuthor(item.modules.moduleAuthor),
@@ -84,32 +104,43 @@ data class DynamicItem(
                     DynamicVideoModule.fromModuleArchive(item.modules.moduleDynamic.major!!.archive!!)
 
                 DynamicType.UgcSeason -> TODO()
-                DynamicType.Forward -> TODO()
+                DynamicType.Forward -> dynamicItem.apply {
+                    word = DynamicWordModule.fromModuleDynamic(item.modules.moduleDynamic)
+                    orig = fromDynamicItem(item.orig!!)
+                }
+
                 DynamicType.Word -> dynamicItem.word =
                     DynamicWordModule.fromModuleDynamic(item.modules.moduleDynamic)
 
                 DynamicType.Draw -> dynamicItem.draw =
                     DynamicDrawModule.fromModuleDynamic(item.modules.moduleDynamic)
+
+                DynamicType.LiveRcmd -> dynamicItem.liveRcmd =
+                    DynamicLiveRcmdModule.fromModuleDynamic(item.modules.moduleDynamic)
             }
             return dynamicItem
         }
 
-        fun fromDynamicItem(item: bilibili.app.dynamic.v2.DynamicItem): DynamicItem {
-            val dynamicType = when (item.cardType) {
-                bilibili.app.dynamic.v2.DynamicType.av -> DynamicType.Av
-                bilibili.app.dynamic.v2.DynamicType.draw -> DynamicType.Draw
-                bilibili.app.dynamic.v2.DynamicType.word -> DynamicType.Word
-                else -> throw IllegalArgumentException("unknown type ${item.cardType.name}")
-            }
+        fun fromDynamicItem(
+            item: bilibili.app.dynamic.v2.DynamicItem,
+            isForwardItem: Boolean = false
+        ): DynamicItem {
+            val dynamicType = DynamicType.fromAppValue(item.cardType)
             val dynamicItem = DynamicItem(
                 type = dynamicType,
-                author = DynamicAuthorModule.fromModuleAuthor(item.getAuthorModule()!!),
+                author = if (isForwardItem) {
+                    DynamicAuthorModule.fromExtendAndModuleAuthorForward(
+                        item.extend, item.getAuthorModuleForward()!!
+                    )
+                } else {
+                    DynamicAuthorModule.fromModuleAuthor(item.getAuthorModule()!!)
+                },
                 video = item.getDynamicModule()?.let {
                     DynamicVideoModule.fromModuleArchive(it.dynArchive).apply {
                         text = item.getDescModule()?.text ?: ""
                     }
                 },
-                footer = DynamicFooterModule.fromModuleStat(item.getStatModule()!!)
+                footer = if (!isForwardItem) DynamicFooterModule.fromModuleStat(item.getStatModule()!!) else null
             )
 
             when (dynamicType) {
@@ -119,6 +150,7 @@ data class DynamicItem(
                     }
                 }
 
+                DynamicType.UgcSeason -> TODO()
                 DynamicType.Draw -> dynamicItem.draw =
                     DynamicDrawModule.fromModuleOpusSummaryAndModuleDynamic(
                         item.getOpusSummaryModule()!!,
@@ -128,7 +160,13 @@ data class DynamicItem(
                 DynamicType.Word -> dynamicItem.word =
                     DynamicWordModule.fromModuleOpusSummary(item.getOpusSummaryModule()!!)
 
-                else -> TODO()
+                DynamicType.Forward -> dynamicItem.apply {
+                    word = DynamicWordModule.fromModuleDesc(item.getDescModule()!!)
+                    orig = fromDynamicItem(item.getDynamicModule()!!.dynForward.item, true)
+                }
+
+                DynamicType.LiveRcmd -> dynamicItem.liveRcmd =
+                    DynamicLiveRcmdModule.fromModuleDynamic(item.getDynamicModule()!!)
             }
 
             return dynamicItem
@@ -158,6 +196,18 @@ data class DynamicItem(
                     avatar = moduleAuthor.author.face,
                     mid = moduleAuthor.author.mid,
                     pubTime = moduleAuthor.ptimeLabelText,
+                    pubAction = ""
+                )
+
+            fun fromExtendAndModuleAuthorForward(
+                extend: bilibili.app.dynamic.v2.Extend,
+                moduleAuthorForward: bilibili.app.dynamic.v2.ModuleAuthorForward
+            ) =
+                DynamicAuthorModule(
+                    author = extend.origName,
+                    avatar = extend.origFace,
+                    mid = extend.uid,
+                    pubTime = moduleAuthorForward.ptimeLabelText,
                     pubAction = ""
                 )
         }
@@ -213,12 +263,14 @@ data class DynamicItem(
         val share: Int
     ) {
         companion object {
-            fun fromModuleStat(moduleStat: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Stat) =
-                DynamicFooterModule(
-                    like = moduleStat.like.count,
-                    comment = moduleStat.comment.count,
-                    share = moduleStat.forward.count
-                )
+            fun fromModuleStat(moduleStat: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Stat?) =
+                moduleStat?.let {
+                    DynamicFooterModule(
+                        like = moduleStat.like.count,
+                        comment = moduleStat.comment.count,
+                        share = moduleStat.forward.count
+                    )
+                }
 
             fun fromModuleStat(moduleStat: bilibili.app.dynamic.v2.ModuleStat) =
                 DynamicFooterModule(
@@ -281,6 +333,110 @@ data class DynamicItem(
                     text = moduleOpusSummary.summary.text.nodesList
                         .joinToString("") { it.rawText }
                 )
+
+            fun fromModuleDesc(moduleDesc: bilibili.app.dynamic.v2.ModuleDesc) =
+                DynamicWordModule(
+                    text = moduleDesc.text
+                )
+        }
+    }
+
+    data class DynamicLiveRcmdModule(
+        val title: String,
+        val cover: String,
+        val roomId: Int
+    ) {
+        companion object {
+            private val json = Json {
+                coerceInputValues = true
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            }
+
+            fun fromModuleDynamic(moduleDynamic: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic): DynamicLiveRcmdModule {
+                val liveRcmdContent =
+                    json.decodeFromString<LiveRcmdContent>(moduleDynamic.major!!.liveRcmd!!.content)
+                return DynamicLiveRcmdModule(
+                    title = liveRcmdContent.livePlayInfo.title,
+                    cover = liveRcmdContent.livePlayInfo.cover,
+                    roomId = liveRcmdContent.livePlayInfo.roomId
+                )
+            }
+
+            fun fromModuleDynamic(moduleDynamic: bilibili.app.dynamic.v2.ModuleDynamic): DynamicLiveRcmdModule {
+                val liveRcmdContent =
+                    json.decodeFromString<LiveRcmdContent>(moduleDynamic.dynLiveRcmd.content)
+                return DynamicLiveRcmdModule(
+                    title = liveRcmdContent.livePlayInfo.title,
+                    cover = liveRcmdContent.livePlayInfo.cover,
+                    roomId = liveRcmdContent.livePlayInfo.roomId
+                )
+            }
+        }
+
+        @Serializable
+        private data class LiveRcmdContent(
+            @SerialName("live_play_info")
+            val livePlayInfo: LivePlayInfo,
+            @SerialName("live_record_info")
+            val liveRecordInfo: JsonElement? = null,
+            val type: Int
+        ) {
+            @Serializable
+            data class LivePlayInfo(
+                val title: String,
+                @SerialName("parent_area_name")
+                val parentAreaName: String,
+                val cover: String,
+                val online: Int,
+                @SerialName("parent_area_id")
+                val parentAreaId: Int,
+                @SerialName("live_start_time")
+                val liveStartTime: Long,
+                @SerialName("room_id")
+                val roomId: Int,
+                @SerialName("live_status")
+                val liveStatus: Int,
+                @SerialName("room_type")
+                val roomType: Int,
+                @SerialName("play_type")
+                val playType: Int,
+                val link: String,
+                @SerialName("area_id")
+                val areaId: Int,
+                @SerialName("area_name")
+                val areaName: String,
+                @SerialName("watched_show")
+                val watchedShow: WatchedShow,
+                @SerialName("room_paid_type")
+                val roomPaidType: Int,
+                val uid: Long,
+                @SerialName("live_screen_type")
+                val liveScreenType: Int,
+                @SerialName("live_id")
+                val liveId: Long,
+                val pendants: Pendants
+            ) {
+                @Serializable
+                data class WatchedShow(
+                    val num: Int,
+                    @SerialName("text_small")
+                    val textSmall: String,
+                    @SerialName("text_large")
+                    val textLarge: String,
+                    val icon: String,
+                    @SerialName("icon_location")
+                    val iconLocation: String,
+                    @SerialName("icon_web")
+                    val iconWeb: String,
+                    val switch: Boolean
+                )
+
+                @Serializable
+                data class Pendants(
+                    val list: JsonElement? = null
+                )
+            }
         }
     }
 }
@@ -442,19 +598,26 @@ private fun convertStringPlayCountToNumberPlayCount(play: String): Int {
     return -1
 }
 
-enum class DynamicType(val string: String) {
-    Av("DYNAMIC_TYPE_AV"),
-    UgcSeason("DYNAMIC_TYPE_UGC_SEASON"),
-    Forward("DYNAMIC_TYPE_FORWARD"),
-    Word("DYNAMIC_TYPE_WORD"),
-    Draw("DYNAMIC_TYPE_DRAW");
+enum class DynamicType(val webValue: String, val appValue: bilibili.app.dynamic.v2.DynamicType) {
+    Av("DYNAMIC_TYPE_AV", bilibili.app.dynamic.v2.DynamicType.av),
+    UgcSeason("DYNAMIC_TYPE_UGC_SEASON", bilibili.app.dynamic.v2.DynamicType.ugc_season),
+    Forward("DYNAMIC_TYPE_FORWARD", bilibili.app.dynamic.v2.DynamicType.forward),
+    Word("DYNAMIC_TYPE_WORD", bilibili.app.dynamic.v2.DynamicType.word),
+    Draw("DYNAMIC_TYPE_DRAW", bilibili.app.dynamic.v2.DynamicType.draw),
+    LiveRcmd("DYNAMIC_TYPE_LIVE_RCMD", bilibili.app.dynamic.v2.DynamicType.live_rcmd);
 
     companion object {
-        fun fromString(string: String) = entries.firstOrNull { it.string == string }
+        fun fromWebValue(webValue: String) = entries.firstOrNull { it.webValue == webValue }
+            ?: throw IllegalArgumentException("unknown type $webValue")
+
+        fun fromAppValue(appValue: bilibili.app.dynamic.v2.DynamicType) =
+            entries.firstOrNull { it.appValue == appValue }
+                ?: throw IllegalArgumentException("unknown type ${appValue.name}")
     }
 }
 
 private fun Module.isAuthorModule() = moduleType == DynModuleType.module_author
+private fun Module.isAuthorModuleForward() = moduleType == DynModuleType.module_author_forward
 private fun Module.isDescModule() = moduleType == DynModuleType.module_desc
 private fun Module.isDynamicModule() = moduleType == DynModuleType.module_dynamic
 private fun Module.isModuleOpusSummary() = moduleType == DynModuleType.module_opus_summary
@@ -462,6 +625,9 @@ private fun Module.isStatModule() = moduleType == DynModuleType.module_stat
 
 private fun bilibili.app.dynamic.v2.DynamicItem.getAuthorModule() =
     modulesList.firstOrNull { it.isAuthorModule() }?.moduleAuthor
+
+private fun bilibili.app.dynamic.v2.DynamicItem.getAuthorModuleForward() =
+    modulesList.firstOrNull { it.isAuthorModuleForward() }?.moduleAuthorForward
 
 private fun bilibili.app.dynamic.v2.DynamicItem.getDescModule() =
     modulesList.firstOrNull { it.isDescModule() }?.moduleDesc
