@@ -93,3 +93,7 @@
 
 # LibVLC
 -keep class org.videolan.libvlc.** { *; }
+
+# gRPC
+-keep class bilibili.rpc.** { *; }
+-keep class com.google.protobuf.** { *; }
