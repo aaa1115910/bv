@@ -474,7 +474,7 @@ fun VideoInfoScreen(
                             .build()
                     ),
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
                     alpha = 0.6f
                 )
                 TvLazyColumn(
@@ -767,7 +767,7 @@ fun VideoInfoData(
                 modifier = Modifier.fillMaxSize(),
                 model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
                 contentDescription = null,
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
         }
         Spacer(modifier = Modifier.width(24.dp))
