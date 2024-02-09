@@ -111,6 +111,13 @@
     <string name="region_block_subtitle">Bug Video 无法在中国大陆地区使用，您可以按任意键退出应用</string>
     <string name="region_block_title">不支持的使用地区</string>
 
+    <string name="remote_control_panel_demo_tip_back">退出</string>
+    <string name="remote_control_panel_demo_tip_bottom">按下 [CENTER] 键以继续</string>
+    <string name="remote_control_panel_demo_tip_center">【短按】播放/暂停\n【长按】打开菜单</string>
+    <string name="remote_control_panel_demo_tip_down">视频播放信息</string>
+    <string name="remote_control_panel_demo_tip_lr">后退/前进</string>
+    <string name="remote_control_panel_demo_tip_up">剧集/合集/分 P 列表</string>
+
     <string name="resolution_1080p">1080P 高清</string>
     <string name="resolution_1080p_60">1080P60 高帧率</string>
     <string name="resolution_1080p_60_short">1080P60</string>
@@ -226,6 +233,7 @@
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
     <string name="title_activity_logs">日志列表</string>
+    <string name="title_activity_remote_controller_panel_demo">遥控板按键演示</string>
     <string name="title_activity_search_input">搜索输入</string>
     <string name="title_activity_search_result">搜索结果</string>
     <string name="title_activity_season_info">剧集信息</string>

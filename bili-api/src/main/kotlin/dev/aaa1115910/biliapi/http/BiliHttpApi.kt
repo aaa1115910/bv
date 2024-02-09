@@ -745,21 +745,23 @@ object BiliHttpApi {
         keyword?.let { parameter("keyword", it) }
         parameter("pn", pageNumber)
         parameter("ps", pageSize)
+        // 风控
+        parameter("dm_img_list", "[]")
+        parameter("dm_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
+        parameter("dm_cover_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
     suspend fun getAppUserSpaceVideos(
         mid: Long,
+        lastAvid: Int,
         order: String = "pubdate",
-        pageNumber: Int = 1,
-        pageSize: Int = 30,
         accessKey: String
     ): BiliResponse<AppSpaceVideoData> =
         client.get("https://app.bilibili.com/x/v2/space/archive/cursor") {
             parameter("vmid", mid)
+            parameter("aid", lastAvid)
             parameter("order", order)
-            parameter("pn", pageNumber)
-            parameter("ps", pageSize)
             parameter("access_key", accessKey)
         }.body()
 

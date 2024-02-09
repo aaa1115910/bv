@@ -8,8 +8,9 @@ import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.user.DynamicData
 import dev.aaa1115910.biliapi.entity.user.DynamicVideoData
 import dev.aaa1115910.biliapi.entity.user.FollowedUser
-import dev.aaa1115910.biliapi.entity.user.SpaceVideo
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoData
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoOrder
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
@@ -166,28 +167,30 @@ class UserRepository(
     suspend fun getSpaceVideos(
         mid: Long,
         order: SpaceVideoOrder = SpaceVideoOrder.PubDate,
-        pageNumber: Int = 1,
-        pageSize: Int = 30,
+        page: SpaceVideoPage = SpaceVideoPage(),
         preferApiType: ApiType = ApiType.Web
-    ): List<SpaceVideo> {
+    ): SpaceVideoData {
         return when (preferApiType) {
-            ApiType.Web -> BiliHttpApi.getWebUserSpaceVideos(
-                mid = mid,
-                order = order.value,
-                pageNumber = pageNumber,
-                pageSize = pageSize,
-                sessData = authRepository.sessionData ?: ""
-            ).getResponseData().list.vlist
-                .map { SpaceVideo.fromSpaceVideoItem(it) }
+            ApiType.Web -> {
+                val webSpaceVideoData = BiliHttpApi.getWebUserSpaceVideos(
+                    mid = mid,
+                    order = order.value,
+                    pageNumber = page.nextWebPageNumber,
+                    pageSize = page.nextWebPageSize,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
+                SpaceVideoData.fromWebSpaceVideoData(webSpaceVideoData)
+            }
 
-            ApiType.App -> BiliHttpApi.getAppUserSpaceVideos(
-                mid = mid,
-                order = order.value,
-                pageNumber = pageNumber,
-                pageSize = pageSize,
-                accessKey = authRepository.accessToken ?: ""
-            ).getResponseData().item
-                .map { SpaceVideo.fromSpaceVideoItem(it) }
+            ApiType.App -> {
+                val appSpaceVideoData = BiliHttpApi.getAppUserSpaceVideos(
+                    mid = mid,
+                    lastAvid = page.lastAvid,
+                    order = order.value,
+                    accessKey = authRepository.accessToken ?: ""
+                ).getResponseData()
+                SpaceVideoData.fromAppSpaceVideoData(appSpaceVideoData)
+            }
         }
     }
 

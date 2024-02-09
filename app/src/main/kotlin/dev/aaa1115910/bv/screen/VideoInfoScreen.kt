@@ -286,6 +286,21 @@ fun VideoInfoScreen(
         favorited = videoDetailViewModel.videoDetail?.userActions?.favorite ?: false
     }
 
+    val updateUgcSeasonSectionVideoList: (Int) -> Unit = { sectionIndex ->
+        val partVideoList =
+            videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[sectionIndex].episodes.mapIndexed { index, episode ->
+                VideoListItem(
+                    aid = episode.aid,
+                    cid = episode.cid,
+                    title = episode.title,
+                    index = index,
+                    isEpisode = false
+                )
+            }
+        videoInfoRepository.videoList.clear()
+        videoInfoRepository.videoList.addAll(partVideoList)
+    }
+
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getIntExtra("aid", 170001)
@@ -333,18 +348,7 @@ fun VideoInfoScreen(
                         context.finish()
                     } else if (videoDetailViewModel.videoDetail?.ugcSeason != null) {
                         //如果不是剧集，则设置分p数据，以便播放器读取（合集）
-                        val partVideoList =
-                            videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[0].episodes.mapIndexed { index, episode ->
-                                VideoListItem(
-                                    aid = episode.aid,
-                                    cid = episode.cid,
-                                    title = episode.title,
-                                    index = index,
-                                    isEpisode = false
-                                )
-                            }
-                        videoInfoRepository.videoList.clear()
-                        videoInfoRepository.videoList.addAll(partVideoList)
+                        updateUgcSeasonSectionVideoList(0)
                     } else {
                         //如果不是剧集，则设置分p数据，以便播放器读取（分P）
                         val partVideoList =
@@ -470,7 +474,7 @@ fun VideoInfoScreen(
                             .build()
                     ),
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
                     alpha = 0.6f
                 )
                 TvLazyColumn(
@@ -501,6 +505,38 @@ fun VideoInfoScreen(
                             favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
+
+                                //set video list
+                                if (videoDetailViewModel.videoDetail?.ugcSeason != null) {
+                                    // 合集
+                                    if (videoDetailViewModel.videoDetail!!.ugcSeason!!.sections.size == 1) {
+                                        // 只有一个分组
+                                        updateUgcSeasonSectionVideoList(0)
+                                    } else {
+                                        // 多个组，找默认播放哪个组的
+                                        val cid =
+                                            videoDetailViewModel.videoDetail!!.pages.first().cid
+                                        val sectionIndex =
+                                            videoDetailViewModel.videoDetail!!.ugcSeason!!.sections
+                                                .indexOfFirst { section -> section.episodes.any { it.cid == cid } }
+                                        updateUgcSeasonSectionVideoList(sectionIndex)
+                                    }
+                                } else {
+                                    // 分 p
+                                    val partVideoList =
+                                        videoDetailViewModel.videoDetail!!.pages.mapIndexed { index, videoPage ->
+                                            VideoListItem(
+                                                aid = videoDetailViewModel.videoDetail!!.aid,
+                                                cid = videoPage.cid,
+                                                title = videoPage.title,
+                                                index = index,
+                                                isEpisode = false
+                                            )
+                                        }
+                                    videoInfoRepository.videoList.clear()
+                                    videoInfoRepository.videoList.addAll(partVideoList)
+                                }
+
                                 launchPlayerActivity(
                                     context = context,
                                     avid = videoDetailViewModel.videoDetail!!.aid,
@@ -593,6 +629,7 @@ fun VideoInfoScreen(
                                     ?: 0) > 5,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoDetailViewModel.videoDetail?.aid}, bv:${videoDetailViewModel.videoDetail?.bvid}, cid:$cid]" }
+                                    updateUgcSeasonSectionVideoList(0)
                                     launchPlayerActivity(
                                         context = context,
                                         avid = aid,
@@ -607,7 +644,7 @@ fun VideoInfoScreen(
                             )
                         }
                     } else {
-                        items(items = videoDetailViewModel.videoDetail?.ugcSeason!!.sections) { section ->
+                        itemsIndexed(items = videoDetailViewModel.videoDetail?.ugcSeason!!.sections) { index, section ->
                             VideoUgcSeasonRow(
                                 title = section.title,
                                 episodes = section.episodes,
@@ -616,6 +653,7 @@ fun VideoInfoScreen(
                                 enableUgcListDialog = section.episodes.size > 5,
                                 onClick = { aid, cid ->
                                     logger.fInfo { "Click ugc season part: [av:${videoDetailViewModel.videoDetail?.aid}, bv:${videoDetailViewModel.videoDetail?.bvid}, cid:$cid]" }
+                                    updateUgcSeasonSectionVideoList(index)
                                     launchPlayerActivity(
                                         context = context,
                                         avid = aid,
@@ -729,7 +767,7 @@ fun VideoInfoData(
                 modifier = Modifier.fillMaxSize(),
                 model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
                 contentDescription = null,
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
         }
         Spacer(modifier = Modifier.width(24.dp))

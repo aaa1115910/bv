@@ -15,19 +15,22 @@ import kotlinx.serialization.json.JsonElement
  * @param isRisk
  * @param gaiaResType
  * @param gaiaData
+ * @param vVoucher 风控
  */
 @Serializable
 data class WebSpaceVideoData(
-    val list: SpaceVideoListItem,
-    val page: Page,
+    val list: SpaceVideoListItem? = null,
+    val page: Page? = null,
     @SerialName("episodic_button")
     val episodicButton: EpisodicButton? = null,
     @SerialName("is_risk")
-    val isRisk: Boolean,
+    val isRisk: Boolean? = null,
     @SerialName("gaia_res_type")
-    val gaiaResType: Int,
+    val gaiaResType: Int? = null,
     @SerialName("gaia_data")
-    val gaiaData: JsonElement? = null
+    val gaiaData: JsonElement? = null,
+    @SerialName("v_voucher")
+    val vVoucher: String? = null,
 ) {
     /**
      * @param tlist 投稿视频分区索引

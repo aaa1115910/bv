@@ -1,17 +1,17 @@
 [versions]
-activity = "1.8.1"
+activity = "1.8.2"
 compose = "1.5.4"
-compose-compiler = "1.5.5-dev-k1.9.21-163bb051fe5"
+compose-compiler = "1.5.8"
 compose-constraintlayout = "1.0.1"
-compose-material3 = "1.2.0-alpha12"
+compose-material3 = "1.2.0-beta02"
 compose-material3-adaptive = "1.0.0-alpha02"
 compose-material3-adaptive-navigation-suite = "1.0.0-alpha01"
 compose-tv = "1.0.0-alpha10"
 core = "1.12.0"
 core-splashscreen = "1.0.1"
 dataStore = "1.0.0"
-lifecycle = "2.6.2"
-media3 = "1.2.0"
+lifecycle = "2.7.0"
+media3 = "1.2.1"
 navigation = "2.7.2"
 room = "2.6.1"
 webkit = "1.9.0"
@@ -23,7 +23,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 # https://developer.android.com/jetpack/androidx/releases/compose-compiler
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 
-# https://developer.android.com/jetpack/compose/layouts/constraintlayout
+# https://developer.android.com/jetpack/compose/layout
 compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraintlayout" }
 
 # https://developer.android.com/jetpack/androidx/releases/tv
