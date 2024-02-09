@@ -6,12 +6,18 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 
 object NetworkUtil {
     private lateinit var client: HttpClient
-    private const val LOC_CHECK_URL = "https://www.cloudflare.com/cdn-cgi/trace"
+    private val locCheckUrls = listOf(
+        "https://www.cloudflare.com/cdn-cgi/trace",
+        "https://1.1.1.1/cdn-cgi/trace"
+    )
     private val logger = KotlinLogging.logger { }
-    var networkCheckResult: Map<String, String> = emptyMap()
 
     init {
         createClient()
@@ -25,22 +31,22 @@ object NetworkUtil {
         }
     }
 
-    suspend fun isMainlandChina(): Boolean {
-        return runCatching {
-            val result = client.get(LOC_CHECK_URL).bodyAsText()
-            logger.info { "Network result:\n$result" }
+    suspend fun isMainlandChina() = withContext(Dispatchers.IO) {
+        locCheckUrls.map { locCheckUrl ->
+            async {
+                runCatching {
+                    val result = client.get(locCheckUrl).bodyAsText()
+                    logger.info { "Network result:\n$result" }
 
-            networkCheckResult = result
-                .lines()
-                .filter { it != "" }
-                .associate {
-                    val splits = it.split("=")
-                    splits[0] to splits[1]
-                }
+                    val networkCheckResult = result
+                        .lines()
+                        .filter { it.isNotBlank() }
+                        .associate { with(it.split("=")) { this[0] to this[1] } }
 
-            require(networkCheckResult["loc"] != "CN") { "BV doesn't support use in mainland China" }
-
-            false
-        }.getOrDefault(true)
+                    require(networkCheckResult["loc"] != "CN") { "BV doesn't support use in mainland China" }
+                    false
+                }.getOrDefault(true)
+            }
+        }.awaitAll().all { it }
     }
 }

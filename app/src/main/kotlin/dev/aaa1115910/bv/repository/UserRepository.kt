@@ -140,6 +140,8 @@ class UserRepository(
         }
         saveToPrefs(authData)
         reloadFromPrefs()
+        BVApp.instance?.initRepository()
+        BVApp.instance?.initProxy()
         updateAvatar()
     }
 

@@ -2,6 +2,8 @@ package dev.aaa1115910.biliapi.repositories
 
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoOrder
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -43,26 +45,34 @@ class UserRepositoryTest {
 
     @Test
     fun `get user space videos with web api`() = runBlocking {
-        val result = userRepository.getSpaceVideos(
-            mid = 2,
-            order = SpaceVideoOrder.PubDate,
-            pageNumber = 1,
-            pageSize = 10,
-            preferApiType = ApiType.Web
-        )
-        println(result)
+        var page = SpaceVideoPage()
+        while (page.hasNext) {
+            val spaceVideoData = userRepository.getSpaceVideos(
+                mid = 2,
+                order = SpaceVideoOrder.PubDate,
+                page = page,
+                preferApiType = ApiType.Web
+            )
+            page = spaceVideoData.page
+            println("page $page: $spaceVideoData")
+            delay((1000L..3000L).random())
+        }
     }
 
     @Test
     fun `get user space videos with app api`() = runBlocking {
-        val result = userRepository.getSpaceVideos(
-            mid = 2,
-            order = SpaceVideoOrder.PubDate,
-            pageNumber = 1,
-            pageSize = 10,
-            preferApiType = ApiType.App
-        )
-        println(result)
+        var page = SpaceVideoPage()
+        while (page.hasNext) {
+            val spaceVideoData = userRepository.getSpaceVideos(
+                mid = 2,
+                order = SpaceVideoOrder.PubDate,
+                page = page,
+                preferApiType = ApiType.App
+            )
+            page = spaceVideoData.page
+            println("page $page: $spaceVideoData")
+            delay((1000L..3000L).random())
+        }
     }
 
     @Test

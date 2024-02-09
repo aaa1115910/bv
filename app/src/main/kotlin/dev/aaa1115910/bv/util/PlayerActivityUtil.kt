@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.util
 
 import android.content.Context
+import dev.aaa1115910.bv.activities.video.RemoteControllerPanelDemoActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerActivity
 import dev.aaa1115910.bv.activities.video.VideoPlayerV3Activity
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
@@ -24,9 +25,16 @@ fun launchPlayerActivity(
             context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId
         )
     } else {
-        VideoPlayerV3Activity.actionStart(
-            context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
-            isVerticalVideo, proxyArea
-        )
+        if (Prefs.showedRemoteControllerPanelDemo) {
+            VideoPlayerV3Activity.actionStart(
+                context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
+                isVerticalVideo, proxyArea
+            )
+        } else {
+            RemoteControllerPanelDemoActivity.actionStart(
+                context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
+                isVerticalVideo, proxyArea
+            )
+        }
     }
 }

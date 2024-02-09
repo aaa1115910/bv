@@ -1,5 +1,36 @@
 package dev.aaa1115910.biliapi.entity.user
 
+data class SpaceVideoData(
+    val videos: List<SpaceVideo>,
+    val page: SpaceVideoPage
+) {
+    companion object {
+        fun fromWebSpaceVideoData(webSpaceVideoData: dev.aaa1115910.biliapi.http.entity.user.WebSpaceVideoData) =
+            SpaceVideoData(
+                videos = webSpaceVideoData.list?.vlist
+                    ?.map { SpaceVideo.fromSpaceVideoItem(it) }
+                    ?: emptyList(),
+                page = SpaceVideoPage(
+                    hasNext = (webSpaceVideoData.page?.count ?: 0)
+                            > ((webSpaceVideoData.page?.pageNumber ?: 0)
+                            * (webSpaceVideoData.page?.pageSize ?: 0)),
+                    nextWebPageSize = webSpaceVideoData.page?.pageSize ?: 0,
+                    nextWebPageNumber = (webSpaceVideoData.page?.pageNumber ?: 0) + 1
+                )
+            )
+
+        fun fromAppSpaceVideoData(appSpaceVideoData: dev.aaa1115910.biliapi.http.entity.user.AppSpaceVideoData) =
+            SpaceVideoData(
+                videos = appSpaceVideoData.item
+                    .map { SpaceVideo.fromSpaceVideoItem(it) },
+                page = SpaceVideoPage(
+                    hasNext = appSpaceVideoData.hasNext,
+                    lastAvid = appSpaceVideoData.item.lastOrNull()?.param?.toInt() ?: 0
+                )
+            )
+    }
+}
+
 data class SpaceVideo(
     val aid: Int,
     val bvid: String,
@@ -47,3 +78,12 @@ private fun convertMmSsToSeconds(time: String): Int {
 enum class SpaceVideoOrder(val value: String) {
     PubDate("pubdate"), Click("click")
 }
+
+data class SpaceVideoPage(
+    val hasNext: Boolean = true,
+    // web
+    val nextWebPageSize: Int = 20,
+    val nextWebPageNumber: Int = 1,
+    // app
+    val lastAvid: Int = 0
+)

@@ -1,9 +1,9 @@
 [versions]
-agp = "8.2.0"
+agp = "8.2.1"
 firebase-crashlytics = "2.9.9"
 gms = "4.4.0"
-kotlin = "1.9.21"
-ksp = "1.9.21-1.0.15"
+kotlin = "1.9.22"
+ksp = "1.9.22-1.0.17"
 protobuf = "0.9.4"
 versions = "0.50.0"
 

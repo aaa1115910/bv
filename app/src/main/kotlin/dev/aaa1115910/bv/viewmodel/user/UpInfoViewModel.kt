@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
@@ -26,11 +27,9 @@ class UpInfoViewModel(
     var upMid by mutableLongStateOf(0L)
     var spaceVideos = mutableStateListOf<VideoCardData>()
 
-    private var pageNumber = 1
-    private var pageSize = 30
-
+    private var page = SpaceVideoPage()
     private var updating = false
-    var noMore = false
+    val noMore get() = !page.hasNext
 
     fun update() {
         viewModelScope.launch(Dispatchers.Default) {
@@ -40,17 +39,15 @@ class UpInfoViewModel(
 
     private suspend fun updateSpaceVideos() {
         if (updating || noMore) return
-        logger.fInfo { "Updating up [mid=$upMid] space videos from page $pageNumber" }
+        logger.fInfo { "Updating up [mid=$upMid] space videos from page $page" }
         updating = true
         runCatching {
-            val videoList = userRepository.getSpaceVideos(
+            val spaceVideoData = userRepository.getSpaceVideos(
                 mid = upMid,
-                pageNumber = pageNumber,
-                pageSize = pageSize,
+                page = page,
                 preferApiType = Prefs.apiType
             )
-            if (videoList.isEmpty()) noMore = true
-            videoList.forEach { spaceVideoItem ->
+            spaceVideoData.videos.forEach { spaceVideoItem ->
                 spaceVideos.add(
                     VideoCardData(
                         avid = spaceVideoItem.aid,
@@ -62,11 +59,10 @@ class UpInfoViewModel(
                     )
                 )
             }
+            page = spaceVideoData.page
             logger.fInfo { "Update up space videos success" }
         }.onFailure {
             logger.fInfo { "Update up space videos failed: ${it.stackTraceToString()}" }
-        }.onSuccess {
-            pageNumber++
         }
         updating = false
     }
