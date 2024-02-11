@@ -199,6 +199,7 @@ dependencies {
     implementation(libs.geetest.sensebot)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+    implementation(libs.koin.compose.navigation)
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktor.client.cio)
     implementation(libs.koin.core)

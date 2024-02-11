@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>(
         scaffoldDirective = calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo())
     )
 

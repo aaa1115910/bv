@@ -18,7 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
@@ -47,16 +49,14 @@ fun HomeScreen(
     onShowSwitchUser: () -> Unit
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
     val pageState = rememberPagerState(pageCount = { 2 })
     var searchText by remember { mutableStateOf("") }
     var activeSearch by remember { mutableStateOf(false) }
 
-    //LaunchedEffect(Unit) {
-    //    homeViewModel.loadMore()
-    //}
-
+    var paddingToTop by remember { mutableStateOf(0.dp) }
 
     Scaffold(
         modifier = modifier,
@@ -99,16 +99,18 @@ fun HomeScreen(
         ) {
             if (windowSize == WindowWidthSizeClass.Expanded) {
                 HomeSearchTopBarExpanded(
+                    modifier = Modifier.onSizeChanged {
+                        paddingToTop = with(density) { it.height.toDp() }
+                    },
                     query = searchText,
                     active = activeSearch,
                     onQueryChange = { searchText = it },
                     onActiveChange = { activeSearch = it }
                 )
             }
-            val gridTopPadding =
-                if (windowSize == WindowWidthSizeClass.Expanded) 68.dp else 8.dp
+
             HorizontalPager(
-                modifier = Modifier,
+                modifier = Modifier.padding(top = paddingToTop),
                 state = pageState,
             ) { page ->
                 when (page) {

@@ -1,7 +1,9 @@
 package dev.aaa1115910.bv.mobile.screen.home
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -23,17 +28,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.biliapi.entity.user.DynamicType
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.dynamic.DynamicItem
 import dev.aaa1115910.bv.util.isScrolledToEnd
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicScreen(
     modifier: Modifier = Modifier,
-    dynamicViewModel: DynamicViewModel = koinViewModel(),
+    dynamicViewModel: DynamicViewModel = koinNavViewModel(),
     previewerState: ImagePreviewerState,
     onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit
 ) {
@@ -60,9 +67,7 @@ fun DynamicScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(bottom = 80.dp)
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         ) {
             LazyColumn(
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),

@@ -19,7 +19,7 @@ import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 @Composable
 fun ListDetailPaneScaffoldSample() {
     BVMobileTheme {
-        val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+        val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
         ListDetailPaneScaffold(
             scaffoldState = scaffoldNavigator.scaffoldState,
             listPane = {
@@ -66,7 +66,7 @@ private fun SettingPre() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun Settings() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
     ListDetailPaneScaffold(
         scaffoldState = scaffoldNavigator.scaffoldState,
         listPane = {
