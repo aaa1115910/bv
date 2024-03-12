@@ -45,18 +45,19 @@ body:
     attributes:
       label: 截图
       description: 如果可以，提交截图更有助于我们分析问题
-  - type: checkboxes
+  - type: dropdown
     id: app-version-confirm-use-latest
     validations:
       required: true
     attributes:
-      label: 该项目不确认已更新到以下所示的最新版本
+      label: 请确认已更新到以下所示的最新版本
       description: |
         ![App Center Release](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Drelease)
         ![App Center Alpha](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Dalpha)
       options:
-        - label: 我已更新到最新版本
-          required: true
+        - '我正在使用旧版本'
+        - '已更新到最新 Release 版'
+        - '已更新到最新 Alpha 版'
   - type: input
     id: app-version
     validations:
