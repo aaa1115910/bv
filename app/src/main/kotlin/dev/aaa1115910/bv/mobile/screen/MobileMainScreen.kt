@@ -58,6 +58,7 @@ import coil.size.Size
 import com.origeek.imageViewer.previewer.ImagePreviewer
 import com.origeek.imageViewer.previewer.VerticalDragType
 import com.origeek.imageViewer.previewer.rememberPreviewerState
+import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.SettingsActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
@@ -106,14 +107,14 @@ fun MobileMainScreen(
         else -> MobileMainScreenNav.entries
     }
 
-    val pictures = remember { mutableStateListOf<String>() }
+    val pictures = remember { mutableStateListOf<Picture>() }
     val previewerState = rememberPreviewerState(
         verticalDragType = VerticalDragType.UpAndDown,
         pageCount = { pictures.size },
-        getKey = { pictures[it] }
+        getKey = { pictures[it].key }
     )
 
-    val onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit =
+    val onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit =
         { newPictures, afterSetPictures ->
             pictures.swapList(newPictures)
             afterSetPictures()

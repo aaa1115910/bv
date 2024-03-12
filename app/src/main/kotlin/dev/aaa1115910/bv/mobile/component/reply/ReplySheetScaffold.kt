@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.origeek.imageViewer.previewer.ImagePreviewerState
+import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.CommentReplyPage
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
@@ -51,7 +52,7 @@ fun ReplySheetScaffold(
     repliesCount: Int,
     sheetState: BottomSheetScaffoldState,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
     videoDetailRepository: VideoDetailRepository = getKoin().get(),
     content: @Composable () -> Unit
 ) {

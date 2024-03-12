@@ -117,7 +117,7 @@ data class ImageSrc(
     data class Remote(
         @SerialName("bfs_style")
         val bfsStyle: String,
-        val url: String
+        val url: String? = null
     )
 }
 

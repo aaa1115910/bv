@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -50,6 +51,7 @@ import com.origeek.imageViewer.previewer.TransformImageView
 import com.origeek.imageViewer.previewer.TransformItemState
 import com.origeek.imageViewer.previewer.rememberPreviewerState
 import com.origeek.imageViewer.previewer.rememberTransformItemState
+import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicType
 import dev.aaa1115910.bv.R
@@ -59,13 +61,14 @@ import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.notYetImplemented
 import dev.aaa1115910.bv.util.resizedImageUrl
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun DynamicItem(
     modifier: Modifier = Modifier,
     dynamicItem: DynamicItem,
     previewerState: ImagePreviewerState = rememberPreviewerState(pageCount = { 0 }),
-    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit = { _, _ -> },
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit = { _, _ -> },
     onClick: (DynamicItem) -> Unit = {}
 ) {
     val paddingSize = 12.dp
@@ -82,39 +85,13 @@ fun DynamicItem(
                 modifier = Modifier.padding(horizontal = paddingSize),
                 author = dynamicItem.author
             )
-            when (dynamicItem.type) {
-                DynamicType.Av -> DynamicVideoContent(
-                    modifier = Modifier.padding(horizontal = paddingSize),
-                    video = dynamicItem.video!!
-                )
-
-                DynamicType.Draw -> DynamicDraw(
-                    modifier = Modifier.padding(horizontal = paddingSize),
-                    draw = dynamicItem.draw!!,
-                    previewerState = previewerState,
-                    onShowPreviewer = onShowPreviewer
-                )
-
-                DynamicType.Forward -> DynamicForward(
-                    dynamicItem = dynamicItem.orig!!,
-                    previewerState = previewerState,
-                    onShowPreviewer = onShowPreviewer,
-                    onClick = { onClick(dynamicItem.orig!!) }
-                )
-
-                DynamicType.LiveRcmd -> DynamicLiveRcmd(
-                    modifier = Modifier.padding(horizontal = paddingSize),
-                    liveRcmd = dynamicItem.liveRcmd!!
-                )
-
-                DynamicType.UgcSeason -> TODO()
-
-                DynamicType.Word -> DynamicWord(
-                    modifier = Modifier.padding(horizontal = paddingSize),
-                    word = dynamicItem.word!!
-                )
-            }
-
+            DynamicContent(
+                dynamicItem = dynamicItem,
+                horizontalPadding = paddingSize,
+                previewerState = previewerState,
+                onShowPreviewer = onShowPreviewer,
+                onClick = onClick
+            )
             DynamicFooter(
                 modifier = Modifier.padding(horizontal = paddingSize),
                 footer = dynamicItem.footer!!,
@@ -133,6 +110,52 @@ fun DynamicItem(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun DynamicContent(
+    modifier: Modifier = Modifier,
+    dynamicItem: DynamicItem,
+    horizontalPadding: Dp = 12.dp,
+    previewerState: ImagePreviewerState = rememberPreviewerState(pageCount = { 0 }),
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit = { _, _ -> },
+    onClick: (DynamicItem) -> Unit
+
+) {
+    val contentModifier = modifier.padding(horizontal = horizontalPadding)
+    when (dynamicItem.type) {
+        DynamicType.Av -> DynamicVideoContent(
+            modifier = contentModifier,
+            video = dynamicItem.video!!
+        )
+
+        DynamicType.Draw -> DynamicDraw(
+            modifier = contentModifier,
+            draw = dynamicItem.draw!!,
+            previewerState = previewerState,
+            onShowPreviewer = onShowPreviewer
+        )
+
+        DynamicType.Forward -> DynamicForward(
+            modifier = modifier,
+            dynamicItem = dynamicItem.orig!!,
+            previewerState = previewerState,
+            onShowPreviewer = onShowPreviewer,
+            onClick = { onClick(dynamicItem.orig!!) }
+        )
+
+        DynamicType.LiveRcmd -> DynamicLiveRcmd(
+            modifier = contentModifier,
+            liveRcmd = dynamicItem.liveRcmd!!
+        )
+
+        DynamicType.UgcSeason -> TODO()
+
+        DynamicType.Word -> DynamicWord(
+            modifier = contentModifier,
+            word = dynamicItem.word!!
+        )
     }
 }
 
@@ -390,7 +413,7 @@ fun DynamicDraw(
     modifier: Modifier = Modifier,
     draw: DynamicItem.DynamicDrawModule,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -409,9 +432,9 @@ fun DynamicDraw(
 @Composable
 fun DynamicPictures(
     modifier: Modifier = Modifier,
-    pictures: List<String>,
+    pictures: List<Picture>,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val imageBaseShape = MaterialTheme.shapes.medium
@@ -444,8 +467,8 @@ fun DynamicPictures(
                         }
                     ) {
                         TransformImageView(
-                            painter = rememberAsyncImagePainter(pictures.first()),
-                            key = pictures.first(),
+                            painter = rememberAsyncImagePainter(pictures.first().url),
+                            key = pictures.first().key,
                             itemState = itemState,
                             previewerState = previewerState,
                         )
@@ -479,8 +502,8 @@ fun DynamicPictures(
                             }
                         ) {
                             TransformImageView(
-                                painter = rememberAsyncImagePainter(picture),
-                                key = picture,
+                                painter = rememberAsyncImagePainter(picture.url),
+                                key = picture.key,
                                 itemState = itemState,
                                 previewerState = previewerState,
                             )
@@ -515,8 +538,8 @@ fun DynamicPictures(
                             }
                         ) {
                             TransformImageView(
-                                painter = rememberAsyncImagePainter(picture),
-                                key = picture,
+                                painter = rememberAsyncImagePainter(picture.url),
+                                key = picture.key,
                                 itemState = itemState,
                                 previewerState = previewerState,
                             )
@@ -561,7 +584,8 @@ fun DynamicForward(
     modifier: Modifier = Modifier,
     dynamicItem: DynamicItem,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<String>, afterSetPictures: () -> Unit) -> Unit,
+    horizontalPadding: Dp = 12.dp,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
     onClick: () -> Unit
 ) {
     Surface(
@@ -570,7 +594,7 @@ fun DynamicForward(
         onClick = onClick
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = horizontalPadding, vertical = 6.dp),
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -578,29 +602,13 @@ fun DynamicForward(
                 DynamicForwardHeader(
                     author = dynamicItem.author
                 )
-                when (dynamicItem.type) {
-                    DynamicType.Av -> DynamicVideoContent(
-                        video = dynamicItem.video!!
-                    )
-
-                    DynamicType.Draw -> DynamicDraw(
-                        draw = dynamicItem.draw!!,
-                        previewerState = previewerState,
-                        onShowPreviewer = onShowPreviewer
-                    )
-
-                    DynamicType.Forward -> {}
-
-                    DynamicType.LiveRcmd -> DynamicLiveRcmd(
-                        liveRcmd = dynamicItem.liveRcmd!!
-                    )
-
-                    DynamicType.UgcSeason -> TODO()
-
-                    DynamicType.Word -> DynamicWord(
-                        word = dynamicItem.word!!
-                    )
-                }
+                DynamicContent(
+                    dynamicItem = dynamicItem,
+                    horizontalPadding = 0.dp,
+                    previewerState = previewerState,
+                    onShowPreviewer = onShowPreviewer,
+                    onClick = {}
+                )
             }
         }
     }
@@ -787,7 +795,7 @@ private class DynamicDrawItemProvider : PreviewParameterProvider<DynamicItem> {
             type = DynamicType.Draw,
             draw = DynamicItem.DynamicDrawModule(
                 text = "this is $index picture draw",
-                images = Array(index) { "" }.toList()
+                images = Array(index) { Picture("", 0, 0, "${UUID.randomUUID()}") }.toList()
             )
         )
     }.asSequence()

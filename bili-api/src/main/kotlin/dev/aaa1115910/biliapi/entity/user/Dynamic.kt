@@ -4,11 +4,13 @@ import bilibili.app.dynamic.v2.DynModuleType
 import bilibili.app.dynamic.v2.Module
 import bilibili.app.dynamic.v2.ModuleDynamic.ModuleItemCase
 import bilibili.app.dynamic.v2.Paragraph
+import dev.aaa1115910.biliapi.entity.Picture
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import okhttp3.internal.toLongOrDefault
 
 data class DynamicData(
     val dynamics: List<DynamicItem>,
@@ -82,6 +84,8 @@ data class DynamicData(
 }
 
 data class DynamicItem(
+    var commentId: Long = 0,
+    var commentType: Int = 0,
     var type: DynamicType,
     val author: DynamicAuthorModule,
     var video: DynamicVideoModule? = null,
@@ -95,6 +99,8 @@ data class DynamicItem(
         fun fromDynamicItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicItem {
             val dynamicType = DynamicType.fromWebValue(item.type)
             val dynamicItem = DynamicItem(
+                commentId = item.basic.commentIdStr.toLongOrDefault(0),
+                commentType = item.basic.commentType,
                 type = dynamicType,
                 author = DynamicAuthorModule.fromModuleAuthor(item.modules.moduleAuthor),
                 footer = DynamicFooterModule.fromModuleStat(item.modules.moduleStat)
@@ -127,6 +133,8 @@ data class DynamicItem(
         ): DynamicItem {
             val dynamicType = DynamicType.fromAppValue(item.cardType)
             val dynamicItem = DynamicItem(
+                commentId = item.extend.businessId.toLongOrDefault(0),
+                commentType = item.extend.rType,
                 type = dynamicType,
                 author = if (isForwardItem) {
                     DynamicAuthorModule.fromExtendAndModuleAuthorForward(
@@ -283,13 +291,15 @@ data class DynamicItem(
 
     data class DynamicDrawModule(
         val text: String,
-        val images: List<String>
+        val images: List<Picture>
     ) {
         companion object {
             fun fromModuleDynamic(moduleDynamic: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic) =
                 DynamicDrawModule(
                     text = moduleDynamic.desc!!.text,
-                    images = moduleDynamic.major!!.draw!!.items.map { it.src }.distinct()
+                    images = moduleDynamic.major!!.draw!!.items
+                        .map(Picture::fromPicture)
+                        .distinctBy { it.url }
                 )
 
             fun fromModuleOpusSummaryAndModuleDynamic(
@@ -297,7 +307,7 @@ data class DynamicItem(
                 moduleDynamic: bilibili.app.dynamic.v2.ModuleDynamic
             ): DynamicDrawModule {
                 var text = ""
-                val images = mutableListOf<String>()
+                val images = mutableListOf<Picture>()
 
                 when (val summaryContentType = moduleOpusSummary.summary.contentCase) {
                     Paragraph.ContentCase.TEXT -> text = moduleOpusSummary.summary.text.nodesList
@@ -307,13 +317,16 @@ data class DynamicItem(
                 }
 
                 when (val dynamicItemType = moduleDynamic.moduleItemCase) {
-                    ModuleItemCase.DYN_DRAW -> images.addAll(moduleDynamic.dynDraw.itemsList.map { it.src })
+                    ModuleItemCase.DYN_DRAW -> images.addAll(
+                        moduleDynamic.dynDraw.itemsList.map(Picture::fromPicture)
+                    )
+
                     else -> println("not implemented: ModuleOpusSummary dynamicItemType $dynamicItemType")
                 }
 
                 return DynamicDrawModule(
                     text = text,
-                    images = images.distinct()
+                    images = images.distinctBy { it.url }
                 )
             }
         }

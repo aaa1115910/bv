@@ -1526,7 +1526,7 @@ object BiliHttpApi {
      */
     suspend fun getComments(
         type: Int,
-        oid: Int,
+        oid: Long,
         mode: Int = 3,
         paginationStr: String = """{"offset":""}""",
         //webLocation: Int = 1815875,
@@ -1543,7 +1543,7 @@ object BiliHttpApi {
         }.body()
 
     suspend fun getCommentReplies(
-        oid: Int,
+        oid: Long,
         type: Int,
         root: Long,
         pageSize: Int = 10,

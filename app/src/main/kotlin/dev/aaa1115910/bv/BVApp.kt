@@ -14,6 +14,7 @@ import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
+import dev.aaa1115910.biliapi.repositories.CommentRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.IndexRepository
@@ -26,6 +27,7 @@ import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
+import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
@@ -161,6 +163,7 @@ val appModule = module {
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
     single { IndexRepository() }
+    single { CommentRepository(get(), get()) }
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
@@ -182,6 +185,7 @@ val appModule = module {
     viewModel { MobileVideoPlayerViewModel(get(), get()) }
     viewModel { UserSwitchViewModel(get()) }
     viewModel { AnimeIndexViewModel(get()) }
+    viewModel { CommentViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

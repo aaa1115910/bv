@@ -134,7 +134,7 @@ class VideoDetailRepository(
         when (preferApiType) {
             ApiType.Web -> {
                 val webComments = BiliHttpApi.getComments(
-                    oid = aid,
+                    oid = aid.toLong(),
                     type = 1,
                     mode = sort.param,
                     paginationStr = Json.encodeToString(mapOf("offset" to page.nextWebPage)),
@@ -182,7 +182,7 @@ class VideoDetailRepository(
         when (preferApiType) {
             ApiType.Web -> {
                 val webReplies = BiliHttpApi.getCommentReplies(
-                    oid = aid,
+                    oid = aid.toLong(),
                     type = 1,
                     root = commentId,
                     pageSize = 20,

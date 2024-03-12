@@ -51,6 +51,7 @@ import com.origeek.imageViewer.previewer.TransformImageView
 import com.origeek.imageViewer.previewer.TransformItemState
 import com.origeek.imageViewer.previewer.rememberPreviewerState
 import com.origeek.imageViewer.previewer.rememberTransformItemState
+import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.EmoteSize
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
@@ -63,7 +64,7 @@ fun CommentItem(
     comment: Comment,
     previewerState: ImagePreviewerState,
     showReplies: Boolean = true,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
     onShowReply: (rpid: Long) -> Unit = {}
 ) {
     Surface(
@@ -222,9 +223,9 @@ private fun CommentText(
 @Composable
 private fun CommentPictures(
     modifier: Modifier = Modifier,
-    pictures: List<Comment.Picture>,
+    pictures: List<Picture>,
     previewerState: ImagePreviewerState,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val imageBaseShape = MaterialTheme.shapes.medium
@@ -449,7 +450,7 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(
+                Picture(
                     url = "",
                     width = 0,
                     height = 0,
@@ -469,8 +470,8 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "2")
+                Picture(url = "", width = 0, height = 0, key = "1"),
+                Picture(url = "", width = 0, height = 0, key = "2")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -485,9 +486,9 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "3")
+                Picture(url = "", width = 0, height = 0, key = "1"),
+                Picture(url = "", width = 0, height = 0, key = "2"),
+                Picture(url = "", width = 0, height = 0, key = "3")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -502,10 +503,10 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "3"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "4")
+                Picture(url = "", width = 0, height = 0, key = "1"),
+                Picture(url = "", width = 0, height = 0, key = "2"),
+                Picture(url = "", width = 0, height = 0, key = "3"),
+                Picture(url = "", width = 0, height = 0, key = "4")
             ),
             replies = emptyList(),
             repliesCount = 0
@@ -520,10 +521,10 @@ private class CommentItemPreviewParameterProvider :
             timeDesc = "4小时前",
             emotes = emptyList(),
             pictures = listOf(
-                Comment.Picture(url = "", width = 0, height = 0, key = "1"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "2"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "3"),
-                Comment.Picture(url = "", width = 0, height = 0, key = "4")
+                Picture(url = "", width = 0, height = 0, key = "1"),
+                Picture(url = "", width = 0, height = 0, key = "2"),
+                Picture(url = "", width = 0, height = 0, key = "3"),
+                Picture(url = "", width = 0, height = 0, key = "4")
             ),
             replies = listOf(
                 Comment(

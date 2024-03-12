@@ -88,7 +88,7 @@ data class CommentData(
         val like: Int,
         val member: Member,
         val mid: Long,
-        val oid: Int,
+        val oid: Long,
         val parent: Long,
         @SerialName("parent_str")
         val parentStr: String,
@@ -362,7 +362,7 @@ data class CommentData(
 
             @Serializable
             data class Pendant(
-                val id: Int,
+                val id: Long,
                 val image: String,
                 @SerialName("image_enhance")
                 val imageEnhance: String,

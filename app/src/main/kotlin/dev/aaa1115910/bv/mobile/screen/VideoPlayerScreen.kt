@@ -78,6 +78,7 @@ import com.origeek.imageViewer.previewer.ImagePreviewer
 import com.origeek.imageViewer.previewer.ImagePreviewerState
 import com.origeek.imageViewer.previewer.VerticalDragType
 import com.origeek.imageViewer.previewer.rememberPreviewerState
+import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.bv.R
@@ -111,7 +112,7 @@ fun VideoPlayerScreen(
     val forcePortrait =
         windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact || windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
 
-    val pictures = remember { mutableStateListOf<Comment.Picture>() }
+    val pictures = remember { mutableStateListOf<Picture>() }
     val previewerState = rememberPreviewerState(
         verticalDragType = VerticalDragType.UpAndDown,
         pageCount = { pictures.size },
@@ -119,7 +120,7 @@ fun VideoPlayerScreen(
     )
     val replySheetState = rememberBottomSheetScaffoldState()
 
-    val setPreviewerPictures: (List<Comment.Picture>, () -> Unit) -> Unit =
+    val setPreviewerPictures: (List<Picture>, () -> Unit) -> Unit =
         { newPictures, afterSetPictures ->
             pictures.clear()
             pictures.addAll(newPictures)
@@ -588,7 +589,7 @@ fun VideoComments(
     onLoadMoreComments: () -> Unit,
     onRefreshComments: () -> Unit,
     onSwitchCommentSort: (CommentSort) -> Unit,
-    onShowPreviewer: (newPictures: List<Comment.Picture>, afterSetPictures: () -> Unit) -> Unit,
+    onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
     onShowReplies: (rpId: Long, repliesCount: Int) -> Unit
 ) {
     val listState = rememberLazyListState()
