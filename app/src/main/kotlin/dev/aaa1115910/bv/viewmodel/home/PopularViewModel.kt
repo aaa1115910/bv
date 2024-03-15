@@ -23,11 +23,17 @@ class PopularViewModel(
     private var nextPage = PopularVideoPage()
     var loading = false
 
-    suspend fun loadMore() {
-        if (!loading) loadData()
+    suspend fun loadMore(
+        beforeAppendData: () -> Unit = {}
+    ) {
+        if (!loading) loadData(
+            beforeAppendData = beforeAppendData
+        )
     }
 
-    private suspend fun loadData() {
+    private suspend fun loadData(
+        beforeAppendData: () -> Unit
+    ) {
         loading = true
         logger.fInfo { "Load more popular videos" }
         runCatching {
@@ -35,6 +41,7 @@ class PopularViewModel(
                 page = nextPage,
                 preferApiType = Prefs.apiType
             )
+            beforeAppendData()
             nextPage = popularVideoData.nextPage
             popularVideoList.addAll(popularVideoData.list)
         }.onFailure {
@@ -48,7 +55,11 @@ class PopularViewModel(
 
     fun clearData() {
         popularVideoList.clear()
-        nextPage = PopularVideoPage()
+        resetPage()
         loading = false
+    }
+
+    fun resetPage() {
+        nextPage = PopularVideoPage()
     }
 }

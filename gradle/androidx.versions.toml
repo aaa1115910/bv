@@ -4,12 +4,15 @@ compose = "1.5.4"
 compose-compiler = "1.5.8"
 compose-constraintlayout = "1.0.1"
 compose-material3 = "1.2.0-beta02"
+compose-material3-adaptive = "1.0.0-alpha06"
+compose-material3-adaptive-navigation-suite = "1.0.0-alpha03"
 compose-tv = "1.0.0-alpha10"
 core = "1.12.0"
 core-splashscreen = "1.0.1"
 dataStore = "1.0.0"
 lifecycle = "2.7.0"
 media3 = "1.2.1"
+navigation = "2.7.2"
 room = "2.6.1"
 webkit = "1.9.0"
 
@@ -43,6 +46,8 @@ compose-material-icons = { module = "androidx.compose.material:material-icons-ex
 
 # https://developer.android.com/jetpack/androidx/releases/compose-material3
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-material3-adaptive = { module = "androidx.compose.material3:material3-adaptive", version.ref = "compose-material3-adaptive" }
+compose-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "compose-material3-adaptive-navigation-suite" }
 compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "compose-material3" }
 
 # https://developer.android.com/jetpack/androidx/releases/compose-runtime
@@ -70,6 +75,9 @@ media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = 
 media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
 media3-exoplayer-hls = { module = "androidx.media3:media3-exoplayer-hls", version.ref = "media3" }
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+
+# https://developer.android.com/jetpack/androidx/releases/guide/navigation
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 
 # https://developer.android.com/jetpack/androidx/releases/room
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

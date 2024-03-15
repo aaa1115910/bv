@@ -276,7 +276,7 @@ object Prefs {
         }
 }
 
-private object PrefKeys {
+object PrefKeys {
     val prefIsLoginKey = booleanPreferencesKey("il")
     val prefUidKey = longPreferencesKey("uid")
     val prefSidKey = stringPreferencesKey("sid")

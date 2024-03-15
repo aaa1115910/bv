@@ -23,11 +23,17 @@ class RecommendViewModel(
     private var nextPage = RecommendPage()
     var loading = false
 
-    suspend fun loadMore() {
-        if (!loading) loadData()
+    suspend fun loadMore(
+        beforeAppendData: () -> Unit = {}
+    ) {
+        if (!loading) loadData(
+            beforeAppendData = beforeAppendData
+        )
     }
 
-    private suspend fun loadData() {
+    private suspend fun loadData(
+        beforeAppendData: () -> Unit
+    ) {
         loading = true
         logger.fInfo { "Load more recommend videos" }
         runCatching {
@@ -35,6 +41,7 @@ class RecommendViewModel(
                 page = nextPage,
                 preferApiType = Prefs.apiType
             )
+            beforeAppendData()
             nextPage = recommendData.nextPage
             recommendVideoList.addAll(recommendData.items)
         }.onFailure {
@@ -48,7 +55,11 @@ class RecommendViewModel(
 
     fun clearData() {
         recommendVideoList.clear()
-        nextPage = RecommendPage()
+        resetPage()
         loading = false
+    }
+
+    fun resetPage() {
+        nextPage = RecommendPage()
     }
 }
