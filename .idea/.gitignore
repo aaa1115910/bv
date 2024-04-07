@@ -11,3 +11,5 @@
 /compiler.xml
 /inspectionProfiles/Project_Default.xml
 /CamelCaseConfigNew.xml
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
