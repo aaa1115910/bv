@@ -53,6 +53,7 @@ fun NetworkSetting(
     var enableProxy by remember { mutableStateOf(Prefs.enableProxy) }
     var proxyHttpServer by remember { mutableStateOf(Prefs.proxyHttpServer) }
     var proxyGRPCServer by remember { mutableStateOf(Prefs.proxyGRPCServer) }
+    var preferOfficialCdn by remember { mutableStateOf(Prefs.preferOfficialCdn) }
     var showProxyHttpServerEditDialog by remember { mutableStateOf(false) }
     var showProxyGRPCServerEditDialog by remember { mutableStateOf(false) }
 
@@ -106,6 +107,18 @@ fun NetworkSetting(
                             }
                         }
                     }
+                }
+
+                item {
+                    SettingSwitchListItem(
+                        title = stringResource(R.string.settings_network_prefer_official_cdn_title),
+                        supportText = stringResource(R.string.settings_network_prefer_official_cdn_text),
+                        checked = Prefs.preferOfficialCdn,
+                        onCheckedChange = { enable ->
+                            preferOfficialCdn = enable
+                            Prefs.preferOfficialCdn = enable
+                        }
+                    )
                 }
 
                 item {

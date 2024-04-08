@@ -211,6 +211,8 @@
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
     <string name="settings_network_enable_proxy_title">启用代理</string>
+    <string name="settings_network_prefer_official_cdn_text">优先使用获取到的官方 CDN</string>
+    <string name="settings_network_prefer_official_cdn_title">P(M)CDN 快走开</string>
     <string name="settings_network_proxy_grpc_server_title">gRPC 接口代理服务器</string>
     <string name="settings_network_proxy_http_server_title">HTTP 接口代理服务器</string>
     <string name="settings_network_proxy_server_content_empty">未填写</string>

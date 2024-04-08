@@ -311,17 +311,30 @@ class VideoPlayerV3ViewModel(
             }
         }
         var videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
+        val videoUrls = mutableListOf<String?>()
+        videoUrls.add(videoItem?.baseUrl)
+        videoUrls.addAll(videoItem?.backUrl ?: emptyList())
 
         val audioItem = playData!!.dashAudios.find { it.codecId == audio.code }
             ?: playData!!.dolby.takeIf { it?.codecId == audio.code }
             ?: playData!!.flac.takeIf { it?.codecId == audio.code }
             ?: playData!!.dashAudios.minByOrNull { it.codecId }
         var audioUrl = audioItem?.baseUrl ?: playData!!.dashAudios.first().baseUrl
+        val audioUrls = mutableListOf<String?>()
+        audioUrls.add(audioItem?.baseUrl)
+        audioUrls.addAll(audioItem?.backUrl ?: emptyList())
+
+        logger.fInfo { "all video hosts: ${videoUrls.map { with(URI(it)) { "$scheme://$authority" } }}" }
+        logger.fInfo { "all audio hosts: ${audioUrls.map { with(URI(it)) { "$scheme://$authority" } }}" }
 
         //replace cdn
         if (Prefs.enableProxy && proxyArea != ProxyArea.MainLand) {
             videoUrl = videoUrl.replaceUrlDomainWithAliCdn()
             audioUrl = audioUrl.replaceUrlDomainWithAliCdn()
+        } else {
+            // 如果未通过网络代理获得播放地址，才判断是否应该替换为官方 cdn
+            videoUrl = selectOfficialCdnUrl(videoUrls.filterNotNull())
+            audioUrl = selectOfficialCdnUrl(audioUrls.filterNotNull())
         }
 
         addLogs("video host: ${with(URI(videoUrl)) { "$scheme://$authority" }}")
@@ -418,7 +431,7 @@ class VideoPlayerV3ViewModel(
     }
 
     private fun addLogs(text: String) {
-        println(text)
+        logger.fInfo { text }
         val lines = logs.lines().toMutableList()
         lines.add(text)
         while (lines.size > 8) {
@@ -501,5 +514,23 @@ class VideoPlayerV3ViewModel(
             .authority("upos-sz-mirrorali.bilivideo.com")
             .build()
             .toString()
+    }
+
+    private fun selectOfficialCdnUrl(urls: List<String>): String {
+        if (!Prefs.preferOfficialCdn) {
+            logger.fInfo { "doesn't need to filter official cdn url, select the first url" }
+            return urls.first()
+        }
+        val filteredUrls = urls
+            .filter { !it.contains(".mcdn.bilivideo.") }
+            .filter { !it.contains(".szbdyd.com") }
+            .filter { !Regex("""^https?://\d{1,3}.\d{1,3}""").matches(it) }
+        if (filteredUrls.isEmpty()) {
+            logger.fInfo { "doesn't find any official cdn url, select the first url" }
+            return urls.first()
+        } else {
+            logger.fInfo { "filtered official cdn urls: $filteredUrls" }
+            return filteredUrls.first()
+        }
     }
 }
