@@ -3,6 +3,7 @@ package dev.aaa1115910.bv.screen.settings.content
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
@@ -20,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.activities.settings.MediaCodecActivity
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import java.text.DecimalFormat
 import kotlin.math.pow
@@ -131,6 +134,11 @@ fun InfoSetting(
                     *storageInfo.toList().toTypedArray()
                 )
             )
+        }
+        Button(onClick = {
+            context.startActivity(Intent(context, MediaCodecActivity::class.java))
+        }) {
+            Text(stringResource(id = R.string.title_activity_media_codec))
         }
     }
 }

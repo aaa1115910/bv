@@ -42,6 +42,11 @@
             android:label="@string/title_activity_user_switch"
             android:theme="@style/Theme.BV" />
         <activity
+            android:name=".activities.settings.MediaCodecActivity"
+            android:exported="true"
+            android:label="@string/title_activity_media_codec"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.video.VideoPlayerV3Activity"
             android:exported="true"
             android:label="@string/title_activity_video_player_v3"
