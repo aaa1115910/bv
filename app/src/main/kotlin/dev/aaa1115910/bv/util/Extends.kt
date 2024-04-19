@@ -2,6 +2,8 @@ package dev.aaa1115910.bv.util
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusRequester
@@ -100,3 +102,12 @@ fun FocusRequester.requestFocus(scope: CoroutineScope) {
 fun String.removeHtmlTags(): String = HtmlCompat.fromHtml(
     this, HtmlCompat.FROM_HTML_MODE_LEGACY
 ).toString()
+
+fun LazyListState.isScrolledToEnd() =
+    canScrollForward || firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+fun LazyStaggeredGridState.isScrolledToEnd() =
+    canScrollForward || firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+fun LazyStaggeredGridState.getLane() =
+    layoutInfo.visibleItemsInfo.maxOfOrNull { it.lane + 1 }
