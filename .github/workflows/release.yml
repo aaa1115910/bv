@@ -2,19 +2,15 @@ name: Release Build
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build-release:
     name: Build Release Apk
     runs-on: macos-latest
     if: github.repository == 'aaa1115910/bv'
-    outputs:
-      lite_release_info_apk_filename: ${{ steps.lite-info.outputs.lite_release_info_apk_filename }}
-      default_release_info_version_code: ${{ steps.default-info.outputs.default_release_info_version_code }}
-      default_release_info_version_name: ${{ steps.default-info.outputs.default_release_info_version_name }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
 
     steps:
       - name: Checkout
@@ -43,283 +39,78 @@ jobs:
           SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
         run: |
           echo ${{ secrets.SIGNING_PROPERTIES }} > encoded_signing_properties
-          base64 -d encoded_signing_properties > signing.properties
+          base64 -Dd -i encoded_signing_properties > signing.properties
 
       - name: Add jks file
         run: |
           echo ${{ secrets.SIGN_KEY }} > ./encoded_key
-          base64 -d encoded_key > key.jks
+          base64 -Dd -i encoded_key > key.jks
 
-      - name: Build lite apk
-        run: ./gradlew assembleLiteRelease assembleLiteDebug
-
-      - name: Build default apk
+      - name: Build apk
         run: ./gradlew assembleDefaultRelease assembleDefaultDebug
 
-      - name: Read lite release apk output metadata
-        id: apk-meta-lite-release
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: app/build/outputs/apk/lite/release/output-metadata.json
-
-      - name: Read lite debug apk output metadata
-        id: apk-meta-lite-debug
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: app/build/outputs/apk/lite/debug/output-metadata.json
-
-      - name: Read default release apk output metadata
-        id: apk-meta-default-release
+      - name: Read release apk output metadata
+        id: apk-meta-release
         uses: juliangruber/read-file-action@v1
         with:
           path: app/build/outputs/apk/default/release/output-metadata.json
 
-      - name: Read default debug apk output metadata
-        id: apk-meta-default-debug
+      - name: Read debug apk output metadata
+        id: apk-meta-release-debug
         uses: juliangruber/read-file-action@v1
         with:
           path: app/build/outputs/apk/default/debug/output-metadata.json
 
-      - name: Parse lite apks info
-        id: lite-info
+      - name: Parse apk infos
+        id: apk-infos
         run: |
-          echo "lite_release_info_apk_filename=${{ fromJson(steps.apk-meta-lite-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-          echo "lite_debug_info_apk_filename=${{ fromJson(steps.apk-meta-lite-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-          echo "lite_release_info_apk_filename=${{ fromJson(steps.apk-meta-lite-release.outputs.content).elements[0].outputFile }}" >> $GITHUB_OUTPUT
+          echo "release_info_version_code=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "release_info_version_name=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+          echo "release_debug_info_version_code=${{ fromJson(steps.apk-meta-release-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "release_debug_info_version_name=${{ fromJson(steps.apk-meta-release-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
 
-      - name: Parse default apks info
-        id: default-info
-        run: |
-          echo "default_release_info_version_code=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "default_release_info_version_name=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "default_debug_info_version_code=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "default_release_info_version_code=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_OUTPUT
-          echo "default_release_info_version_name=${{ fromJson(steps.apk-meta-default-release.outputs.content).elements[0].versionName }}" >> $GITHUB_OUTPUT
-
-      - name: Set changelog to output
+      - name: Get changelog
         id: changelog
         run: |
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$(git log -1 --pretty=short)" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changelog<<EOF"
+            echo "$(git log --pretty=format:"- %s (%h)" ${{ github.event.before }}..${{ github.sha }})"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
-      # upload artifacts lite-debug
+      # upload artifacts release debug
 
-      - name: Archive lite debug build artifacts
+      - name: Archive release debug build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Lite debug build artifact
-          path: app/build/outputs/apk/lite/debug/${{ env.lite_debug_info_apk_filename }}
+          name: Release debug build artifact
+          path: app/build/outputs/apk/default/debug/BV_${{ env.release_debug_info_version_code }}_${{ env.release_debug_info_version_name }}_default_universal.apk
 
-      # upload artifacts lite-release
+      # upload artifacts release
 
-      - name: Archive lite release build artifacts
+      - name: Archive release build mappings
         uses: actions/upload-artifact@v3
         with:
-          name: Lite release build artifact
-          path: app/build/outputs/apk/lite/release/${{ env.lite_release_info_apk_filename }}
-
-      - name: Archive lite alpha build mappings
-        uses: actions/upload-artifact@v3
-        with:
-          name: Lite release build mappings
-          path: app/build/outputs/mapping/liteRelease
-
-      # upload artifacts default-debug
-
-      - name: Archive default debug build artifacts (universal)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default debug build artifact (universal)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_universal.apk
-
-      - name: Archive default debug build artifacts (armeabi-v7a)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default debug build artifact (armeabi-v7a)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_armeabi-v7a.apk
-
-      - name: Archive default debug build artifacts (arm64-v8a)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default debug build artifact (arm64-v8a)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_arm64-v8a.apk
-
-      - name: Archive default debug build artifacts (x86)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default debug build artifact (x86)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86.apk
-
-      - name: Archive default debug build artifacts (x86_64)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default debug build artifact (x86_64)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86_64.apk
-
-      # upload artifacts default-release
-
-      - name: Archive default release build mappings
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default release build mappings
+          name: Release build mappings
           path: app/build/outputs/mapping/defaultRelease
 
-      - name: Archive default release build artifacts (universal)
+      - name: Archive release build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Default release build artifact (universal)
-          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_universal.apk
+          name: Release build artifact
+          path: app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
 
-      - name: Archive default release build artifacts (armeabi-v7a)
-        uses: actions/upload-artifact@v3
+      # upload to github release
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Default release build artifact (armeabi-v7a)
-          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_armeabi-v7a.apk
-
-      - name: Archive default release build artifacts (arm64-v8a)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default release build artifact (arm64-v8a)
-          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_arm64-v8a.apk
-
-      - name: Archive default release build artifacts (x86)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default release build artifact (x86)
-          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86.apk
-
-      - name: Archive default release build artifacts (x86_64)
-        uses: actions/upload-artifact@v3
-        with:
-          name: Default release build artifact (x86_64)
-          path: app/build/outputs/apk/default/release/BV_${{ env.default_release_info_version_code }}_${{ env.default_release_info_version_name }}_default_x86_64.apk
-
-  upload-release:
-    name: Upload Release Apk to App Center
-    needs: build-release
-    runs-on: ubuntu-latest
-
-    steps:
-      # download artifacts
-
-      - name: download lite release build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Lite release build artifact
-
-      - name: download default release build artifacts (universal)
-        uses: actions/download-artifact@v3
-        with:
-          name: Default release build artifact (universal)
-
-      - name: download default release build artifacts (armeabi-v7a)
-        uses: actions/download-artifact@v3
-        with:
-          name: Default release build artifact (armeabi-v7a)
-
-      - name: download default release build artifacts (arm64-v8a)
-        uses: actions/download-artifact@v3
-        with:
-          name: Default release build artifact (arm64-v8a)
-
-      - name: download default release build artifacts (x86)
-        uses: actions/download-artifact@v3
-        with:
-          name: Default release build artifact (x86)
-
-      - name: download default release build artifacts (x86_64)
-        uses: actions/download-artifact@v3
-        with:
-          name: Default release build artifact (x86_64)
-
-      # upload to app center
-
-      - name: Setup app center cli
-        id: setup-appcenter-cli
-        run: npm install -g appcenter-cli
-
-      - name: Upload lite release apk to app center
-        id: upload-lite-release-apk
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file ${{ needs.build-release.outputs.lite_release_info_apk_filename }} \
-              --group Public \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
-
-      - name: Upload default release apk to app center (universal)
-        id: upload-default-release-apk-universal
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_universal.apk \
-              --group Public-universal \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
-
-      - name: Upload default release apk to app center (armeabi-v7a)
-        id: upload-default-release-apk-armeabi-v7a
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_armeabi-v7a.apk \
-              --group Public-armeabi-v7a \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
-
-      - name: Upload default release apk to app center (arm64-v8a)
-        id: upload-default-release-apk-arm64-v8a
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_arm64-v8a.apk \
-              --group Public-arm64-v8a \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
-
-      - name: Upload default release apk to app center (x86)
-        id: upload-default-release-apk-x86
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_x86.apk \
-              --group Public-x86 \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
-
-      - name: Upload default release apk to app center (x86_64)
-        id: upload-default-release-apk-x86_64
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: |
-            appcenter distribute release \
-              --app aaa1115910-gmail.com/BV \
-              --file BV_${{ needs.build-release.outputs.default_release_info_version_code }}_${{ needs.build-release.outputs.default_release_info_version_name }}_default_x86_64.apk \
-              --group Public-x86_64 \
-              --token ${{ secrets.APP_CENTER_TOKEN }} \
-              --release-notes "${{ needs.build-release.outputs.changelog }}"
+          files: |
+            app/build/outputs/apk/default/debug/BV_${{ env.release_debug_info_version_code }}_${{ env.release_debug_info_version_name }}_default_universal.apk
+            app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
+            app/build/outputs/mapping/defaultAlpha
+          tag_name: ${{ github.ref_name }}
+          name: ${{ env.release_info_version_name }}
+          prerelease: false
+          body: ${{ env.changelog }}
+          target_commitish: ${{ github.sha }}
