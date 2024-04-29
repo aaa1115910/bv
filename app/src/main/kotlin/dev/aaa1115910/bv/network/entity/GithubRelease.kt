@@ -22,7 +22,7 @@ data class Release(
     val prerelease: Boolean,
     @SerialName("published_at")
     val publishedAt: String,
-    val reactions: Reactions,
+    val reactions: Reactions? = null,
     @SerialName("tag_name")
     val tagName: String,
     @SerialName("tarball_url")
