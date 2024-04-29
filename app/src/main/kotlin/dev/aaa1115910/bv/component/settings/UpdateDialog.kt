@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +29,11 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
-import dev.aaa1115910.bv.network.AppCenterApi
-import dev.aaa1115910.bv.network.PackageInfo
+import dev.aaa1115910.bv.network.GithubApi
+import dev.aaa1115910.bv.network.entity.Release
+import dev.aaa1115910.bv.util.fException
+import dev.aaa1115910.bv.util.fInfo
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.content.ProgressListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,6 +49,7 @@ fun UpdateDialog(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger("UpdateDialog")
 
     var updateStatus by remember { mutableStateOf(UpdateStatus.UpdatingInfo) }
 
@@ -58,36 +61,27 @@ fun UpdateDialog(
         label = "update progress"
     )
 
-    var latestPackageId by remember { mutableIntStateOf(0) }
-    var packageInfo: PackageInfo? by remember { mutableStateOf(null) }
+    var latestReleaseBuild by remember { mutableStateOf<Release?>(null) }
 
     val checkUpdate: () -> Unit = {
         updateStatus = UpdateStatus.UpdatingInfo
 
         scope.launch(Dispatchers.IO) {
             runCatching {
-                val availablePackageList = AppCenterApi.getPackageList()
-                val latestPackage = availablePackageList.first()
-                if (latestPackage.version.toInt() <= BuildConfig.VERSION_CODE) {
+                latestReleaseBuild = GithubApi.getLatestBuild()
+                val revision = latestReleaseBuild!!
+                    .assets.first { it.name.startsWith("BV") }
+                    .name.split("_")[1].toInt()
+                if (revision < BuildConfig.VERSION_CODE) {
                     updateStatus = UpdateStatus.NoAvailableUpdate
                     return@launch
-                } else {
-                    latestPackageId = latestPackage.id
                 }
-
-                packageInfo = AppCenterApi.getPackageInfo(latestPackageId)
             }.onFailure {
+                logger.fException(it) { "Failed to get latest version" }
                 updateStatus = UpdateStatus.CheckError
             }.onSuccess {
+                logger.fInfo { "Find latest version ${latestReleaseBuild!!.name}" }
                 updateStatus = UpdateStatus.Ready
-            }
-        }
-    }
-
-    val sendInstallAnalytics: () -> Unit = {
-        scope.launch(Dispatchers.IO) {
-            runCatching {
-                AppCenterApi.sendInstallAnalytics(latestPackageId)
             }
         }
     }
@@ -118,8 +112,8 @@ fun UpdateDialog(
             val tempFile = File(tempDir, tempFilename)
             tempFile.createNewFile()
             runCatching {
-                AppCenterApi.downloadFile(
-                    packageInfo!!.downloadUrl,
+                GithubApi.downloadUpdate(
+                    latestReleaseBuild!!,
                     tempFile,
                     object : ProgressListener {
                         override suspend fun invoke(downloaded: Long, total: Long) {
@@ -130,9 +124,9 @@ fun UpdateDialog(
                                     .getOrDefault(0f)
                         }
                     })
-                if (!BuildConfig.DEBUG) sendInstallAnalytics()
                 if (show) installUpdate(tempFile)
             }.onFailure {
+                logger.fException(it) { "Failed to download update" }
                 updateStatus = UpdateStatus.DownloadError
             }
         }
@@ -160,7 +154,7 @@ fun UpdateDialog(
                 Text(
                     text = when (updateStatus) {
                         UpdateStatus.UpdatingInfo -> "获取更新信息中"
-                        UpdateStatus.Ready -> packageInfo!!.shortVersion
+                        UpdateStatus.Ready -> latestReleaseBuild!!.name
                         UpdateStatus.Downloading -> "下载中"
                         UpdateStatus.Installing -> "安装中"
                         UpdateStatus.NoAvailableUpdate -> "无可用更新"
@@ -177,7 +171,7 @@ fun UpdateDialog(
                     }
 
                     UpdateStatus.Ready -> {
-                        Text(text = packageInfo?.releaseNotes ?: "")
+                        Text(text = latestReleaseBuild?.body ?: "Empty content")
                     }
 
                     UpdateStatus.Downloading -> {
@@ -185,8 +179,8 @@ fun UpdateDialog(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             LinearProgressIndicator(
-                                progress = progress,
-                                modifier = Modifier.fillMaxWidth()
+                                progress = { progress },
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
