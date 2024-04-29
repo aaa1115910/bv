@@ -100,6 +100,11 @@ jobs:
           name: Release build artifact
           path: app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
 
+      # zip mapping because softprops/action-gh-release can't upload folder
+
+      - name: Zip mapping
+        run: zip -rj mapping.zip app/build/outputs/mapping/defaultRelease
+
       # upload to github release
 
       - name: Publish Release
@@ -108,7 +113,7 @@ jobs:
           files: |
             app/build/outputs/apk/default/debug/BV_${{ env.release_debug_info_version_code }}_${{ env.release_debug_info_version_name }}_default_universal.apk
             app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
-            app/build/outputs/mapping/defaultAlpha
+            mapping.zip
           tag_name: ${{ github.ref_name }}
           name: ${{ env.release_info_version_name }}
           prerelease: false

@@ -103,6 +103,11 @@ jobs:
           name: Alpha build artifact
           path: app/build/outputs/apk/default/alpha/BV_${{ env.alpha_info_version_code }}_${{ env.alpha_info_version_name }}_default_universal.apk
 
+      # zip mapping because softprops/action-gh-release can't upload folder
+
+      - name: Zip mapping
+        run: zip -rj mapping.zip app/build/outputs/mapping/defaultAlpha
+
       # upload to github release
 
       - name: Publish Pre-Release
@@ -111,7 +116,7 @@ jobs:
           files: |
             app/build/outputs/apk/default/debug/BV_${{ env.alpha_debug_info_version_code }}_${{ env.alpha_debug_info_version_name }}_default_universal.apk
             app/build/outputs/apk/default/alpha/BV_${{ env.alpha_info_version_code }}_${{ env.alpha_info_version_name }}_default_universal.apk
-            app/build/outputs/mapping/defaultAlpha
+            mapping.zip
           tag_name: ${{ env.tag_name }}
           name: ${{ env.alpha_info_version_name }}
           prerelease: true
