@@ -274,6 +274,10 @@ object Prefs {
         set(value) = runBlocking {
             dsm.editPreference(PrefKeys.prefShowedRemoteControllerPanelDemoKey, value)
         }
+
+    var preferOfficialCdn: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPreferOfficialCdnRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPreferOfficialCdn, value) }
 }
 
 object PrefKeys {
@@ -315,6 +319,7 @@ object PrefKeys {
     val prefProxyGRPCServerKey = stringPreferencesKey("proxy_grpc_server")
     val prefLastVersionCodeKey = intPreferencesKey("last_version_code")
     val prefShowedRemoteControllerPanelDemoKey = booleanPreferencesKey("showed_rcpd")
+    val prefPreferOfficialCdn = booleanPreferencesKey("prefer_official_cdn")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -364,4 +369,5 @@ object PrefKeys {
     val prefLastVersionCodeRequest = PreferenceRequest(prefLastVersionCodeKey, 0)
     val prefShowedRemoteControllerPanelDemoRequest =
         PreferenceRequest(prefShowedRemoteControllerPanelDemoKey, false)
+    val prefPreferOfficialCdnRequest = PreferenceRequest(prefPreferOfficialCdn, false)
 }

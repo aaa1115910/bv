@@ -124,7 +124,7 @@ android {
         }
     }
 
-    splits {
+    /*splits {
         if (gradle.startParameter.taskNames.find { it.startsWith("assembleDefault") } != null) {
             abi {
                 isEnable = true
@@ -133,7 +133,7 @@ android {
                 isUniversalApk = true
             }
         }
-    }
+    }*/
 
     applicationVariants.configureEach {
         val variant = this

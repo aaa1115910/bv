@@ -8,6 +8,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.net.URL
 import java.nio.file.Paths
 import java.util.Properties
 import kotlin.io.encoding.Base64
@@ -298,6 +299,30 @@ class VideoPlayRepositoryTest {
         )
         println("web result: $webResult")
         println("app result: $appResult")
+    }
+
+    @Test
+    fun `get play url domain`()= runBlocking {
+        val getUrlDomain:(String)->String={
+            val url= URL(it)
+            "${url.protocol}://${url.host}"
+        }
+        ApiType.entries.forEach { apiType ->
+            val result = videoPlayRepository.getPlayData(
+                aid = 934637444,
+                cid = 455439756,
+                preferApiType = apiType
+            )
+            println("api type: $apiType")
+
+            result.dashVideos.forEach { video ->
+                println("video quality: ${video.quality}")
+                val videoUrls= mutableListOf<String>()
+                videoUrls.add(video.baseUrl)
+                videoUrls.addAll(video.backUrl)
+                videoUrls.forEach { println(getUrlDomain(it)) }
+            }
+        }
     }
 }
 

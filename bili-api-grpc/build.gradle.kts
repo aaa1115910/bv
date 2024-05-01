@@ -46,10 +46,10 @@ protobuf {
             }
             it.plugins {
                 create("grpc") {
-                    option("lite")
+                    //option("lite")
                 }
                 create("grpckt") {
-                    option("lite")
+                    //option("lite")
                 }
             }
         }

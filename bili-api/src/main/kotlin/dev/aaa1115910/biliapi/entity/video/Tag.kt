@@ -14,5 +14,10 @@ data class Tag(
             id = tag.id.toInt(),
             name = tag.name
         )
+
+        fun fromTag(tag: dev.aaa1115910.biliapi.http.entity.video.VideoDetail.Tag) = Tag(
+            id = tag.tagId,
+            name = tag.tagName
+        )
     }
 }

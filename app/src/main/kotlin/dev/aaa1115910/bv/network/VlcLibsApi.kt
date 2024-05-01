@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.network
 
 import android.os.Build
-import dev.aaa1115910.bv.network.entity.ReleaseItem
+import dev.aaa1115910.bv.network.entity.Release
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.content.ProgressListener
@@ -53,24 +53,24 @@ object VlcLibsApi {
         }
     }
 
-    suspend fun getReleases(): List<ReleaseItem> {
-        val result = mutableListOf<ReleaseItem>()
+    suspend fun getReleases(): List<Release> {
+        val result = mutableListOf<Release>()
 
         runCatching {
             result.addAll(
-                client.get("/repos/aaa1115910/bv-libs/releases").body<List<ReleaseItem>>()
+                client.get("/repos/aaa1115910/bv-libs/releases").body<List<Release>>()
             )
         }
 
         return result
     }
 
-    suspend fun getRelease(vlcVersion: String): ReleaseItem? {
+    suspend fun getRelease(vlcVersion: String): Release? {
         return getReleases().firstOrNull { it.tagName == "libvlc-${vlcVersion}" }
     }
 
     suspend fun downloadFile(
-        releaseItem: ReleaseItem,
+        releaseItem: Release,
         file: File,
         downloadListener: ProgressListener
     ) {
