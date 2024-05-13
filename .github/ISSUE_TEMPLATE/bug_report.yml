@@ -52,8 +52,8 @@ body:
     attributes:
       label: 请确认已更新到以下所示的最新版本
       description: |
-        ![App Center Release](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Drelease)
-        ![App Center Alpha](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Dalpha)
+        ![GitHub Release Release](https://img.shields.io/github/v/release/aaa1115910/bv?display_name=release&label=release)
+        ![GitHub Release Pre-Release](https://img.shields.io/github/v/release/aaa1115910/bv?include_prereleases&display_name=release&label=alpha)
       options:
         - '我正在使用旧版本'
         - '已更新到最新 Release 版'
