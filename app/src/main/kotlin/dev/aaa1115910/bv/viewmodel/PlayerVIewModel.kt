@@ -93,8 +93,8 @@ class PlayerViewModel(
     var showLogs by mutableStateOf(false)
     var showBuffering by mutableStateOf(false)
 
-    private var currentAid = 0
-    var currentCid = 0
+    private var currentAid = 0L
+    var currentCid = 0L
 
     companion object {
         private val logger = KotlinLogging.logger { }
@@ -119,8 +119,8 @@ class PlayerViewModel(
     }
 
     fun loadPlayUrl(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         epid: Int? = null,
         seasonId: Int? = null
     ) {
@@ -147,8 +147,8 @@ class PlayerViewModel(
     }
 
     private suspend fun loadPlayUrl(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         fnval: Int = 4048,
         qn: Int = 80,
         fnver: Int = 0,
@@ -295,7 +295,7 @@ class PlayerViewModel(
         }
     }
 
-    suspend fun loadDanmaku(cid: Int) {
+    suspend fun loadDanmaku(cid: Long) {
         runCatching {
             val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 
@@ -358,7 +358,7 @@ class PlayerViewModel(
             if (!fromSeason) {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, time=$time]" }
                 BiliHttpApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                    avid = currentAid,
                     cid = currentCid,
                     playedTime = time,
                     csrf = Prefs.biliJct,
@@ -367,7 +367,7 @@ class PlayerViewModel(
             } else {
                 logger.info { "Send heartbeat: [avid=$currentAid, cid=$currentCid, epid=$epid, sid=$seasonId, time=$time]" }
                 BiliHttpApi.sendHeartbeat(
-                    avid = currentAid.toLong(),
+                    avid = currentAid,
                     cid = currentCid,
                     playedTime = time,
                     type = 4,

@@ -136,7 +136,7 @@ object BiliPassportHttpApi {
      * @param statistics 一般固定为{"appId":1,"platform":3,"version":"7.27.0","abtest":""}
      */
     suspend fun sendSms(
-        cid: Int,
+        cid: Long,
         tel: Long,
         loginSessionId: String,
         recaptchaToken: String? = null,
@@ -166,7 +166,7 @@ object BiliPassportHttpApi {
     }.body()
 
     suspend fun loginWithSms(
-        cid: Int,
+        cid: Long,
         tel: Long,
         loginSessionId: String,
         code: Int,

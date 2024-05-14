@@ -40,8 +40,8 @@ class VideoPlayRepository(
 
 
     suspend fun getPlayData(
-        aid: Int,
-        cid: Int,
+        aid: Long,
+        cid: Long,
         preferCodec: CodeType = CodeType.NoCode,
         preferApiType: ApiType = ApiType.Web
     ): PlayData {
@@ -79,8 +79,8 @@ class VideoPlayRepository(
     }
 
     suspend fun getPgcPlayData(
-        aid: Int,
-        cid: Int,
+        aid: Long,
+        cid: Long,
         epid: Int,
         preferCodec: CodeType = CodeType.NoCode,
         preferApiType: ApiType = ApiType.Web,
@@ -142,8 +142,8 @@ class VideoPlayRepository(
     }
 
     suspend fun getSubtitle(
-        aid: Int,
-        cid: Int,
+        aid: Long,
+        cid: Long,
         preferApiType: ApiType = ApiType.Web
     ): List<Subtitle> {
         return when (preferApiType) {
@@ -173,8 +173,8 @@ class VideoPlayRepository(
     }
 
     suspend fun sendHeartbeat(
-        aid: Int,
-        cid: Int,
+        aid: Long,
+        cid: Long,
         time: Int,
         type: HeartbeatVideoType = HeartbeatVideoType.Video,
         subType: Int? = null,

@@ -48,7 +48,7 @@ data class Episode(
     @SerialName("badge_type")
     val badgeType: Int = 0,
     val bvid: String = "",
-    val cid: Int,
+    val cid: Long,
     val cover: String,
     val dimension: Dimension? = null,
     val duration: Int = 0,

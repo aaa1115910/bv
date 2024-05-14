@@ -22,7 +22,7 @@ class VideoDetailViewModel(
 
     var relatedVideos = mutableStateListOf<VideoCardData>()
 
-    suspend fun loadDetail(aid: Int) {
+    suspend fun loadDetail(aid: Long) {
         logger.fInfo { "Load detail: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
         state = VideoInfoState.Loading
         runCatching {
@@ -41,7 +41,7 @@ class VideoDetailViewModel(
         }.getOrThrow()
     }
 
-    suspend fun loadDetailOnlyUpdateHistory(aid: Int) {
+    suspend fun loadDetailOnlyUpdateHistory(aid: Long) {
         logger.fInfo { "Load detail only update history: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
         runCatching {
             videoDetail?.history = videoDetailRepository.getVideoDetail(

@@ -149,10 +149,10 @@ fun SeasonInfoScreen(
 
     val defaultFocusRequester = remember { FocusRequester() }
 
-    val onClickVideo: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
+    val onClickVideo: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
         { avid, cid, epid, episodeTitle, startTime ->
             logger.debug { "onClickVideo: [avid=$avid, cid=$cid, epid=$epid, episodeTitle=$episodeTitle, startTime=$startTime]" }
-            if (cid != 0) {
+            if (cid != 0L) {
                 launchPlayerActivity(
                     context = context,
                     avid = avid,
@@ -290,8 +290,8 @@ fun SeasonInfoScreen(
                         seasonCount = seasonData!!.seasons.size,
                         onPlay = {
                             logger.fInfo { "Click play button" }
-                            var playAid = -1
-                            var playCid = -1
+                            var playAid = -1L
+                            var playCid = -1L
                             val playEpid: Int
                             var episodeList: List<Episode> = emptyList()
                             if (lastPlayProgress == null) {
@@ -300,7 +300,7 @@ fun SeasonInfoScreen(
                                 playAid = seasonData?.episodes?.first()?.aid ?: -1
                                 playCid = seasonData?.episodes?.first()?.cid ?: -1
                                 playEpid = seasonData?.episodes?.first()?.id ?: -1
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     R.string.season_no_feature_film.toast(context)
                                 } else {
                                     episodeList = seasonData?.episodes ?: emptyList()
@@ -318,7 +318,7 @@ fun SeasonInfoScreen(
                                         episodeList = seasonData?.episodes ?: emptyList()
                                     }
                                 }
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     seasonData?.sections?.forEach { section ->
                                         section.episodes.forEach {
                                             if (it.id == playEpid) {
@@ -329,7 +329,7 @@ fun SeasonInfoScreen(
                                         }
                                     }
                                 }
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     logger.fInfo { "Can't find cid" }
                                     "无法判断最后播放的剧集".toast(context)
                                 }
@@ -337,7 +337,7 @@ fun SeasonInfoScreen(
 
                             logger.fInfo { "Play aid: $playAid, cid: $playCid" }
 
-                            if (playCid != -1) {
+                            if (playCid != -1L) {
                                 onClickVideo(
                                     playAid,
                                     playCid,
@@ -733,7 +733,7 @@ fun SeasonEpisodesDialog(
     lastPlayedId: Int = 0,
     lastPlayedTime: Int = 0,
     onHideDialog: () -> Unit,
-    onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
+    onClick: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -840,7 +840,7 @@ fun SeasonEpisodesDialog(
                                 duration = episode.duration,
                                 onClick = {
                                     onClick(
-                                        episode.aid.toInt(),
+                                        episode.aid,
                                         episode.cid,
                                         episode.id,
                                         episode.longTitle,
@@ -864,7 +864,7 @@ fun SeasonEpisodeRow(
     episodes: List<Episode>,
     lastPlayedId: Int = 0,
     lastPlayedTime: Int = 0,
-    onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
+    onClick: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -940,7 +940,7 @@ fun SeasonEpisodeRow(
                     duration = episode.duration,
                     onClick = {
                         onClick(
-                            episode.aid.toInt(),
+                            episode.aid,
                             episode.cid,
                             episode.id,
                             episode.longTitle,

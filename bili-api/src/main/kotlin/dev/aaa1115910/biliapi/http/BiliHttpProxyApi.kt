@@ -65,10 +65,10 @@ object BiliHttpProxyApi {
     }
 
     suspend fun getPgcVideoPlayUrl(
-        av: Int? = null,
+        av: Long? = null,
         bv: String? = null,
         epid: Int? = null,
-        cid: Int? = null,
+        cid: Long? = null,
         qn: Int? = null,
         fnval: Int? = null,
         fnver: Int? = null,

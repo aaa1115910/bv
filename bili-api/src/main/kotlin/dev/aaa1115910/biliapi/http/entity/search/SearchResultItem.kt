@@ -378,7 +378,7 @@ data class SearchVideoResult(
     val typeName: String,
     @SerialName("arcurl")
     val arcUrl: String,
-    val aid: Int,
+    val aid: Long,
     val bvid: String,
     val title: String,
     val description: String,

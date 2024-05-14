@@ -58,7 +58,7 @@ data class ProxyWebPlayUrlData(
     @SerialName("last_play_time")
     val lastPlayTime: Int = 0,
     @SerialName("last_play_cid")
-    val lastPlayCid: Int = 0,
+    val lastPlaycid: Long = 0,
     @SerialName("clip_info_list")
     val clipInfoList: List<JsonElement> = emptyList(),
     @SerialName("record_info")
@@ -113,7 +113,7 @@ data class ProxyAppPlayUrlData(
     @SerialName("last_play_time")
     val lastPlayTime: Int = 0,
     @SerialName("last_play_cid")
-    val lastPlayCid: Int = 0,
+    val lastPlaycid: Long = 0,
     @SerialName("clip_info_list")
     val clipInfoList: List<JsonElement> = emptyList(),
     @SerialName("record_info")

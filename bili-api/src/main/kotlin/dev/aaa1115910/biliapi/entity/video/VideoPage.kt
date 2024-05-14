@@ -3,7 +3,7 @@ package dev.aaa1115910.biliapi.entity.video
 import bilibili.app.view.v1.ViewPage
 
 data class VideoPage(
-    var cid: Int,
+    var cid: Long,
     val index: Int,
     val title: String,
     val duration: Int,
@@ -11,7 +11,7 @@ data class VideoPage(
 ) {
     companion object {
         fun fromViewPage(viewPage: ViewPage) = VideoPage(
-            cid = viewPage.page.cid.toInt(),
+            cid = viewPage.page.cid,
             index = viewPage.page.page,
             title = viewPage.page.part,
             duration = viewPage.page.duration.toInt(),

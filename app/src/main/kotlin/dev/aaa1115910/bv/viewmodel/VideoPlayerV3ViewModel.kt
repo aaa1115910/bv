@@ -108,8 +108,8 @@ class VideoPlayerV3ViewModel(
     var lastChangedLog by mutableLongStateOf(System.currentTimeMillis())
     var showBuffering by mutableStateOf(false)
 
-    private var currentAid = 0
-    var currentCid = 0
+    private var currentAid = 0L
+    var currentCid = 0L
     private var currentEpid = 0
 
     private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
@@ -121,8 +121,8 @@ class VideoPlayerV3ViewModel(
     }
 
     fun loadPlayUrl(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         epid: Int? = null,
         seasonId: Int? = null,
         continuePlayNext: Boolean = false
@@ -161,8 +161,8 @@ class VideoPlayerV3ViewModel(
     }
 
     private suspend fun loadPlayUrl(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         epid: Int = 0,
         preferApi: ApiType = Prefs.apiType,
         proxyArea: ProxyArea = ProxyArea.MainLand
@@ -355,7 +355,7 @@ class VideoPlayerV3ViewModel(
         }
     }
 
-    suspend fun loadDanmaku(cid: Int) {
+    suspend fun loadDanmaku(cid: Long) {
         runCatching {
             val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 

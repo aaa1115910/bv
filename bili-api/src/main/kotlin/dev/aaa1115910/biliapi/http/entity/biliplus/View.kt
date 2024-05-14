@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class View(
-    val aid: Int,
+    val aid: Long,
     val author: String,
     val bangumi: Bangumi? = null,
     val coins: Int,
@@ -59,7 +59,7 @@ data class View(
 
     @Serializable
     data class ListItem(
-        val cid: Int,
+        val cid: Long,
         val page: Int,
         val part: String,
         val type: String,
@@ -68,9 +68,9 @@ data class View(
 
     @Serializable
     data class V2AppApi(
-        val aid: Int,
+        val aid: Long,
         val bvid: String,
-        val cid: Int,
+        val cid: Long,
         @SerialName("cm_config")
         val cmConfig: CmConfig,
         val config: Config,
@@ -260,7 +260,7 @@ data class View(
 
         @Serializable
         data class Page(
-            val cid: Int,
+            val cid: Long,
             val dimension: Dimension? = null,
             val dmlink: String? = null,
             @SerialName("download_subtitle")
@@ -284,10 +284,10 @@ data class View(
 
         @Serializable
         data class Paster(
-            val aid: Int,
+            val aid: Long,
             @SerialName("allow_jump")
             val allowJump: Int,
-            val cid: Int,
+            val cid: Long,
             val duration: Int,
             val type: Int,
             val url: String
@@ -341,7 +341,7 @@ data class View(
 
         @Serializable
         data class Stat(
-            val aid: Int,
+            val aid: Long,
             val coin: Int,
             val danmaku: Int,
             val dislike: Int,

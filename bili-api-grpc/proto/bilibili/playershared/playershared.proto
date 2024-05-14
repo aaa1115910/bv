@@ -760,9 +760,9 @@ enum UnsupportScene {
 // 播放页信息-请求: 音视频VOD
 message VideoVod {
     // 视频aid
-    int32 aid = 1;
+    int64 aid = 1;
     // 视频cid
-    int32 cid = 2;
+    int64 cid = 2;
     // 清晰度
     uint64 qn = 3;
     // 视频流版本

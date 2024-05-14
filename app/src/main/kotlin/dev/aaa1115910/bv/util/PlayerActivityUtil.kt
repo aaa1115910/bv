@@ -8,8 +8,8 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 
 fun launchPlayerActivity(
     context: Context,
-    avid: Int,
-    cid: Int,
+    avid: Long,
+    cid: Long,
     title: String,
     partTitle: String,
     played: Int,

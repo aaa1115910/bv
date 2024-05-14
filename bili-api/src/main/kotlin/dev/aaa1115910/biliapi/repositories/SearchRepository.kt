@@ -306,7 +306,7 @@ data class SearchTypeResult(
     interface SearchTypeResultItem
 
     data class Video(
-        val aid: Int,
+        val aid: Long,
         val bvid: String,
         val title: String,
         val cover: String,
@@ -330,7 +330,7 @@ data class SearchTypeResult(
 
             fun fromSearchVideoCard(video: bilibili.polymer.app.search.v1.Item) =
                 Video(
-                    aid = video.param.toInt(),
+                    aid = video.param.toLong(),
                     bvid = video.av.share.video.bvid,
                     title = video.av.title,
                     cover = video.av.cover,

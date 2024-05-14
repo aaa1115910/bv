@@ -10,8 +10,8 @@ import java.util.Date
 
 data class VideoDetail(
     val bvid: String,
-    val aid: Int,
-    val cid: Int,
+    val aid: Long,
+    val cid: Long,
     val cover: String,
     val title: String,
     val publishDate: Date,
@@ -31,8 +31,8 @@ data class VideoDetail(
     companion object {
         fun fromViewReply(viewReply: ViewReply) = VideoDetail(
             bvid = viewReply.bvid,
-            aid = viewReply.arc.aid.toInt(),
-            cid = viewReply.arc.firstCid.toInt(),
+            aid = viewReply.arc.aid,
+            cid = viewReply.arc.firstCid,
             cover = viewReply.arc.pic,
             title = viewReply.arc.title,
             publishDate = Date(viewReply.arc.pubdate * 1000L),
@@ -112,12 +112,12 @@ data class VideoDetail(
 
     data class History(
         val progress: Int,
-        val lastPlayedCid: Int
+        val lastPlayedCid: Long
     ) {
         companion object {
             fun fromHistory(history: bilibili.app.view.v1.History) = History(
                 progress = history.progress.toInt(),
-                lastPlayedCid = history.cid.toInt()
+                lastPlayedCid = history.cid
             )
         }
     }

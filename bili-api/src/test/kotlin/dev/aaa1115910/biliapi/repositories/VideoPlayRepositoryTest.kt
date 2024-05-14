@@ -277,7 +277,7 @@ class VideoPlayRepositoryTest {
 
     @Test
     fun `get region limited pgc play data`() = runBlocking {
-        val cid = 1199794768
+        val cid = 1199794768L
         val epid = 763396
         val enableProxy = true
         val proxyArea = "hk"

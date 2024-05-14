@@ -29,12 +29,12 @@ data class RcmdTopData(
         @SerialName("business_info")
         val businessInfo: BusinessInfo?,
         val bvid: String,
-        val cid: Int,
+        val cid: Long,
         val duration: Int,
         @SerialName("enable_vt")
         val enableVt: Int,
         val goto: String,
-        val id: Int,
+        val id: Long,
         @SerialName("is_followed")
         val isFollowed: Int,
         @SerialName("is_stock")
