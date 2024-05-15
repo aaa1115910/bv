@@ -97,3 +97,8 @@
 # gRPC
 -keep class bilibili.rpc.** { *; }
 -keep class com.google.protobuf.** { *; }
+-dontwarn com.google.protobuf.GeneratedMessageV3$Builder
+-dontwarn com.google.protobuf.GeneratedMessageV3$BuilderParent
+-dontwarn com.google.protobuf.GeneratedMessageV3$FieldAccessorTable
+-dontwarn com.google.protobuf.GeneratedMessageV3
+-dontwarn com.google.protobuf.RepeatedFieldBuilderV3

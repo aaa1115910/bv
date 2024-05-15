@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -150,7 +151,7 @@ fun VideoInfoScreen(
     var showFollowButton by remember { mutableStateOf(false) }
     var isFollowing by remember { mutableStateOf(false) }
 
-    var lastPlayedCid by remember { mutableIntStateOf(0) }
+    var lastPlayedCid by remember { mutableLongStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
 
     var tip by remember { mutableStateOf("Loading") }
@@ -225,7 +226,7 @@ fun VideoInfoScreen(
         }
     }
 
-    val fetchFavoriteData: (Int) -> Unit = { avid ->
+    val fetchFavoriteData: (Long) -> Unit = { avid ->
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val favoriteFolderMetadataListResult =
@@ -303,7 +304,7 @@ fun VideoInfoScreen(
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
-            val aid = intent.getIntExtra("aid", 170001)
+            val aid = intent.getLongExtra("aid", 170001)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
             proxyArea = ProxyArea.entries[intent.getIntExtra("proxyArea", 0)]
             //获取视频信息
@@ -1069,10 +1070,10 @@ private fun VideoPartRowButton(
 fun VideoPartRow(
     modifier: Modifier = Modifier,
     pages: List<VideoPage>,
-    lastPlayedCid: Int = 0,
+    lastPlayedCid: Long = 0,
     lastPlayedTime: Int = 0,
     enablePartListDialog: Boolean = false,
-    onClick: (cid: Int) -> Unit
+    onClick: (cid: Long) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -1138,10 +1139,10 @@ fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
     title: String,
     episodes: List<Episode>,
-    lastPlayedCid: Int = 0,
+    lastPlayedCid: Long = 0,
     lastPlayedTime: Int = 0,
     enableUgcListDialog: Boolean = false,
-    onClick: (avid: Int, cid: Int) -> Unit
+    onClick: (avid: Long, cid: Long) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -1209,7 +1210,7 @@ private fun VideoPartListDialog(
     title: String,
     pages: List<VideoPage>,
     onHideDialog: () -> Unit,
-    onClick: (cid: Int) -> Unit
+    onClick: (cid: Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1318,7 +1319,7 @@ private fun VideoUgcListDialog(
     title: String,
     episodes: List<Episode>,
     onHideDialog: () -> Unit,
-    onClick: (avid: Int, cid: Int) -> Unit
+    onClick: (avid: Long, cid: Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1453,7 +1454,7 @@ fun VideoPartRowPreview() {
     for (i in 0..10) {
         pages.add(
             VideoPage(
-                cid = 1000 + i,
+                cid = 1000L + i,
                 index = i,
                 title = "这可能是我这辈子距离梅西最近的一次",
                 duration = 10,

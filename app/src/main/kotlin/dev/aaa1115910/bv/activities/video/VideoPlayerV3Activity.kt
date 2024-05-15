@@ -25,8 +25,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
         private val logger = KotlinLogging.logger { }
         fun actionStart(
             context: Context,
-            avid: Int,
-            cid: Int,
+            avid: Long,
+            cid: Long,
             title: String,
             partTitle: String,
             played: Int,
@@ -106,8 +106,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
 
     private fun getParamsFromIntent() {
         if (intent.hasExtra("avid")) {
-            val aid = intent.getIntExtra("avid", 170001)
-            val cid = intent.getIntExtra("cid", 170001)
+            val aid = intent.getLongExtra("avid", 170001)
+            val cid = intent.getLongExtra("cid", 170001)
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)

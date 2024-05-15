@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="anime_home_button_following">正在追</string>
+    <string name="anime_home_button_gamer_ani">動畫風</string>
     <string name="anime_home_button_index">索引</string>
     <string name="anime_home_button_timeline">时间表</string>
-    <string name="anime_home_button_unknown">待定</string>
 
     <string name="app_name">BV</string>
 
@@ -12,6 +12,26 @@
     <string name="audio_64k">64K</string>
     <string name="audio_dolby_atoms">Dolby Atoms</string>
     <string name="audio_hi_res">Hi-Res</string>
+
+    <string name="codec_detail_audio_bitrate_range_title">音频码率范围</string>
+    <string name="codec_detail_color_formats_title">颜色格式</string>
+    <string name="codec_detail_hs_hardware">硬解</string>
+    <string name="codec_detail_hs_software">软解</string>
+    <string name="codec_detail_hs_title">软硬解码</string>
+    <string name="codec_detail_max_supported_instances_title">最大并发编解码器实例数量</string>
+    <string name="codec_detail_video_frame_achievable_title">可实现的视频帧率（可能无数据）</string>
+    <string name="codec_detail_video_frame_range_title">视频帧率范围</string>
+    <string name="codec_detail_video_frame_supported_title">支持的视频帧率</string>
+    <string name="codec_detail_video_frame_unsupported">不受支持</string>
+    <string name="codec_detail_video_max_bitrate_title">最大视频码率</string>
+    <string name="codec_detail_video_resolution_1080p">1080P</string>
+    <string name="codec_detail_video_resolution_1440p">2K</string>
+    <string name="codec_detail_video_resolution_2160p">4K</string>
+    <string name="codec_detail_video_resolution_360p">360P</string>
+    <string name="codec_detail_video_resolution_4320p">8K</string>
+    <string name="codec_detail_video_resolution_480p">480P</string>
+    <string name="codec_detail_video_resolution_720p">720P</string>
+    <string name="codec_detail_video_resolution_unknown">Unknown</string>
 
     <string name="common_cancel">取消</string>
     <string name="common_confirm">确定</string>
@@ -191,6 +211,8 @@
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
     <string name="settings_network_enable_proxy_title">启用代理</string>
+    <string name="settings_network_prefer_official_cdn_text">优先使用获取到的官方 CDN</string>
+    <string name="settings_network_prefer_official_cdn_title">P(M)CDN 快走开</string>
     <string name="settings_network_proxy_grpc_server_title">gRPC 接口代理服务器</string>
     <string name="settings_network_proxy_http_server_title">HTTP 接口代理服务器</string>
     <string name="settings_network_proxy_server_content_empty">未填写</string>
@@ -231,6 +253,7 @@
     <string name="title_activity_history">历史记录</string>
     <string name="title_activity_login">登录</string>
     <string name="title_activity_logs">日志列表</string>
+    <string name="title_activity_media_codec">解码器信息</string>
     <string name="title_activity_remote_controller_panel_demo">遥控板按键演示</string>
     <string name="title_activity_search_input">搜索输入</string>
     <string name="title_activity_search_result">搜索结果</string>
@@ -310,4 +333,5 @@
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
+    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
 </resources>

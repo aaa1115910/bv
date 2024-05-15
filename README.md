@@ -6,12 +6,12 @@
 
 ~~Bug Video~~
 
-[![App Center Release](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Drelease)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
-[![App Center Alpha](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge.versions.bv.aaa1115910.dev%2F%3Ftype%3Dalpha)](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
+[![GitHub Release Release](https://img.shields.io/github/v/release/aaa1115910/bv?display_name=release&label=release)](https://github.com/aaa1115910/bv/releases?q=prerelease%3Afalse)
+[![GitHub Release Pre-Release](https://img.shields.io/github/v/release/aaa1115910/bv?include_prereleases&display_name=release&label=alpha)](https://github.com/aaa1115910/bv/releases?q=prerelease%3Atrue)
 
 [![Workflow Release](https://github.com/aaa1115910/bv/actions/workflows/release.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
 [![Workflow Alpha](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml/badge.svg)](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
-[![Android Sdk Require](https://img.shields.io/badge/android-5.0%2B-informational)](https://developer.android.com/jetpack/compose/interop/adding#:~:text=minimum%20API%20level%20to%2021%20or%20higher%2C)
+[![Android Sdk Require](https://img.shields.io/badge/Android-5.0%2B-informational?logo=android)](https://apilevels.com/#:~:text=Jetpack%20Compose%20requires%20a%20minSdk%20of%2021%20or%20higher)
 [![GitHub](https://img.shields.io/github/license/aaa1115910/bv)](https://github.com/aaa1115910/bv)
 
 **BV 不支持在中国大陆地区内使用，如有相关使用需求请使用 [云视听小电视](https://app.bilibili.com)**
@@ -36,13 +36,11 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ### Release
 
-- [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/release.yml)
-- [AppCenter](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/public)
+- [Github Release](https://github.com/aaa1115910/bv/releases?q=prerelease%3Afalse)
 
 ### Alpha
 
-- [Github Actions](https://github.com/aaa1115910/bv/actions/workflows/alpha.yml)
-- [AppCenter](https://install.appcenter.ms/users/aaa1115910-gmail.com/apps/bv/distribution_groups/alpha)
+- [Github Release](https://github.com/aaa1115910/bv/releases?q=prerelease%3Atrue)
 
 ## License
 

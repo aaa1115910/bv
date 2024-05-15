@@ -3,7 +3,7 @@ package dev.aaa1115910.bv.entity.carddata
 import dev.aaa1115910.bv.util.formatMinSec
 
 data class VideoCardData(
-    val avid: Int,
+    val avid: Long,
     val title: String,
     val cover: String,
     val upName: String,

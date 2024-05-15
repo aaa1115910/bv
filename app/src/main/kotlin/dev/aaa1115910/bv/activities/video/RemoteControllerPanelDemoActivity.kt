@@ -19,8 +19,8 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
     companion object {
         fun actionStart(
             context: Context,
-            avid: Int,
-            cid: Int,
+            avid: Long,
+            cid: Long,
             title: String,
             partTitle: String,
             played: Int,
@@ -70,8 +70,8 @@ fun RemoteControllerPanelDemoScreen(
         Prefs.showedRemoteControllerPanelDemo = true
         VideoPlayerV3Activity.actionStart(
             context = context,
-            avid = intent.getIntExtra("avid", 0),
-            cid = intent.getIntExtra("cid", 0),
+            avid = intent.getLongExtra("avid", 0),
+            cid = intent.getLongExtra("cid", 0),
             title = intent.getStringExtra("title") ?: "",
             partTitle = intent.getStringExtra("partTitle") ?: "",
             played = intent.getIntExtra("played", 0),

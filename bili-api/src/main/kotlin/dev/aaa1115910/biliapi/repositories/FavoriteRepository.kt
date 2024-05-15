@@ -10,7 +10,7 @@ class FavoriteRepository(
     private val authRepository: AuthRepository
 ) {
     suspend fun checkVideoFavoured(
-        aid: Int,
+        aid: Long,
         preferApiType: ApiType = ApiType.Web
     ): Boolean {
         return when (preferApiType) {
@@ -27,7 +27,7 @@ class FavoriteRepository(
     }
 
     suspend fun addVideoToFavoriteFolder(
-        aid: Int,
+        aid: Long,
         addMediaIds: List<Long>,
         preferApiType: ApiType = ApiType.Web
     ) {
@@ -50,7 +50,7 @@ class FavoriteRepository(
     }
 
     suspend fun delVideoFromFavoriteFolder(
-        aid: Int,
+        aid: Long,
         delMediaIds: List<Long>,
         preferApiType: ApiType = ApiType.Web
     ) {
@@ -73,7 +73,7 @@ class FavoriteRepository(
     }
 
     suspend fun updateVideoToFavoriteFolder(
-        aid: Int,
+        aid: Long,
         addMediaIds: List<Long>,
         delMediaIds: List<Long>,
         preferApiType: ApiType = ApiType.Web
@@ -101,7 +101,7 @@ class FavoriteRepository(
     suspend fun getAllFavoriteFolderMetadataList(
         mid: Long,
         type: FavoriteItemType = FavoriteItemType.Video,
-        rid: Int? = null,
+        rid: Long? = null,
         preferApiType: ApiType = ApiType.Web
     ): List<FavoriteFolderMetadata> {
         val userFavoriteFoldersData = when (preferApiType) {

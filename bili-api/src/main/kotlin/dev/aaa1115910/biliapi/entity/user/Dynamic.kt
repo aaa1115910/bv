@@ -51,9 +51,9 @@ data class DynamicVideoData(
  * @property danmaku 视频弹幕数
  */
 data class DynamicVideo(
-    val aid: Int,
+    val aid: Long,
     val bvid: String? = null,
-    val cid: Int,
+    val cid: Long,
     val epid: Int? = null,
     val seasonId: Int? = null,
     val title: String,
@@ -68,7 +68,7 @@ data class DynamicVideo(
             val archive = item.modules.moduleDynamic.major!!.archive!!
             val author = item.modules.moduleAuthor
             return DynamicVideo(
-                aid = archive.aid.toInt(),
+                aid = archive.aid.toLong(),
                 bvid = archive.bvid,
                 cid = 0,
                 title = archive.title
@@ -93,9 +93,9 @@ data class DynamicVideo(
                 ModuleDynamic.ModuleItemCase.DYN_ARCHIVE -> {
                     val archive = dynamic.dynArchive
                     return DynamicVideo(
-                        aid = archive.avid.toInt(),
+                        aid = archive.avid,
                         bvid = archive.bvid,
-                        cid = archive.cid.toInt(),
+                        cid = archive.cid,
                         title = if (!isDynamicVideo) archive.title else desc!!.text.substring(5),
                         cover = archive.cover,
                         author = author.name,
@@ -108,9 +108,9 @@ data class DynamicVideo(
                 ModuleDynamic.ModuleItemCase.DYN_PGC -> {
                     val pgc = dynamic.dynPgc
                     return DynamicVideo(
-                        aid = pgc.aid.toInt(),
+                        aid = pgc.aid,
                         bvid = null,
-                        cid = pgc.cid.toInt(),
+                        cid = pgc.cid,
                         epid = pgc.cid.toInt(),
                         seasonId = pgc.seasonId.toInt(),
                         title = pgc.title,

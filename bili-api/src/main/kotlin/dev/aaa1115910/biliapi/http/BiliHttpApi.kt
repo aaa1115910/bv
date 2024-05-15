@@ -165,7 +165,7 @@ object BiliHttpApi {
      * 获取视频超详细信息
      */
     suspend fun getVideoDetail(
-        av: Int? = null,
+        av: Long? = null,
         bv: String? = null,
         sessData: String? = null
     ): BiliResponse<VideoDetail> = client.get("/x/web-interface/view/detail") {
@@ -178,9 +178,9 @@ object BiliHttpApi {
      * 获取视频流
      */
     suspend fun getVideoPlayUrl(
-        av: Int? = null,
+        av: Long? = null,
         bv: String? = null,
-        cid: Int,
+        cid: Long,
         qn: Int? = null,
         fnval: Int? = null,
         fnver: Int? = null,
@@ -210,10 +210,10 @@ object BiliHttpApi {
      * 获取剧集视频流
      */
     suspend fun getPgcVideoPlayUrl(
-        av: Int? = null,
+        av: Long? = null,
         bv: String? = null,
         epid: Int? = null,
-        cid: Int? = null,
+        cid: Long? = null,
         qn: Int? = null,
         fnval: Int? = null,
         fnver: Int? = null,
@@ -247,7 +247,7 @@ object BiliHttpApi {
      * 通过[cid]获取视频弹幕
      */
     suspend fun getDanmakuXml(
-        cid: Int,
+        cid: Long,
         sessData: String = ""
     ): DanmakuResponse {
         val xmlChannel = client.get("/x/v1/dm/list.so") {
@@ -396,7 +396,7 @@ object BiliHttpApi {
     suspend fun getAllFavoriteFoldersInfo(
         mid: Long,
         type: Int = 0,
-        rid: Int? = null,
+        rid: Long? = null,
         accessKey: String? = null,
         sessData: String? = null
     ): BiliResponse<UserFavoriteFoldersData> = client.get("/x/v3/fav/folder/created/list-all") {
@@ -482,7 +482,7 @@ object BiliHttpApi {
     suspend fun sendHeartbeat(
         avid: Long? = null,
         bvid: String? = null,
-        cid: Int? = null,
+        cid: Long? = null,
         epid: Int? = null,
         sid: Int? = null,
         mid: Long? = null,
@@ -521,7 +521,7 @@ object BiliHttpApi {
     suspend fun sendHeartbeat(
         avid: Long? = null,
         bvid: String? = null,
-        cid: Int? = null,
+        cid: Long? = null,
         epid: Int? = null,
         sid: Int? = null,
         mid: Long? = null,
@@ -559,8 +559,8 @@ object BiliHttpApi {
      * 获取视频[avid]的[cid]视频更多信息，例如播放进度
      */
     suspend fun getVideoMoreInfo(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         sessData: String
     ): BiliResponse<VideoMoreInfo> = client.get("/x/player/v2") {
         parameter("aid", avid)
@@ -576,7 +576,7 @@ object BiliHttpApi {
      * @param sessData SESSDATA
      */
     suspend fun sendVideoLike(
-        avid: Int? = null,
+        avid: Long? = null,
         bvid: String? = null,
         like: Boolean = true,
         csrf: String,
@@ -601,7 +601,7 @@ object BiliHttpApi {
      * 检查视频[avid]或[bvid]是否已点赞
      */
     suspend fun checkVideoLiked(
-        avid: Int? = null,
+        avid: Long? = null,
         bvid: String? = null,
         sessData: String
     ): Boolean {
@@ -625,7 +625,7 @@ object BiliHttpApi {
      * @param sessData SESSDATA
      */
     suspend fun sendVideoCoin(
-        avid: Int? = null,
+        avid: Long? = null,
         bvid: String? = null,
         multiply: Int = 1,
         like: Boolean = false,
@@ -652,7 +652,7 @@ object BiliHttpApi {
      * 检查视频[avid]或[bvid]是否已投币
      */
     suspend fun checkVideoSentCoin(
-        avid: Int? = null,
+        avid: Long? = null,
         bvid: String? = null,
         sessData: String
     ): Boolean {
@@ -671,7 +671,7 @@ object BiliHttpApi {
      * 为视频[avid]添加到[addMediaIds]或从[delMediaIds]移除
      */
     suspend fun setVideoToFavorite(
-        avid: Int,
+        avid: Long,
         type: Int = 2,
         addMediaIds: List<Long> = listOf(),
         delMediaIds: List<Long> = listOf(),
@@ -704,7 +704,7 @@ object BiliHttpApi {
      * 检查视频[avid]是否已收藏
      */
     suspend fun checkVideoFavoured(
-        avid: Int,
+        avid: Long,
         accessKey: String? = null,
         sessData: String? = null
     ): Boolean {
@@ -752,7 +752,7 @@ object BiliHttpApi {
 
     suspend fun getAppUserSpaceVideos(
         mid: Long,
-        lastAvid: Int,
+        lastAvid: Long,
         order: String = "pubdate",
         accessKey: String
     ): BiliResponse<AppSpaceVideoData> =
@@ -912,7 +912,7 @@ object BiliHttpApi {
      * 获取视频[avid]/[bvid]的视频标签[Tag]
      */
     suspend fun getVideoTags(
-        avid: Int? = null,
+        avid: Long? = null,
         bvid: String? = null,
         sessData: String = ""
     ): BiliResponse<List<Tag>> = client.get("/x/tag/archive/tags") {

@@ -61,7 +61,7 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable
 data class VideoInfo(
     val bvid: String,
-    val aid: Int,
+    val aid: Long,
     val videos: Int,
     val tid: Int,
     val tname: String,
@@ -82,7 +82,7 @@ data class VideoInfo(
     val owner: VideoOwner,
     val stat: VideoStat,
     val dynamic: String,
-    val cid: Int,
+    val cid: Long,
     val dimension: Dimension,
     val premiere: Premiere? = null,
     @SerialName("teenage_mode")
@@ -233,7 +233,7 @@ data class VideoOwner(
  */
 @Serializable
 data class VideoStat(
-    val aid: Int = 0,
+    val aid: Long = 0,
     val view: Int = 0,
     val danmaku: Int = 0,
     val reply: Int = 0,
@@ -288,7 +288,7 @@ data class Premiere(
  */
 @Serializable
 data class VideoPage(
-    val cid: Int,
+    val cid: Long,
     val page: Int,
     val from: String,
     val part: String,
@@ -318,7 +318,7 @@ data class HonorReply(
  */
 @Serializable
 data class HonorReplyItem(
-    val aid: Int,
+    val aid: Long,
     val type: Int,
     val desc: String,
     @SerialName("weekly_recommend_num")

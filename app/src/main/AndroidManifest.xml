@@ -17,6 +17,10 @@
         android:name="android.hardware.wifi"
         android:required="false" />
 
+    <queries>
+        <package android:name="tw.com.gamer.android.animad" />
+    </queries>
+
     <application
         android:name=".BVApp"
         android:allowBackup="true"
@@ -40,6 +44,11 @@
             android:name=".activities.user.UserSwitchActivity"
             android:exported="true"
             android:label="@string/title_activity_user_switch"
+            android:theme="@style/Theme.BV" />
+        <activity
+            android:name=".activities.settings.MediaCodecActivity"
+            android:exported="true"
+            android:label="@string/title_activity_media_codec"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.VideoPlayerV3Activity"

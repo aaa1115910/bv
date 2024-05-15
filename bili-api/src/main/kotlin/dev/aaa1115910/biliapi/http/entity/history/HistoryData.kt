@@ -124,11 +124,11 @@ data class HistoryItem(
      */
     @Serializable
     data class HistoryInfo(
-        val oid: Int,
+        val oid: Long,
         val epid: Int,
         val bvid: String,
         val page: Int,
-        val cid: Int,
+        val cid: Long,
         val part: String,
         val business: String,
         val dt: Int

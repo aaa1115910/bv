@@ -1,7 +1,8 @@
 package dev.aaa1115910.biliapi.grpc.utils
 
+import bilibili.rpc.Status
 import com.google.protobuf.Message
-import com.google.rpc.Status
+//import com.google.rpc.Status
 import io.grpc.Metadata
 import io.grpc.StatusException
 

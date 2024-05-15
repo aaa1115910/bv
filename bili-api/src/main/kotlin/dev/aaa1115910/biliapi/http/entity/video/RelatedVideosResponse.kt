@@ -45,7 +45,7 @@ data class RelatedVideosResponse(
 @Serializable
 data class RelatedVideoInfo(
     val bvid: String,
-    val aid: Int,
+    val aid: Long,
     val videos: Int,
     val tid: Int,
     val tname: String,
@@ -61,7 +61,7 @@ data class RelatedVideoInfo(
     val owner: VideoOwner,
     val stat: VideoStat,
     val dynamic: String,
-    val cid: Int,
+    val cid: Long,
     val dimension: Dimension,
     @SerialName("short_link")
     val shortLink: String? = null,

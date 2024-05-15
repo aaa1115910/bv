@@ -81,7 +81,7 @@ data class WebSpaceVideoData(
          */
         @Serializable
         data class VListItem(
-            val aid: Int,
+            val aid: Long,
             val bvid: String,
             val author: String,
             val comment: Int,
@@ -133,7 +133,7 @@ data class WebSpaceVideoData(
                 @SerialName("ep_count")
                 val epCount: Int,
                 @SerialName("first_aid")
-                val firstAid: Int,
+                val firstAid: Long,
                 val ptime: Int,
                 @SerialName("ep_num")
                 val epNum: Int
@@ -224,7 +224,7 @@ data class AppSpaceVideoData(
         @SerialName("three_point")
         val threePoint: List<ThreePointItem> = emptyList(),
         @SerialName("first_cid")
-        val firstCid: Int,
+        val firstcid: Long,
         @SerialName("cursor_attr")
         val cursorAttr: CursorAttr,
         @SerialName("icon_type")

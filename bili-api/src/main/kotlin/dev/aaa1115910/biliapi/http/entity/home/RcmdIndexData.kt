@@ -120,7 +120,7 @@ data class RcmdIndexData(
     ) {
         @Serializable
         data class Args(
-            val aid: Int? = null,
+            val aid: Long? = null,
             val rid: Int? = null,
             val rname: String? = null,
             val tid: Int? = null,
@@ -153,8 +153,8 @@ data class RcmdIndexData(
 
         @Serializable
         data class PlayerArgs(
-            val aid: Int,
-            val cid: Int,
+            val aid: Long,
+            val cid: Long,
             val duration: Int,
             val type: String
         )

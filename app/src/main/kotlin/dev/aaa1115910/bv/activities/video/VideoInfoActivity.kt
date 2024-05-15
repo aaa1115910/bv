@@ -12,7 +12,7 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 class VideoInfoActivity : ComponentActivity() {
     companion object {
         fun actionStart(
-            context: Context, aid: Int,
+            context: Context, aid: Long,
             fromSeason: Boolean = false,
             proxyArea: ProxyArea = ProxyArea.MainLand
         ) {

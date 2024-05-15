@@ -26,9 +26,12 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.settings.UpdateDialog
-import dev.aaa1115910.bv.network.AppCenterApi
+import dev.aaa1115910.bv.network.GithubApi
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.fException
+import dev.aaa1115910.bv.util.fInfo
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -38,6 +41,7 @@ fun AboutSetting(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val logger = KotlinLogging.logger("AboutSetting")
 
     var showUpdateDialog by remember { mutableStateOf(false) }
     var latestVersionName by remember { mutableStateOf("Loading...") }
@@ -45,9 +49,10 @@ fun AboutSetting(
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             runCatching {
-                val latestVersion = AppCenterApi.getLatestVersion()
-                latestVersionName = latestVersion.second
+                latestVersionName = GithubApi.getLatestBuild().name
+                logger.fInfo { "Find latest version $latestVersionName" }
             }.onFailure {
+                logger.fException(it) { "Failed to get latest version" }
                 latestVersionName = "Error"
             }
         }

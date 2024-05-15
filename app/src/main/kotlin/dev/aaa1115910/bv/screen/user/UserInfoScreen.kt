@@ -235,7 +235,7 @@ fun UserInfoScreen(
                 favoriteItems.forEach { favoriteItem ->
                     favorites.add(
                         VideoCardData(
-                            avid = favoriteItem.id.toInt(),
+                            avid = favoriteItem.id,
                             title = favoriteItem.title,
                             cover = favoriteItem.cover,
                             upName = favoriteItem.upper.name,

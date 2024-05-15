@@ -36,7 +36,7 @@ import dev.aaa1115910.bv.util.requestFocus
 fun VideoListController(
     modifier: Modifier = Modifier,
     show: Boolean,
-    currentCid: Int,
+    currentCid: Long,
     videoList: List<VideoListItem>,
     onPlayNewVideo: (VideoListItem) -> Unit
 ) {
