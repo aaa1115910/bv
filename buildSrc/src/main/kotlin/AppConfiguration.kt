@@ -6,7 +6,7 @@ object AppConfiguration {
     private const val major = 0
     private const val minor = 2
     private const val patch = 7
-    private const val bugFix = 0
+    private const val bugFix = 1
 
     @Suppress("KotlinConstantConditions")
     val versionName: String by lazy {
