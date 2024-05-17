@@ -53,7 +53,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,6 +63,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -79,9 +79,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.SuggestionChip
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
@@ -132,7 +132,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -684,7 +683,6 @@ fun VideoInfoScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ArgueTip(
     modifier: Modifier = Modifier,
@@ -694,7 +692,7 @@ fun ArgueTip(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 50.dp),
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Yellow.copy(alpha = 0.2f),
             contentColor = Color.Yellow
         ),
@@ -849,7 +847,6 @@ fun VideoInfoData(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UpButton(
     modifier: Modifier = Modifier,
@@ -913,7 +910,6 @@ private fun UpButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescription(
     modifier: Modifier = Modifier,
@@ -963,7 +959,6 @@ fun VideoDescription(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescriptionDialog(
     modifier: Modifier = Modifier,
@@ -993,7 +988,6 @@ fun VideoDescriptionDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
@@ -1034,7 +1028,6 @@ fun VideoPartButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartRowButton(
     modifier: Modifier = Modifier,
@@ -1065,7 +1058,6 @@ private fun VideoPartRowButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
@@ -1133,7 +1125,6 @@ fun VideoPartRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
@@ -1202,7 +1193,6 @@ fun VideoUgcSeasonRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartListDialog(
     modifier: Modifier = Modifier,
@@ -1311,7 +1301,6 @@ private fun VideoPartListDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoUgcListDialog(
     modifier: Modifier = Modifier,

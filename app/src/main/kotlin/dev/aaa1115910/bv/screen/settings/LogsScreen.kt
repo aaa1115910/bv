@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -157,7 +156,6 @@ fun LogsScreen(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LogsScreenContent(
     modifier: Modifier = Modifier,
@@ -263,7 +261,6 @@ fun LogsScreenContent(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LogItem(
     modifier: Modifier = Modifier,
@@ -300,7 +297,6 @@ fun LogItem(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun CreateLogItem(
     modifier: Modifier = Modifier,

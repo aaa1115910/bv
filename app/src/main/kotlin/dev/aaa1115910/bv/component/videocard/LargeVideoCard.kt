@@ -32,10 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.component.UpIcon
@@ -43,7 +42,6 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.focusedBorder
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LargeVideoCard(
     modifier: Modifier = Modifier,
@@ -96,7 +94,7 @@ fun LargeVideoCard(
                             .fillMaxHeight()
                             .aspectRatio(1.6f),
                         shape = MaterialTheme.shapes.large,
-                        colors = NonInteractiveSurfaceDefaults.colors(
+                        colors = SurfaceDefaults.colors(
                             containerColor = Color.White
                         )
                     ) {}
@@ -105,7 +103,7 @@ fun LargeVideoCard(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp),
-                    colors = NonInteractiveSurfaceDefaults.colors(
+                    colors = SurfaceDefaults.colors(
                         containerColor = Color.Black.copy(alpha = 0.5f)
                     ),
                     shape = RoundedCornerShape(6.dp)
@@ -168,7 +166,6 @@ fun LargeVideoCard(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview
 @Composable
 fun LargeVideoCardPreview() {

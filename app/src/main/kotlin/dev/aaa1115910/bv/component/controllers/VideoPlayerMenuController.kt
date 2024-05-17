@@ -37,9 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.DenseListItem
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bv.BuildConfig
@@ -54,7 +53,6 @@ import dev.aaa1115910.bv.util.requestFocus
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.text.NumberFormat
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerMenuController(
     modifier: Modifier = Modifier,
@@ -82,7 +80,7 @@ fun VideoPlayerMenuController(
 
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(alpha = 0.5f)
         )
     ) {
@@ -602,7 +600,6 @@ fun SubtitleBottomPaddingContent(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MenuListItem(
     modifier: Modifier = Modifier,

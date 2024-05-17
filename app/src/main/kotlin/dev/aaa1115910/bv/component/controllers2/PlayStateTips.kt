@@ -29,11 +29,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import io.github.g0dkar.qrcode.QRCode
@@ -84,14 +83,13 @@ fun PlayStateTips(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PauseIcon(
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(0.5f)
         ),
         shape = MaterialTheme.shapes.medium
@@ -107,7 +105,6 @@ fun PauseIcon(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BufferingTip(
     modifier: Modifier = Modifier,
@@ -115,7 +112,7 @@ fun BufferingTip(
 ) {
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(0.5f)
         ),
         shape = MaterialTheme.shapes.medium
@@ -140,7 +137,6 @@ fun BufferingTip(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayErrorTip(
     modifier: Modifier = Modifier,
@@ -148,7 +144,7 @@ fun PlayErrorTip(
 ) {
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(0.5f)
         ),
         shape = MaterialTheme.shapes.medium
@@ -168,7 +164,6 @@ fun PlayErrorTip(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PaidRequireTip(
     modifier: Modifier = Modifier,
@@ -192,7 +187,7 @@ fun PaidRequireTip(
     }
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(0.5f)
         ),
         shape = MaterialTheme.shapes.medium

@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
@@ -44,7 +43,6 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,

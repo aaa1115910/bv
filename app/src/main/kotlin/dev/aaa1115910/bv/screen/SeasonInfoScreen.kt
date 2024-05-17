@@ -56,7 +56,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +65,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -78,10 +78,8 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
-import androidx.tv.material3.ImmersiveList
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -121,7 +119,6 @@ import kotlinx.coroutines.withContext
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -493,7 +490,6 @@ fun SeasonInfoScreen(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonCover(
     modifier: Modifier = Modifier,
@@ -555,7 +551,6 @@ fun SeasonCover(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonBaseInfo(
     modifier: Modifier = Modifier,
@@ -645,7 +640,6 @@ fun SeasonInfoPart(
 }
 
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeButton(
     modifier: Modifier = Modifier,
@@ -723,7 +717,6 @@ fun SeasonEpisodeButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodesDialog(
     modifier: Modifier = Modifier,
@@ -856,7 +849,6 @@ fun SeasonEpisodesDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeRow(
     modifier: Modifier = Modifier,
@@ -996,7 +988,7 @@ fun SeasonSelector(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SeasonSelectorContent(
     modifier: Modifier = Modifier,
@@ -1049,97 +1041,101 @@ private fun SeasonSelectorContent(
             },
         shape = RoundedCornerShape(0.dp)
     ) {
-        ImmersiveList(
-            modifier = Modifier.fillMaxSize(),
-            listAlignment = Alignment.BottomStart,
-            background = { index, _ ->
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .fillMaxHeight(0.7f)
-                            .graphicsLayer { alpha = 0.99f }
-                            .drawWithContent {
-                                val colors = listOf(
-                                    Color.Black,
-                                    Color.Transparent
-                                )
-                                drawContent()
-                                drawRect(
-                                    brush = Brush.horizontalGradient(colors),
-                                    blendMode = BlendMode.DstOut
-                                )
-                                drawRect(
-                                    brush = Brush.verticalGradient(colors),
-                                    blendMode = BlendMode.DstIn
-                                )
-                            },
-                        model = seasons[index].horizontalCover ?: "",
-                        contentDescription = null,
-                        contentScale = ContentScale.FillHeight,
-                        alpha = 1f
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(
-                                start = 48.dp,
-                                end = 48.dp,
-                                bottom = 300.dp
+        Box(
+            modifier=Modifier.fillMaxSize()
+        ){
+            Box(
+                modifier=Modifier.fillMaxSize()
+            ){
+                AsyncImage(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight(0.7f)
+                        .graphicsLayer { alpha = 0.99f }
+                        .drawWithContent {
+                            val colors = listOf(
+                                Color.Black,
+                                Color.Transparent
                             )
-                    ) {
-                        Text(
-                            text = seasons[index].title ?: seasons[index].shortTitle,
-                            style = MaterialTheme.typography.displayMedium
-                        )
-                    }
-                }
-            }
-        ) {
-            TvLazyRow(
-                modifier = Modifier.padding(bottom = 48.dp),
-                state = rowState,
-                contentPadding = PaddingValues(horizontal = 48.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                itemsIndexed(items = seasons) { index, season ->
-                    Card(
-                        modifier = Modifier
-                            .immersiveListItem(index)
-                            .ifElse(
-                                season.seasonId == currentSeasonId,
-                                Modifier.focusRequester(currentSeasonFocusRequester)
+                            drawContent()
+                            drawRect(
+                                brush = Brush.horizontalGradient(colors),
+                                blendMode = BlendMode.DstOut
                             )
-                            .ifElse(
-                                season.seasonId == currentSeasonId,
-                                Modifier.bringIntoViewRequester(bringIntoViewRequester)
-                            ),
-                        glow = CardDefaults.glow(
-                            focusedGlow = Glow(
-                                elevationColor = MaterialTheme.colorScheme.inverseSurface,
-                                elevation = 16.dp
-                            )
-                        ),
-                        border = if (Build.VERSION.SDK_INT < 31) {
-                            CardDefaults.border()
-                        } else {
-                            CardDefaults.border(
-                                focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+                            drawRect(
+                                brush = Brush.verticalGradient(colors),
+                                blendMode = BlendMode.DstIn
                             )
                         },
-                        onClick = {
-                            onClickSeason(season.seasonId)
-                        }
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .width(160.dp)
-                                .aspectRatio(0.75f),
-                            model = seasons[index].cover,
-                            contentDescription = null
+                    model = seasons[currentSeasonIndex].horizontalCover ?: "",
+                    contentDescription = null,
+                    contentScale = ContentScale.FillHeight,
+                    alpha = 1f
+                )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            start = 48.dp,
+                            end = 48.dp,
+                            bottom = 300.dp
                         )
+                ) {
+                    Text(
+                        text = seasons[currentSeasonIndex].title ?: seasons[currentSeasonIndex].shortTitle,
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+            }
+
+            Box(
+                modifier=Modifier.align(Alignment.BottomStart)
+            ){
+                TvLazyRow(
+                    modifier = Modifier.padding(bottom = 48.dp),
+                    state = rowState,
+                    contentPadding = PaddingValues(horizontal = 48.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    itemsIndexed(items = seasons) { index, season ->
+                        Card(
+                            modifier = Modifier
+                                .onFocusChanged {
+                                    if (it.hasFocus) currentSeasonIndex = index
+                                }
+                                .ifElse(
+                                    season.seasonId == currentSeasonId,
+                                    Modifier.focusRequester(currentSeasonFocusRequester)
+                                )
+                                .ifElse(
+                                    season.seasonId == currentSeasonId,
+                                    Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                                ),
+                            glow = CardDefaults.glow(
+                                focusedGlow = Glow(
+                                    elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                                    elevation = 16.dp
+                                )
+                            ),
+                            border = if (Build.VERSION.SDK_INT < 31) {
+                                CardDefaults.border()
+                            } else {
+                                CardDefaults.border(
+                                    focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+                                )
+                            },
+                            onClick = {
+                                onClickSeason(season.seasonId)
+                            }
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .width(160.dp)
+                                    .aspectRatio(0.75f),
+                                model = seasons[index].cover,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             }

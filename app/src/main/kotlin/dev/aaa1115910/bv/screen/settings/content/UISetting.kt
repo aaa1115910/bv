@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -51,7 +50,6 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.requestFocus
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UISetting(
     modifier: Modifier = Modifier
@@ -96,7 +94,6 @@ fun UISetting(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UIDensityDialog(
     modifier: Modifier = Modifier,

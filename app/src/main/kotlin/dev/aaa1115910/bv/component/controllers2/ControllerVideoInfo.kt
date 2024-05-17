@@ -33,7 +33,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
@@ -100,7 +99,6 @@ fun ControllerVideoInfo(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ControllerVideoInfoTop(
     modifier: Modifier = Modifier,
@@ -138,7 +136,6 @@ fun ControllerVideoInfoTop(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ControllerVideoInfoBottom(
     modifier: Modifier = Modifier,
@@ -192,7 +189,6 @@ fun ControllerVideoInfoBottom(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun Clock(
     modifier: Modifier = Modifier,
@@ -231,7 +227,6 @@ private fun ClockPreview() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun ControllerVideoInfoPreview() {

@@ -21,14 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Checkbox
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SoftKeyboard(
     modifier: Modifier = Modifier,
@@ -118,7 +116,6 @@ fun SoftKeyboard(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SoftKeyboardKey(
     modifier: Modifier = Modifier,
@@ -141,7 +138,6 @@ fun SoftKeyboardKey(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SoftKeyboardButton(
     modifier: Modifier = Modifier,

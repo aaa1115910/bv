@@ -26,7 +26,6 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -39,7 +38,6 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.resizedImageUrl
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SmallVideoCard(
     modifier: Modifier = Modifier,
@@ -171,7 +169,6 @@ fun SmallVideoCard(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 fun SmallVideoCardPreview() {

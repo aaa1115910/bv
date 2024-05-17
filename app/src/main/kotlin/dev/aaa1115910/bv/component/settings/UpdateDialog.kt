@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
@@ -40,7 +39,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpdateDialog(
     modifier: Modifier = Modifier,

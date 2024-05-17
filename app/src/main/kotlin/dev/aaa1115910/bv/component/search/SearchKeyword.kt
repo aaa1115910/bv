@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.DenseListItem
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
@@ -20,7 +19,6 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchKeyword(
     modifier: Modifier = Modifier,

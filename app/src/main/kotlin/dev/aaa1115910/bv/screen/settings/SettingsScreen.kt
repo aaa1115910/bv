@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -54,7 +53,6 @@ import dev.aaa1115910.bv.screen.settings.content.VideoCodecSetting
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier
@@ -211,7 +209,6 @@ fun SettingContent(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingsMenuButton(
     modifier: Modifier = Modifier,

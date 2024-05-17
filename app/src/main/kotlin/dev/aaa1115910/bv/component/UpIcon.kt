@@ -7,14 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UpIcon(
     modifier: Modifier = Modifier,
@@ -28,7 +26,6 @@ fun UpIcon(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview
 @Composable
 fun UpIconPreview() {

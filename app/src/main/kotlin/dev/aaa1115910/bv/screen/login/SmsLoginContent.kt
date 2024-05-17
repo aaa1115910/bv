@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.geetest.sdk.GT3ConfigBean
@@ -44,7 +43,6 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SmsLoginContent(
     modifier: Modifier = Modifier,
