@@ -37,7 +37,6 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -48,7 +47,6 @@ import dev.aaa1115910.bv.util.requestFocus
 
 private val lineHeight = 80.dp
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserPanel(
     modifier: Modifier = Modifier,
@@ -179,7 +177,6 @@ fun UserPanel(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelMyItem(
     modifier: Modifier = Modifier,
@@ -227,7 +224,6 @@ private fun UserPanelMyItem(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserPanelSmallItem(
     modifier: Modifier = Modifier,

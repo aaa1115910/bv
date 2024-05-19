@@ -43,9 +43,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
@@ -122,7 +121,6 @@ fun MenuController(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MenuController(
     modifier: Modifier = Modifier,
@@ -147,7 +145,7 @@ fun MenuController(
     Surface(
         modifier = modifier
             .fillMaxHeight(),
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(alpha = 0.5f)
         )
     ) {
@@ -304,7 +302,6 @@ enum class DanmakuType(private val strRes: Int) {
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 fun MenuControllerPreview() {
@@ -375,7 +372,7 @@ fun MenuControllerPreview() {
 
     BVTheme {
         Surface(
-            colors = NonInteractiveSurfaceDefaults.colors(
+            colors = SurfaceDefaults.colors(
                 containerColor = Color.White
             )
         ) {

@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +53,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,6 +63,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -78,9 +79,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.SuggestionChip
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
@@ -131,7 +132,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -150,7 +150,7 @@ fun VideoInfoScreen(
     var showFollowButton by remember { mutableStateOf(false) }
     var isFollowing by remember { mutableStateOf(false) }
 
-    var lastPlayedCid by remember { mutableIntStateOf(0) }
+    var lastPlayedCid by remember { mutableLongStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
 
     var tip by remember { mutableStateOf("Loading") }
@@ -225,7 +225,7 @@ fun VideoInfoScreen(
         }
     }
 
-    val fetchFavoriteData: (Int) -> Unit = { avid ->
+    val fetchFavoriteData: (Long) -> Unit = { avid ->
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val favoriteFolderMetadataListResult =
@@ -303,7 +303,7 @@ fun VideoInfoScreen(
 
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
-            val aid = intent.getIntExtra("aid", 170001)
+            val aid = intent.getLongExtra("aid", 170001)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
             proxyArea = ProxyArea.entries[intent.getIntExtra("proxyArea", 0)]
             //获取视频信息
@@ -683,7 +683,6 @@ fun VideoInfoScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ArgueTip(
     modifier: Modifier = Modifier,
@@ -693,7 +692,7 @@ fun ArgueTip(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 50.dp),
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Yellow.copy(alpha = 0.2f),
             contentColor = Color.Yellow
         ),
@@ -848,7 +847,6 @@ fun VideoInfoData(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UpButton(
     modifier: Modifier = Modifier,
@@ -912,7 +910,6 @@ private fun UpButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescription(
     modifier: Modifier = Modifier,
@@ -962,7 +959,6 @@ fun VideoDescription(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescriptionDialog(
     modifier: Modifier = Modifier,
@@ -992,7 +988,6 @@ fun VideoDescriptionDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
@@ -1033,7 +1028,6 @@ fun VideoPartButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartRowButton(
     modifier: Modifier = Modifier,
@@ -1064,15 +1058,14 @@ private fun VideoPartRowButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
     pages: List<VideoPage>,
-    lastPlayedCid: Int = 0,
+    lastPlayedCid: Long = 0,
     lastPlayedTime: Int = 0,
     enablePartListDialog: Boolean = false,
-    onClick: (cid: Int) -> Unit
+    onClick: (cid: Long) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -1132,16 +1125,15 @@ fun VideoPartRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
     title: String,
     episodes: List<Episode>,
-    lastPlayedCid: Int = 0,
+    lastPlayedCid: Long = 0,
     lastPlayedTime: Int = 0,
     enableUgcListDialog: Boolean = false,
-    onClick: (avid: Int, cid: Int) -> Unit
+    onClick: (avid: Long, cid: Long) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -1201,7 +1193,6 @@ fun VideoUgcSeasonRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartListDialog(
     modifier: Modifier = Modifier,
@@ -1209,7 +1200,7 @@ private fun VideoPartListDialog(
     title: String,
     pages: List<VideoPage>,
     onHideDialog: () -> Unit,
-    onClick: (cid: Int) -> Unit
+    onClick: (cid: Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1310,7 +1301,6 @@ private fun VideoPartListDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoUgcListDialog(
     modifier: Modifier = Modifier,
@@ -1318,7 +1308,7 @@ private fun VideoUgcListDialog(
     title: String,
     episodes: List<Episode>,
     onHideDialog: () -> Unit,
-    onClick: (avid: Int, cid: Int) -> Unit
+    onClick: (avid: Long, cid: Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1453,7 +1443,7 @@ fun VideoPartRowPreview() {
     for (i in 0..10) {
         pages.add(
             VideoPage(
-                cid = 1000 + i,
+                cid = 1000L + i,
                 index = i,
                 title = "这可能是我这辈子距离梅西最近的一次",
                 duration = 10,

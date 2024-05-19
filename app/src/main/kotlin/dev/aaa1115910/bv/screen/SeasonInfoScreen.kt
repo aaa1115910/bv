@@ -56,7 +56,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +65,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -78,10 +78,8 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
-import androidx.tv.material3.ImmersiveList
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -121,7 +119,6 @@ import kotlinx.coroutines.withContext
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -149,10 +146,10 @@ fun SeasonInfoScreen(
 
     val defaultFocusRequester = remember { FocusRequester() }
 
-    val onClickVideo: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
+    val onClickVideo: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
         { avid, cid, epid, episodeTitle, startTime ->
             logger.debug { "onClickVideo: [avid=$avid, cid=$cid, epid=$epid, episodeTitle=$episodeTitle, startTime=$startTime]" }
-            if (cid != 0) {
+            if (cid != 0L) {
                 launchPlayerActivity(
                     context = context,
                     avid = avid,
@@ -290,8 +287,8 @@ fun SeasonInfoScreen(
                         seasonCount = seasonData!!.seasons.size,
                         onPlay = {
                             logger.fInfo { "Click play button" }
-                            var playAid = -1
-                            var playCid = -1
+                            var playAid = -1L
+                            var playCid = -1L
                             val playEpid: Int
                             var episodeList: List<Episode> = emptyList()
                             if (lastPlayProgress == null) {
@@ -300,7 +297,7 @@ fun SeasonInfoScreen(
                                 playAid = seasonData?.episodes?.first()?.aid ?: -1
                                 playCid = seasonData?.episodes?.first()?.cid ?: -1
                                 playEpid = seasonData?.episodes?.first()?.id ?: -1
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     R.string.season_no_feature_film.toast(context)
                                 } else {
                                     episodeList = seasonData?.episodes ?: emptyList()
@@ -318,7 +315,7 @@ fun SeasonInfoScreen(
                                         episodeList = seasonData?.episodes ?: emptyList()
                                     }
                                 }
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     seasonData?.sections?.forEach { section ->
                                         section.episodes.forEach {
                                             if (it.id == playEpid) {
@@ -329,7 +326,7 @@ fun SeasonInfoScreen(
                                         }
                                     }
                                 }
-                                if (playCid == -1) {
+                                if (playCid == -1L) {
                                     logger.fInfo { "Can't find cid" }
                                     "无法判断最后播放的剧集".toast(context)
                                 }
@@ -337,7 +334,7 @@ fun SeasonInfoScreen(
 
                             logger.fInfo { "Play aid: $playAid, cid: $playCid" }
 
-                            if (playCid != -1) {
+                            if (playCid != -1L) {
                                 onClickVideo(
                                     playAid,
                                     playCid,
@@ -493,7 +490,6 @@ fun SeasonInfoScreen(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonCover(
     modifier: Modifier = Modifier,
@@ -555,7 +551,6 @@ fun SeasonCover(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonBaseInfo(
     modifier: Modifier = Modifier,
@@ -645,7 +640,6 @@ fun SeasonInfoPart(
 }
 
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeButton(
     modifier: Modifier = Modifier,
@@ -723,7 +717,6 @@ fun SeasonEpisodeButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodesDialog(
     modifier: Modifier = Modifier,
@@ -733,7 +726,7 @@ fun SeasonEpisodesDialog(
     lastPlayedId: Int = 0,
     lastPlayedTime: Int = 0,
     onHideDialog: () -> Unit,
-    onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
+    onClick: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -840,7 +833,7 @@ fun SeasonEpisodesDialog(
                                 duration = episode.duration,
                                 onClick = {
                                     onClick(
-                                        episode.aid.toInt(),
+                                        episode.aid,
                                         episode.cid,
                                         episode.id,
                                         episode.longTitle,
@@ -856,7 +849,6 @@ fun SeasonEpisodesDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonEpisodeRow(
     modifier: Modifier = Modifier,
@@ -864,7 +856,7 @@ fun SeasonEpisodeRow(
     episodes: List<Episode>,
     lastPlayedId: Int = 0,
     lastPlayedTime: Int = 0,
-    onClick: (avid: Int, cid: Int, epid: Int, episodeTitle: String, startTime: Int) -> Unit
+    onClick: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     var hasFocus by remember { mutableStateOf(false) }
@@ -940,7 +932,7 @@ fun SeasonEpisodeRow(
                     duration = episode.duration,
                     onClick = {
                         onClick(
-                            episode.aid.toInt(),
+                            episode.aid,
                             episode.cid,
                             episode.id,
                             episode.longTitle,
@@ -996,7 +988,7 @@ fun SeasonSelector(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SeasonSelectorContent(
     modifier: Modifier = Modifier,
@@ -1049,97 +1041,101 @@ private fun SeasonSelectorContent(
             },
         shape = RoundedCornerShape(0.dp)
     ) {
-        ImmersiveList(
-            modifier = Modifier.fillMaxSize(),
-            listAlignment = Alignment.BottomStart,
-            background = { index, _ ->
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .fillMaxHeight(0.7f)
-                            .graphicsLayer { alpha = 0.99f }
-                            .drawWithContent {
-                                val colors = listOf(
-                                    Color.Black,
-                                    Color.Transparent
-                                )
-                                drawContent()
-                                drawRect(
-                                    brush = Brush.horizontalGradient(colors),
-                                    blendMode = BlendMode.DstOut
-                                )
-                                drawRect(
-                                    brush = Brush.verticalGradient(colors),
-                                    blendMode = BlendMode.DstIn
-                                )
-                            },
-                        model = seasons[index].horizontalCover ?: "",
-                        contentDescription = null,
-                        contentScale = ContentScale.FillHeight,
-                        alpha = 1f
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(
-                                start = 48.dp,
-                                end = 48.dp,
-                                bottom = 300.dp
+        Box(
+            modifier=Modifier.fillMaxSize()
+        ){
+            Box(
+                modifier=Modifier.fillMaxSize()
+            ){
+                AsyncImage(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight(0.7f)
+                        .graphicsLayer { alpha = 0.99f }
+                        .drawWithContent {
+                            val colors = listOf(
+                                Color.Black,
+                                Color.Transparent
                             )
-                    ) {
-                        Text(
-                            text = seasons[index].title ?: seasons[index].shortTitle,
-                            style = MaterialTheme.typography.displayMedium
-                        )
-                    }
-                }
-            }
-        ) {
-            TvLazyRow(
-                modifier = Modifier.padding(bottom = 48.dp),
-                state = rowState,
-                contentPadding = PaddingValues(horizontal = 48.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                itemsIndexed(items = seasons) { index, season ->
-                    Card(
-                        modifier = Modifier
-                            .immersiveListItem(index)
-                            .ifElse(
-                                season.seasonId == currentSeasonId,
-                                Modifier.focusRequester(currentSeasonFocusRequester)
+                            drawContent()
+                            drawRect(
+                                brush = Brush.horizontalGradient(colors),
+                                blendMode = BlendMode.DstOut
                             )
-                            .ifElse(
-                                season.seasonId == currentSeasonId,
-                                Modifier.bringIntoViewRequester(bringIntoViewRequester)
-                            ),
-                        glow = CardDefaults.glow(
-                            focusedGlow = Glow(
-                                elevationColor = MaterialTheme.colorScheme.inverseSurface,
-                                elevation = 16.dp
-                            )
-                        ),
-                        border = if (Build.VERSION.SDK_INT < 31) {
-                            CardDefaults.border()
-                        } else {
-                            CardDefaults.border(
-                                focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+                            drawRect(
+                                brush = Brush.verticalGradient(colors),
+                                blendMode = BlendMode.DstIn
                             )
                         },
-                        onClick = {
-                            onClickSeason(season.seasonId)
-                        }
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .width(160.dp)
-                                .aspectRatio(0.75f),
-                            model = seasons[index].cover,
-                            contentDescription = null
+                    model = seasons[currentSeasonIndex].horizontalCover ?: "",
+                    contentDescription = null,
+                    contentScale = ContentScale.FillHeight,
+                    alpha = 1f
+                )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            start = 48.dp,
+                            end = 48.dp,
+                            bottom = 300.dp
                         )
+                ) {
+                    Text(
+                        text = seasons[currentSeasonIndex].title ?: seasons[currentSeasonIndex].shortTitle,
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+            }
+
+            Box(
+                modifier=Modifier.align(Alignment.BottomStart)
+            ){
+                TvLazyRow(
+                    modifier = Modifier.padding(bottom = 48.dp),
+                    state = rowState,
+                    contentPadding = PaddingValues(horizontal = 48.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    itemsIndexed(items = seasons) { index, season ->
+                        Card(
+                            modifier = Modifier
+                                .onFocusChanged {
+                                    if (it.hasFocus) currentSeasonIndex = index
+                                }
+                                .ifElse(
+                                    season.seasonId == currentSeasonId,
+                                    Modifier.focusRequester(currentSeasonFocusRequester)
+                                )
+                                .ifElse(
+                                    season.seasonId == currentSeasonId,
+                                    Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                                ),
+                            glow = CardDefaults.glow(
+                                focusedGlow = Glow(
+                                    elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                                    elevation = 16.dp
+                                )
+                            ),
+                            border = if (Build.VERSION.SDK_INT < 31) {
+                                CardDefaults.border()
+                            } else {
+                                CardDefaults.border(
+                                    focusedBorder = Border(BorderStroke(0.dp, Color.Transparent))
+                                )
+                            },
+                            onClick = {
+                                onClickSeason(season.seasonId)
+                            }
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .width(160.dp)
+                                    .aspectRatio(0.75f),
+                                model = seasons[index].cover,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             }

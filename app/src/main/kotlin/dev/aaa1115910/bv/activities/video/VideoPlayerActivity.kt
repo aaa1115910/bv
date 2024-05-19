@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
@@ -28,8 +27,8 @@ class VideoPlayerActivity : ComponentActivity() {
         private val logger = KotlinLogging.logger { }
         fun actionStart(
             context: Context,
-            avid: Int,
-            cid: Int,
+            avid: Long,
+            cid: Long,
             title: String,
             partTitle: String,
             played: Int,
@@ -56,7 +55,6 @@ class VideoPlayerActivity : ComponentActivity() {
 
     private val playerViewModel: PlayerViewModel by viewModel()
 
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,8 +68,8 @@ class VideoPlayerActivity : ComponentActivity() {
         playerViewModel.preparePlayer(player)
 
         if (intent.hasExtra("avid")) {
-            val aid = intent.getIntExtra("avid", 170001)
-            val cid = intent.getIntExtra("cid", 170001)
+            val aid = intent.getLongExtra("avid", 170001)
+            val cid = intent.getLongExtra("cid", 170001)
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)

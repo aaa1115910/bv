@@ -52,7 +52,6 @@ fun HomeCarousel(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CarouselCard() {
     Box(

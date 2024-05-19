@@ -13,7 +13,7 @@ data class PopularVideoPage(
 )
 
 data class PopularVideo(
-    val aid: Int,
+    val aid: Long,
     val title: String,
     val duration: Int,
     val author: String,
@@ -37,7 +37,7 @@ data class PopularVideo(
 
         fun fromSmallCoverV5(card: bilibili.app.card.v1.SmallCoverV5) =
             PopularVideo(
-                aid = card.base.param.toInt(),
+                aid = card.base.param.toLong(),
                 title = card.base.title,
                 duration = convertStringTimeToSeconds(card.coverRightText1),
                 author = card.rightDesc1,

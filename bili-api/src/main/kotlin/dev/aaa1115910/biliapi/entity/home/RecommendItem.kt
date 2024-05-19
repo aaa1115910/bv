@@ -3,7 +3,7 @@ package dev.aaa1115910.biliapi.entity.home
 import dev.aaa1115910.biliapi.util.convertStringTimeToSeconds
 
 data class RecommendItem(
-    val aid: Int,
+    val aid: Long,
     val bvid: String,
     val title: String,
     val cover: String,

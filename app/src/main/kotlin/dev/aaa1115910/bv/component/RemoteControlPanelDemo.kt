@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -36,7 +35,6 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun RemoteControlPanelInfo() {
     ConstraintLayout {
@@ -228,7 +226,6 @@ fun RemoteControlPanelInfo() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun RemoteControlPanelDemo(
     modifier: Modifier = Modifier,
@@ -266,7 +263,6 @@ fun RemoteControlPanelDemo(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun RemoteControlPanelInfoPreview() {
@@ -277,7 +273,6 @@ private fun RemoteControlPanelInfoPreview() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun RemoteControlPanelDemoPreview() {

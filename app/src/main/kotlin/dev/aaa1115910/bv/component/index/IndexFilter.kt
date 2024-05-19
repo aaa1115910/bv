@@ -54,7 +54,6 @@ import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeIndexFilter(
     modifier: Modifier = Modifier,
@@ -206,7 +205,6 @@ fun AnimeIndexFilter(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun AnimeIndexFilterPreview() {
@@ -286,7 +284,6 @@ private fun IndexFilterChip(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun <T> IndexFilterChipRow(
     modifier: Modifier = Modifier,

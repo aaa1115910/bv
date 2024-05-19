@@ -43,14 +43,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.TabRowScope
@@ -63,7 +62,7 @@ import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
+@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
@@ -167,7 +166,6 @@ fun TopNav(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun TabRowScope.NavItemTab(
     modifier: Modifier = Modifier,
@@ -221,7 +219,6 @@ private fun TabRowScope.NavItemTab(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SettingsIcon(
     modifier: Modifier = Modifier,
@@ -260,7 +257,6 @@ private fun SettingsIcon(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserIcon(
     modifier: Modifier = Modifier,
@@ -293,7 +289,7 @@ private fun UserIcon(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape),
-                    colors = NonInteractiveSurfaceDefaults.colors(
+                    colors = SurfaceDefaults.colors(
                         containerColor = Color.White
                     )
                 ) {

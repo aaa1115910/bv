@@ -3,7 +3,6 @@ package dev.aaa1115910.bv.screen.user
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -55,7 +54,6 @@ import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -80,7 +78,6 @@ import org.koin.androidx.compose.koinViewModel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserSwitchScreen(
     modifier: Modifier = Modifier,
@@ -116,7 +113,6 @@ fun UserSwitchScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UserSwitchContent(
     modifier: Modifier = Modifier,
@@ -253,7 +249,6 @@ private fun UserSwitchContent(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserMenuDialog(
     modifier: Modifier = Modifier,
@@ -336,7 +331,6 @@ fun UserMenuDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun UserAuthDataDialog(
     modifier: Modifier = Modifier,
@@ -394,7 +388,6 @@ fun UserAuthDataDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DeleteConfirmDialog(
     modifier: Modifier = Modifier,
@@ -441,7 +434,6 @@ private fun DeleteConfirmDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun UserItem(
     modifier: Modifier = Modifier,
@@ -498,7 +490,6 @@ private fun UserItem(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AddUserItem(
     modifier: Modifier = Modifier,

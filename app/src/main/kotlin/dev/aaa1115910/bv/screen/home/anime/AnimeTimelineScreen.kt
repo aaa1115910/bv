@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.foundation.lazy.list.rememberTvLazyListState
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.season.Timeline
@@ -55,7 +54,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.getKoin
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeTimelineScreen(
     modifier: Modifier = Modifier,
@@ -153,7 +151,6 @@ fun AnimeTimelineScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TimelinePerDay(
     modifier: Modifier = Modifier,

@@ -28,7 +28,7 @@ fun KLogger.fError(msg: () -> Any?) {
 }
 
 fun KLogger.fException(throwable: Throwable, msg: () -> Any?) {
-    warn("$msg: ${throwable.stackTraceToString()}")
+    warn { "$msg: ${throwable.stackTraceToString()}" }
     Firebase.crashlytics.log("[Exception] ${msg.toStringSafe()}: ${throwable.localizedMessage}")
     Firebase.crashlytics.recordException(throwable)
 }

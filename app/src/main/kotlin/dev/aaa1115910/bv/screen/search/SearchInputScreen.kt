@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
@@ -42,7 +41,6 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchInputScreen(
     modifier: Modifier = Modifier,

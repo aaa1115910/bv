@@ -26,9 +26,9 @@ data class HistoryData(
 }
 
 data class HistoryItem(
-    val oid: Int,
+    val oid: Long,
     val bvid: String,
-    val cid: Int,
+    val cid: Long,
     val kid: Int,
     val epid: Int?,
     val seasonId: Int?,
@@ -62,14 +62,14 @@ data class HistoryItem(
 
         @Suppress("RemoveRedundantQualifierName")
         fun fromHistoryItem(item: bilibili.app.interfaces.v1.CursorItem) = HistoryItem(
-            oid = item.oid.toInt(),
+            oid = item.oid,
             bvid = when (item.cardItemCase) {
                 CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.bvid
                 CursorItem.CardItemCase.CARD_OGV -> ""
                 else -> ""
             },
             cid = when (item.cardItemCase) {
-                CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.cid.toInt()
+                CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.cid
                 CursorItem.CardItemCase.CARD_OGV -> 0
                 else -> 0
             },

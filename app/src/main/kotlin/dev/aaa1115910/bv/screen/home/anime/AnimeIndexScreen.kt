@@ -30,7 +30,6 @@ import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvGridItemSpan
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.http.entity.search.SearchMediaResult
@@ -48,7 +47,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeIndexScreen(
     modifier: Modifier = Modifier,

@@ -19,9 +19,9 @@ import dev.aaa1115910.biliapi.entity.video.Dimension
  */
 data class Episode(
     val id: Int,
-    val aid: Int,
+    val aid: Long,
     val bvid: String,
-    val cid: Int,
+    val cid: Long,
     val epid: Int? = null,
     val title: String,
     val longTitle: String,
@@ -32,9 +32,9 @@ data class Episode(
     companion object {
         fun fromEpisode(episode: bilibili.app.view.v1.Episode) = Episode(
             id = episode.id.toInt(),
-            aid = episode.aid.toInt(),
+            aid = episode.aid,
             bvid = episode.bvid,
-            cid = episode.cid.toInt(),
+            cid = episode.cid,
             title = episode.title,
             longTitle = episode.title,
             cover = episode.cover,
@@ -57,7 +57,7 @@ data class Episode(
 
         fun fromEpisode(episode: dev.aaa1115910.biliapi.http.entity.season.Episode) = Episode(
             id = episode.id,
-            aid = episode.aid.toInt(),
+            aid = episode.aid,
             cid = episode.cid,
             bvid = episode.bvid,
             cover = episode.cover,

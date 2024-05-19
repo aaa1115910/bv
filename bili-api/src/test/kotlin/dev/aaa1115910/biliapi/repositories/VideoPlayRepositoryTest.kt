@@ -1,6 +1,7 @@
 package dev.aaa1115910.biliapi.repositories
 
-import com.google.rpc.Status
+import bilibili.rpc.Status
+//import com.google.rpc.Status
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.grpc.utils.getDetail
@@ -277,7 +278,7 @@ class VideoPlayRepositoryTest {
 
     @Test
     fun `get region limited pgc play data`() = runBlocking {
-        val cid = 1199794768
+        val cid = 1199794768L
         val epid = 763396
         val enableProxy = true
         val proxyArea = "hk"

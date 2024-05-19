@@ -44,8 +44,8 @@ data class UgcSeason(
             @SerialName("section_id")
             val sectionId: Int,
             val id: Int,
-            val aid: Int,
-            val cid: Int,
+            val aid: Long,
+            val cid: Long,
             val title: String,
             val attribute: Int,
             val arc: Arc,
@@ -54,7 +54,7 @@ data class UgcSeason(
         ) {
             @Serializable
             data class Arc(
-                val aid: Int,
+                val aid: Long,
                 val videos: Int,
                 @SerialName("type_id")
                 val typeId: Int,

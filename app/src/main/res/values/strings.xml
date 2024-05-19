@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="anime_home_button_following">正在追</string>
+    <string name="anime_home_button_gamer_ani">動畫風</string>
     <string name="anime_home_button_index">索引</string>
     <string name="anime_home_button_timeline">时间表</string>
-    <string name="anime_home_button_unknown">待定</string>
 
     <string name="app_name">BV</string>
 
@@ -339,4 +339,5 @@
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
+    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
 </resources>

@@ -27,14 +27,14 @@ data class SpaceVideoData(
                     .map { SpaceVideo.fromSpaceVideoItem(it) },
                 page = SpaceVideoPage(
                     hasNext = appSpaceVideoData.hasNext,
-                    lastAvid = appSpaceVideoData.item.lastOrNull()?.param?.toInt() ?: 0
+                    lastAvid = appSpaceVideoData.item.lastOrNull()?.param?.toLong() ?: 0
                 )
             )
     }
 }
 
 data class SpaceVideo(
-    val aid: Int,
+    val aid: Long,
     val bvid: String,
     val title: String,
     val cover: String,
@@ -60,7 +60,7 @@ data class SpaceVideo(
 
         fun fromSpaceVideoItem(spaceVideoItem: dev.aaa1115910.biliapi.http.entity.user.AppSpaceVideoData.SpaceVideoItem) =
             SpaceVideo(
-                aid = spaceVideoItem.param.toInt(),
+                aid = spaceVideoItem.param.toLong(),
                 bvid = spaceVideoItem.bvid,
                 title = spaceVideoItem.title,
                 cover = spaceVideoItem.cover,
@@ -90,5 +90,5 @@ data class SpaceVideoPage(
     val nextWebPageSize: Int = 20,
     val nextWebPageNumber: Int = 1,
     // app
-    val lastAvid: Int = 0
+    val lastAvid: Long = 0
 )

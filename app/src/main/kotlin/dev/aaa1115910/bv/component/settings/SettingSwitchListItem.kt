@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Switch
@@ -22,7 +21,6 @@ import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingSwitchListItem(
     modifier: Modifier = Modifier,

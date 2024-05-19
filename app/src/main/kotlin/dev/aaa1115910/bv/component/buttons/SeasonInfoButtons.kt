@@ -15,14 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.OutlinedButtonDefaults
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SeasonInfoButtons(
     modifier: Modifier = Modifier,
@@ -65,7 +63,6 @@ fun SeasonInfoButtons(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowSeasonButton(
     modifier: Modifier = Modifier,

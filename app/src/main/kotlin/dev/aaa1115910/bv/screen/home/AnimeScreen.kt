@@ -20,12 +20,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -45,6 +46,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -75,6 +77,7 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.resizedImageUrl
+import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -128,6 +131,15 @@ fun AnimeScreen(
                 },
                 onOpenIndex = {
                     context.startActivity(Intent(context, AnimeIndexActivity::class.java))
+                },
+                onOpenGamerAni = {
+                    val packageManager = context.packageManager
+                    val gamerAniPackageName = "tw.com.gamer.android.animad"
+                    packageManager.getLeanbackLaunchIntentForPackage(gamerAniPackageName)?.let {
+                        context.startActivity(it)
+                    } ?: let {
+                        R.string.anime_home_button_gamer_ani_launch_failed.toast(context)
+                    }
                 }
             )
         }
@@ -193,7 +205,6 @@ fun AnimeCarousel(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeCarouselCard(
     modifier: Modifier = Modifier,
@@ -218,7 +229,7 @@ private fun AnimeFeatureButtons(
     onOpenTimeline: () -> Unit,
     onOpenFollowing: () -> Unit,
     onOpenIndex: () -> Unit,
-    onOpenUnknown: () -> Unit = {}
+    onOpenGamerAni: () -> Unit = {}
 ) {
     val buttons = listOf(
         Triple(
@@ -237,9 +248,9 @@ private fun AnimeFeatureButtons(
             onOpenIndex
         ),
         Triple(
-            stringResource(R.string.anime_home_button_unknown),
-            Icons.Rounded.QuestionMark,
-            onOpenUnknown
+            stringResource(R.string.anime_home_button_gamer_ani),
+            painterResource(R.drawable.ic_gamer_ani),
+            onOpenGamerAni
         )
     )
 
@@ -248,17 +259,27 @@ private fun AnimeFeatureButtons(
         horizontalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         buttons.forEach { (title, icon, onClick) ->
-            AnimeFeatureButton(
-                modifier = Modifier.weight(1f),
-                title = title,
-                icon = icon,
-                onClick = onClick
-            )
+            when (icon) {
+                is ImageVector -> AnimeFeatureButton(
+                    modifier = Modifier.weight(1f),
+                    title = title,
+                    icon = icon,
+                    onClick = onClick
+                )
+
+                is Painter -> AnimeFeatureButton(
+                    modifier = Modifier.weight(1f),
+                    title = title,
+                    icon = icon,
+                    onClick = onClick
+                )
+
+                else -> {}
+            }
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeatureButton(
     modifier: Modifier = Modifier,
@@ -285,6 +306,45 @@ fun AnimeFeatureButton(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(imageVector = icon, contentDescription = null)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimeFeatureButton(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = icon,
+                    contentDescription = null
+                )
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge
@@ -341,7 +401,6 @@ fun AnimeFeedVideoRow(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeedRankRow(
     modifier: Modifier = Modifier,
@@ -470,7 +529,7 @@ fun AnimeFeatureButtonsPreview() {
             onOpenTimeline = {},
             onOpenFollowing = {},
             onOpenIndex = {},
-            onOpenUnknown = {}
+            onOpenGamerAni = {}
         )
     }
 }

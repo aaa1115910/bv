@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -49,7 +48,6 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
  * @param content the content that is present within the group and can use focus-group modifier
  * extensions.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvFoundationApi
 @Deprecated("Use focusRestorer instead")
 @Composable
@@ -119,7 +117,6 @@ class FocusGroupScope internal constructor(private val state: FocusGroupState) {
     }
 
     @SuppressLint("ComposableModifierFactory")
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun Modifier.restorableFocus(focusId: Int): Modifier {
         val focusRequester = remember { FocusRequester() }

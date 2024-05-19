@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
@@ -35,7 +34,6 @@ import dev.aaa1115910.bv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TagScreen(
     modifier: Modifier = Modifier,

@@ -29,11 +29,17 @@ class RecommendViewModel(
         var loadCount = 0
         val maxLoadMoreCount = 3
         if (!loading) {
-            while (recommendVideoList.size < 14 && loadCount < maxLoadMoreCount) {
+            if (recommendVideoList.size == 0) {
+                // first load data
+                while (recommendVideoList.size < 14 && loadCount < maxLoadMoreCount) {
+                    val emptyFun: () -> Unit = {}
+                    loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
+                    if (loadCount != 0) logger.fInfo { "Load more recommend videos because items too less" }
+                    loadCount++
+                }
+            } else {
                 val emptyFun: () -> Unit = {}
                 loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
-                if (loadCount != 0) logger.fInfo { "Load more recommend videos because items too less" }
-                loadCount++
             }
         }
     }

@@ -38,7 +38,7 @@ class VideoDetailRepository(
         }.getOrNull()
 
     suspend fun getVideoDetail(
-        aid: Int,
+        aid: Long,
         preferApiType: ApiType = ApiType.Web
     ): VideoDetail {
         return when (preferApiType) {

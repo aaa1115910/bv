@@ -57,7 +57,7 @@ object BiliPlusHttpApi {
     }
 
     suspend fun view(
-        aid: Int,
+        aid: Long,
         update: Boolean = true,
         accessKey: String? = null
     ): BiliResponse<View> {
@@ -85,7 +85,7 @@ object BiliPlusHttpApi {
     }
 
     suspend fun getSeasonIdByAvid(
-        aid: Int
+        aid: Long
     ): Int? {
         return runCatching {
             view(aid).getResponseData().bangumi?.seasonId?.toInt()

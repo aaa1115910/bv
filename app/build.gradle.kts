@@ -7,6 +7,7 @@ import java.util.Properties
 
 plugins {
     alias(gradleLibs.plugins.android.application)
+    alias(gradleLibs.plugins.compose.compiler)
     alias(gradleLibs.plugins.firebase.crashlytics)
     alias(gradleLibs.plugins.google.ksp)
     alias(gradleLibs.plugins.google.services)
@@ -105,9 +106,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
     }
     packaging {
         resources {

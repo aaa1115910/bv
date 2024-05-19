@@ -5,8 +5,8 @@ class VideoInfoRepository {
 }
 
 data class VideoListItem(
-    val aid: Int,
-    val cid: Int,
+    val aid: Long,
+    val cid: Long,
     val epid: Int? = null,
     val seasonId: Int? = null,
     val title: String,

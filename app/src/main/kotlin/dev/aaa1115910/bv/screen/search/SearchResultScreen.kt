@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
@@ -67,7 +66,6 @@ import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchResultScreen(
     modifier: Modifier = Modifier,

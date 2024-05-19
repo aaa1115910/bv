@@ -50,13 +50,13 @@ import kotlinx.serialization.json.JsonArray
  */
 @Serializable
 data class VideoMoreInfo(
-    val aid: Int,
+    val aid: Long,
     val bvid: String,
     @SerialName("allow_bp")
     val allowBp: Boolean,
     @SerialName("no_share")
     val noShare: Boolean,
-    val cid: Int,
+    val cid: Long,
     @SerialName("max_limit")
     val maxLimit: Int,
     @SerialName("page_no")
@@ -84,7 +84,7 @@ data class VideoMoreInfo(
     @SerialName("last_play_time")
     val lastPlayTime: Int,
     @SerialName("last_play_cid")
-    val lastPlayCid: Int,
+    val lastPlayCid: Long,
     @SerialName("now_time")
     val nowTime: Int,
     @SerialName("online_count")
@@ -150,7 +150,7 @@ data class VideoMoreInfo(
      */
     @Serializable
     data class DmMask(
-        val cid: Int,
+        val cid: Long,
         val plat: Int,
         val fps: Int,
         val time: Int,

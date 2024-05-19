@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
@@ -55,7 +54,6 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
@@ -65,7 +63,7 @@ fun VideoPlayerController(
     availableVideoCodec: List<VideoCodec> = emptyList(),
     availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     availableVideoList: List<VideoListItem> = emptyList(),
-    currentVideoCid: Int = 0,
+    currentVideoCid: Long = 0,
     currentResolution: Int? = null,
     currentVideoCodec: VideoCodec = VideoCodec.AVC,
     currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
@@ -472,7 +470,7 @@ data class VideoPlayerControllerData(
     val availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     val availableSubtitleTracks: List<Subtitle> = emptyList(),
     val availableVideoList: List<VideoListItem> = emptyList(),
-    val currentVideoCid: Int = 0,
+    val currentVideoCid: Long = 0,
     val currentResolution: Int? = null,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,

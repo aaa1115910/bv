@@ -7,11 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.Text
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SettingListItem(
     modifier: Modifier = Modifier,

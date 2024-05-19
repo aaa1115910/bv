@@ -83,7 +83,7 @@ class FavoriteViewModel(
                     if (favoriteItem.type != FavoriteItemType.Video) return@forEach
                     favorites.add(
                         VideoCardData(
-                            avid = favoriteItem.id.toInt(),
+                            avid = favoriteItem.id,
                             title = favoriteItem.title,
                             cover = favoriteItem.cover,
                             upName = favoriteItem.upper.name,

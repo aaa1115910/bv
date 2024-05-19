@@ -17,10 +17,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun StepLessMenuItem(
     modifier: Modifier = Modifier,
@@ -83,7 +81,6 @@ fun StepLessMenuItem(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun StepLessMenuItem(
     modifier: Modifier = Modifier,

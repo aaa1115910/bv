@@ -3,17 +3,14 @@ package dev.aaa1115910.bv.ui.theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Typography
 import dev.aaa1115910.bv.R
 
 private val notoMathFont = Font(R.font.noto_sans_math_regular, FontWeight.Normal)
 private val notoFontFamily = FontFamily(notoMathFont)
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 private val dummyTypography = Typography()
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 val android6AndBelowTypographyTv = Typography(
     displayLarge = dummyTypography.displayLarge.copy(fontFamily = notoFontFamily),
     displayMedium = dummyTypography.displayMedium.copy(fontFamily = notoFontFamily),
@@ -32,7 +29,6 @@ val android6AndBelowTypographyTv = Typography(
     labelSmall = dummyTypography.labelSmall.copy(fontFamily = notoFontFamily)
 )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 val android6AndBelowTypographyCommon = androidx.compose.material3.Typography(
     displayLarge = dummyTypography.displayLarge.copy(fontFamily = notoFontFamily),
     displayMedium = dummyTypography.displayMedium.copy(fontFamily = notoFontFamily),

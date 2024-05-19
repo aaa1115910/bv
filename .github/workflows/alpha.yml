@@ -25,6 +25,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle to generate and submit dependency graphs
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          dependency-graph: generate-and-submit
+
       - name: Write google-services.json
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
