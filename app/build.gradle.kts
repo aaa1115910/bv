@@ -183,6 +183,7 @@ dependencies {
     implementation(androidx.room.runtime)
     implementation(androidx.webkit)
     implementation(libs.akdanmaku)
+    implementation(libs.androidSvg)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.svg)

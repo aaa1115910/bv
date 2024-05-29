@@ -31,12 +31,14 @@ import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskFrame
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerController
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.BvVideoPlayer
@@ -45,6 +47,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.svgMask
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.viewmodel.RequestState
@@ -56,6 +59,7 @@ import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Timer
+import kotlin.math.max
 
 @Composable
 fun VideoPlayerV3Screen(
@@ -103,6 +107,8 @@ fun VideoPlayerV3Screen(
     var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var clockRefreshTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var hideBackToHistoryTimer: CountDownTimer? by remember { mutableStateOf(null) }
+
+    var currentDanmakuMask: DanmakuMaskFrame? by remember { mutableStateOf(null) }
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -303,6 +309,62 @@ fun VideoPlayerV3Screen(
         }
         onDispose {
             updateSeekTimer.cancel()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        var updateSeekTimer: Timer? = null
+        var resetTimer: ((Long) -> Unit)? = null
+
+        val updateMask: () -> Unit = {
+            currentDanmakuMask = playerViewModel.danmakuMasks.firstOrNull {
+                currentPosition in it.range
+            }?.frames?.firstOrNull { currentPosition in it.range }
+
+            if (currentDanmakuMask != null) {
+                resetTimer?.invoke(max(currentDanmakuMask!!.range.last - currentPosition + 3, 20))
+            } else {
+                resetTimer?.invoke(2000)
+            }
+        }
+
+        val timerTask: () -> Unit = {
+            scope.launch {
+                if (playerViewModel.danmakuMasks.isNotEmpty()) {
+                    if (currentDanmakuMask == null) {
+                        //当前无蒙版
+                        updateMask()
+                    } else if (currentPosition !in currentDanmakuMask!!.range) {
+                        //当前蒙版过期
+                        updateMask()
+                    } else {
+                        //正常情况下不会在未过期时运行到此代码块，除非是卡顿等情况
+                        if (isPlaying) {
+                            //重新计时
+                            val delay = max(currentDanmakuMask!!.range.last - currentPosition + 3, 20)
+                            resetTimer?.invoke(delay)
+                        } else {
+                            //暂停中。。。
+                            resetTimer?.invoke(2000)
+                        }
+                    }
+                } else {
+                    //定期检查是否有蒙版
+                    currentDanmakuMask = null
+                    resetTimer?.invoke(2000)
+                }
+            }
+        }
+
+        resetTimer = { delay ->
+            updateSeekTimer = timeTask(delay, "updateDanmakuMask", false) {
+                timerTask()
+            }
+        }
+        resetTimer.invoke(0)
+
+        onDispose {
+            updateSeekTimer?.cancel()
         }
     }
 
@@ -561,7 +623,8 @@ fun VideoPlayerV3Screen(
                         .fillMaxHeight(playerViewModel.currentDanmakuArea)
                         // 在之前版本中，设置 DanmakuConfig 透明度后，更改其它弹幕设置后，可能会导致弹幕透明度
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
-                        .alpha(playerViewModel.currentDanmakuOpacity),
+                        .alpha(playerViewModel.currentDanmakuOpacity)
+                        .ifElse({Prefs.enableWebmark},Modifier.svgMask(currentDanmakuMask?.svg)),
                     danmakuPlayer = playerViewModel.danmakuPlayer
                 )
 

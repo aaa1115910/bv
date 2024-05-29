@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="anime_home_button_following">正在追</string>
     <string name="anime_home_button_gamer_ani">動畫風</string>
+    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
     <string name="anime_home_button_index">索引</string>
     <string name="anime_home_button_timeline">时间表</string>
 
@@ -107,6 +108,8 @@
 
     <string name="player_controller_menu_danmaku_disabled">关闭</string>
     <string name="player_controller_menu_danmaku_enabled">开启</string>
+    <string name="player_controller_menu_danmaku_webmark_disabled">关闭</string>
+    <string name="player_controller_menu_danmaku_webmark_enabled">开启</string>
     <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
     <string name="player_controller_menu_item_danmaku_area">弹幕区域</string>
     <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
@@ -317,6 +320,7 @@
     <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
     <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
     <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
+    <string name="video_player_menu_danmaku_webmark">防遮挡</string>
     <string name="video_player_menu_nav_danmaku">弹幕设置</string>
     <string name="video_player_menu_nav_picture">画面音频</string>
     <string name="video_player_menu_nav_subtitle">字幕设置</string>
@@ -333,5 +337,4 @@
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
-    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
 </resources>

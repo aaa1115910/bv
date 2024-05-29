@@ -32,9 +32,11 @@ import dev.aaa1115910.bv.component.controllers2.MenuFocusState
 import dev.aaa1115910.bv.component.controllers2.VideoPlayerDanmakuMenuItem
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.CheckBoxMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.MenuListItem
+import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuList
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
 import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.util.Prefs
 import java.text.NumberFormat
 
 @Composable
@@ -141,6 +143,14 @@ fun DanmakuMenuList(
                         .apply { maximumFractionDigits = 0 }
                         .format(data.currentDanmakuArea),
                     onValueChange = onDanmakuAreaChange,
+                    onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
+                )
+
+                VideoPlayerDanmakuMenuItem.Webmark -> RadioMenuList(
+                    modifier = menuItemsModifier,
+                    items = listOf("关闭", "开启"),
+                    selected = if (Prefs.enableWebmark) 1 else 0,
+                    onSelectedChanged = { Prefs.enableWebmark = it == 1 },
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
             }

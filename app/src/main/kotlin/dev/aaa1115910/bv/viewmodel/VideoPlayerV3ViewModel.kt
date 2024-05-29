@@ -18,6 +18,7 @@ import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskSegment
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
@@ -66,6 +67,7 @@ class VideoPlayerV3ViewModel(
 
     private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
+    val danmakuMasks = mutableStateListOf<DanmakuMaskSegment>()
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
@@ -152,6 +154,7 @@ class VideoPlayerV3ViewModel(
             loadPlayUrl(avid, cid, epid ?: 0, preferApi = Prefs.apiType, proxyArea = proxyArea)
             addLogs("加载弹幕中")
             loadDanmaku(cid)
+            updateDanmakuMask()
 
             //如果是继续播放下一集，且之前开启了字幕，就会自动加载第一条字幕，主要用于观看番剧时自动加载字幕
             if (continuePlayNext) {
@@ -531,6 +534,21 @@ class VideoPlayerV3ViewModel(
         } else {
             logger.fInfo { "filtered official cdn urls: $filteredUrls" }
             return filteredUrls.first()
+        }
+    }
+
+    private suspend fun updateDanmakuMask() {
+        danmakuMasks.clear()
+        runCatching {
+            val masks = videoPlayRepository.getDanmakuMask(
+                aid = currentAid,
+                cid = currentCid,
+                preferApiType = Prefs.apiType
+            )
+            danmakuMasks.addAll(masks)
+            logger.fInfo { "Load danmaku mask size: ${danmakuMasks.size}" }
+        }.onFailure {
+            logger.fWarn { "Load danmaku mask failed: ${it.stackTraceToString()}" }
         }
     }
 }

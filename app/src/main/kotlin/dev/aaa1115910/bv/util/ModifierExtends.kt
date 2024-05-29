@@ -1,5 +1,7 @@
 package dev.aaa1115910.bv.util
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -15,11 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
+import com.caverock.androidsvg.SVG
 
 /**
  * 获取到焦点时显示白色边框
@@ -66,4 +77,40 @@ fun Modifier.focusedScale(
 
     onFocusChanged { hasFocus = it.hasFocus }
         .scale(scaleValue)
+}
+
+fun Modifier.bitmapMask(
+    bitmap: Bitmap
+): Modifier = composed {
+    drawWithContent {
+        drawIntoCanvas { canvas ->
+            canvas.saveLayer(Rect(Offset.Zero, size), Paint())
+            drawContent()
+            drawImage(
+                image = bitmap.asImageBitmap(),
+                dstSize = size.toIntSize(),
+                blendMode = BlendMode.DstIn
+            )
+            canvas.restore()
+        }
+    }
+}
+
+fun Modifier.svgMask(
+    svg: String?
+): Modifier = composed {
+    if (svg == null) return@composed this
+
+    val svgObj = runCatching {
+        SVG.getFromString(svg)
+    }.getOrNull() ?: return@composed this
+
+    val svgWidth = svgObj.documentWidth.toInt()
+    val svgHeight = svgObj.documentHeight.toInt()
+
+    val bitmap = Bitmap.createBitmap(svgWidth, svgHeight, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    svgObj.renderToCanvas(canvas)
+
+    bitmapMask(bitmap)
 }

@@ -73,6 +73,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readBytes
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
@@ -1513,6 +1514,10 @@ object BiliHttpApi {
         pagesize = pagesize,
         type = type
     )
+
+    suspend fun download(url: String): ByteArray {
+        return client.get(url).readBytes()
+    }
 }
 
 enum class SeasonIndexType(val id: Int) {

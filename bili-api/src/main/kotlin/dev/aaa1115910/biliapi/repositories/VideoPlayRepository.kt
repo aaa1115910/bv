@@ -9,11 +9,13 @@ import bilibili.playershared.videoVod
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskSegment
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
+import dev.aaa1115910.biliapi.util.WebMaskUtil
 import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt as PgcPlayURLGrpcKt
 
 class VideoPlayRepository(
@@ -207,5 +209,37 @@ class VideoPlayRepository(
             )
         }
         println("send heartbeat result: $result")
+    }
+
+    suspend fun getDanmakuMask(
+        aid: Long,
+        cid: Long,
+        preferApiType: ApiType = ApiType.Web
+    ): List<DanmakuMaskSegment> {
+        val danmakuMaskUrl = when (preferApiType) {
+            ApiType.Web -> {
+                val response = BiliHttpApi.getVideoMoreInfo(
+                    avid = aid,
+                    cid = cid,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
+                response.dmMask?.maskUrl
+            }
+
+            ApiType.App -> {
+                val dmViewReply = runCatching {
+                    danmakuStub?.dmView(dmViewReq {
+                        pid = aid
+                        oid = cid
+                        type = 1
+                    })
+                }.onFailure { handleGrpcException(it) }.getOrThrow()
+                dmViewReply?.mask?.maskUrl
+            }
+        } ?: return emptyList()
+
+        val maskBinary = BiliHttpApi.download(danmakuMaskUrl.replace("mobmask","webmask"))
+        val masks = WebMaskUtil.parseBinary(maskBinary)
+        return masks
     }
 }
