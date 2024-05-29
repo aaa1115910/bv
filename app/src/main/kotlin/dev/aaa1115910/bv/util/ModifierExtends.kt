@@ -31,6 +31,10 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
 import com.caverock.androidsvg.SVG
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMask
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskFrame
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMobMaskFrame
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuWebMaskFrame
 
 /**
  * 获取到焦点时显示白色边框
@@ -96,13 +100,11 @@ fun Modifier.bitmapMask(
     }
 }
 
-fun Modifier.svgMask(
-    svg: String?
+fun Modifier.danmakuWebMask(
+    frame: DanmakuWebMaskFrame
 ): Modifier = composed {
-    if (svg == null) return@composed this
-
     val svgObj = runCatching {
-        SVG.getFromString(svg)
+        SVG.getFromString(frame.svg)
     }.getOrNull() ?: return@composed this
 
     val svgWidth = svgObj.documentWidth.toInt()
@@ -113,4 +115,28 @@ fun Modifier.svgMask(
     svgObj.renderToCanvas(canvas)
 
     bitmapMask(bitmap)
+}
+
+fun Modifier.danmakuMobMask(
+    frame: DanmakuMobMaskFrame
+): Modifier = composed {
+    val binaryBitmap= Bitmap.createBitmap(40, 180, Bitmap.Config.ARGB_8888)
+    frame.image.forEachIndexed { index, byte ->
+        val y= index / 40
+        val x= index % 40
+        binaryBitmap.setPixel(x, y, if (byte.toInt() == 0) android.graphics.Color.BLACK else android.graphics.Color.TRANSPARENT)
+    }
+
+    bitmapMask(binaryBitmap)
+}
+
+fun Modifier.danmakuMask(
+    frame: DanmakuMaskFrame?
+): Modifier = composed {
+    if (frame == null) return@composed this
+
+    when(frame){
+        is DanmakuWebMaskFrame -> danmakuWebMask(frame)
+        is DanmakuMobMaskFrame -> danmakuMobMask(frame)
+    }
 }

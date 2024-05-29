@@ -45,9 +45,9 @@ import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.countDownTimer
+import dev.aaa1115910.bv.util.danmakuMask
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatMinSec
-import dev.aaa1115910.bv.util.svgMask
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.timeTask
 import dev.aaa1115910.bv.viewmodel.RequestState
@@ -108,7 +108,7 @@ fun VideoPlayerV3Screen(
     var clockRefreshTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var hideBackToHistoryTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
-    var currentDanmakuMask: DanmakuMaskFrame? by remember { mutableStateOf(null) }
+    var currentDanmakuMaskFrame: DanmakuMaskFrame? by remember { mutableStateOf(null) }
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -317,12 +317,12 @@ fun VideoPlayerV3Screen(
         var resetTimer: ((Long) -> Unit)? = null
 
         val updateMask: () -> Unit = {
-            currentDanmakuMask = playerViewModel.danmakuMasks.firstOrNull {
+            currentDanmakuMaskFrame = playerViewModel.danmakuMasks.firstOrNull {
                 currentPosition in it.range
             }?.frames?.firstOrNull { currentPosition in it.range }
 
-            if (currentDanmakuMask != null) {
-                resetTimer?.invoke(max(currentDanmakuMask!!.range.last - currentPosition + 3, 20))
+            if (currentDanmakuMaskFrame != null) {
+                resetTimer?.invoke(max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20))
             } else {
                 resetTimer?.invoke(2000)
             }
@@ -331,17 +331,17 @@ fun VideoPlayerV3Screen(
         val timerTask: () -> Unit = {
             scope.launch {
                 if (playerViewModel.danmakuMasks.isNotEmpty()) {
-                    if (currentDanmakuMask == null) {
+                    if (currentDanmakuMaskFrame == null) {
                         //当前无蒙版
                         updateMask()
-                    } else if (currentPosition !in currentDanmakuMask!!.range) {
+                    } else if (currentPosition !in currentDanmakuMaskFrame!!.range) {
                         //当前蒙版过期
                         updateMask()
                     } else {
                         //正常情况下不会在未过期时运行到此代码块，除非是卡顿等情况
                         if (isPlaying) {
                             //重新计时
-                            val delay = max(currentDanmakuMask!!.range.last - currentPosition + 3, 20)
+                            val delay = max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20)
                             resetTimer?.invoke(delay)
                         } else {
                             //暂停中。。。
@@ -350,7 +350,7 @@ fun VideoPlayerV3Screen(
                     }
                 } else {
                     //定期检查是否有蒙版
-                    currentDanmakuMask = null
+                    currentDanmakuMaskFrame = null
                     resetTimer?.invoke(2000)
                 }
             }
@@ -624,7 +624,7 @@ fun VideoPlayerV3Screen(
                         // 在之前版本中，设置 DanmakuConfig 透明度后，更改其它弹幕设置后，可能会导致弹幕透明度
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
                         .alpha(playerViewModel.currentDanmakuOpacity)
-                        .ifElse({Prefs.enableWebmark},Modifier.svgMask(currentDanmakuMask?.svg)),
+                        .ifElse({Prefs.enableWebmark},Modifier.danmakuMask(currentDanmakuMaskFrame)),
                     danmakuPlayer = playerViewModel.danmakuPlayer
                 )
 
