@@ -8,7 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 
 object NetworkUtil {
@@ -32,7 +32,7 @@ object NetworkUtil {
     }
 
     suspend fun isMainlandChina() = withContext(Dispatchers.IO) {
-        locCheckUrls.map { locCheckUrl ->
+        val deferreds = locCheckUrls.map { locCheckUrl ->
             async {
                 runCatching {
                     val result = client.get(locCheckUrl).bodyAsText()
@@ -47,6 +47,14 @@ object NetworkUtil {
                     false
                 }.getOrDefault(true)
             }
-        }.awaitAll().all { it }
+        }
+
+        select {
+            deferreds.forEach { deferred ->
+                deferred.onAwait { it }
+            }
+        }.also {
+            deferreds.forEach { it.cancel() }
+        }
     }
 }
