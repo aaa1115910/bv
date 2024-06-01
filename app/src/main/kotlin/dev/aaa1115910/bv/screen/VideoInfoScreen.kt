@@ -872,7 +872,8 @@ private fun UpButton(
                 .focusedBorder(MaterialTheme.shapes.small)
                 .padding(4.dp)
                 .clickable { onClickUp() },
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             UpIcon(color = Color.White)
             Text(text = name, color = Color.White)
