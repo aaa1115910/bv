@@ -29,7 +29,7 @@ data class HistoryItem(
     val oid: Long,
     val bvid: String,
     val cid: Long,
-    val kid: Int,
+    val kid: Long,
     val epid: Int?,
     val seasonId: Int?,
     val title: String,
@@ -73,7 +73,7 @@ data class HistoryItem(
                 CursorItem.CardItemCase.CARD_OGV -> 0
                 else -> 0
             },
-            kid = item.kid.toInt(),
+            kid = item.kid,
             epid = null,
             seasonId = when (item.cardItemCase) {
                 CursorItem.CardItemCase.CARD_OGV -> item.kid.toInt()

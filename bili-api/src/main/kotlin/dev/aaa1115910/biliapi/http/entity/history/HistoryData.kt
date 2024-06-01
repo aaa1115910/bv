@@ -104,7 +104,7 @@ data class HistoryItem(
     val isFinish: Int,
     @SerialName("is_fav")
     val isFav: Int,
-    val kid: Int,
+    val kid: Long,
     @SerialName("tag_name")
     val tagName: String,
     @SerialName("live_status")
