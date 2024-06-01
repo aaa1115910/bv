@@ -84,7 +84,9 @@ class UserRepository(
                 ApiType.App -> {
                     BiliHttpApi.getRelations(
                         mid = mid,
-                        accessKey = authRepository.accessToken
+                        //移动端貌似并没有使用这个接口，目前该接口返回-663鉴权失败，直接改用sessdata获取
+                        sessData = authRepository.sessionData
+                        //accessKey = authRepository.accessToken
                     )
                 }
             }.getResponseData()
