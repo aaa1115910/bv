@@ -291,9 +291,9 @@
     <string name="user_info_uid">UID: %1$s</string>
     <string name="user_lock_input_tip">方向键输入密码 / Center 键确认输入 / 返回键退格</string>
     <string name="user_lock_title_choose_user">选择账户</string>
-    <string name="user_lock_title_input_new_password">請輸入新密碼</string>
-    <string name="user_lock_title_input_new_password_again">請再次輸入新密碼</string>
-    <string name="user_lock_title_input_old_password">請輸入舊密碼</string>
+    <string name="user_lock_title_input_new_password">请输入新密码</string>
+    <string name="user_lock_title_input_new_password_again">请再次输入新密码</string>
+    <string name="user_lock_title_input_old_password">请输入旧密码</string>
     <string name="user_lock_title_input_password">输入密码</string>
     <string name="user_lock_toast_password_different">密码不一致</string>
     <string name="user_lock_toast_password_error">密码错误</string>
