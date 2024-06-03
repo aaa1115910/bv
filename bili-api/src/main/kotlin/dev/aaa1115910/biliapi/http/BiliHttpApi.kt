@@ -749,6 +749,7 @@ object BiliHttpApi {
         parameter("dm_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
         parameter("dm_cover_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
         header("Cookie", "SESSDATA=$sessData;")
+        header("referer", "https://space.bilibili.com")
     }.body()
 
     suspend fun getAppUserSpaceVideos(
