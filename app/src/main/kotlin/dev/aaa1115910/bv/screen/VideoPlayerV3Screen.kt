@@ -322,7 +322,9 @@ fun VideoPlayerV3Screen(
             }?.frames?.firstOrNull { currentPosition in it.range }
 
             if (currentDanmakuMaskFrame != null) {
-                resetTimer?.invoke(max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20))
+                resetTimer?.invoke(
+                    max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20)
+                )
             } else {
                 resetTimer?.invoke(2000)
             }
@@ -341,7 +343,8 @@ fun VideoPlayerV3Screen(
                         //正常情况下不会在未过期时运行到此代码块，除非是卡顿等情况
                         if (isPlaying) {
                             //重新计时
-                            val delay = max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20)
+                            val delay =
+                                max(currentDanmakuMaskFrame!!.range.last - currentPosition + 3, 20)
                             resetTimer?.invoke(delay)
                         } else {
                             //暂停中。。。
@@ -466,6 +469,10 @@ fun VideoPlayerV3Screen(
             modifier = modifier
                 .focusRequester(focusRequester),
             videoPlayer = playerViewModel.videoPlayer!!,
+
+            idleIcon = playerViewModel.playerIconIdle,
+            movingIcon = playerViewModel.playerIconMoving,
+
             onPlay = { videoPlayer.start() },
             onPause = {
                 videoPlayer.pause()
@@ -624,7 +631,10 @@ fun VideoPlayerV3Screen(
                         // 在之前版本中，设置 DanmakuConfig 透明度后，更改其它弹幕设置后，可能会导致弹幕透明度
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
                         .alpha(playerViewModel.currentDanmakuOpacity)
-                        .ifElse({Prefs.enableWebmark},Modifier.danmakuMask(currentDanmakuMaskFrame)),
+                        .ifElse(
+                            { Prefs.enableWebmark },
+                            Modifier.danmakuMask(currentDanmakuMaskFrame)
+                        ),
                     danmakuPlayer = playerViewModel.danmakuPlayer
                 )
 

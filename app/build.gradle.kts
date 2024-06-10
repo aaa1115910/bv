@@ -203,6 +203,7 @@ dependencies {
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.core)
     implementation(libs.logging)
+    implementation(libs.lottie)
     implementation(libs.material)
     implementation(libs.qrcode)
     implementation(libs.rememberPreference)

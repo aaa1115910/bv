@@ -29,7 +29,9 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             epid: Int? = null,
             seasonId: Int? = null,
             isVerticalVideo: Boolean = false,
-            proxyArea: ProxyArea = ProxyArea.MainLand
+            proxyArea: ProxyArea = ProxyArea.MainLand,
+            playerIconIdle: String = "",
+            playerIconMoving: String = ""
         ) {
             context.startActivity(
                 Intent(context, RemoteControllerPanelDemoActivity::class.java).apply {
@@ -44,6 +46,8 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                     putExtra("seasonId", seasonId)
                     putExtra("isVerticalVideo", isVerticalVideo)
                     putExtra("proxy_area", proxyArea.ordinal)
+                    putExtra("playerIconIdle", playerIconIdle)
+                    putExtra("playerIconMoving", playerIconMoving)
                 }
             )
         }
@@ -80,7 +84,9 @@ fun RemoteControllerPanelDemoScreen(
             epid = intent.getIntExtra("epid", 0),
             seasonId = intent.getIntExtra("seasonId", 0),
             isVerticalVideo = intent.getBooleanExtra("isVerticalVideo", false),
-            proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
+            proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)],
+            playerIconIdle = intent.getStringExtra("playerIconIdle") ?: "",
+            playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
         )
         context.finish()
     }

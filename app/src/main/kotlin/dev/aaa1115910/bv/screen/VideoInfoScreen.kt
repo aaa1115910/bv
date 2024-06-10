@@ -343,7 +343,11 @@ fun VideoInfoScreen(
                             partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == playPart.cid }!!.title,
                             played = if (playPart.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                             fromSeason = true,
-                            isVerticalVideo = containsVerticalScreenVideo
+                            isVerticalVideo = containsVerticalScreenVideo,
+                            playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                ?: "",
+                            playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                ?: ""
                         )
                         context.finish()
                     } else if (videoDetailViewModel.videoDetail?.ugcSeason != null) {
@@ -545,7 +549,11 @@ fun VideoInfoScreen(
                                     partTitle = videoDetailViewModel.videoDetail!!.pages.first().title,
                                     played = if (videoDetailViewModel.videoDetail!!.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                     fromSeason = false,
-                                    isVerticalVideo = containsVerticalScreenVideo
+                                    isVerticalVideo = containsVerticalScreenVideo,
+                                    playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                        ?: "",
+                                    playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                        ?: ""
                                 )
                             },
                             onClickUp = {
@@ -609,7 +617,11 @@ fun VideoInfoScreen(
                                         partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )
@@ -638,7 +650,11 @@ fun VideoInfoScreen(
                                         partTitle = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )
@@ -662,7 +678,11 @@ fun VideoInfoScreen(
                                         partTitle = section.episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )

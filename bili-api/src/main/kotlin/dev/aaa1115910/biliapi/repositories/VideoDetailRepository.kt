@@ -48,25 +48,30 @@ class VideoDetailRepository(
                         }.getOrDefault(false)
                     }
 
-                    val history = async {
+                    val historyAndPlayerIcon = async {
                         runCatching {
                             val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
                                 avid = aid,
                                 cid = videoDetailWithoutUserActions.await().cid,
                                 sessData = authRepository.sessionData ?: ""
                             ).getResponseData()
-                            VideoDetail.History(
+                            val history = VideoDetail.History(
                                 progress = videoModeInfo.lastPlayTime / 1000,
                                 lastPlayedCid = videoModeInfo.lastPlayCid
                             )
+                            val playerIcon =
+                                VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
+                            history to playerIcon
                         }.onFailure {
                             println("Get video history failed: $it")
-                        }.getOrDefault(VideoDetail.History(0, 0))
+                        }.getOrDefault(VideoDetail.History(0, 0) to null)
                     }
 
                     videoDetailWithoutUserActions.await().apply {
                         userActions.favorite = isFavoured.await()
-                        this.history = history.await()
+                        val (history, playerIcon) = historyAndPlayerIcon.await()
+                        this.history = history
+                        this.playerIcon = playerIcon
                     }
                 }
             }

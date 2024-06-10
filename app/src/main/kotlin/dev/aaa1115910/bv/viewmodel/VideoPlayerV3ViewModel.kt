@@ -110,6 +110,9 @@ class VideoPlayerV3ViewModel(
     var lastChangedLog by mutableLongStateOf(System.currentTimeMillis())
     var showBuffering by mutableStateOf(false)
 
+    var playerIconIdle by mutableStateOf("")
+    var playerIconMoving by mutableStateOf("")
+
     private var currentAid = 0L
     var currentCid = 0L
     private var currentEpid = 0

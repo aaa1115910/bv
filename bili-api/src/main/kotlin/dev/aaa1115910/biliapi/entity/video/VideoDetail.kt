@@ -26,7 +26,8 @@ data class VideoDetail(
     val argueTip: String?,
     val tags: List<Tag>,
     val userActions: UserActions,
-    var history: History
+    var history: History,
+    var playerIcon: PlayerIcon? = null
 ) {
     companion object {
         fun fromViewReply(viewReply: ViewReply) = VideoDetail(
@@ -49,7 +50,8 @@ data class VideoDetail(
             argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
             tags = viewReply.tagList.map { Tag.fromTag(it) },
             userActions = UserActions.fromReqUser(viewReply.reqUser),
-            history = History.fromHistory(viewReply.history)
+            history = History.fromHistory(viewReply.history),
+            playerIcon = viewReply.playerIcon?.let { PlayerIcon.fromPlayerIcon(it) }
         )
 
         fun fromVideoDetail(videoDetail: dev.aaa1115910.biliapi.http.entity.video.VideoDetail) =
@@ -71,7 +73,8 @@ data class VideoDetail(
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
                 tags = videoDetail.tags.map { Tag.fromTag(it) },
                 userActions = UserActions(),
-                history = History(0, 0)
+                history = History(0, 0),
+                playerIcon = null
             )
     }
 
@@ -118,6 +121,26 @@ data class VideoDetail(
             fun fromHistory(history: bilibili.app.view.v1.History) = History(
                 progress = history.progress.toInt(),
                 lastPlayedCid = history.cid
+            )
+        }
+    }
+
+    data class PlayerIcon(
+        val idle: String,
+        val moving: String
+    ) {
+        companion object {
+            fun fromPlayerIcon(playerIcon: dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo.PlayerIcon?) =
+                playerIcon?.let {
+                    PlayerIcon(
+                        idle = playerIcon.url2,
+                        moving = playerIcon.url1
+                    )
+                }
+
+            fun fromPlayerIcon(playerIcon: bilibili.app.view.v1.PlayerIcon) = PlayerIcon(
+                idle = playerIcon.url2,
+                moving = playerIcon.url1
             )
         }
     }

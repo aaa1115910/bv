@@ -14,6 +14,7 @@ kotlinx-serialization = "1.7.0-RC"
 ktor = "2.3.11"
 ktor-jsoup = "2.3.0"
 logging = "6.0.9"
+lottie = "6.4.1"
 material = "1.12.0"
 protobuf = "4.26.1"
 #noinspection GradleDependency 之后的版本要求 minSDK >= 23
@@ -86,6 +87,9 @@ ktor-jsoup = { module = "com.tfowl.ktor:ktor-jsoup", version.ref = "ktor-jsoup" 
 
 # https://github.com/MicroUtils/kotlin-logging
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "logging" }
+
+# https://airbnb.io/lottie
+lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 
 # https://github.com/material-components/material-components-android
 material = { module = "com.google.android.material:material", version.ref = "material" }
