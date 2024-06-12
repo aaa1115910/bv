@@ -267,7 +267,7 @@ object BiliHttpApi {
         doc.documentElement.normalize()
 
         val chatServer = doc.getElementsByTagName("chatserver").item(0).textContent
-        val chatId = doc.getElementsByTagName("chatid").item(0).textContent.toInt()
+        val chatId = doc.getElementsByTagName("chatid").item(0).textContent.toLong()
         val maxLimit = doc.getElementsByTagName("maxlimit").item(0).textContent.toInt()
         val state = doc.getElementsByTagName("state").item(0).textContent.toInt()
         val realName = doc.getElementsByTagName("real_name").item(0).textContent.toInt()
