@@ -7,6 +7,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -82,7 +83,25 @@ class VideoDetailRepository(
                         this.aid = aid.toLong()
                     }) ?: throw IllegalStateException("Player stub is not initialized")
                 }.onFailure { handleGrpcException(it) }.getOrThrow()
-                VideoDetail.fromViewReply(viewReply)
+                VideoDetail.fromViewReply(viewReply).apply {
+                    if (playerIcon?.idle?.isBlank() != false && authRepository.sessionData != null) {
+                        println("player icon not found in view reply, try to get it from garb api")
+                        runCatching {
+                            val playerIconGarb = BiliHttpApi.getUserEquippedGarb(
+                                part = EquipPart.PlayerIcon,
+                                sessData = authRepository.sessionData!!
+                            ).getResponseData()
+                            val playerIconItem = playerIconGarb.item
+                                ?: throw IllegalStateException("player icon not equipped")
+                            this.playerIcon = VideoDetail.PlayerIcon(
+                                idle = playerIconItem.properties.icon ?: "",
+                                moving = playerIconItem.properties.dragIcon ?: ""
+                            )
+                        }.onFailure {
+                            println("Get player icon failed: $it")
+                        }
+                    }
+                }
             }
         }
     }

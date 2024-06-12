@@ -39,6 +39,8 @@ import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteItemIdListResponse
 import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.http.entity.user.garb.Equip
+import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import dev.aaa1115910.biliapi.http.entity.video.AddCoin
 import dev.aaa1115910.biliapi.http.entity.video.CheckSentCoin
 import dev.aaa1115910.biliapi.http.entity.video.CheckVideoFavoured
@@ -1541,6 +1543,14 @@ object BiliHttpApi {
         parameter("aid", aid)
         parameter("cid", cid)
         parameter("ts", 0)
+    }.body()
+
+    suspend fun getUserEquippedGarb(
+        part: EquipPart,
+        sessData: String
+    ): BiliResponse<Equip> = client.get("/x/garb/user/equip") {
+        parameter("part", part.value)
+        header("Cookie", "SESSDATA=$sessData;")
     }.body()
 }
 
