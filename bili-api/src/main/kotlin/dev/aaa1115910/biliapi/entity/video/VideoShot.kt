@@ -56,8 +56,8 @@ data class VideoShot(
                     images = images,
                     imageCountX = videoShot.imgXLen,
                     imageCountY = videoShot.imgYLen,
-                    imageWidth = videoShot.imgXSize,
-                    imageHeight = videoShot.imgYSize
+                    imageWidth = videoShot.imgXSize.takeIf { it > 0 } ?: 160,
+                    imageHeight = videoShot.imgYSize.takeIf { it > 0 } ?: 90
                 )
             }
     }
