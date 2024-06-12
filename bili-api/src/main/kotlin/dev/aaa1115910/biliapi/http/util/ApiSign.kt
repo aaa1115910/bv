@@ -99,7 +99,7 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
         }
 
         val getUrlWithoutAccessToken: (URLBuilder) -> String = { urlBuilder ->
-             urlBuilder.clone().apply {
+            urlBuilder.clone().apply {
                 if (parameters.contains("access_key") && !parameters["access_key"].isNullOrBlank()) {
                     parameters["access_key"] = "HIDDEN_ACCESS_TOKEN"
                 }
@@ -111,7 +111,8 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
             // 目前看来需要计算 wbi sign 的接口之前忘记计算 app sign 都通过校验了🤯
             HttpMethod.Get -> {
                 val isWbiRequest = request.url.encodedPath.contains("wbi")
-                val isAppRequest = request.url.parameters.contains("access_key")
+                val isAppRequest =
+                    request.url.parameters.contains("access_key") || request.url.host == "app.bilibili.com"
                 if (isWbiRequest) {
                     println("Enc wbi for get request: ${getUrlWithoutAccessToken(request.url)}")
                     request.encWbi()

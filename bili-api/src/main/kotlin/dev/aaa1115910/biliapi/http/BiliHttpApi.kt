@@ -54,6 +54,7 @@ import dev.aaa1115910.biliapi.http.entity.video.TimelineAppData
 import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
 import dev.aaa1115910.biliapi.http.util.BiliAppConf
 import dev.aaa1115910.biliapi.http.util.encApiSign
@@ -1519,6 +1520,28 @@ object BiliHttpApi {
     suspend fun download(url: String): ByteArray {
         return client.get(url).readBytes()
     }
+
+    suspend fun getWebVideoShot(
+        aid: Long? = null,
+        bvid: String? = null,
+        cid: Long? = null,
+        needJsonArrayIndex: Boolean = false
+    ): BiliResponse<VideoShot> = client.get("/x/player/videoshot") {
+        require(aid != null || bvid != null) { "av and bv cannot be null at the same time" }
+        aid?.let { parameter("aid", it) }
+        bvid?.let { parameter("bvid", it) }
+        cid?.let { parameter("cid", it) }
+        parameter("index", if (needJsonArrayIndex) 1 else 0)
+    }.body()
+
+    suspend fun getAppVideoShot(
+        aid: Long,
+        cid: Long
+    ): BiliResponse<VideoShot> = client.get("https://app.bilibili.com/x/v2/view/video/shot") {
+        parameter("aid", aid)
+        parameter("cid", cid)
+        parameter("ts", 0)
+    }.body()
 }
 
 enum class SeasonIndexType(val id: Int) {

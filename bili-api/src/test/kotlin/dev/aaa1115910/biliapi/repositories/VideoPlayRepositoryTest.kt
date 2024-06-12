@@ -303,9 +303,9 @@ class VideoPlayRepositoryTest {
     }
 
     @Test
-    fun `get play url domain`()= runBlocking {
-        val getUrlDomain:(String)->String={
-            val url= URL(it)
+    fun `get play url domain`() = runBlocking {
+        val getUrlDomain: (String) -> String = {
+            val url = URL(it)
             "${url.protocol}://${url.host}"
         }
         ApiType.entries.forEach { apiType ->
@@ -318,11 +318,24 @@ class VideoPlayRepositoryTest {
 
             result.dashVideos.forEach { video ->
                 println("video quality: ${video.quality}")
-                val videoUrls= mutableListOf<String>()
+                val videoUrls = mutableListOf<String>()
                 videoUrls.add(video.baseUrl)
                 videoUrls.addAll(video.backUrl)
                 videoUrls.forEach { println(getUrlDomain(it)) }
             }
+        }
+    }
+
+    @Test
+    fun `get video shots`() = runBlocking {
+        ApiType.entries.forEach { apiType ->
+            val result = videoPlayRepository.getVideoShot(
+                aid = 170001,
+                cid = 279786,
+                preferApiType = apiType
+            )
+            println("api type: $apiType")
+            println(result)
         }
     }
 }

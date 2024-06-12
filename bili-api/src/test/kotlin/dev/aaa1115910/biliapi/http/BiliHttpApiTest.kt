@@ -663,4 +663,16 @@ internal class BiliHttpApiTest {
         val result = BiliHttpApi.seasonIndexDocumentaryResult()
         println(result.data?.list?.map { it.title })
     }
+
+    @Test
+    fun `get web video shot`() = runBlocking {
+        val result = BiliHttpApi.getWebVideoShot(aid = 170001)
+        println(result)
+    }
+
+    @Test
+    fun `get app video shot`() = runBlocking {
+        val result = BiliHttpApi.getAppVideoShot(aid = 170001, cid = 279786)
+        println(result)
+    }
 }

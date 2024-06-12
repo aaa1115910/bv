@@ -14,6 +14,7 @@ import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskSegment
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
@@ -250,5 +251,18 @@ class VideoPlayRepository(
             ApiType.App -> DanmakuMaskType.MobMask
         }
         return DanmakuMask.fromBinary(maskBinary, danmakuMaskType).segments
+    }
+
+    suspend fun getVideoShot(
+        aid: Long,
+        cid: Long,
+        preferApiType: ApiType = ApiType.Web
+    ): VideoShot? {
+        val videoShortResponse = when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.getWebVideoShot(aid = aid, cid = cid)
+            ApiType.App -> BiliHttpApi.getAppVideoShot(aid = aid, cid = cid)
+        }
+        val videoShot = VideoShot.fromVideoShot(videoShortResponse.getResponseData())
+        return videoShot
     }
 }

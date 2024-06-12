@@ -32,6 +32,7 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskFrame
+import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
@@ -462,7 +463,8 @@ fun VideoPlayerV3Screen(
             clock = clock,
             showBackToHistory = showBackToHistory,
             needPay = playerViewModel.needPay,
-            epid = playerViewModel.epid
+            epid = playerViewModel.epid,
+            videoShot = playerViewModel.videoShot
         )
     ) {
         VideoPlayerController(

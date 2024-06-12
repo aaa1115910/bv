@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
+import dev.aaa1115910.biliapi.entity.video.VideoShot
+import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 
@@ -49,7 +51,8 @@ fun SeekController(
                 position = goTime,
                 moveState = moveState,
                 idleIcon = idleIcon,
-                movingIcon = movingIcon
+                movingIcon = movingIcon,
+                videoShot = LocalVideoPlayerControllerData.current.videoShot
             )
         }
     }
@@ -62,11 +65,26 @@ private fun SeekController(
     position: Long,
     moveState: SeekMoveState,
     idleIcon: String,
-    movingIcon: String
+    movingIcon: String,
+    videoShot: VideoShot? = null
 ) {
-    Box {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (videoShot != null) {
+            VideoShot(
+                modifier = Modifier
+                    .padding(horizontal = 48.dp),
+                videoShot = videoShot,
+                position = position,
+                duration = duration,
+                coercedOffset = (-24).dp
+            )
+        }
+
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .clip(
                     MaterialTheme.shapes.large
                         .copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
@@ -100,7 +118,15 @@ private fun VideoProgressSeekPreview(@PreviewParameter(VideoProgressProvider::cl
             position = data.second,
             moveState = SeekMoveState.Idle,
             idleIcon = "",
-            movingIcon = ""
+            movingIcon = "",
+            videoShot = VideoShot(
+                times = emptyList(),
+                imageCountX = 0,
+                imageCountY = 0,
+                imageWidth = 0,
+                imageHeight = 0,
+                images = emptyList()
+            )
         )
     }
 }
@@ -110,6 +136,7 @@ private class VideoProgressProvider : PreviewParameterProvider<Pair<Long, Long>>
         Pair(1234_000L, 0L),
         Pair(1234_000L, 234_000L),
         Pair(1234_000L, 555_000L),
+        Pair(1234_000L, 999_000L),
         Pair(1234_000L, 1234_000L),
     )
 }

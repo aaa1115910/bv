@@ -24,6 +24,7 @@ import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiStatus
 import dev.aaa1115910.biliapi.entity.video.SubtitleAiType
 import dev.aaa1115910.biliapi.entity.video.SubtitleType
+import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.SubtitleParser
@@ -68,6 +69,7 @@ class VideoPlayerV3ViewModel(
     private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
     val danmakuMasks = mutableStateListOf<DanmakuMaskSegment>()
+    var videoShot: VideoShot? by mutableStateOf(null)
 
     var availableQuality = mutableStateMapOf<Int, String>()
     var availableVideoCodec = mutableStateListOf<VideoCodec>()
@@ -158,6 +160,8 @@ class VideoPlayerV3ViewModel(
             addLogs("加载弹幕中")
             loadDanmaku(cid)
             updateDanmakuMask()
+
+            updateVideoShot()
 
             //如果是继续播放下一集，且之前开启了字幕，就会自动加载第一条字幕，主要用于观看番剧时自动加载字幕
             if (continuePlayNext) {
@@ -552,6 +556,21 @@ class VideoPlayerV3ViewModel(
             logger.fInfo { "Load danmaku mask size: ${danmakuMasks.size}" }
         }.onFailure {
             logger.fWarn { "Load danmaku mask failed: ${it.stackTraceToString()}" }
+        }
+    }
+
+    private suspend fun updateVideoShot() {
+        videoShot = null
+        runCatching {
+            val videoShot = videoPlayRepository.getVideoShot(
+                aid = currentAid,
+                cid = currentCid,
+                preferApiType = Prefs.apiType
+            )
+            this.videoShot = videoShot
+            logger.fInfo { "Load video shot success" }
+        }.onFailure {
+            logger.fWarn { "Load video shot failed: ${it.stackTraceToString()}" }
         }
     }
 }
