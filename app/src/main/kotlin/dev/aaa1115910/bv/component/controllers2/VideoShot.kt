@@ -1,26 +1,28 @@
 package dev.aaa1115910.bv.component.controllers2
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -43,30 +45,39 @@ fun VideoShot(
     coercedOffset: Dp = 0.dp
 ) {
     val view = LocalView.current
+    val density = LocalDensity.current
     val logger = KotlinLogging.logger {}
 
     var bitmap by remember { mutableStateOf(ImageBitmap(1, 1)) }
     var screenWidth by remember { mutableStateOf(0.dp) }
     var coercedImageOffset by remember { mutableStateOf(0.dp) }
+    var imageWidth by remember { mutableStateOf(0.dp) }
 
-    LaunchedEffect(position) {
+    LaunchedEffect(position, imageWidth) {
+        logger.fInfo { "update progress preview image at $position" }
         if (!view.isInEditMode) {
-            logger.fInfo { "update progress preview image at $position" }
             bitmap = videoShot.getImage(position.toInt() / 1000).asImageBitmap()
         }
-        val baseOffset = (-80).dp
+        val baseOffset = -imageWidth / 2
         val imageOffset = baseOffset + screenWidth * (position.toFloat() / duration.toFloat())
         coercedImageOffset =
-            imageOffset.coerceIn(0.dp + coercedOffset, screenWidth - 160.dp - coercedOffset)
+            imageOffset.coerceIn(0.dp + coercedOffset, screenWidth - imageWidth - coercedOffset)
     }
 
+//    if (view.isInEditMode) {
+//        Text("offset: ${coercedImageOffset.value}")
+//        Text("image width: ${imageWidth.value}")
+//    }
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
         screenWidth = maxWidth
         VideoShotImage(
             modifier = Modifier
-                .offset(x = coercedImageOffset),
+                .offset(x = coercedImageOffset)
+                .onSizeChanged {
+                    imageWidth = with(density) { it.width.toDp() }
+                },
             bitmap = bitmap
         )
     }
@@ -78,26 +89,21 @@ fun VideoShotImage(
     bitmap: ImageBitmap
 ) {
     val view = LocalView.current
-    Box(
-        modifier = modifier
-    ) {
-        Image(
-            modifier = Modifier
-                .size(160.dp, 90.dp)
-                .clip(MaterialTheme.shapes.large)
-                .shadow(4.dp, MaterialTheme.shapes.large),
-            bitmap = bitmap,
-            contentDescription = null
-        )
-        if (view.isInEditMode) {
-            VerticalDivider(
-                modifier = Modifier
-                    .height(90.dp)
-                    .align(Alignment.Center)
-            )
-        }
-    }
 
+    Image(
+        modifier = modifier
+            .height(100.dp)
+            .shadow(4.dp, MaterialTheme.shapes.large)
+            .clip(MaterialTheme.shapes.large)
+            .drawBehind {
+                if (view.isInEditMode) {
+                    drawLine(Color.White, Offset(center.x, 0f), Offset(center.x, size.height), 2f)
+                }
+            },
+        bitmap = bitmap,
+        contentDescription = null,
+        contentScale = ContentScale.FillHeight
+    )
 }
 
 @Preview
