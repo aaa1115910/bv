@@ -37,7 +37,12 @@ fun VideoShot.getImage(time: Int): Bitmap {
         }
     }
 
-    return Bitmap.createBitmap(bitmap, x * imageWidth, y * imageHeight, imageWidth, imageHeight)
+    val realImageWidth = bitmap.width / imageCountX
+    val realImageHeight = bitmap.height / imageCountY
+
+    return Bitmap.createBitmap(
+        bitmap, x * realImageWidth, y * realImageHeight, realImageWidth, realImageHeight
+    )
 }
 
 private fun findClosestValueIndex(array: List<UShort>, target: UShort): Int {
