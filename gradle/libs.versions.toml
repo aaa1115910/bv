@@ -1,5 +1,5 @@
 [versions]
-accompanist = "0.31.0-alpha"
+accompanist = "0.34.0"
 akdanmaku = "1.0.3"
 androidsvg = "1.4"
 coil = "2.6.0"
