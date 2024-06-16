@@ -279,7 +279,8 @@ enum class VideoPlayerDanmakuMenuItem(private val strRes: Int) {
     Switch(R.string.video_player_menu_danmaku_switch),
     Size(R.string.video_player_menu_danmaku_size),
     Opacity(R.string.video_player_menu_danmaku_opacity),
-    Area(R.string.video_player_menu_danmaku_area);
+    Area(R.string.video_player_menu_danmaku_area),
+    Webmark(R.string.video_player_menu_danmaku_webmark);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }

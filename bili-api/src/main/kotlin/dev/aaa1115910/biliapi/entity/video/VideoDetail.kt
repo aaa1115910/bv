@@ -26,31 +26,69 @@ data class VideoDetail(
     val argueTip: String?,
     val tags: List<Tag>,
     val userActions: UserActions,
-    var history: History
+    var history: History,
+    var playerIcon: PlayerIcon? = null
 ) {
     companion object {
-        fun fromViewReply(viewReply: ViewReply) = VideoDetail(
-            bvid = viewReply.bvid,
-            aid = viewReply.arc.aid,
-            cid = viewReply.arc.firstCid,
-            cover = viewReply.arc.pic,
-            title = viewReply.arc.title,
-            publishDate = Date(viewReply.arc.pubdate * 1000L),
-            description = viewReply.arc.desc,
-            stat = Stat.fromStat(viewReply.arc.stat),
-            author = Author.fromAuthor(viewReply.arc.author),
-            pages = viewReply.pagesList.map { VideoPage.fromViewPage(it) },
-            ugcSeason = viewReply.ugcSeasonOrNull?.let { UgcSeason.fromUgcSeason(it) },
-            relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) },
-            redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
-            epid = runCatching {
-                viewReply.arc.redirectUrl.split("ep", "?")[1].toInt()
-            }.getOrNull(),
-            argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
-            tags = viewReply.tagList.map { Tag.fromTag(it) },
-            userActions = UserActions.fromReqUser(viewReply.reqUser),
-            history = History.fromHistory(viewReply.history)
-        )
+        fun fromViewReply(viewReply: ViewReply): VideoDetail {
+            if (!viewReply.hasActivitySeason()) {
+                return VideoDetail(
+                    bvid = viewReply.bvid,
+                    aid = viewReply.arc.aid,
+                    cid = viewReply.arc.firstCid,
+                    cover = viewReply.arc.pic,
+                    title = viewReply.arc.title,
+                    publishDate = Date(viewReply.arc.pubdate * 1000L),
+                    description = viewReply.arc.desc,
+                    stat = Stat.fromStat(viewReply.arc.stat),
+                    author = Author.fromAuthor(viewReply.arc.author),
+                    pages = viewReply.pagesList.map { VideoPage.fromViewPage(it) },
+                    ugcSeason = viewReply.ugcSeasonOrNull?.let { UgcSeason.fromUgcSeason(it) },
+                    relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) },
+                    redirectToEp = viewReply.arc.redirectUrl.contains("ep"),
+                    epid = runCatching {
+                        viewReply.arc.redirectUrl.split("ep", "?")[1].toInt()
+                    }.getOrNull(),
+                    argueTip = viewReply.argueMsg.takeIf { it.isNotEmpty() },
+                    tags = viewReply.tagList.map { Tag.fromTag(it) },
+                    userActions = UserActions.fromReqUser(viewReply.reqUser),
+                    history = History.fromHistory(viewReply.history),
+                    playerIcon = viewReply.playerIcon?.let { PlayerIcon.fromPlayerIcon(it) }
+                )
+            } else {
+                return VideoDetail(
+                    bvid = viewReply.activitySeason.bvid,
+                    aid = viewReply.activitySeason.arc.aid,
+                    cid = viewReply.activitySeason.arc.firstCid,
+                    cover = viewReply.activitySeason.arc.pic,
+                    title = viewReply.activitySeason.arc.title,
+                    publishDate = Date(viewReply.activitySeason.arc.pubdate * 1000L),
+                    description = viewReply.activitySeason.arc.desc,
+                    stat = Stat.fromStat(viewReply.activitySeason.arc.stat),
+                    author = Author.fromAuthor(viewReply.activitySeason.arc.author),
+                    pages = viewReply.activitySeason.pagesList.map { VideoPage.fromViewPage(it) },
+                    ugcSeason = viewReply.activitySeason.ugcSeasonOrNull?.let {
+                        UgcSeason.fromUgcSeason(
+                            it
+                        )
+                    },
+                    relatedVideos = viewReply.relatesList.map { RelatedVideo.fromRelate(it) },
+                    redirectToEp = viewReply.activitySeason.arc.redirectUrl.contains("ep"),
+                    epid = runCatching {
+                        viewReply.activitySeason.arc.redirectUrl.split("ep", "?")[1].toInt()
+                    }.getOrNull(),
+                    argueTip = viewReply.activitySeason.argueMsg.takeIf { it.isNotEmpty() },
+                    tags = viewReply.tagList.map { Tag.fromTag(it) },
+                    userActions = UserActions.fromReqUser(viewReply.activitySeason.reqUser),
+                    history = History.fromHistory(viewReply.activitySeason.history),
+                    playerIcon = viewReply.activitySeason.playerIcon?.let {
+                        PlayerIcon.fromPlayerIcon(
+                            it
+                        )
+                    }
+                )
+            }
+        }
 
         fun fromVideoDetail(videoDetail: dev.aaa1115910.biliapi.http.entity.video.VideoDetail) =
             VideoDetail(
@@ -71,7 +109,8 @@ data class VideoDetail(
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },
                 tags = videoDetail.tags.map { Tag.fromTag(it) },
                 userActions = UserActions(),
-                history = History(0, 0)
+                history = History(0, 0),
+                playerIcon = null
             )
     }
 
@@ -118,6 +157,26 @@ data class VideoDetail(
             fun fromHistory(history: bilibili.app.view.v1.History) = History(
                 progress = history.progress.toInt(),
                 lastPlayedCid = history.cid
+            )
+        }
+    }
+
+    data class PlayerIcon(
+        val idle: String,
+        val moving: String
+    ) {
+        companion object {
+            fun fromPlayerIcon(playerIcon: dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo.PlayerIcon?) =
+                playerIcon?.let {
+                    PlayerIcon(
+                        idle = playerIcon.url2,
+                        moving = playerIcon.url1
+                    )
+                }
+
+            fun fromPlayerIcon(playerIcon: bilibili.app.view.v1.PlayerIcon) = PlayerIcon(
+                idle = playerIcon.url2,
+                moving = playerIcon.url1
             )
         }
     }

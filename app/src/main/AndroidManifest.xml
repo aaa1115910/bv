@@ -32,6 +32,11 @@
         android:theme="@style/Theme.BV"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activities.user.UserLockSettingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_user_lock_settings"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.video.RemoteControllerPanelDemoActivity"
             android:exported="false"
             android:label="@string/title_activity_remote_controller_panel_demo"

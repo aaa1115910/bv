@@ -172,4 +172,12 @@ class UserRepository(
             avatar = it.avatar
         }
     }
+
+    suspend fun findUserByUid(uid: Long): UserDB? {
+        return db.userDao().findUserByUid(uid)
+    }
+
+    suspend fun updateUser(user: UserDB){
+        db.userDao().update(user)
+    }
 }

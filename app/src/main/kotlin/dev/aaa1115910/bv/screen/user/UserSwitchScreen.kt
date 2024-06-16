@@ -9,8 +9,8 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,9 +22,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BadgedBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -47,8 +50,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewModelScope
+import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Button
@@ -59,14 +66,18 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.LoginActivity
+import dev.aaa1115910.bv.activities.user.UserLockSettingsActivity
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.repository.UserRepository
+import dev.aaa1115910.bv.screen.user.lock.UnlockSwitchUserContent
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.requestFocus
@@ -75,41 +86,99 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 @Composable
 fun UserSwitchScreen(
     modifier: Modifier = Modifier,
-    userSwitchViewModel: UserSwitchViewModel = koinViewModel()
+    userSwitchViewModel: UserSwitchViewModel = koinViewModel(),
+    userRepository: UserRepository = getKoin().get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val userList = userSwitchViewModel.userDbList
+
+    var showUnlock by remember { mutableStateOf(false) }
+    var unlockUser: UserDB? by remember { mutableStateOf(null) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                scope.launch {
+                    //userSwitchViewModel.updateUserDbList()
+                    userSwitchViewModel.updateData()
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val unlockFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(showUnlock) {
+        if (showUnlock) unlockFocusRequester.requestFocus()
+    }
 
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(0.dp)
     ) {
-        UserSwitchContent(
-            userList = userList,
-            loadingUserList = userSwitchViewModel.loading,
-            onAddUser = {
-                context.startActivity(Intent(context, LoginActivity::class.java))
-            },
-            onDeleteUser = { user ->
-                scope.launch(Dispatchers.IO) {
-                    userSwitchViewModel.deleteUser(user)
-                    if (userList.isEmpty()) (context as Activity).finish()
+        Box {
+            UserSwitchContent(
+                userList = userList,
+                currentUid = userRepository.uid,
+                loadingUserList = userSwitchViewModel.loading,
+                onAddUser = {
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                },
+                onDeleteUser = { user ->
+                    scope.launch(Dispatchers.IO) {
+                        userSwitchViewModel.deleteUser(user)
+                        if (userList.isEmpty()) (context as Activity).finish()
+                    }
+                },
+                onSwitchUser = { user ->
+                    if (user.uid != userRepository.uid && user.lock.isNotBlank()) {
+                        unlockUser = user
+                        showUnlock = true
+                    } else {
+                        scope.launch(Dispatchers.IO) {
+                            userSwitchViewModel.switchUser(user)
+                            (context as Activity).finish()
+                        }
+                    }
+                },
+                onShowUserLockSettings = { uid ->
+                    UserLockSettingsActivity.actionStart(context, uid)
                 }
-            },
-            onSwitchUser = { user ->
-                scope.launch(Dispatchers.IO) {
-                    userSwitchViewModel.switchUser(user)
-                    (context as Activity).finish()
-                }
+            )
+
+            if (showUnlock) {
+                UnlockSwitchUserContent(
+                    modifier = Modifier.focusRequester(unlockFocusRequester),
+                    userList = userList,
+                    unlockUser = unlockUser!!,
+                    onUnlockSuccess = { user ->
+                        scope.launch(Dispatchers.IO) {
+                            userSwitchViewModel.switchUser(user)
+                            (context as Activity).finish()
+                        }
+                    },
+                    onCancel = {
+                        showUnlock = false
+                    }
+                )
             }
-        )
+        }
     }
 }
 
@@ -117,13 +186,15 @@ fun UserSwitchScreen(
 private fun UserSwitchContent(
     modifier: Modifier = Modifier,
     userList: List<UserDB> = emptyList(),
+    currentUid: Long,
     loadingUserList: Boolean,
     onSwitchUser: (UserDB) -> Unit,
     onDeleteUser: (UserDB) -> Unit,
-    onAddUser: () -> Unit
+    onAddUser: () -> Unit,
+    onShowUserLockSettings: (Long) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
-    var currentUser by remember {
+    var choosedUser by remember {
         mutableStateOf(
             UserDB(
                 uid = -1,
@@ -169,15 +240,17 @@ private fun UserSwitchContent(
 
             TvLazyRow(
                 modifier = Modifier.focusRequester(focusRequester),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
                 items(items = userList) { user ->
                     UserItem(
                         avatar = user.avatar,
                         username = user.username,
+                        lockEnabled = user.lock.isNotBlank(),
                         onClick = {
                             if (isInManagerMode) {
-                                currentUser = user
+                                choosedUser = user
                                 showUserMenuDialog = true
                             } else {
                                 onSwitchUser(user)
@@ -227,23 +300,29 @@ private fun UserSwitchContent(
     UserMenuDialog(
         show = showUserMenuDialog,
         onHideDialog = { showUserMenuDialog = false },
-        username = currentUser.username,
+        username = choosedUser.username,
+        uid = choosedUser.uid,
+        showTokenButton = choosedUser.uid == currentUid || choosedUser.lock.isBlank(),
         onShowUserAuthData = { showAuthDataDialog = true },
-        onDeleteUser = { showDeleteConfirmDialog = true }
+        onDeleteUser = { showDeleteConfirmDialog = true },
+        onShowUserLockSettings = { uid ->
+            isInManagerMode = false
+            onShowUserLockSettings(uid)
+        }
     )
 
     UserAuthDataDialog(
         show = showAuthDataDialog,
         onHideDialog = { showAuthDataDialog = false },
-        userDB = currentUser
+        userDB = choosedUser
     )
 
     DeleteConfirmDialog(
         show = showDeleteConfirmDialog,
         onHideDialog = { showDeleteConfirmDialog = false },
-        userDB = currentUser,
+        userDB = choosedUser,
         onConfirm = {
-            onDeleteUser(currentUser)
+            onDeleteUser(choosedUser)
             showDeleteConfirmDialog = false
         }
     )
@@ -255,8 +334,11 @@ fun UserMenuDialog(
     show: Boolean,
     onHideDialog: () -> Unit,
     username: String,
+    uid: Long,
+    showTokenButton: Boolean,
     onShowUserAuthData: () -> Unit,
-    onDeleteUser: () -> Unit
+    onDeleteUser: () -> Unit,
+    onShowUserLockSettings: (Long) -> Unit
 ) {
     val menuFocusRequester = remember { FocusRequester() }
 
@@ -272,56 +354,48 @@ fun UserMenuDialog(
             onDismissRequest = onHideDialog,
             title = { Text(text = username) },
             text = {
-                Column(
+                TvLazyColumn(
                     modifier = Modifier.width(240.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
-                    Button(
-                        modifier = Modifier
-                            .focusRequester(menuFocusRequester)
-                            .fillMaxWidth()
-                            .height(64.dp)
-                            .padding(horizontal = 12.dp),
-                        shape = ButtonDefaults.shape(
-                            shape = MaterialTheme.shapes.medium
-                        ),
-                        onClick = {
-                            onHideDialog()
-                            onShowUserAuthData()
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = stringResource(R.string.user_switch_menu_show_token))
-                        }
-                    }
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(64.dp)
-                            .padding(horizontal = 12.dp),
-                        shape = ButtonDefaults.shape(
-                            shape = MaterialTheme.shapes.medium
-                        ),
-                        colors = ButtonDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        ),
-                        onClick = {
-                            onHideDialog()
-                            onDeleteUser()
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(R.string.user_switch_menu_delete_account),
-                                style = MaterialTheme.typography.bodyLarge
+                    if (showTokenButton) {
+                        item {
+                            UserMenuButton(
+                                modifier = Modifier.focusRequester(menuFocusRequester),
+                                text = stringResource(R.string.user_switch_menu_show_token),
+                                onClick = {
+                                    onHideDialog()
+                                    onShowUserAuthData()
+                                }
                             )
                         }
+                    }
+
+                    item {
+                        UserMenuButton(
+                            modifier = Modifier
+                                .ifElse(
+                                    !showTokenButton,
+                                    Modifier.focusRequester(menuFocusRequester)
+                                ),
+                            text = stringResource(R.string.user_switch_menu_user_lock),
+                            onClick = {
+                                onHideDialog()
+                                onShowUserLockSettings(uid)
+                            }
+                        )
+                    }
+
+                    item {
+                        UserMenuButton(
+                            text = stringResource(R.string.user_switch_menu_delete_account),
+                            onClick = {
+                                onHideDialog()
+                                onDeleteUser()
+                            },
+                            color = MaterialTheme.colorScheme.errorContainer
+                        )
                     }
                 }
             },
@@ -435,44 +509,74 @@ private fun DeleteConfirmDialog(
 }
 
 @Composable
-private fun UserItem(
+fun UserItem(
     modifier: Modifier = Modifier,
     avatar: String,
     username: String,
-    onClick: () -> Unit
+    lockEnabled: Boolean = false,
+    onClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier.width(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Surface(
-            modifier = Modifier
-                .size(80.dp),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.DarkGray,
-                focusedContainerColor = Color.Gray
-            ),
-            shape = ClickableSurfaceDefaults.shape(
-                shape = CircleShape
-            ),
-            glow = ClickableSurfaceDefaults.glow(
-                focusedGlow = Glow(
-                    elevationColor = MaterialTheme.colorScheme.inverseSurface,
-                    elevation = 16.dp
-                )
-            ),
-            onClick = onClick
-        ) {
-            AsyncImage(
+        if (onClick != null) {
+            BadgedBox(
+                modifier = Modifier.padding(18.dp),
+                badge = {
+                    if (lockEnabled) {
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = null)
+                    }
+                }
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .size(80.dp),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.DarkGray,
+                        focusedContainerColor = Color.Gray
+                    ),
+                    shape = ClickableSurfaceDefaults.shape(
+                        shape = CircleShape
+                    ),
+                    glow = ClickableSurfaceDefaults.glow(
+                        focusedGlow = Glow(
+                            elevationColor = MaterialTheme.colorScheme.inverseSurface,
+                            elevation = 16.dp
+                        )
+                    ),
+                    onClick = onClick
+                ) {
+                    AsyncImage(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape),
+                        model = avatar,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
+            }
+        } else {
+            Surface(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape),
-                model = avatar,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds
-            )
+                    .padding(18.dp)
+                    .size(80.dp),
+                colors = SurfaceDefaults.colors(
+                    containerColor = Color.DarkGray
+                ),
+                shape = CircleShape
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape),
+                    model = avatar,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(18.dp))
         Box(
             modifier = Modifier.height(26.dp),
             contentAlignment = Alignment.Center
@@ -501,6 +605,7 @@ private fun AddUserItem(
     ) {
         Surface(
             modifier = Modifier
+                .padding(18.dp)
                 .size(80.dp),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = Color.DarkGray,
@@ -528,7 +633,6 @@ private fun AddUserItem(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(18.dp))
         Box(
             modifier = Modifier.height(26.dp),
             contentAlignment = Alignment.Center
@@ -553,7 +657,8 @@ fun UserItemPreview() {
         UserItem(
             avatar = "",
             username = "This is a user name",
-            onClick = {}
+            onClick = {},
+            lockEnabled = true
         )
     }
 }
@@ -584,7 +689,8 @@ fun UserSwitchContentPreview() {
                     uid = 1,
                     username = "This is a long username",
                     avatar = "0https://i0.hdslb.com/bfs/article/b6b843d84b84a3ba5526b09ebf538cd4b4c8c3f3.jpg",
-                    auth = "{xxx2}"
+                    auth = "{xxx2}",
+                    lock = "rdrd"
                 ),
                 UserDB(
                     uid = 2,
@@ -593,10 +699,12 @@ fun UserSwitchContentPreview() {
                     auth = "{xxx3}"
                 )
             ),
+            currentUid = 0L,
             loadingUserList = false,
             onSwitchUser = {},
             onDeleteUser = {},
-            onAddUser = {}
+            onAddUser = {},
+            onShowUserLockSettings = {}
         )
     }
 }
@@ -609,8 +717,11 @@ fun UserMenuDialogPreview() {
             show = true,
             onHideDialog = {},
             username = "This is a user name",
+            uid = 0,
+            showTokenButton = true,
             onShowUserAuthData = {},
-            onDeleteUser = {}
+            onDeleteUser = {},
+            onShowUserLockSettings = {}
         )
     }
 }
@@ -640,14 +751,14 @@ class UserSwitchViewModel(
     var currentUser by mutableStateOf(UserDB(-1, -1, "", "", ""))
     val userDbList = mutableStateListOf<UserDB>()
 
-    init {
+    fun updateData() {
         viewModelScope.launch(Dispatchers.IO) {
             updateUserDbList()
             withContext(Dispatchers.Main) { loading = false }
         }
     }
 
-    suspend fun updateUserDbList() {
+    private suspend fun updateUserDbList() {
         withContext(Dispatchers.Main) {
             userDbList.clear()
             userDbList.addAll(db.userDao().getAll())
@@ -666,6 +777,33 @@ class UserSwitchViewModel(
             switchUser(userDbList.first())
         } else {
             userRepository.logout()
+        }
+    }
+}
+
+@Composable
+private fun UserMenuButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    onClick: () -> Unit,
+    color: Color? = null
+) {
+    Button(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.medium),
+        colors = if (color != null) ButtonDefaults.colors(containerColor = color) else ButtonDefaults.colors(),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
     }
 }

@@ -78,6 +78,7 @@ fun UserPanel(
                 }
                 false
             },
+        shape = MaterialTheme.shapes.medium
     ) {
         TvLazyVerticalGrid(
             columns = TvGridCells.Fixed(2),

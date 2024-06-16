@@ -11,6 +11,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,8 +41,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.ExperimentalTvFoundationApi
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
@@ -60,6 +63,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
+import dev.aaa1115910.bv.ui.theme.BVTheme
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvFoundationApi::class)
@@ -243,16 +247,13 @@ private fun SettingsIcon(
         modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
         onClick = onClick,
         colors = IconButtonDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-            pressedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+            containerColor = Color.Transparent
         )
     ) {
         Icon(
             modifier = Modifier.rotate(if (hasFocus) iconRotate else 0f),
             imageVector = Icons.Rounded.Settings,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.inverseSurface
+            contentDescription = null
         )
     }
 }
@@ -268,22 +269,24 @@ private fun UserIcon(
     onFocused: () -> Unit
 ) {
     var hasFocus by remember { mutableStateOf(false) }
-    TextButton(
+    Button(
         modifier = modifier
             .onFocusChanged {
                 hasFocus = it.hasFocus
                 if (it.hasFocus) onFocused()
             },
-        onClick = { if (isLogin) onGotoInfo() else onGotoLogin() }
+        onClick = { if (isLogin) onGotoInfo() else onGotoLogin() },
+        colors = ButtonDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = if (isLogin) Color.Transparent else MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = if (isLogin) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f) else MaterialTheme.colorScheme.inverseOnSurface
+        )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Text(
-                text = if (isLogin) username else "未登录",
-                color = MaterialTheme.colorScheme.inverseSurface
-            )
+            Text(text = if (isLogin) username else "未登录")
             Box {
                 Surface(
                     modifier = Modifier
@@ -317,5 +320,32 @@ enum class TopNavItem(private val _displayNameResId: Int) {
 
     fun getDisplayName(context: Context = BVApp.context): String {
         return context.getString(_displayNameResId)
+    }
+}
+
+@Preview
+@Composable
+private fun UserIconPreview() {
+    var isLogin by remember { mutableStateOf(false) }
+
+    BVTheme {
+        Surface {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = { isLogin = !isLogin }) {
+                    Text("is login: $isLogin")
+                }
+                UserIcon(
+                    modifier = Modifier.padding(4.dp),
+                    isLogin = isLogin,
+                    username = "bishi",
+                    face = "",
+                    onGotoLogin = {},
+                    onGotoInfo = {},
+                    onFocused = {}
+                )
+            }
+        }
     }
 }

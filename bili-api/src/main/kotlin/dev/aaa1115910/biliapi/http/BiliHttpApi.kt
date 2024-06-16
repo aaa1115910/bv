@@ -41,6 +41,8 @@ import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfo
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteFolderInfoListData
 import dev.aaa1115910.biliapi.http.entity.user.favorite.FavoriteItemIdListResponse
 import dev.aaa1115910.biliapi.http.entity.user.favorite.UserFavoriteFoldersData
+import dev.aaa1115910.biliapi.http.entity.user.garb.Equip
+import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import dev.aaa1115910.biliapi.http.entity.video.AddCoin
 import dev.aaa1115910.biliapi.http.entity.video.CheckSentCoin
 import dev.aaa1115910.biliapi.http.entity.video.CheckVideoFavoured
@@ -56,6 +58,7 @@ import dev.aaa1115910.biliapi.http.entity.video.TimelineAppData
 import dev.aaa1115910.biliapi.http.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
+import dev.aaa1115910.biliapi.http.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
 import dev.aaa1115910.biliapi.http.util.BiliAppConf
 import dev.aaa1115910.biliapi.http.util.encApiSign
@@ -75,6 +78,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readBytes
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
@@ -265,7 +269,7 @@ object BiliHttpApi {
         doc.documentElement.normalize()
 
         val chatServer = doc.getElementsByTagName("chatserver").item(0).textContent
-        val chatId = doc.getElementsByTagName("chatid").item(0).textContent.toInt()
+        val chatId = doc.getElementsByTagName("chatid").item(0).textContent.toLong()
         val maxLimit = doc.getElementsByTagName("maxlimit").item(0).textContent.toInt()
         val state = doc.getElementsByTagName("state").item(0).textContent.toInt()
         val realName = doc.getElementsByTagName("real_name").item(0).textContent.toInt()
@@ -750,6 +754,7 @@ object BiliHttpApi {
         parameter("dm_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
         parameter("dm_cover_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
         header("Cookie", "SESSDATA=$sessData;")
+        header("referer", "https://space.bilibili.com")
     }.body()
 
     suspend fun getAppUserSpaceVideos(
@@ -1515,6 +1520,40 @@ object BiliHttpApi {
         pagesize = pagesize,
         type = type
     )
+
+    suspend fun download(url: String): ByteArray {
+        return client.get(url).readBytes()
+    }
+
+    suspend fun getWebVideoShot(
+        aid: Long? = null,
+        bvid: String? = null,
+        cid: Long? = null,
+        needJsonArrayIndex: Boolean = false
+    ): BiliResponse<VideoShot> = client.get("/x/player/videoshot") {
+        require(aid != null || bvid != null) { "av and bv cannot be null at the same time" }
+        aid?.let { parameter("aid", it) }
+        bvid?.let { parameter("bvid", it) }
+        cid?.let { parameter("cid", it) }
+        parameter("index", if (needJsonArrayIndex) 1 else 0)
+    }.body()
+
+    suspend fun getAppVideoShot(
+        aid: Long,
+        cid: Long
+    ): BiliResponse<VideoShot> = client.get("https://app.bilibili.com/x/v2/view/video/shot") {
+        parameter("aid", aid)
+        parameter("cid", cid)
+        parameter("ts", 0)
+    }.body()
+
+    suspend fun getUserEquippedGarb(
+        part: EquipPart,
+        sessData: String
+    ): BiliResponse<Equip> = client.get("/x/garb/user/equip") {
+        parameter("part", part.value)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
 
     /**
      * 获取评论

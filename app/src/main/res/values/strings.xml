@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="anime_home_button_following">正在追</string>
     <string name="anime_home_button_gamer_ani">動畫風</string>
+    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
     <string name="anime_home_button_index">索引</string>
     <string name="anime_home_button_timeline">时间表</string>
 
@@ -109,6 +110,8 @@
 
     <string name="player_controller_menu_danmaku_disabled">关闭</string>
     <string name="player_controller_menu_danmaku_enabled">开启</string>
+    <string name="player_controller_menu_danmaku_webmark_disabled">关闭</string>
+    <string name="player_controller_menu_danmaku_webmark_enabled">开启</string>
     <string name="player_controller_menu_item_dankamu_size">弹幕大小</string>
     <string name="player_controller_menu_item_danmaku_area">弹幕区域</string>
     <string name="player_controller_menu_item_danmaku_switch">弹幕开关</string>
@@ -265,6 +268,7 @@
     <string name="title_activity_tag">视频标签</string>
     <string name="title_activity_up_info">UP 投稿</string>
     <string name="title_activity_user_info">用户信息</string>
+    <string name="title_activity_user_lock_settings">用户锁设置</string>
     <string name="title_activity_user_switch">用户切换</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player">视频播放</string>
@@ -291,11 +295,21 @@
     <string name="user_info_Incognito_mode_title">隐身模式</string>
     <string name="user_info_level">Lv%1$s</string>
     <string name="user_info_uid">UID: %1$s</string>
+    <string name="user_lock_input_tip">方向键输入密码 / Center 键确认输入 / 返回键退格</string>
+    <string name="user_lock_title_choose_user">选择账户</string>
+    <string name="user_lock_title_input_new_password">请输入新密码</string>
+    <string name="user_lock_title_input_new_password_again">请再次输入新密码</string>
+    <string name="user_lock_title_input_old_password">请输入旧密码</string>
+    <string name="user_lock_title_input_password">输入密码</string>
+    <string name="user_lock_toast_password_different">密码不一致</string>
+    <string name="user_lock_toast_password_error">密码错误</string>
+    <string name="user_lock_toast_password_removed">密码已移除</string>
     <string name="user_switch_add_user">添加账号</string>
     <string name="user_switch_button_exit_manage_account">退出管理</string>
     <string name="user_switch_button_manage_account">管理账号</string>
     <string name="user_switch_menu_delete_account">移除账号</string>
     <string name="user_switch_menu_show_token">显示 Token</string>
+    <string name="user_switch_menu_user_lock">用户锁设置</string>
     <string name="user_switch_title">选择账号</string>
 
     <string name="video_aspect_ratio_default">默认</string>
@@ -323,6 +337,7 @@
     <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
     <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
     <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
+    <string name="video_player_menu_danmaku_webmark">防遮挡</string>
     <string name="video_player_menu_nav_danmaku">弹幕设置</string>
     <string name="video_player_menu_nav_picture">画面音频</string>
     <string name="video_player_menu_nav_subtitle">字幕设置</string>
@@ -339,5 +354,4 @@
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
-    <string name="anime_home_button_gamer_ani_launch_failed">未安装動畫風</string>
 </resources>
