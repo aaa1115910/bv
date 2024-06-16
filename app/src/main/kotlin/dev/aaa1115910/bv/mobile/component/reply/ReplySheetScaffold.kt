@@ -47,7 +47,7 @@ import org.koin.compose.getKoin
 @Composable
 fun ReplySheetScaffold(
     modifier: Modifier = Modifier,
-    aid: Int,
+    aid: Long,
     rpid: Long,
     repliesCount: Int,
     sheetState: BottomSheetScaffoldState,

@@ -3,11 +3,11 @@ package dev.aaa1115910.bv.mobile.component
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.ListDetailPaneScaffold
-import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,9 +19,10 @@ import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 @Composable
 fun ListDetailPaneScaffoldSample() {
     BVMobileTheme {
-        val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
+        val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
         ListDetailPaneScaffold(
-            scaffoldState = scaffoldNavigator.scaffoldState,
+            directive = scaffoldNavigator.scaffoldDirective,
+            value = scaffoldNavigator.scaffoldValue,
             listPane = {
                 AnimatedPane(
                     modifier = Modifier.preferredWidth(200.dp),
@@ -36,18 +37,19 @@ fun ListDetailPaneScaffoldSample() {
                     }
                 }
             },
-        ) {
-            AnimatedPane(modifier = Modifier) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        scaffoldNavigator.navigateBack()
+            detailPane = {
+                AnimatedPane(modifier = Modifier) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary,
+                        onClick = {
+                            scaffoldNavigator.navigateBack()
+                        }
+                    ) {
+                        Text("Details")
                     }
-                ) {
-                    Text("Details")
                 }
             }
-        }
+        )
     }
 
 }
@@ -66,9 +68,10 @@ private fun SettingPre() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun Settings() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
-        scaffoldState = scaffoldNavigator.scaffoldState,
+        directive = scaffoldNavigator.scaffoldDirective,
+        value = scaffoldNavigator.scaffoldValue,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
@@ -83,16 +86,17 @@ fun Settings() {
                 }
             }
         },
-    ) {
-        AnimatedPane(modifier = Modifier) {
-            Surface(
-                color = MaterialTheme.colorScheme.primary,
-                onClick = {
-                    scaffoldNavigator.navigateBack()
+        detailPane = {
+            AnimatedPane(modifier = Modifier) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        scaffoldNavigator.navigateBack()
+                    }
+                ) {
+                    Text("Details")
                 }
-            ) {
-                Text("Details")
             }
         }
-    }
+    )
 }

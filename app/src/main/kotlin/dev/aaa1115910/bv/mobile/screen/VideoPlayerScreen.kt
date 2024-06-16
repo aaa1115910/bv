@@ -477,7 +477,7 @@ fun VideoPlayerInfo(
     playCount: Int,
     danmakuCount: Int,
     date: String,
-    avid: Int
+    avid: Long
 ) {
     val summaryTextStyle = MaterialTheme.typography.bodySmall.copy(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

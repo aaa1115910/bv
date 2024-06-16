@@ -758,7 +758,7 @@ class UserSwitchViewModel(
         }
     }
 
-    private suspend fun updateUserDbList() {
+    suspend fun updateUserDbList() {
         withContext(Dispatchers.Main) {
             userDbList.clear()
             userDbList.addAll(db.userDao().getAll())

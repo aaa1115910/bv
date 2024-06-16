@@ -25,7 +25,7 @@ import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 fun RcmdPage(
     state: LazyGridState,
     videos: List<RecommendItem>,
-    onClickVideo: (aid: Int) -> Unit,
+    onClickVideo: (aid: Long) -> Unit,
     refreshing: Boolean,
     onRefresh: () -> Unit,
     loadMore: () -> Unit

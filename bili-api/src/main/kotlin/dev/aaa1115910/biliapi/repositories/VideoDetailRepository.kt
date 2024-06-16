@@ -96,7 +96,7 @@ class VideoDetailRepository(
             ApiType.App -> {
                 val viewReply = runCatching {
                     viewStub?.view(viewReq {
-                        this.aid = aid.toLong()
+                        this.aid = aid
                     }) ?: throw IllegalStateException("Player stub is not initialized")
                 }.onFailure { handleGrpcException(it) }.getOrThrow()
                 VideoDetail.fromViewReply(viewReply).apply {
@@ -150,7 +150,7 @@ class VideoDetailRepository(
     }
 
     suspend fun getComments(
-        aid: Int,
+        aid: Long,
         sort: CommentSort = CommentSort.Hot,
         page: CommentPage = CommentPage(),
         preferApiType: ApiType = ApiType.Web
@@ -158,7 +158,7 @@ class VideoDetailRepository(
         when (preferApiType) {
             ApiType.Web -> {
                 val webComments = BiliHttpApi.getComments(
-                    oid = aid.toLong(),
+                    oid = aid,
                     type = 1,
                     mode = sort.param,
                     paginationStr = Json.encodeToString(mapOf("offset" to page.nextWebPage)),
@@ -171,7 +171,7 @@ class VideoDetailRepository(
             ApiType.App -> {
                 val appComments = replyStub?.mainList(
                     mainListReq {
-                        oid = aid.toLong()
+                        oid = aid
                         type = 1
                         /*cursor = cursorReq {
                             next = page.nextAppPage.toLong()
@@ -197,7 +197,7 @@ class VideoDetailRepository(
     }
 
     suspend fun getCommentReplies(
-        aid: Int,
+        aid: Long,
         commentId: Long,
         page: CommentReplyPage = CommentReplyPage(),
         sort: CommentSort = CommentSort.Hot,
@@ -206,7 +206,7 @@ class VideoDetailRepository(
         when (preferApiType) {
             ApiType.Web -> {
                 val webReplies = BiliHttpApi.getCommentReplies(
-                    oid = aid.toLong(),
+                    oid = aid,
                     type = 1,
                     root = commentId,
                     pageSize = 20,
@@ -218,7 +218,7 @@ class VideoDetailRepository(
             ApiType.App -> {
                 val appReplies = replyStub?.detailList(
                     detailListReq {
-                        oid = aid.toLong()
+                        oid = aid
                         type = 1
                         root = commentId
                         /*cursor = cursorReq {

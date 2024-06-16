@@ -56,7 +56,7 @@ class MobileVideoPlayerViewModel(
     var videoPlayer: AbstractVideoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
 
-    var avid: Int = 0
+    var avid: Long = 0
     var videoDetail: VideoDetail? by mutableStateOf(null)
     private var playData: PlayData? by mutableStateOf(null)
     var danmakuData = mutableStateListOf<DanmakuItemData>()
@@ -98,7 +98,7 @@ class MobileVideoPlayerViewModel(
     var currentSubtitleBackgroundOpacity by mutableStateOf(Prefs.defaultSubtitleBackgroundOpacity)
     var currentSubtitleBottomPadding by mutableStateOf(Prefs.defaultSubtitleBottomPadding)
 
-    suspend fun updateVideoInfo(avid: Int) {
+    suspend fun updateVideoInfo(avid: Long) {
         this.avid = avid
         runCatching {
             videoDetail = videoDetailRepository.getVideoDetail(
@@ -128,8 +128,8 @@ class MobileVideoPlayerViewModel(
     }
 
     private suspend fun loadPlayUrl(
-        avid: Int,
-        cid: Int,
+        avid: Long,
+        cid: Long,
         preferApiType: ApiType = Prefs.apiType
     ) {
 
@@ -308,7 +308,7 @@ class MobileVideoPlayerViewModel(
         refreshingComments = false
     }
 
-    private suspend fun loadDanmaku(cid: Int) {
+    private suspend fun loadDanmaku(cid: Long) {
         runCatching {
             val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 

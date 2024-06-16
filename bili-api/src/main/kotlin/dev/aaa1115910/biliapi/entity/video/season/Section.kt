@@ -1,7 +1,7 @@
 package dev.aaa1115910.biliapi.entity.video.season
 
 data class Section(
-    val id: Int,
+    val id: Long,
     val title: String,
     val episodes: List<Episode>
 ) {
@@ -14,7 +14,7 @@ data class Section(
             )
 
         fun fromSection(section: bilibili.app.view.v1.Section) = Section(
-            id = section.id.toInt(),
+            id = section.id,
             title = section.title,
             episodes = section.episodesList.map { Episode.fromEpisode(it) }
         )

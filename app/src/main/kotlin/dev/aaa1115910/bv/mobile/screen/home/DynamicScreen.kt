@@ -26,10 +26,10 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.ListDetailPaneScaffold
-import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -265,7 +264,6 @@ fun DynamicSheet(
                 ),
             onDismissRequest = onHideBottomSheet,
             sheetState = bottomSheetState,
-            windowInsets = WindowInsets(0),
             properties = ModalBottomSheetDefaults.properties(
                 isFocusable = false
             ),
@@ -312,11 +310,12 @@ fun DynamicSheetContent(
     onSwitchReplySort: (CommentSort) -> Unit,
     onClearReplies: () -> Unit
 ) {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
 
     ListDetailPaneScaffold(
         modifier = modifier,
-        scaffoldState = scaffoldNavigator.scaffoldState,
+        value = scaffoldNavigator.scaffoldValue,
+        directive = scaffoldNavigator.scaffoldDirective,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.fillMaxSize(),

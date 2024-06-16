@@ -29,7 +29,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerActivity : ComponentActivity() {
     companion object {
-        fun actionStart(context: Context, aid: Int, fromSeason: Boolean = false) {
+        fun actionStart(context: Context, aid: Long, fromSeason: Boolean = false) {
             context.startActivity(
                 Intent(context, VideoPlayerActivity::class.java).apply {
                     putExtra("aid", aid)
@@ -85,7 +85,7 @@ class VideoPlayerActivity : ComponentActivity() {
     }
 
     private fun parseIntent() {
-        val aid = intent.getIntExtra("aid", 0)
+        val aid = intent.getLongExtra("aid", 0)
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {
                 playerViewModel.updateVideoInfo(aid)

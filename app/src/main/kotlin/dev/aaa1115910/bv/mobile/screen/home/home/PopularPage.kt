@@ -30,7 +30,7 @@ import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 fun PopularPage(
     state: LazyGridState,
     videos: List<PopularVideo>,
-    onClickVideo: (aid: Int) -> Unit,
+    onClickVideo: (aid: Long) -> Unit,
     refreshing: Boolean,
     onRefresh: () -> Unit,
     loadMore: () -> Unit
