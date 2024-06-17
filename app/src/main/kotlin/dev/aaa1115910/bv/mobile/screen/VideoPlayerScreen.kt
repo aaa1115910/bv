@@ -415,37 +415,39 @@ fun VideoPlayerScreen(
                     }
                 }
             }
-            ReplySheetScaffold(
-                aid = playerViewModel.avid,
-                rpid = playerViewModel.rpid,
-                repliesCount = playerViewModel.rpCount,
-                sheetState = replySheetState,
-                previewerState = previewerState,
-                onShowPreviewer = setPreviewerPictures
-            ) {
-                VideoComments(
-                    modifier = Modifier.fillMaxWidth(),
+            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+                ReplySheetScaffold(
+                    aid = playerViewModel.avid,
+                    rpid = playerViewModel.rpid,
+                    repliesCount = playerViewModel.rpCount,
+                    sheetState = replySheetState,
                     previewerState = previewerState,
-                    comments = playerViewModel.comments,
-                    commentSort = playerViewModel.commentSort,
-                    refreshingComments = playerViewModel.refreshingComments,
-                    onLoadMoreComments = {
-                        scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
-                    },
-                    onRefreshComments = {
-                        scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
-                    },
-                    onSwitchCommentSort = {
-                        scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
-                    },
-                    onShowPreviewer = setPreviewerPictures,
-                    onShowReplies = { rpId, repliesCount ->
-                        //logger.info { "show reply sheet: rpid=$replyId" }
-                        playerViewModel.rpid = rpId
-                        playerViewModel.rpCount = repliesCount
-                        scope.launch { replySheetState.bottomSheetState.expand() }
-                    }
-                )
+                    onShowPreviewer = setPreviewerPictures
+                ) {
+                    VideoComments(
+                        modifier = Modifier.fillMaxWidth(),
+                        previewerState = previewerState,
+                        comments = playerViewModel.comments,
+                        commentSort = playerViewModel.commentSort,
+                        refreshingComments = playerViewModel.refreshingComments,
+                        onLoadMoreComments = {
+                            scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                        },
+                        onRefreshComments = {
+                            scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                        },
+                        onSwitchCommentSort = {
+                            scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
+                        },
+                        onShowPreviewer = setPreviewerPictures,
+                        onShowReplies = { rpId, repliesCount ->
+                            //logger.info { "show reply sheet: rpid=$replyId" }
+                            playerViewModel.rpid = rpId
+                            playerViewModel.rpCount = repliesCount
+                            scope.launch { replySheetState.bottomSheetState.expand() }
+                        }
+                    )
+                }
             }
         }
     }
