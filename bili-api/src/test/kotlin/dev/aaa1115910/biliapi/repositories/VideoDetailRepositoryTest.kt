@@ -217,7 +217,7 @@ class VideoDetailRepositoryTest {
         runBlocking {
             runCatching {
                 //val aid = 234771846
-                val aid = 491985062
+                val aid = 491985062L
                 val sort = CommentSort.Time
                 /*val page = CommentPage(
                     nextWebPage = """{"type":1,"direction":1,"Data":{"cursor":90}}""",
@@ -255,7 +255,7 @@ class VideoDetailRepositoryTest {
             runCatching {
                 var page = CommentPage()
                 //val aid = 234771846
-                val aid = 832519956
+                val aid = 832519956L
                 val sort = CommentSort.Hot
                 var hasNext = true
                 var index = 1
@@ -284,7 +284,7 @@ class VideoDetailRepositoryTest {
     fun `get video comment reply`() {
         runBlocking {
             runCatching {
-                val aid = 499133313
+                val aid = 499133313L
                 val root = 3323576644
                 val page = CommentReplyPage()
                 val webResult = videoDetailRepository.getCommentReplies(
@@ -317,7 +317,7 @@ class VideoDetailRepositoryTest {
         runBlocking {
             runCatching {
                 var page = CommentReplyPage()
-                val aid = 234771846
+                val aid = 234771846L
                 val rpid = 190458721840
                 //val aid = 619910840
                 //val rpid = 191513725712
