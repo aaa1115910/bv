@@ -264,6 +264,8 @@ class VideoPlayerV3ViewModel(
             val existDefaultAudio = availableAudio.contains(Prefs.defaultAudio)
             if (!existDefaultAudio) {
                 currentAudio = when {
+                    Prefs.defaultAudio == Audio.ADolbyAtoms && availableAudio.contains(Audio.AHiRes) -> Audio.AHiRes
+                    Prefs.defaultAudio == Audio.AHiRes && availableAudio.contains(Audio.ADolbyAtoms) -> Audio.ADolbyAtoms
                     availableAudio.contains(Audio.A192K) -> Audio.A192K
                     availableAudio.contains(Audio.A132K) -> Audio.A132K
                     availableAudio.contains(Audio.A64K) -> Audio.A64K
