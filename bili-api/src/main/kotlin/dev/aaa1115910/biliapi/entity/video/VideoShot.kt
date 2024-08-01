@@ -32,7 +32,7 @@ data class VideoShot(
                 }
 
                 val timeBinary = runCatching {
-                    BiliHttpApi.download(videoShot.pvData)
+                    BiliHttpApi.download(videoShot.pvData?:throw IllegalStateException("pvData is null"))
                 }.onFailure {
                     println("download video shot times binary failed: ${it.stackTraceToString()}")
                     return@withContext null
