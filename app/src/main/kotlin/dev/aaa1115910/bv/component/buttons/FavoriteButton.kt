@@ -36,7 +36,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.swapList
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FavoriteButton(
     modifier: Modifier = Modifier,

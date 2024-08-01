@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.MaterialTheme
@@ -57,7 +56,6 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import java.util.Locale
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MediaCodecScreen(
     modifier: Modifier = Modifier
@@ -175,7 +173,6 @@ fun MediaCodecListItems(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MediaCodecListItem(
     modifier: Modifier = Modifier,
@@ -223,7 +220,6 @@ fun MediaCodecListItem(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MediaCodecDetails(
     modifier: Modifier = Modifier,
@@ -361,7 +357,6 @@ fun MediaCodecDetails(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MediaCodecDetailItem(
     modifier: Modifier = Modifier,

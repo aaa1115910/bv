@@ -7,9 +7,6 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import dev.aaa1115910.biliapi.repositories.AuthRepository
@@ -30,6 +27,7 @@ import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
+import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.viewmodel.PlayerViewModel
@@ -67,7 +65,6 @@ class BVApp : Application() {
         lateinit var context: Context
         lateinit var dataStoreManager: DataStoreManager
         lateinit var koinApplication: KoinApplication
-        lateinit var firebaseAnalytics: FirebaseAnalytics
         var instance: BVApp? = null
 
         fun getAppDatabase(context: Context = this.context) = AppDatabase.getDatabase(context)
@@ -83,7 +80,7 @@ class BVApp : Application() {
             androidContext(this@BVApp)
             modules(appModule)
         }
-        firebaseAnalytics = Firebase.analytics
+        FirebaseUtil.init(applicationContext)
         LogCatcherUtil.installLogCatcher()
         initRepository()
         initProxy()

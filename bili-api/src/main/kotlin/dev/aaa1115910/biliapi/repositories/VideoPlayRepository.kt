@@ -9,8 +9,12 @@ import bilibili.playershared.videoVod
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMask
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskSegment
+import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskType
 import dev.aaa1115910.biliapi.entity.video.HeartbeatVideoType
 import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
@@ -207,5 +211,58 @@ class VideoPlayRepository(
             )
         }
         println("send heartbeat result: $result")
+    }
+
+    suspend fun getDanmakuMask(
+        aid: Long,
+        cid: Long,
+        preferApiType: ApiType = ApiType.Web
+    ): List<DanmakuMaskSegment> {
+        val danmakuMaskUrl = when (preferApiType) {
+            ApiType.Web -> {
+                val response = BiliHttpApi.getVideoMoreInfo(
+                    avid = aid,
+                    cid = cid,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
+                response.dmMask?.maskUrl
+            }
+
+            ApiType.App -> {
+                val dmViewReply = runCatching {
+                    danmakuStub?.dmView(dmViewReq {
+                        pid = aid
+                        oid = cid
+                        type = 1
+                    })
+                }.onFailure { handleGrpcException(it) }.getOrThrow()
+                dmViewReply?.mask?.maskUrl
+            }
+        } ?: return emptyList()
+
+        val maskBinary = BiliHttpApi.download(danmakuMaskUrl.apply {
+            when (preferApiType) {
+                ApiType.Web -> replace("mobmask", "webmask")
+                ApiType.App -> replace("webmask", "mobmask")
+            }
+        })
+        val danmakuMaskType = when (preferApiType) {
+            ApiType.Web -> DanmakuMaskType.WebMask
+            ApiType.App -> DanmakuMaskType.MobMask
+        }
+        return DanmakuMask.fromBinary(maskBinary, danmakuMaskType).segments
+    }
+
+    suspend fun getVideoShot(
+        aid: Long,
+        cid: Long,
+        preferApiType: ApiType = ApiType.Web
+    ): VideoShot? {
+        val videoShortResponse = when (preferApiType) {
+            ApiType.Web -> BiliHttpApi.getWebVideoShot(aid = aid, cid = cid)
+            ApiType.App -> BiliHttpApi.getAppVideoShot(aid = aid, cid = cid)
+        }
+        val videoShot = VideoShot.fromVideoShot(videoShortResponse.getResponseData())
+        return videoShot
     }
 }

@@ -18,12 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.settings.LogsActivity
@@ -31,9 +27,9 @@ import dev.aaa1115910.bv.component.settings.CookiesDialog
 import dev.aaa1115910.bv.component.settings.SettingListItem
 import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
+import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.Prefs
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun OtherSetting(
     modifier: Modifier = Modifier
@@ -69,9 +65,7 @@ fun OtherSetting(
                     checked = Prefs.enableFirebaseCollection,
                     onCheckedChange = {
                         Prefs.enableFirebaseCollection = it
-                        Firebase.crashlytics.setCrashlyticsCollectionEnabled(it)
-                        FirebaseAnalytics.getInstance(context)
-                            .setAnalyticsCollectionEnabled(it)
+                        FirebaseUtil.setCrashlyticsCollectionEnabled(it)
                     }
                 )
             }

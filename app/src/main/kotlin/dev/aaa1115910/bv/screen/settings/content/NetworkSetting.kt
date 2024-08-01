@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
@@ -43,7 +42,6 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import org.koin.compose.getKoin
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun NetworkSetting(
     modifier: Modifier = Modifier,
@@ -164,7 +162,6 @@ fun NetworkSetting(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ProxyServerEditDialog(
     modifier: Modifier = Modifier,

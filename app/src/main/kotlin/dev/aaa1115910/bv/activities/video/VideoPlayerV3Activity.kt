@@ -35,7 +35,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
             epid: Int? = null,
             seasonId: Int? = null,
             isVerticalVideo: Boolean = false,
-            proxyArea: ProxyArea = ProxyArea.MainLand
+            proxyArea: ProxyArea = ProxyArea.MainLand,
+            playerIconIdle: String = "",
+            playerIconMoving: String = ""
         ) {
             context.startActivity(
                 Intent(context, VideoPlayerV3Activity::class.java).apply {
@@ -50,6 +52,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("seasonId", seasonId)
                     putExtra("isVerticalVideo", isVerticalVideo)
                     putExtra("proxy_area", proxyArea.ordinal)
+                    putExtra("playerIconIdle", playerIconIdle)
+                    putExtra("playerIconMoving", playerIconMoving)
                 }
             )
         }
@@ -117,6 +121,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val seasonId = intent.getIntExtra("seasonId", 0)
             val isVerticalVideo = intent.getBooleanExtra("isVerticalVideo", false)
             val proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
+            val playerIconIdle = intent.getStringExtra("playerIconIdle") ?: ""
+            val playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
             logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(
@@ -133,6 +139,8 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.seasonId = seasonId
                 this.isVerticalVideo = isVerticalVideo
                 this.proxyArea = proxyArea
+                this.playerIconIdle = playerIconIdle
+                this.playerIconMoving = playerIconMoving
             }
         } else {
             logger.fInfo { "Null launch parameter" }

@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.repositories.SearchFilterDuration
 import dev.aaa1115910.biliapi.repositories.SearchFilterOrderType
@@ -38,7 +37,6 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.Partition
 import dev.aaa1115910.bv.util.PartitionUtil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchResultVideoFilter(
     modifier: Modifier = Modifier,

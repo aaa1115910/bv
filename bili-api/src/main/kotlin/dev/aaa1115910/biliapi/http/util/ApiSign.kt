@@ -11,6 +11,8 @@ import io.ktor.client.request.setBody
 import io.ktor.client.utils.EmptyContent
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
+import io.ktor.http.URLBuilder
+import io.ktor.http.clone
 import io.ktor.http.encodedPath
 import io.ktor.http.plus
 import java.net.URLEncoder
@@ -96,19 +98,28 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
             return@intercept execute(request)
         }
 
+        val getUrlWithoutAccessToken: (URLBuilder) -> String = { urlBuilder ->
+            urlBuilder.clone().apply {
+                if (parameters.contains("access_key") && !parameters["access_key"].isNullOrBlank()) {
+                    parameters["access_key"] = "HIDDEN_ACCESS_TOKEN"
+                }
+            }.toString()
+        }
+
         when (request.method) {
             // app 端如果既用到了 wbi get 接口，也用到了 token 去请求，那是先计算 wbi sign 还是 app sign？
             // 目前看来需要计算 wbi sign 的接口之前忘记计算 app sign 都通过校验了🤯
             HttpMethod.Get -> {
                 val isWbiRequest = request.url.encodedPath.contains("wbi")
-                val isAppRequest = request.url.parameters.contains("access_key")
+                val isAppRequest =
+                    request.url.parameters.contains("access_key") || request.url.host == "app.bilibili.com"
                 if (isWbiRequest) {
-                    println("Enc wbi for get request: ${request.url}")
+                    println("Enc wbi for get request: ${getUrlWithoutAccessToken(request.url)}")
                     request.encWbi()
                 } else if (isAppRequest) {
-                    println("Enc app sign for get request: ${request.url}")
+                    println("Enc app sign for get request: ${getUrlWithoutAccessToken(request.url)}")
                     request.encAppGet()
-                    println(request.url)
+                    println(getUrlWithoutAccessToken(request.url))
                 }
             }
 
@@ -118,7 +129,7 @@ fun HttpClient.encApiSign() = plugin(HttpSend)
                 val isParametersContainKeywords = parameters.contains("access_key")
                 val isPathContainKeywords = request.url.encodedPath.contains("passport")
                 if (isParametersContainKeywords || isPathContainKeywords) {
-                    println("Enc app sign for post request: ${request.url}")
+                    println("Enc app sign for post request: ${getUrlWithoutAccessToken(request.url)}")
                     request.encAppPost()
                 }
             }

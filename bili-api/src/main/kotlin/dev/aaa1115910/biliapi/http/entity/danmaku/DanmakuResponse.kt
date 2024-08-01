@@ -3,7 +3,7 @@ package dev.aaa1115910.biliapi.http.entity.danmaku
 
 data class DanmakuResponse(
     val chatserver: String,
-    val chatId: Int,
+    val chatId: Long,
     val maxLimit: Int,
     val state: Int,
     val realName: Int,

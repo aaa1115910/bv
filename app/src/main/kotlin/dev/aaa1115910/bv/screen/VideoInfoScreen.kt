@@ -53,7 +53,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,6 +63,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.itemsIndexed
@@ -79,9 +79,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.SuggestionChip
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
@@ -132,7 +132,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -344,7 +343,11 @@ fun VideoInfoScreen(
                             partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == playPart.cid }!!.title,
                             played = if (playPart.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                             fromSeason = true,
-                            isVerticalVideo = containsVerticalScreenVideo
+                            isVerticalVideo = containsVerticalScreenVideo,
+                            playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                ?: "",
+                            playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                ?: ""
                         )
                         context.finish()
                     } else if (videoDetailViewModel.videoDetail?.ugcSeason != null) {
@@ -546,7 +549,11 @@ fun VideoInfoScreen(
                                     partTitle = videoDetailViewModel.videoDetail!!.pages.first().title,
                                     played = if (videoDetailViewModel.videoDetail!!.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                     fromSeason = false,
-                                    isVerticalVideo = containsVerticalScreenVideo
+                                    isVerticalVideo = containsVerticalScreenVideo,
+                                    playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                        ?: "",
+                                    playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                        ?: ""
                                 )
                             },
                             onClickUp = {
@@ -610,7 +617,11 @@ fun VideoInfoScreen(
                                         partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )
@@ -639,7 +650,11 @@ fun VideoInfoScreen(
                                         partTitle = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[0].episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )
@@ -663,7 +678,11 @@ fun VideoInfoScreen(
                                         partTitle = section.episodes.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo
+                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                            ?: "",
+                                        playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                            ?: ""
                                     )
                                 }
                             )
@@ -684,7 +703,6 @@ fun VideoInfoScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ArgueTip(
     modifier: Modifier = Modifier,
@@ -694,7 +712,7 @@ fun ArgueTip(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 50.dp),
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Yellow.copy(alpha = 0.2f),
             contentColor = Color.Yellow
         ),
@@ -849,7 +867,6 @@ fun VideoInfoData(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun UpButton(
     modifier: Modifier = Modifier,
@@ -875,7 +892,8 @@ private fun UpButton(
                 .focusedBorder(MaterialTheme.shapes.small)
                 .padding(4.dp)
                 .clickable { onClickUp() },
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             UpIcon(color = Color.White)
             Text(text = name, color = Color.White)
@@ -913,7 +931,6 @@ private fun UpButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescription(
     modifier: Modifier = Modifier,
@@ -963,7 +980,6 @@ fun VideoDescription(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoDescriptionDialog(
     modifier: Modifier = Modifier,
@@ -993,7 +1009,6 @@ fun VideoDescriptionDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartButton(
     modifier: Modifier = Modifier,
@@ -1034,7 +1049,6 @@ fun VideoPartButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartRowButton(
     modifier: Modifier = Modifier,
@@ -1065,7 +1079,6 @@ private fun VideoPartRowButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPartRow(
     modifier: Modifier = Modifier,
@@ -1133,7 +1146,6 @@ fun VideoPartRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoUgcSeasonRow(
     modifier: Modifier = Modifier,
@@ -1202,7 +1214,6 @@ fun VideoUgcSeasonRow(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoPartListDialog(
     modifier: Modifier = Modifier,
@@ -1311,7 +1322,6 @@ private fun VideoPartListDialog(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun VideoUgcListDialog(
     modifier: Modifier = Modifier,

@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
@@ -44,11 +43,16 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
     videoPlayer: AbstractVideoPlayer,
+
+    //player icon theme
+    idleIcon: String = "",
+    movingIcon: String = "",
+
+    //player events
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExit: () -> Unit,
@@ -90,6 +94,7 @@ fun VideoPlayerController(
     var goTime by remember { mutableLongStateOf(0L) }
     var seekChangeCount by remember { mutableIntStateOf(0) }
     var lastSeekChangeTime by remember { mutableLongStateOf(0L) }
+    var moveState by remember { mutableStateOf(SeekMoveState.Idle) }
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
@@ -113,12 +118,14 @@ fun VideoPlayerController(
         goTime =
             if (targetTime > data.infoData.totalDuration) data.infoData.totalDuration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        moveState = SeekMoveState.Forward
         logger.info { "onTimeForward: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
     val onTimeBack = {
         val targetTime = goTime - (5000 + calCoefficient() * 5000)
         goTime = if (targetTime < 0) 0 else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
+        moveState = SeekMoveState.Backward
         logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
 
@@ -168,6 +175,7 @@ fun VideoPlayerController(
                         if (showSeekController) {
                             if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                             onGoTime(goTime)
+                            moveState = SeekMoveState.Idle
                             showSeekController = false
                             return@onPreviewKeyEvent true
                         }
@@ -328,12 +336,17 @@ fun VideoPlayerController(
             title = data.title,
             secondTitle = data.secondTitle,
             clock = data.clock,
+            idleIcon = idleIcon,
+            movingIcon = movingIcon,
             onHideInfo = { showInfo = false }
         )
         SeekController(
             show = showSeekController,
             infoData = data.infoData,
-            goTime = goTime
+            goTime = goTime,
+            moveState = moveState,
+            idleIcon = idleIcon,
+            movingIcon = movingIcon
         )
         VideoListController(
             show = showListController,

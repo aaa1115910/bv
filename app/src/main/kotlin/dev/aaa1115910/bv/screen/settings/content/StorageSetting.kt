@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
@@ -37,7 +36,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun StorageSetting(
     modifier: Modifier = Modifier
@@ -204,7 +202,6 @@ private fun getFolderSize(f: File): Long {
     return size
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ConfirmDeleteDialog(
     modifier: Modifier = Modifier,

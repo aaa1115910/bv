@@ -21,13 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.items
 import androidx.tv.foundation.lazy.list.rememberTvLazyListState
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import dev.aaa1115910.bv.repository.VideoListItem
 import dev.aaa1115910.bv.util.requestFocus
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoListController(
     modifier: Modifier = Modifier,
@@ -48,7 +46,7 @@ fun VideoListController(
 
     Surface(
         modifier = modifier,
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = Color.Black.copy(alpha = 0.5f)
         )
     ) {

@@ -7,12 +7,19 @@ import java.util.Properties
 
 plugins {
     alias(gradleLibs.plugins.android.application)
+    alias(gradleLibs.plugins.compose.compiler)
     alias(gradleLibs.plugins.firebase.crashlytics)
     alias(gradleLibs.plugins.google.ksp)
-    alias(gradleLibs.plugins.google.services)
+    alias(gradleLibs.plugins.google.services) apply false
     alias(gradleLibs.plugins.kotlin.android)
     alias(gradleLibs.plugins.kotlin.serialization)
 }
+if (file("google-services.json").let {
+        it.exists() && it.readText().contains(AppConfiguration.appId)
+    }) {
+    apply(plugin = gradleLibs.plugins.google.services.get().pluginId)
+}
+
 
 val signingProp = file(project.rootProject.file("signing.properties"))
 
@@ -106,9 +113,6 @@ android {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = androidx.compose.compiler.get().version
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -185,6 +189,7 @@ dependencies {
     implementation(androidx.room.runtime)
     implementation(androidx.webkit)
     implementation(libs.akdanmaku)
+    implementation(libs.androidSvg)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.svg)
@@ -204,6 +209,7 @@ dependencies {
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.core)
     implementation(libs.logging)
+    implementation(libs.lottie)
     implementation(libs.material)
     implementation(libs.qrcode)
     implementation(libs.rememberPreference)

@@ -33,7 +33,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.controllers.info.VideoPlayerInfoData
@@ -48,6 +47,8 @@ fun ControllerVideoInfo(
     title: String,
     secondTitle: String,
     clock: Triple<Int, Int, Int>,
+    idleIcon: String,
+    movingIcon: String,
     onHideInfo: () -> Unit
 ) {
     var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
@@ -94,13 +95,14 @@ fun ControllerVideoInfo(
         ) {
             ControllerVideoInfoBottom(
                 infoData = infoData,
-                partTitle = secondTitle
+                partTitle = secondTitle,
+                idleIcon = idleIcon,
+                movingIcon = movingIcon
             )
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ControllerVideoInfoTop(
     modifier: Modifier = Modifier,
@@ -138,12 +140,13 @@ fun ControllerVideoInfoTop(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ControllerVideoInfoBottom(
     modifier: Modifier = Modifier,
     partTitle: String,
-    infoData: VideoPlayerInfoData
+    infoData: VideoPlayerInfoData,
+    idleIcon: String,
+    movingIcon: String
 ) {
     Column(
         modifier = modifier
@@ -187,12 +190,14 @@ fun ControllerVideoInfoBottom(
                 .padding(horizontal = 24.dp),
             duration = infoData.totalDuration,
             position = infoData.currentTime,
-            bufferedPercentage = infoData.bufferedPercentage
+            bufferedPercentage = infoData.bufferedPercentage,
+            moveState = SeekMoveState.Idle,
+            idleIcon = idleIcon,
+            movingIcon = movingIcon
         )
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun Clock(
     modifier: Modifier = Modifier,
@@ -231,7 +236,6 @@ private fun ClockPreview() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Preview(device = "id:tv_1080p")
 @Composable
 private fun ControllerVideoInfoPreview() {
@@ -262,7 +266,9 @@ private fun ControllerVideoInfoPreview() {
             title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
             secondTitle = "2023车队车手介绍分析预测",
             clock = Triple(12, 30, 30),
-            onHideInfo = {}
+            onHideInfo = {},
+            idleIcon = "",
+            movingIcon = ""
         )
     }
 }

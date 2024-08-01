@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.entity.AuthData
@@ -38,7 +37,6 @@ import kotlinx.serialization.json.Json
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun CookiesDialog(
     modifier: Modifier = Modifier,

@@ -205,7 +205,6 @@ fun AnimeCarousel(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeCarouselCard(
     modifier: Modifier = Modifier,
@@ -281,7 +280,6 @@ private fun AnimeFeatureButtons(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeatureButton(
     modifier: Modifier = Modifier,
@@ -317,7 +315,6 @@ fun AnimeFeatureButton(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeatureButton(
     modifier: Modifier = Modifier,
@@ -404,7 +401,6 @@ fun AnimeFeedVideoRow(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AnimeFeedRankRow(
     modifier: Modifier = Modifier,

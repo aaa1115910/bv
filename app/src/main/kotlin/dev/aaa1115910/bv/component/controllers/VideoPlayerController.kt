@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
+import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BuildConfig
@@ -55,7 +55,6 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
@@ -501,7 +500,8 @@ data class VideoPlayerControllerData(
     val clock: Triple<Int, Int, Int> = Triple(0, 0, 0),
     val showBackToHistory: Boolean = false,
     val needPay: Boolean = false,
-    val epid: Int = 0
+    val epid: Int = 0,
+    val videoShot: VideoShot? = null
 )
 
 val LocalVideoPlayerControllerData = compositionLocalOf { VideoPlayerControllerData() }

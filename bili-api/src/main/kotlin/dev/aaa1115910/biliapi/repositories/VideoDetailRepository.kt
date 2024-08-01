@@ -7,6 +7,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
 import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
+import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -48,25 +49,30 @@ class VideoDetailRepository(
                         }.getOrDefault(false)
                     }
 
-                    val history = async {
+                    val historyAndPlayerIcon = async {
                         runCatching {
                             val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
                                 avid = aid,
                                 cid = videoDetailWithoutUserActions.await().cid,
                                 sessData = authRepository.sessionData ?: ""
                             ).getResponseData()
-                            VideoDetail.History(
+                            val history = VideoDetail.History(
                                 progress = videoModeInfo.lastPlayTime / 1000,
                                 lastPlayedCid = videoModeInfo.lastPlayCid
                             )
+                            val playerIcon =
+                                VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
+                            history to playerIcon
                         }.onFailure {
                             println("Get video history failed: $it")
-                        }.getOrDefault(VideoDetail.History(0, 0))
+                        }.getOrDefault(VideoDetail.History(0, 0) to null)
                     }
 
                     videoDetailWithoutUserActions.await().apply {
                         userActions.favorite = isFavoured.await()
-                        this.history = history.await()
+                        val (history, playerIcon) = historyAndPlayerIcon.await()
+                        this.history = history
+                        this.playerIcon = playerIcon
                     }
                 }
             }
@@ -77,7 +83,25 @@ class VideoDetailRepository(
                         this.aid = aid.toLong()
                     }) ?: throw IllegalStateException("Player stub is not initialized")
                 }.onFailure { handleGrpcException(it) }.getOrThrow()
-                VideoDetail.fromViewReply(viewReply)
+                VideoDetail.fromViewReply(viewReply).apply {
+                    if (playerIcon?.idle?.isBlank() != false && authRepository.sessionData != null) {
+                        println("player icon not found in view reply, try to get it from garb api")
+                        runCatching {
+                            val playerIconGarb = BiliHttpApi.getUserEquippedGarb(
+                                part = EquipPart.PlayerIcon,
+                                sessData = authRepository.sessionData!!
+                            ).getResponseData()
+                            val playerIconItem = playerIconGarb.item
+                                ?: throw IllegalStateException("player icon not equipped")
+                            this.playerIcon = VideoDetail.PlayerIcon(
+                                idle = playerIconItem.properties.icon ?: "",
+                                moving = playerIconItem.properties.dragIcon ?: ""
+                            )
+                        }.onFailure {
+                            println("Get player icon failed: $it")
+                        }
+                    }
+                }
             }
         }
     }
@@ -94,7 +118,22 @@ class VideoDetailRepository(
                     seasonId = seasonId,
                     sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
-                return SeasonDetail.fromSeasonData(webSeasonData)
+                val seasonDetail = SeasonDetail.fromSeasonData(webSeasonData)
+                val firstEp = webSeasonData.episodes.firstOrNull() ?: return seasonDetail
+
+                val playerIcon = runCatching {
+                    val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
+                        avid = firstEp.aid,
+                        cid = firstEp.cid,
+                        sessData = authRepository.sessionData ?: ""
+                    ).getResponseData()
+                    val playerIcon = VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
+                    playerIcon
+                }.onFailure {
+                    println("Get video player icon failed: $it")
+                }.getOrDefault(null)
+                seasonDetail.playerIcon = playerIcon
+                return seasonDetail
             }
 
             ApiType.App -> {

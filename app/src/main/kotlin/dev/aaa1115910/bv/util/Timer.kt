@@ -46,3 +46,21 @@ fun timeTask(
     }, delay, period)
     return timer
 }
+
+fun timeTask(
+    delay: Long,
+    tag: String,
+    showLogs: Boolean = true,
+    onTick: (() -> Unit)?
+): Timer {
+    val logger = KotlinLogging.logger { }
+    val timer = Timer()
+    timer.schedule(object : TimerTask() {
+        override fun run() {
+            if (showLogs) logger.info { "[$tag] Time task run" }
+            onTick?.invoke()
+            timer.cancel()
+        }
+    }, delay)
+    return timer
+}

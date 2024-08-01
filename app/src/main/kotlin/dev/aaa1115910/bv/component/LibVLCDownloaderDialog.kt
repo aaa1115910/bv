@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.tv.material3.Button
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.network.VlcLibsApi
@@ -24,7 +23,6 @@ import java.io.File
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LibVLCDownloaderDialog(
     modifier: Modifier = Modifier,

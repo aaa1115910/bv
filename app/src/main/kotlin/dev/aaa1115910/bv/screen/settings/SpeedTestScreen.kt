@@ -18,15 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import androidx.webkit.WebViewClientCompat
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.Prefs
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SpeedTestScreen(
     modifier: Modifier = Modifier
@@ -103,7 +101,7 @@ fun SpeedTestScreen(
         if (loading) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                colors = NonInteractiveSurfaceDefaults.colors(
+                colors = SurfaceDefaults.colors(
                     containerColor = Color.Black.copy(alpha = 0.9f)
                 )
             ) {

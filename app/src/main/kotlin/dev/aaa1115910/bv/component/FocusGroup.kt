@@ -118,8 +118,8 @@ class FocusGroupScope internal constructor(private val state: FocusGroupState) {
         return this.restorableFocus(focusId)
     }
 
-    @SuppressLint("ComposableModifierFactory")
     @OptIn(ExperimentalComposeUiApi::class)
+    @SuppressLint("ComposableModifierFactory")
     @Composable
     private fun Modifier.restorableFocus(focusId: Int): Modifier {
         val focusRequester = remember { FocusRequester() }

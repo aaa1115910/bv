@@ -21,7 +21,7 @@ object LogCatcherUtil {
     fun installLogCatcher() {
         runCatching {
             Runtime.getRuntime().exec("logcat -c")
-            logger.info("clear logcat")
+            logger.info { "clear logcat" }
         }
         val originHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->

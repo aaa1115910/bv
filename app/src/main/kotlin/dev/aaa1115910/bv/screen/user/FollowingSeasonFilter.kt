@@ -28,7 +28,6 @@ import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.util.getDisplayName
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FollowingSeasonFilter(
     modifier: Modifier = Modifier,

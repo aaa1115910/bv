@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.screen.VideoPlayerScreen
@@ -56,7 +55,6 @@ class VideoPlayerActivity : ComponentActivity() {
 
     private val playerViewModel: PlayerViewModel by viewModel()
 
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
