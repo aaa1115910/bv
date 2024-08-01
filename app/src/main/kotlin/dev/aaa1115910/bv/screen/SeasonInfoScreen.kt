@@ -161,7 +161,9 @@ fun SeasonInfoScreen(
                     subType = seasonData?.subType,
                     epid = epid,
                     seasonId = seasonData?.seasonId,
-                    proxyArea = proxyArea
+                    proxyArea = proxyArea,
+                    playerIconIdle = seasonData?.playerIcon?.idle ?: "",
+                    playerIconMoving = seasonData?.playerIcon?.moving ?: ""
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
@@ -1042,11 +1044,11 @@ private fun SeasonSelectorContent(
         shape = RoundedCornerShape(0.dp)
     ) {
         Box(
-            modifier=Modifier.fillMaxSize()
-        ){
+            modifier = Modifier.fillMaxSize()
+        ) {
             Box(
-                modifier=Modifier.fillMaxSize()
-            ){
+                modifier = Modifier.fillMaxSize()
+            ) {
                 AsyncImage(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -1082,15 +1084,16 @@ private fun SeasonSelectorContent(
                         )
                 ) {
                     Text(
-                        text = seasons[currentSeasonIndex].title ?: seasons[currentSeasonIndex].shortTitle,
+                        text = seasons[currentSeasonIndex].title
+                            ?: seasons[currentSeasonIndex].shortTitle,
                         style = MaterialTheme.typography.displayMedium
                     )
                 }
             }
 
             Box(
-                modifier=Modifier.align(Alignment.BottomStart)
-            ){
+                modifier = Modifier.align(Alignment.BottomStart)
+            ) {
                 TvLazyRow(
                     modifier = Modifier.padding(bottom = 48.dp),
                     state = rowState,

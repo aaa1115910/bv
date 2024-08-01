@@ -178,6 +178,14 @@ data class VideoDetail(
                 idle = playerIcon.url2,
                 moving = playerIcon.url1
             )
+
+            fun fromPlayerIcon(playerIcon: dev.aaa1115910.biliapi.http.entity.season.AppSeasonData.PlayerIcon?) =
+                playerIcon?.let {
+                    PlayerIcon(
+                        idle = playerIcon.url2,
+                        moving = playerIcon.url1
+                    )
+                }
         }
     }
 }

@@ -118,7 +118,22 @@ class VideoDetailRepository(
                     seasonId = seasonId,
                     sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
-                return SeasonDetail.fromSeasonData(webSeasonData)
+                val seasonDetail = SeasonDetail.fromSeasonData(webSeasonData)
+                val firstEp = webSeasonData.episodes.firstOrNull() ?: return seasonDetail
+
+                val playerIcon = runCatching {
+                    val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
+                        avid = firstEp.aid,
+                        cid = firstEp.cid,
+                        sessData = authRepository.sessionData ?: ""
+                    ).getResponseData()
+                    val playerIcon = VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
+                    playerIcon
+                }.onFailure {
+                    println("Get video player icon failed: $it")
+                }.getOrDefault(null)
+                seasonDetail.playerIcon = playerIcon
+                return seasonDetail
             }
 
             ApiType.App -> {
