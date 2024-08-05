@@ -5,12 +5,12 @@ object AppConfiguration {
     const val targetSdk = 34
     private const val major = 0
     private const val minor = 2
-    private const val patch = 8
-    private const val bugFix = 0
+    private const val patch = 9
+    private const val hotFix = 0
 
     @Suppress("KotlinConstantConditions")
     val versionName: String by lazy {
-        "$major.$minor.$patch${".$bugFix".takeIf { bugFix != 0 } ?: ""}" +
+        "$major.$minor.$patch${".$hotFix".takeIf { hotFix != 0 } ?: ""}" +
                 ".r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
     }
     val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() }
