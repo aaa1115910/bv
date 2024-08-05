@@ -291,7 +291,15 @@ class VideoPlayerV3ViewModel(
     }
 
     fun updateAvailableCodec() {
-        if (Prefs.apiType == ApiType.App) return
+        if (Prefs.apiType == ApiType.App) {
+            // 纠正当前实际播放的编码
+            val videoItem = playData!!.dashVideos
+                .find { it.quality == currentQuality }
+                ?: playData!!.dashVideos.first()
+            currentVideoCodec = VideoCodec.fromCodecId(videoItem.codecId)
+            return
+        }
+
         val supportedCodec = playData!!.codec
         val codecList =
             supportedCodec[currentQuality]!!.mapNotNull { VideoCodec.fromCodecString(it) }
