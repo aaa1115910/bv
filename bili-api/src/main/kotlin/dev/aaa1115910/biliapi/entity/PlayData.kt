@@ -49,7 +49,7 @@ data class PlayData(
                 DashAudio(
                     baseUrl = it.baseUrl,
                     bandwidth = it.bandwidth,
-                    codecId = it.codecid,
+                    codecId = it.id,
                     backUrl = it.backupUrlList
                 )
             }
@@ -57,7 +57,7 @@ data class PlayData(
                 DashAudio(
                     baseUrl = it.baseUrl,
                     bandwidth = it.bandwidth,
-                    codecId = it.codecid,
+                    codecId = it.id,
                     backUrl = it.backupUrlList
                 )
             }
