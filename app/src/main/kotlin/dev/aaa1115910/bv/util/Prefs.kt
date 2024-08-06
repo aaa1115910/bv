@@ -284,7 +284,7 @@ object Prefs {
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableWebmark, value) }
 }
 
-private object PrefKeys {
+object PrefKeys {
     val prefIsLoginKey = booleanPreferencesKey("il")
     val prefUidKey = longPreferencesKey("uid")
     val prefSidKey = stringPreferencesKey("sid")
