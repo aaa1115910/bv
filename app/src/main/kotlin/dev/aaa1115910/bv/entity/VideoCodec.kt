@@ -34,6 +34,6 @@ enum class VideoCodec(private val strRes: Int, val prefix: String, val codecId: 
         AVC -> CodeType.Code264
         HEVC -> CodeType.Code265
         AV1 -> CodeType.CodeAv1
-        DVH1, HVC1 -> CodeType.NoCode
+        DVH1, HVC1 -> CodeType.Code265
     }
 }

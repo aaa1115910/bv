@@ -34,7 +34,7 @@ data class PlayData(
                     height = it.dashVideo.height,
                     frameRate = it.dashVideo.frameRate,
                     backUrl = it.dashVideo.backupUrlList,
-                    codecs = null
+                    codecs = CodeType.fromCodecId(it.dashVideo.codecid).str
                 )
             }
             val dashAudios = audioList.map {
@@ -62,13 +62,16 @@ data class PlayData(
                 )
             }
 
+            val codecs = playViewUniteReply.vodInfo.streamListList.associate {
+                it.streamInfo.quality to listOf(CodeType.fromCodecId(it.dashVideo.codecid).str)
+            }
 
             return PlayData(
                 dashVideos = dashVideos,
                 dashAudios = dashAudios,
                 dolby = dolby,
                 flac = flac,
-                codec = emptyMap(),
+                codec = codecs,
                 needPay = false
             )
         }
@@ -78,6 +81,9 @@ data class PlayData(
                 pgcPlayViewReply.videoInfo.streamListList.filter { it.dashVideoOrNull != null }
             val audioList = pgcPlayViewReply.videoInfo.dashAudioList
             val dolbyItem = pgcPlayViewReply.videoInfo.dolbyOrNull?.audio
+            val codecs = pgcPlayViewReply.videoInfo.streamListList.associate {
+                it.info.quality to listOf(CodeType.fromCodecId(it.dashVideo.codecid).str)
+            }
             val needPay = pgcPlayViewReply.business.isPreview
 
             val dashVideos = streamList.map {
@@ -90,7 +96,7 @@ data class PlayData(
                     height = it.dashVideo.height,
                     frameRate = it.dashVideo.frameRate,
                     backUrl = it.dashVideo.backupUrlList,
-                    codecs = null
+                    codecs = CodeType.fromCodecId(it.dashVideo.codecid).str
                 )
             }
             val dashAudios = audioList.map {
@@ -115,7 +121,7 @@ data class PlayData(
                 dashAudios = dashAudios,
                 dolby = dolby,
                 flac = null,
-                codec = emptyMap(),
+                codec = codecs,
                 needPay = needPay
             )
         }
@@ -293,6 +299,25 @@ data class PlayData(
                 needPay = needPay
             )
         }
+    }
+
+    operator fun plus(other: PlayData): PlayData {
+        return PlayData(
+            dashVideos = (dashVideos + other.dashVideos)
+                .distinctBy { "${it.codecId}_${it.quality}" }
+                .sortedByDescending { it.quality },
+            dashAudios = (dashAudios + other.dashAudios)
+                .distinctBy { it.codecId }
+                .sortedByDescending { it.codecId },
+            dolby = dolby ?: other.dolby,
+            flac = flac ?: other.flac,
+            codec = codec.map {
+                it.key to (it.value + other.codec[it.key].orEmpty())
+                    .distinct()
+                    .filter { it != "none" }
+            }.toMap(),
+            needPay = needPay || other.needPay
+        )
     }
 }
 

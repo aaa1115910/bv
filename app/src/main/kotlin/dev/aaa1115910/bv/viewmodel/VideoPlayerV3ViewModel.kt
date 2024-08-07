@@ -199,7 +199,6 @@ class VideoPlayerV3ViewModel(
                 videoPlayRepository.getPlayData(
                     aid = avid,
                     cid = cid,
-                    preferCodec = Prefs.defaultVideoCodec.toBiliApiCodeType(),
                     preferApiType = Prefs.apiType
                 )
             }
@@ -291,7 +290,7 @@ class VideoPlayerV3ViewModel(
     }
 
     fun updateAvailableCodec() {
-        if (Prefs.apiType == ApiType.App) {
+        if (Prefs.apiType == ApiType.App && playData!!.codec.isEmpty()) {
             // 纠正当前实际播放的编码
             val videoItem = playData!!.dashVideos
                 .find { it.quality == currentQuality }
@@ -327,7 +326,10 @@ class VideoPlayerV3ViewModel(
         val videoItem = playData!!.dashVideos.find {
             when (Prefs.apiType) {
                 ApiType.Web -> it.quality == qn && it.codecs!!.startsWith(codec.prefix)
-                ApiType.App -> it.quality == qn
+                ApiType.App -> {
+                    if (playData!!.codec.isEmpty()) it.quality == qn
+                    else it.quality == qn && it.codecs!!.startsWith(codec.prefix)
+                }
             }
         }
         var videoUrl = videoItem?.baseUrl ?: playData!!.dashVideos.first().baseUrl
