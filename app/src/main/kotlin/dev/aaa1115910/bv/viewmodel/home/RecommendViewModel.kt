@@ -23,24 +23,30 @@ class RecommendViewModel(
     private var nextPage = RecommendPage()
     var loading = false
 
-    suspend fun loadMore() {
+    suspend fun loadMore(
+        beforeAppendData: () -> Unit = {}
+    ) {
         var loadCount = 0
         val maxLoadMoreCount = 3
         if (!loading) {
             if (recommendVideoList.size == 0) {
                 // first load data
                 while (recommendVideoList.size < 14 && loadCount < maxLoadMoreCount) {
-                    loadData()
+                    val emptyFun: () -> Unit = {}
+                    loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
                     if (loadCount != 0) logger.fInfo { "Load more recommend videos because items too less" }
                     loadCount++
                 }
             } else {
-                loadData()
+                val emptyFun: () -> Unit = {}
+                loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
             }
         }
     }
 
-    private suspend fun loadData() {
+    private suspend fun loadData(
+        beforeAppendData: () -> Unit
+    ) {
         loading = true
         logger.fInfo { "Load more recommend videos" }
         runCatching {
@@ -48,6 +54,7 @@ class RecommendViewModel(
                 page = nextPage,
                 preferApiType = Prefs.apiType
             )
+            beforeAppendData()
             nextPage = recommendData.nextPage
             recommendVideoList.addAll(recommendData.items)
         }.onFailure {
@@ -61,7 +68,11 @@ class RecommendViewModel(
 
     fun clearData() {
         recommendVideoList.clear()
-        nextPage = RecommendPage()
+        resetPage()
         loading = false
+    }
+
+    fun resetPage() {
+        nextPage = RecommendPage()
     }
 }
