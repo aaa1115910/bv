@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
@@ -47,7 +47,8 @@ fun SmallVideoCard(
     onFocus: () -> Unit = {}
 ) {
     Surface(
-        modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
+        modifier = modifier
+            .onFocusChanged { if (it.hasFocus) onFocus() },
         onClick = onClick,
         onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
@@ -203,8 +204,8 @@ fun SmallVideoCardsPreview() {
         time = 2333 * 1000
     )
     BVTheme {
-        TvLazyVerticalGrid(
-            columns = TvGridCells.Fixed(4)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4)
         ) {
             repeat(20) {
                 item {

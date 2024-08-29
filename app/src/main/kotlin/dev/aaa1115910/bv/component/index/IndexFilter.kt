@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
@@ -30,9 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.MaterialTheme
@@ -123,7 +123,7 @@ fun AnimeIndexFilter(
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
-                    TvLazyColumn {
+                    LazyColumn {
                         item {
                             IndexFilterChipRow(
                                 title = "类型",
@@ -302,7 +302,7 @@ fun <T> IndexFilterChipRow(
             text = title,
             style = MaterialTheme.typography.labelLarge
         )
-        TvLazyRow(
+        LazyRow(
             modifier = modifier
                 .then(focusRestorerModifiers.parentModifier),
             horizontalArrangement = Arrangement.spacedBy(8.dp),

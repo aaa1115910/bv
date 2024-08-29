@@ -13,6 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,8 +32,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
-import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchInputActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
@@ -70,10 +70,10 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger { }
 
-    val recommendState = rememberTvLazyGridState()
-    val popularState = rememberTvLazyGridState()
-    val animeState = rememberTvLazyListState()
-    val dynamicState = rememberTvLazyGridState()
+    val recommendState = rememberLazyGridState()
+    val popularState = rememberLazyGridState()
+    val animeState = rememberLazyListState()
+    val dynamicState = rememberLazyGridState()
 
     var selectedTab by remember { mutableStateOf(TopNavItem.Popular) }
     var showUserPanel by remember { mutableStateOf(false) }
@@ -224,28 +224,28 @@ fun HomeScreen(
                 ) { screen ->
                     when (screen) {
                         TopNavItem.Recommend -> RecommendScreen(
-                            tvLazyGridState = recommendState,
+                            lazyGridState = recommendState,
                             onBackNav = onFocusBackToNav
                         )
 
                         TopNavItem.Popular -> PopularScreen(
-                            tvLazyGridState = popularState,
+                            lazyGridState = popularState,
                             onBackNav = onFocusBackToNav
                         )
 
                         TopNavItem.Partition -> PartitionScreen()
                         TopNavItem.Anime -> AnimeScreen(
-                            tvLazyListState = animeState,
+                            lazyListState = animeState,
                             onBackNav = onFocusBackToNav
                         )
 
                         TopNavItem.Dynamics -> DynamicsScreen(
-                            tvLazyGridState = dynamicState,
+                            lazyGridState = dynamicState,
                             onBackNav = onFocusBackToNav
                         )
 
                         else -> PopularScreen(
-                            tvLazyGridState = popularState,
+                            lazyGridState = popularState,
                             onBackNav = onFocusBackToNav
                         )
                     }

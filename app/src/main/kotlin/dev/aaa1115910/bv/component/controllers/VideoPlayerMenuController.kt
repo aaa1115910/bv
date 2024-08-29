@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,8 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.DenseListItem
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -139,7 +139,7 @@ private fun VideoPlayerMenuControllerNav(
         focusRequester.requestFocus(scope)
     }
 
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -272,7 +272,7 @@ private fun ResolutionMenuContent(
     val context = LocalContext.current
     val qualityMap by remember { mutableStateOf(resolutionMap.toSortedMap(compareByDescending { it })) }
 
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -298,7 +298,7 @@ private fun VideoCodecMenuContent(
 ) {
     val context = LocalContext.current
 
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -321,7 +321,7 @@ private fun VideoAspectRatioMenuContent(
 ) {
     val context = LocalContext.current
 
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -342,7 +342,7 @@ private fun DanmakuSwitchMenuContent(
     currentDanmakuEnabled: Boolean,
     onSwitchDanmaku: (Boolean) -> Unit
 ) {
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -370,7 +370,7 @@ private fun DanmakuSizeMenuContent(
     currentDanmakuSize: DanmakuSize = DanmakuSize.S2,
     onDanmakuSizeChange: (DanmakuSize) -> Unit
 ) {
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -391,7 +391,7 @@ private fun DanmakuTransparencyMenuContent(
     currentDanmakuTransparency: DanmakuTransparency = DanmakuTransparency.T1,
     onDanmakuTransparencyChange: (DanmakuTransparency) -> Unit
 ) {
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)
@@ -478,7 +478,7 @@ fun SubtitleContent(
     availableSubtitle: List<VideoMoreInfo.SubtitleItem> = emptyList(),
     onSubtitleChange: (Long) -> Unit
 ) {
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 120.dp)

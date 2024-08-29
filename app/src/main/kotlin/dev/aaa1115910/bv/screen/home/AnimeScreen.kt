@@ -22,6 +22,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Alarm
@@ -50,10 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.TvLazyListState
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -86,7 +86,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AnimeScreen(
     modifier: Modifier = Modifier,
-    tvLazyListState: TvLazyListState,
+    lazyListState: LazyListState,
     onBackNav: () -> Unit,
     animeViewModel: AnimeViewModel = koinViewModel()
 ) {
@@ -96,14 +96,14 @@ fun AnimeScreen(
     val carouselItems = animeViewModel.carouselItems
     val animeFeeds = animeViewModel.feedItems
 
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier
             .onPreviewKeyEvent {
                 when (it.key) {
                     Key.Back -> {
                         if (it.type == KeyEventType.KeyUp) {
                             scope.launch(Dispatchers.Main) {
-                                tvLazyListState.animateScrollToItem(0)
+                                lazyListState.animateScrollToItem(0)
                             }
                             onBackNav()
                         }
@@ -112,7 +112,7 @@ fun AnimeScreen(
                 }
                 return@onPreviewKeyEvent false
             },
-        state = tvLazyListState
+        state = lazyListState
     ) {
         item {
             AnimeCarousel(
@@ -360,7 +360,7 @@ fun AnimeFeedVideoRow(
     data: List<AnimeFeedData.FeedItem.FeedSubItem>
 ) {
     val context = LocalContext.current
-    TvLazyRow(
+    LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(18.dp)
@@ -476,7 +476,7 @@ fun AnimeFeedRankRow(
                 )
             }
 
-            TvLazyRow(
+            LazyRow(
                 modifier = modifier,
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 horizontalArrangement = Arrangement.spacedBy(18.dp)

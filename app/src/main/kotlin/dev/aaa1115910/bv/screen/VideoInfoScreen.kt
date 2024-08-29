@@ -21,6 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Done
@@ -64,14 +72,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Glow
@@ -481,7 +481,7 @@ fun VideoInfoScreen(
                     contentScale = ContentScale.Crop,
                     alpha = 0.6f
                 )
-                TvLazyColumn(
+                LazyColumn(
                     contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -850,11 +850,11 @@ fun VideoInfoData(
                     onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
                     onUpdateFavoriteFolders = onUpdateFavoriteFolders
                 )
-                TvLazyRow(
+                LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(tags) { tag ->
+                    items(items = tags) { tag ->
                         SuggestionChip(onClick = {
                             onClickTip(tag)
                         }) {
@@ -998,7 +998,7 @@ fun VideoDescriptionDialog(
                 )
             },
             text = {
-                TvLazyColumn {
+                LazyColumn {
                     item {
                         Text(text = description)
                     }
@@ -1109,7 +1109,7 @@ fun VideoPartRow(
             color = titleColor
         )
 
-        TvLazyRow(
+        LazyRow(
             modifier = Modifier
                 .padding(top = 15.dp)
                 .then(focusRestorerModifiers.parentModifier),
@@ -1177,7 +1177,7 @@ fun VideoUgcSeasonRow(
             color = titleColor
         )
 
-        TvLazyRow(
+        LazyRow(
             modifier = Modifier
                 .padding(top = 15.dp)
                 .then(focusRestorerModifiers.parentModifier),
@@ -1231,7 +1231,7 @@ private fun VideoPartListDialog(
 
     val tabRowFocusRequester = remember { FocusRequester() }
     val videoListFocusRequester = remember { FocusRequester() }
-    val listState = rememberTvLazyGridState()
+    val listState = rememberLazyGridState()
 
     LaunchedEffect(selectedTabIndex) {
         val fromIndex = selectedTabIndex * 20
@@ -1292,9 +1292,9 @@ private fun VideoPartListDialog(
                         }
                     }
 
-                    TvLazyVerticalGrid(
+                    LazyVerticalGrid(
                         state = listState,
-                        columns = TvGridCells.Fixed(2),
+                        columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1339,7 +1339,7 @@ private fun VideoUgcListDialog(
 
     val tabRowFocusRequester = remember { FocusRequester() }
     val videoListFocusRequester = remember { FocusRequester() }
-    val listState = rememberTvLazyGridState()
+    val listState = rememberLazyGridState()
 
     LaunchedEffect(selectedTabIndex) {
         val fromIndex = selectedTabIndex * 20
@@ -1400,9 +1400,9 @@ private fun VideoUgcListDialog(
                         }
                     }
 
-                    TvLazyVerticalGrid(
+                    LazyVerticalGrid(
                         state = listState,
-                        columns = TvGridCells.Fixed(2),
+                        columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)

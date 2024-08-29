@@ -4,6 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,11 +25,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvGridItemSpan
-import androidx.tv.foundation.lazy.grid.TvLazyGridState
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.itemsIndexed
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.LoadingTip
 import dev.aaa1115910.bv.component.videocard.SmallVideoCard
@@ -37,7 +37,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RecommendScreen(
     modifier: Modifier = Modifier,
-    tvLazyGridState: TvLazyGridState,
+    lazyGridState: LazyGridState,
     onBackNav: () -> Unit,
     recommendViewModel: RecommendViewModel = koinViewModel()
 ) {
@@ -51,14 +51,14 @@ fun RecommendScreen(
         }
     }
 
-    TvLazyVerticalGrid(
+    LazyVerticalGrid(
         modifier = modifier
             .onPreviewKeyEvent {
                 when (it.key) {
                     Key.Back -> {
                         if (it.type == KeyEventType.KeyUp) {
                             scope.launch(Dispatchers.Main) {
-                                tvLazyGridState.animateScrollToItem(0)
+                                lazyGridState.animateScrollToItem(0)
                             }
                             onBackNav()
                         }
@@ -73,8 +73,8 @@ fun RecommendScreen(
                 }
                 return@onPreviewKeyEvent false
             },
-        state = tvLazyGridState,
-        columns = TvGridCells.Fixed(4),
+        state = lazyGridState,
+        columns = GridCells.Fixed(4),
         contentPadding = PaddingValues(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp)
@@ -96,7 +96,7 @@ fun RecommendScreen(
         }
         if (recommendViewModel.loading)
             item(
-                span = { TvGridItemSpan(4) }
+                span = { GridItemSpan(4) }
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

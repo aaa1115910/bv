@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,9 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.season.Timeline
@@ -62,7 +62,7 @@ fun AnimeTimelineScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger { }
-    val listState = rememberTvLazyListState()
+    val listState = rememberLazyListState()
 
     var currentTimelineIndex by remember { mutableIntStateOf(0) }
     var currentEpisodeIndex by remember { mutableIntStateOf(0) }
@@ -121,7 +121,7 @@ fun AnimeTimelineScreen(
             }
         }
     ) { innerPadding ->
-        TvLazyColumn(
+        LazyColumn(
             state = listState,
             modifier = Modifier.padding(innerPadding),
             contentPadding = PaddingValues(bottom = 48.dp, start = 48.dp, end = 48.dp)

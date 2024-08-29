@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -27,8 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
@@ -159,7 +159,7 @@ fun SearchInputScreen(
                         text = stringResource(R.string.search_input_hotword),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn(
+                    LazyColumn(
                         modifier = Modifier
                             .then(hotsFocusRestorerModifiers.parentModifier)
                     ) {
@@ -185,7 +185,7 @@ fun SearchInputScreen(
                         text = stringResource(R.string.search_input_suggest),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn(
+                    LazyColumn(
                         modifier = Modifier
                             .then(suggestFocusRestorerModifiers.parentModifier)
                     ) {
@@ -215,7 +215,7 @@ fun SearchInputScreen(
                     text = stringResource(R.string.search_input_history),
                     style = MaterialTheme.typography.titleLarge
                 )
-                TvLazyColumn(
+                LazyColumn(
                     modifier = Modifier
                         .then(historyFocusRestorerModifiers.parentModifier)
                 ) {

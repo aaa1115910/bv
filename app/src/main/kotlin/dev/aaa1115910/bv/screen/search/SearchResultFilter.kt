@@ -7,6 +7,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -28,8 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.repositories.SearchFilterDuration
 import dev.aaa1115910.biliapi.repositories.SearchFilterOrderType
@@ -72,7 +72,7 @@ fun SearchResultVideoFilter(
             title = { Text(text = stringResource(R.string.filter_dialog_title)) },
             text = {
                 Column {
-                    TvLazyRow(
+                    LazyRow(
                         modifier = Modifier.onPreviewKeyEvent {
                             if (it.key == Key.DirectionDown) {
                                 if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
@@ -94,7 +94,7 @@ fun SearchResultVideoFilter(
                             )
                         }
                     }
-                    TvLazyRow(
+                    LazyRow(
                         modifier = Modifier.onPreviewKeyEvent {
                             if (it.key == Key.DirectionDown) {
                                 if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
@@ -123,7 +123,7 @@ fun SearchResultVideoFilter(
                             )
                         }
                     }
-                    TvLazyRow(
+                    LazyRow(
                         modifier = Modifier.onPreviewKeyEvent {
                             if (it.key == Key.DirectionDown) {
                                 if (selectedChildPartition == null) return@onPreviewKeyEvent false
@@ -168,7 +168,7 @@ fun SearchResultVideoFilter(
                         }
                     }
                     AnimatedVisibility(visible = selectedPartition != null) {
-                        TvLazyRow(
+                        LazyRow(
                             modifier = Modifier.onPreviewKeyEvent {
                                 if (it.key == Key.DirectionUp) {
                                     if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
