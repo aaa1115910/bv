@@ -16,6 +16,7 @@ import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class FavoriteViewModel(
@@ -67,11 +68,18 @@ class FavoriteViewModel(
         }
     }
 
-    fun updateFolderItems() {
+    private var updateJob: Job? = null
+
+    fun updateFolderItems(force: Boolean = false) {
+        if (force) {
+            updateJob?.cancel()
+            resetPageNumber()
+            updatingFolderItems = false
+        }
         if (updatingFolderItems || !hasMore) return
         updatingFolderItems = true
         logger.fInfo { "Updating favorite folder items with media id: ${currentFavoriteFolderMetadata?.id}" }
-        viewModelScope.launch(Dispatchers.IO) {
+        updateJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val favoriteFolderData = favoriteRepository.getFavoriteFolderData(
                     mediaId = currentFavoriteFolderMetadata!!.id,
