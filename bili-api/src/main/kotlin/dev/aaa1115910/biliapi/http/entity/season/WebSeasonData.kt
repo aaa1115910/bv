@@ -223,7 +223,7 @@ data class WebSeasonData(
         val likes: Int,
         val reply: Int,
         val share: Int,
-        val views: Int
+        val views: Long
     )
 
     /**
@@ -411,7 +411,7 @@ data class OtherSeason(
         val favorites: Int,
         @SerialName("series_follow")
         val seriesFollow: Int,
-        val views: Int
+        val views: Long
     )
 
     @Serializable

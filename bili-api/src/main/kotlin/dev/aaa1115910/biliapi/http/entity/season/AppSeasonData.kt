@@ -366,7 +366,7 @@ data class AppSeasonData(
         val play: String,
         val reply: Int,
         val share: Int,
-        val views: Int,
+        val views: Long,
         val vt: Int
     )
 
