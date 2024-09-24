@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -47,10 +48,18 @@ fun DynamicsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
+    val shouldLoadMore by remember {
+        derivedStateOf { currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size }
+    }
 
-    LaunchedEffect(currentFocusedIndex) {
-        if (currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size) {
-            scope.launch(Dispatchers.Default) { dynamicViewModel.loadMore() }
+    //不能直接使用 LaunchedEffect(currentFocusedIndex)，会导致整个页面重组
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            scope.launch(Dispatchers.IO) {
+                dynamicViewModel.loadMore()
+                //加载完成后重置shouldLoadMore为false，避免如果加载失败后无法重新加载
+                currentFocusedIndex = -100
+            }
         }
     }
 

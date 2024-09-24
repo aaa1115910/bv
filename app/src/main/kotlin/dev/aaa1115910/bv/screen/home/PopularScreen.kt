@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +45,17 @@ fun PopularScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
+    val shouldLoadMore by remember {
+        derivedStateOf { currentFocusedIndex + 24 > popularViewModel.popularVideoList.size }
+    }
 
-    LaunchedEffect(currentFocusedIndex) {
-        if (currentFocusedIndex + 24 > popularViewModel.popularVideoList.size) {
-            scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            scope.launch(Dispatchers.IO) {
+                popularViewModel.loadMore()
+                //加载完成后重置shouldLoadMore为false，避免如果加载失败后无法重新加载
+                currentFocusedIndex = -100
+            }
         }
     }
 
