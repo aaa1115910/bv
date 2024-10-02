@@ -55,7 +55,7 @@ class AnimeViewModel : ViewModel() {
     fun reloadAll() {
         logger.fInfo { "Reload all" }
         clearAll()
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             updateCarousel()
             updateFeed()
         }
@@ -103,8 +103,8 @@ class AnimeViewModel : ViewModel() {
             }
         }
 
-        vCardList.chunked(6).forEach { chunkedVCardList ->
-            if (chunkedVCardList.size == 6) {
+        vCardList.chunked(5).forEach { chunkedVCardList ->
+            if (chunkedVCardList.size == 5) {
                 feedItems.add(chunkedVCardList)
             } else {
                 restSubItems.clear()

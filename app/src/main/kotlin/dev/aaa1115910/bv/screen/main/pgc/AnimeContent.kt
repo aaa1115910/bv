@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.screen.home
+package dev.aaa1115910.bv.screen.main.pgc
 
 import android.content.Intent
 import android.view.KeyEvent
@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,17 +26,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -44,10 +49,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,50 +82,43 @@ import dev.aaa1115910.bv.util.focusedBorder
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AnimeScreen(
+fun AnimeContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
-    onBackNav: () -> Unit,
     animeViewModel: AnimeViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val carouselFocusRequester = remember { FocusRequester() }
 
     val carouselItems = animeViewModel.carouselItems
     val animeFeeds = animeViewModel.feedItems
 
     LazyColumn(
-        modifier = modifier
-            .onPreviewKeyEvent {
-                when (it.key) {
-                    Key.Back -> {
-                        if (it.type == KeyEventType.KeyUp) {
-                            scope.launch(Dispatchers.Main) {
-                                lazyListState.animateScrollToItem(0)
-                            }
-                            onBackNav()
-                        }
-                        return@onPreviewKeyEvent true
-                    }
-                }
-                return@onPreviewKeyEvent false
-            },
+        modifier = modifier,
         state = lazyListState
     ) {
         item {
-            AnimeCarousel(
-                modifier = Modifier.padding(32.dp, 0.dp),
-                data = carouselItems
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                AnimeCarousel(
+                    modifier = Modifier
+                        .width(880.dp)
+                        .padding(32.dp, 0.dp)
+                        .focusRequester(carouselFocusRequester),
+                    data = carouselItems
+                )
+            }
         }
         item {
             AnimeFeatureButtons(
-                modifier = Modifier.padding(32.dp, 24.dp),
+                modifier = Modifier.padding(vertical = 24.dp),
                 onOpenTimeline = {
                     context.startActivity(Intent(context, AnimeTimelineActivity::class.java))
                 },
@@ -182,7 +178,7 @@ fun AnimeCarousel(
     Carousel(
         itemCount = data.size,
         modifier = modifier
-            .fillMaxWidth()
+            //.fillMaxWidth()
             .height(240.dp)
             .clip(MaterialTheme.shapes.large)
             .focusedBorder(),
@@ -231,6 +227,7 @@ private fun AnimeFeatureButtons(
     onOpenIndex: () -> Unit,
     onOpenGamerAni: () -> Unit = {}
 ) {
+    val buttonWidth = 185.dp
     val buttons = listOf(
         Triple(
             stringResource(R.string.anime_home_button_timeline),
@@ -254,21 +251,24 @@ private fun AnimeFeatureButtons(
         )
     )
 
-    Row(
-        modifier = modifier.height(80.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+        contentPadding = PaddingValues(horizontal = 32.dp)
     ) {
-        buttons.forEach { (title, icon, onClick) ->
+        items(items = buttons) { (title, icon, onClick) ->
             when (icon) {
                 is ImageVector -> AnimeFeatureButton(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.width(buttonWidth),
                     title = title,
                     icon = icon,
                     onClick = onClick
                 )
 
                 is Painter -> AnimeFeatureButton(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.width(buttonWidth),
                     title = title,
                     icon = icon,
                     onClick = onClick
@@ -363,7 +363,7 @@ fun AnimeFeedVideoRow(
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(18.dp)
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         data.forEachIndexed { index, feedItem ->
             val cardModifier = if (index == data.lastIndex) {

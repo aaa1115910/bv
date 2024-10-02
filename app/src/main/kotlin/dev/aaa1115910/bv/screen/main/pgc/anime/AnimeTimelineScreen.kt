@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.screen.home.anime
+package dev.aaa1115910.bv.screen.main.pgc.anime
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement

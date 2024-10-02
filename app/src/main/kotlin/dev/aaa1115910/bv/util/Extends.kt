@@ -5,6 +5,11 @@ import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.core.text.HtmlCompat
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
@@ -100,3 +105,10 @@ fun FocusRequester.requestFocus(scope: CoroutineScope) {
 fun String.removeHtmlTags(): String = HtmlCompat.fromHtml(
     this, HtmlCompat.FROM_HTML_MODE_LEGACY
 ).toString()
+
+fun KeyEvent.isKeyDown(): Boolean = type == KeyEventType.KeyDown
+fun KeyEvent.isKeyUp(): Boolean = type == KeyEventType.KeyUp
+fun KeyEvent.isDpadUp(): Boolean = key == Key.DirectionUp
+fun KeyEvent.isDpadDown(): Boolean = key == Key.DirectionDown
+fun KeyEvent.isDpadLeft(): Boolean = key == Key.DirectionLeft
+fun KeyEvent.isDpadRight(): Boolean = key == Key.DirectionRight

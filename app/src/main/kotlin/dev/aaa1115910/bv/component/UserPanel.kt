@@ -148,7 +148,7 @@ fun UserPanel(
                         .onPreviewKeyEvent {
                             println(it.nativeKeyEvent)
                             when (it.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_DOWN -> {
                                     if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
                                     return@onPreviewKeyEvent true
                                 }
@@ -165,7 +165,17 @@ fun UserPanel(
             }
             item {
                 UserPanelSmallItem(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .onPreviewKeyEvent {
+                            println(it.nativeKeyEvent)
+                            when (it.nativeKeyEvent.keyCode) {
+                                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                                    if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
+                                    return@onPreviewKeyEvent true
+                                }
+                            }
+                            false
+                        },
                     title = "现在不看",
                     icon = Icons.Rounded.Schedule,
                     onClick = {

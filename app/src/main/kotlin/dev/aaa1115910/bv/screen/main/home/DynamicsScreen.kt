@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.screen.home
+package dev.aaa1115910.bv.screen.main.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +42,6 @@ import org.koin.androidx.compose.koinViewModel
 fun DynamicsScreen(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
-    onBackNav: () -> Unit,
     dynamicViewModel: DynamicViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -65,27 +64,7 @@ fun DynamicsScreen(
 
     if (dynamicViewModel.isLogin) {
         LazyVerticalGrid(
-            modifier = modifier
-                .onPreviewKeyEvent {
-                    when (it.key) {
-                        Key.Back -> {
-                            if (it.type == KeyEventType.KeyUp) {
-                                scope.launch(Dispatchers.Main) {
-                                    lazyGridState.animateScrollToItem(0)
-                                }
-                                onBackNav()
-                            }
-                            return@onPreviewKeyEvent true
-                        }
-
-                        Key.DirectionRight -> {
-                            if (currentFocusedIndex % 4 == 3) {
-                                return@onPreviewKeyEvent true
-                            }
-                        }
-                    }
-                    return@onPreviewKeyEvent false
-                },
+            modifier = modifier,
             state = lazyGridState,
             columns = GridCells.Fixed(4),
             contentPadding = PaddingValues(24.dp),
