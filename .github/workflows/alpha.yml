@@ -9,7 +9,6 @@ jobs:
   build-alpha:
     name: Build Alpha Apk
     runs-on: macos-latest
-    if: github.repository == 'aaa1115910/bv'
 
     steps:
       - name: Checkout
