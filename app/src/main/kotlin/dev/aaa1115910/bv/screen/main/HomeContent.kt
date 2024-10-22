@@ -128,7 +128,6 @@ fun HomeContent(
             TopNav(
                 modifier = Modifier
                     .focusRequester(navFocusRequester)
-                    .focusRequester(navFocusRequester)
                     .padding(end = 80.dp),
                 items = HomeTopNavItem.entries,
                 isLargePadding = !focusOnContent && currentListOnTop,
