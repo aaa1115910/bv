@@ -1,4 +1,4 @@
-package dev.aaa1115910.biliapi.http.entity.anime
+package dev.aaa1115910.biliapi.http.entity.pgc
 
 import dev.aaa1115910.biliapi.http.entity.web.Hover
 import kotlinx.serialization.SerialName
@@ -7,10 +7,10 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 
 /**
- * 动画首页数据（新版）
+ * PGC 首页 ssr 数据
  */
 @Serializable
-data class AnimeHomepageDataV2(
+data class PgcWebInitialStateData(
     val modules: Modules,
 ) {
     /**
@@ -44,10 +44,10 @@ data class AnimeHomepageDataV2(
                 val cover: String,
                 val link: String,
                 val evaluate: String? = null,
-                val report: JsonElement,
+                val report: JsonElement? = null,
                 val hover: Hover? = null,
                 val stat: Stat? = null,
-                val values: JsonArray,
+                val values: JsonArray? = null,
                 @SerialName("season_id")
                 val seasonId: Int? = null,
                 @SerialName("season_type")
@@ -57,23 +57,23 @@ data class AnimeHomepageDataV2(
                 @SerialName("episode_id")
                 val episodeId: Int? = null,
                 @SerialName("big_cover")
-                val bigCover: String,
+                val bigCover: String? = null,
                 @SerialName("play_btn")
                 val playBtn: Int? = null,
                 @SerialName("play_title")
-                val playTitle: String,
+                val playTitle: String? = null,
                 @SerialName("rank_id")
                 val rankId: Int,
                 @SerialName("user_status")
                 val userStatus: UserStatus? = null,
                 @SerialName("date_ts")
-                val dateTs: Int,
+                val dateTs: Int? = null,
                 @SerialName("day_of_week")
-                val dayOfWeek: Int,
+                val dayOfWeek: Int? = null,
                 @SerialName("is_today")
-                val isToday: Int,
+                val isToday: Int? = null,
                 @SerialName("is_latest")
-                val isLatest: Int,
+                val isLatest: Int? = null,
                 val id: String,
                 @SerialName("showReportData")
                 val showReportData: ShowReportData,
@@ -86,7 +86,7 @@ data class AnimeHomepageDataV2(
 
                 @Serializable
                 data class Stat(
-                    val view: Int
+                    val view: Long
                 )
 
                 @Serializable

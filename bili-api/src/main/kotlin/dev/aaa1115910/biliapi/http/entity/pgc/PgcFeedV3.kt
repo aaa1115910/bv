@@ -1,4 +1,4 @@
-package dev.aaa1115910.biliapi.http.entity.anime
+package dev.aaa1115910.biliapi.http.entity.pgc
 
 import dev.aaa1115910.biliapi.http.entity.web.Hover
 import kotlinx.serialization.SerialName
@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 
 @Serializable
-data class AnimeFeedData(
+data class PgcFeedV3Data(
     @Suppress("SpellCheckingInspection")
     var coursor: Int,
     @SerialName("has_next")
@@ -26,6 +26,8 @@ data class AnimeFeedData(
             @SerialName("card_style")
             val cardStyle: String,
             val cover: String,
+            @SerialName("episode_id")
+            val episodeId: Int? = null,
             val evaluate: String? = null,
             val hover: Hover? = null,
             val inline: Inline? = null,
@@ -48,7 +50,6 @@ data class AnimeFeedData(
             val text: JsonArray? = null,
             val title: String,
             val userStatus: UserStatus? = null
-
         ) {
             @Serializable
             data class Inline(
@@ -76,7 +77,7 @@ data class AnimeFeedData(
             data class Stat(
                 val danmaku: Int,
                 val duration: Int,
-                val view: Int
+                val view: Long
             )
 
             @Serializable
