@@ -24,14 +24,22 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
-import dev.aaa1115910.bv.component.DevelopingTipContent
-import dev.aaa1115910.bv.component.HomeTopNavItem
 import dev.aaa1115910.bv.component.PgcTopNavItem
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.screen.main.pgc.AnimeContent
+import dev.aaa1115910.bv.screen.main.pgc.DocumentaryContent
+import dev.aaa1115910.bv.screen.main.pgc.GuoChuangContent
+import dev.aaa1115910.bv.screen.main.pgc.MovieContent
+import dev.aaa1115910.bv.screen.main.pgc.TvContent
+import dev.aaa1115910.bv.screen.main.pgc.VarietyContent
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
-import dev.aaa1115910.bv.viewmodel.home.AnimeViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcAnimeViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcDocumentaryViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcGuoChuangViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcMovieViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcTvViewModel
+import dev.aaa1115910.bv.viewmodel.pgc.PgcVarietyViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +49,12 @@ import org.koin.androidx.compose.koinViewModel
 fun PgcContent(
     modifier: Modifier = Modifier,
     navFocusRequester: FocusRequester,
-    animeViewModel: AnimeViewModel = koinViewModel()
+    pgcAnimeViewModel: PgcAnimeViewModel = koinViewModel(),
+    pgcGuoChuangViewModel: PgcGuoChuangViewModel = koinViewModel(),
+    pgcMovieViewModel: PgcMovieViewModel = koinViewModel(),
+    pgcDocumentaryViewModel: PgcDocumentaryViewModel = koinViewModel(),
+    pgcTvViewModel: PgcTvViewModel = koinViewModel(),
+    pgcVarietyViewModel: PgcVarietyViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("PgcContent")
@@ -107,16 +120,12 @@ fun PgcContent(
                 },
                 onClick = { nav ->
                     when (nav) {
-                        PgcTopNavItem.Anime -> {
-                            logger.fInfo { "reload anime data" }
-                            animeViewModel.reloadAll()
-                        }
-
-                        PgcTopNavItem.GuoChuang -> {}
-                        PgcTopNavItem.Movie -> {}
-                        PgcTopNavItem.Documentary -> {}
-                        PgcTopNavItem.Tv -> {}
-                        PgcTopNavItem.Variety -> {}
+                        PgcTopNavItem.Anime -> pgcAnimeViewModel.reloadAll()
+                        PgcTopNavItem.GuoChuang -> pgcGuoChuangViewModel.reloadAll()
+                        PgcTopNavItem.Movie -> pgcMovieViewModel.reloadAll()
+                        PgcTopNavItem.Documentary -> pgcDocumentaryViewModel.reloadAll()
+                        PgcTopNavItem.Tv -> pgcTvViewModel.reloadAll()
+                        PgcTopNavItem.Variety -> pgcVarietyViewModel.reloadAll()
                     }
                 }
             )
@@ -143,11 +152,11 @@ fun PgcContent(
             ) { screen ->
                 when (screen) {
                     PgcTopNavItem.Anime -> AnimeContent(lazyListState = animeState)
-                    PgcTopNavItem.GuoChuang -> DevelopingTipContent()
-                    PgcTopNavItem.Movie -> DevelopingTipContent()
-                    PgcTopNavItem.Documentary -> DevelopingTipContent()
-                    PgcTopNavItem.Tv -> DevelopingTipContent()
-                    PgcTopNavItem.Variety -> DevelopingTipContent()
+                    PgcTopNavItem.GuoChuang -> GuoChuangContent(lazyListState = guoChuangState)
+                    PgcTopNavItem.Movie -> MovieContent(lazyListState = movieState)
+                    PgcTopNavItem.Documentary -> DocumentaryContent(lazyListState = documentaryState)
+                    PgcTopNavItem.Tv -> TvContent(lazyListState = tvState)
+                    PgcTopNavItem.Variety -> VarietyContent(lazyListState = varietyState)
                 }
             }
         }

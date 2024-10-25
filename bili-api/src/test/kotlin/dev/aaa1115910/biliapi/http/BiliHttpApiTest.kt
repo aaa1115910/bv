@@ -2,9 +2,9 @@ package dev.aaa1115910.biliapi.http
 
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.repositories.PgcType
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
@@ -559,18 +559,37 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get anime homepage data`() {
+    fun `get web initial state data`() {
         runBlocking {
-            AnimeHomepageDataType.values().forEach {
-                println(BiliHttpApi.getAnimeHomepageData(dataType = it))
+            PgcType.entries.forEach { pgcType ->
+                println("type: ${pgcType.name}")
+                println(
+                    BiliHttpApi.getPgcWebInitialStateData(pgcType)
+                        .toString().replace("\n", "")
+                )
             }
         }
     }
 
     @Test
-    fun `get anime feed data`() {
+    fun `get pgc feed data`() {
         runBlocking {
-            println(BiliHttpApi.getAnimeFeed())
+            PgcType.entries.forEach { pgcType ->
+                println("type: ${pgcType.name}")
+                when (pgcType) {
+                    PgcType.Anime, PgcType.GuoChuang ->
+                        println(
+                            BiliHttpApi.getPgcFeedV3(name = pgcType.name.lowercase())
+                                .toString().replace("\n", "")
+                        )
+
+                    PgcType.Tv, PgcType.Movie, PgcType.Documentary, PgcType.Variety ->
+                        println(
+                            BiliHttpApi.getPgcFeed(name = pgcType.name.lowercase())
+                                .toString().replace("\n", "")
+                        )
+                }
+            }
         }
     }
 
