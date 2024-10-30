@@ -13,7 +13,6 @@ import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
-import dev.aaa1115910.biliapi.repositories.IndexRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
@@ -38,7 +37,7 @@ import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
-import dev.aaa1115910.bv.viewmodel.index.AnimeIndexViewModel
+import dev.aaa1115910.bv.viewmodel.index.PgcIndexViewModel
 import dev.aaa1115910.bv.viewmodel.login.AppQrLoginViewModel
 import dev.aaa1115910.bv.viewmodel.login.SmsLoginViewModel
 import dev.aaa1115910.bv.viewmodel.pgc.PgcAnimeViewModel
@@ -162,7 +161,6 @@ val appModule = module {
     single { VideoDetailRepository(get(), get(), get()) }
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
-    single { IndexRepository() }
     single { PgcRepository() }
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
@@ -182,7 +180,7 @@ val appModule = module {
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
     viewModel { VideoDetailViewModel(get()) }
     viewModel { UserSwitchViewModel(get()) }
-    viewModel { AnimeIndexViewModel(get()) }
+    viewModel { PgcIndexViewModel(get()) }
     viewModel { PgcAnimeViewModel(get()) }
     viewModel { PgcGuoChuangViewModel(get()) }
     viewModel { PgcDocumentaryViewModel(get()) }

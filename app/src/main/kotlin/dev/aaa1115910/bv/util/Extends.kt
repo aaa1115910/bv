@@ -112,3 +112,5 @@ fun KeyEvent.isDpadUp(): Boolean = key == Key.DirectionUp
 fun KeyEvent.isDpadDown(): Boolean = key == Key.DirectionDown
 fun KeyEvent.isDpadLeft(): Boolean = key == Key.DirectionLeft
 fun KeyEvent.isDpadRight(): Boolean = key == Key.DirectionRight
+
+fun Int.stringRes(context: Context): String = context.getString(this)

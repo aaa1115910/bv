@@ -1,5 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <array name="user_homepage_random_title">
+    <string-array name="pgc_index_filter_area_name">
+        <item>全部</item>
+        <item>中国大陆</item>
+        <item>日本</item>
+        <item>美国</item>
+        <item>英国</item>
+        <item>其他</item>
+        <item>中国港台</item>
+        <item>韩国</item>
+        <item>法国</item>
+        <item>泰国</item>
+        <item>西班牙</item>
+        <item>德国</item>
+        <item>意大利</item>
+    </string-array>
+    <string-array name="pgc_index_filter_copyright_name">
+        <item>全部</item>
+        <item>独家</item>
+        <item>其他</item>
+    </string-array>
+    <string-array name="pgc_index_filter_is_finish_name">
+        <item>全部</item>
+        <item>完结</item>
+        <item>连载</item>
+    </string-array>
+    <string-array name="pgc_index_filter_order_name">
+        <item>更新时间</item>
+        <item>弹幕数量</item>
+        <item>播放数量</item>
+        <item>追番人数</item>
+        <item>最高评分</item>
+        <item>开播时间</item>
+        <item>上映时间</item>
+    </string-array>
+    <string-array name="pgc_index_filter_order_type_name">
+        <item>降序</item>
+        <item>升序</item>
+    </string-array>
+    <string-array name="pgc_index_filter_producer_name">
+        <item>全部</item>
+        <item>BBC</item>
+        <item>NHK</item>
+        <item>SKY</item>
+        <item>央视</item>
+        <item>ITV</item>
+        <item>历史频道</item>
+        <item>探索频道</item>
+        <item>卫视</item>
+        <item>自制</item>
+        <item>ZDF</item>
+        <item>合作机构</item>
+        <item>国内其他</item>
+        <item>国外其他</item>
+        <item>国家地理</item>
+        <item>索尼</item>
+        <item>环球</item>
+        <item>派拉蒙</item>
+        <item>华纳</item>
+        <item>迪士尼</item>
+        <item>HBO</item>
+    </string-array>
+    <string-array name="pgc_index_filter_release_date_name">
+        <item>全部</item>
+        <item>2024</item>
+        <item>2023</item>
+        <item>2022</item>
+        <item>2021</item>
+        <item>2020</item>
+        <item>2019</item>
+        <item>2018</item>
+        <item>2017</item>
+        <item>2016</item>
+        <item>2015-2010</item>
+        <item>2009-2005</item>
+        <item>2004-2000</item>
+        <item>90年代</item>
+        <item>80年代</item>
+        <item>更早</item>
+    </string-array>
+    <string-array name="pgc_index_filter_season_month_name">
+        <item>全部</item>
+        <item>1月</item>
+        <item>4月</item>
+        <item>7月</item>
+        <item>10月</item>
+    </string-array>
+    <string-array name="pgc_index_filter_season_status_name">
+        <item>全部</item>
+        <item>免费</item>
+        <item>付费</item>
+        <item>大会员</item>
+    </string-array>
+    <string-array name="pgc_index_filter_season_version_name">
+        <item>全部</item>
+        <item>正片</item>
+        <item>电影</item>
+        <item>其他</item>
+    </string-array>
+    <string-array name="pgc_index_filter_spoken_language_name">
+        <item>全部</item>
+        <item>原声</item>
+        <item>中文配音</item>
+    </string-array>
+    <string-array name="pgc_index_filter_style_name">
+        <item>全部</item>
+        <item>电影</item>
+        <item>原创</item>
+        <item>漫画改</item>
+        <item>小说改</item>
+        <item>游戏改</item>
+        <item>动态漫</item>
+        <item>布袋戏</item>
+        <item>热血</item>
+        <item>穿越</item>
+        <item>奇幻</item>
+        <item>玄幻</item>
+        <item>战斗</item>
+        <item>搞笑</item>
+        <item>日常</item>
+        <item>科幻</item>
+        <item>萌系</item>
+        <item>治愈</item>
+        <item>校园</item>
+        <item>少儿</item>
+        <item>泡面</item>
+        <item>恋爱</item>
+        <item>少女</item>
+        <item>魔法</item>
+        <item>冒险</item>
+        <item>历史</item>
+        <item>架空</item>
+        <item>机战</item>
+        <item>神魔</item>
+        <item>声控</item>
+        <item>运动</item>
+        <item>励志</item>
+        <item>音乐</item>
+        <item>推理</item>
+        <item>社团</item>
+        <item>智斗</item>
+        <item>催泪</item>
+        <item>美食</item>
+        <item>偶像</item>
+        <item>乙女</item>
+        <item>职场</item>
+        <item>古风</item>
+        <item>剧情</item>
+        <item>喜剧</item>
+        <item>爱情</item>
+        <item>动作</item>
+        <item>恐怖</item>
+        <item>犯罪</item>
+        <item>惊悚</item>
+        <item>悬疑</item>
+        <item>战争</item>
+        <!--<item>10059</item>-->
+        <item>传记</item>
+        <item>家庭</item>
+        <item>歌剧</item>
+        <item>纪实</item>
+        <item>灾难</item>
+        <item>人文</item>
+        <item>科技</item>
+        <item>探险</item>
+        <item>通用</item>
+        <item>萌宠</item>
+        <item>社会</item>
+        <item>动物</item>
+        <item>自然</item>
+        <item>医疗</item>
+        <item>军事</item>
+        <item>罪案</item>
+        <item>神秘</item>
+        <item>旅行</item>
+        <item>武侠</item>
+        <item>青春</item>
+        <item>都市</item>
+        <item>古装</item>
+        <item>谍战</item>
+        <item>经典</item>
+        <item>情感</item>
+        <item>神话</item>
+        <item>年代</item>
+        <item>农村</item>
+        <item>刑侦</item>
+        <item>军旅</item>
+        <item>访谈</item>
+        <item>脱口秀</item>
+        <item>真人秀</item>
+        <!-- <item>10093</item>-->
+        <item>选秀</item>
+        <item>旅游</item>
+        <item>演唱会</item>
+        <item>亲子</item>
+        <item>晚会</item>
+        <item>养成</item>
+        <item>文化</item>
+        <!--<item>10101</item>-->
+        <item>特摄</item>
+        <item>短剧</item>
+        <item>短片</item>
+    </string-array>
+    <string-array name="pgc_index_filter_year_name">
+        <item>全部</item>
+        <item>2024</item>
+        <item>2023</item>
+        <item>2022</item>
+        <item>2021</item>
+        <item>2020</item>
+        <item>2019</item>
+        <item>2018</item>
+        <item>2017</item>
+        <item>2016</item>
+        <item>2015</item>
+        <item>2014-2010</item>
+        <item>2009-2005</item>
+        <item>2004-2000</item>
+        <item>90年代</item>
+        <item>80年代</item>
+        <item>更早</item>
+    </string-array>
+
+    <string-array name="user_homepage_random_title">
         <item>吾</item>
         <item>熟悉的屏幕</item>
         <item>你来辣</item>
@@ -9,5 +232,5 @@
         <item>BUG 满天飞 ~</item>
         <item>你说得对，但是</item>
         <item>让我康康</item>
-    </array>
+    </string-array>
 </resources>

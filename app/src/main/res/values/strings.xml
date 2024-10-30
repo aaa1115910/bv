@@ -69,14 +69,6 @@
 
     <string name="home_press_back_again_to_exit">再次按下返回键退出 Bug Video</string>
 
-    <string name="index_order_danmaku_count">弹幕数量</string>
-    <string name="index_order_follow_count">追番人数</string>
-    <string name="index_order_play_count">播放数量</string>
-    <string name="index_order_publish_time">上映时间</string>
-    <string name="index_order_score">最高评分</string>
-    <string name="index_order_start_time">开播时间</string>
-    <string name="index_order_update_time">更新时间</string>
-
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_count_no_more">已加载全部共 %1$d 条数据</string>
     <string name="load_data_no_more">就只有这么多了</string>
@@ -102,6 +94,28 @@
     <string name="logout_dialog_title">登出确认</string>
 
     <string name="no_data">无可用数据</string>
+
+    <string name="pgc_home_button_unknown">占位</string>
+    <string name="pgc_index_filter_area">地区</string>
+    <string name="pgc_index_filter_copyright">版权</string>
+    <string name="pgc_index_filter_is_finish">状态</string>
+    <string name="pgc_index_filter_order">排序方式</string>
+    <string name="pgc_index_filter_order_type">排序顺序</string>
+    <string name="pgc_index_filter_producer">出品</string>
+    <string name="pgc_index_filter_release_date">年份</string>
+    <string name="pgc_index_filter_season_month">季度</string>
+    <string name="pgc_index_filter_season_status">付费</string>
+    <string name="pgc_index_filter_season_version">类型</string>
+    <string name="pgc_index_filter_spoken_language">配音</string>
+    <string name="pgc_index_filter_style">风格</string>
+    <string name="pgc_index_filter_title_prefix">"索引筛选 - "</string>
+    <string name="pgc_index_filter_year">年份</string>
+    <string name="pgc_type_anime">番剧</string>
+    <string name="pgc_type_documentary">纪录片</string>
+    <string name="pgc_type_guochuang">国创</string>
+    <string name="pgc_type_movie">电影</string>
+    <string name="pgc_type_tv">电视剧</string>
+    <string name="pgc_type_variety">综艺</string>
 
     <string name="play_time_finish">已看完</string>
     <string name="play_time_history">%1$s / %2$s</string>
@@ -248,7 +262,6 @@
     <string name="sms_login_phone_number">手机号</string>
     <string name="sms_login_toast_send_sms_first">请先发送验证码</string>
 
-    <string name="title_activity_anime_index">番剧索引</string>
     <string name="title_activity_anime_timeline">番剧放送时间表</string>
     <string name="title_activity_favorite">个人收藏</string>
     <string name="title_activity_follow">已关注</string>
@@ -257,6 +270,7 @@
     <string name="title_activity_login">登录</string>
     <string name="title_activity_logs">日志列表</string>
     <string name="title_activity_media_codec">解码器信息</string>
+    <string name="title_activity_pgc_index">PGC 索引</string>
     <string name="title_activity_remote_controller_panel_demo">遥控板按键演示</string>
     <string name="title_activity_search_input">搜索输入</string>
     <string name="title_activity_search_result">搜索结果</string>
