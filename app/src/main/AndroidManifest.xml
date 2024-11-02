@@ -66,9 +66,9 @@
             android:label="@string/title_activity_tag"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".activities.anime.AnimeIndexActivity"
+            android:name=".activities.pgc.PgcIndexActivity"
             android:exported="false"
-            android:label="@string/title_activity_anime_index"
+            android:label="@string/title_activity_pgc_index"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.FollowingSeasonActivity"
@@ -76,7 +76,7 @@
             android:label="@string/title_activity_following_season"
             android:theme="@style/Theme.BV" />
         <activity
-            android:name=".activities.anime.AnimeTimelineActivity"
+            android:name=".activities.pgc.anime.AnimeTimelineActivity"
             android:exported="false"
             android:label="@string/title_activity_anime_timeline"
             android:theme="@style/Theme.BV" />

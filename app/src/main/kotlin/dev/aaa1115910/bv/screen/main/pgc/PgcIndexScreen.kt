@@ -1,5 +1,6 @@
-package dev.aaa1115910.bv.screen.main.pgc.anime
+package dev.aaa1115910.bv.screen.main.pgc
 
+import android.app.Activity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,25 +33,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
-import dev.aaa1115910.biliapi.http.entity.search.SearchMediaResult
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
-import dev.aaa1115910.bv.component.index.AnimeIndexFilter
+import dev.aaa1115910.bv.component.pgc.IndexFilter
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
-import dev.aaa1115910.bv.util.ImageSize
-import dev.aaa1115910.bv.util.resizedImageUrl
-import dev.aaa1115910.bv.viewmodel.index.AnimeIndexViewModel
+import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.getDisplayName
+import dev.aaa1115910.bv.viewmodel.index.PgcIndexViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AnimeIndexScreen(
+fun PgcIndexScreen(
     modifier: Modifier = Modifier,
-    animeIndexViewModel: AnimeIndexViewModel = koinViewModel()
+    pgcIndexViewModel: PgcIndexViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -67,8 +68,8 @@ fun AnimeIndexScreen(
         label = "title font size"
     )
 
-    val indexResultItems = animeIndexViewModel.indexResultItems
-    val noMore = animeIndexViewModel.noMore
+    val pgcItems = pgcIndexViewModel.indexResultItems
+    val noMore = pgcIndexViewModel.noMore
     var showFilter by remember { mutableStateOf(false) }
 
     val onLongClickSeason = {
@@ -77,27 +78,37 @@ fun AnimeIndexScreen(
 
     val reloadData = {
         scope.launch(Dispatchers.IO) {
-            animeIndexViewModel.clearData()
-            animeIndexViewModel.loadMore()
+            pgcIndexViewModel.clearData()
+            pgcIndexViewModel.loadMore()
         }
     }
 
     LaunchedEffect(Unit) {
+        val intent = (context as Activity).intent
+        val pgcType = runCatching {
+            PgcType.entries[intent.getIntExtra("pgcType", 0)]
+        }.onFailure {
+            logger.warn { "get pgcType from intent failed: ${it.stackTraceToString()}" }
+        }.getOrDefault(PgcType.Anime)
+        logger.fInfo { "index pgcType: $pgcType" }
+        pgcIndexViewModel.changePgcType(pgcType)
         reloadData()
     }
 
     LaunchedEffect(
-        animeIndexViewModel.order,
-        animeIndexViewModel.seasonVersion,
-        animeIndexViewModel.spokenLanguageType,
-        animeIndexViewModel.area,
-        animeIndexViewModel.isFinish,
-        animeIndexViewModel.copyright,
-        animeIndexViewModel.seasonStatus,
-        animeIndexViewModel.seasonMonth,
-        animeIndexViewModel.year,
-        animeIndexViewModel.styleId,
-        animeIndexViewModel.desc
+        pgcIndexViewModel.indexOrder,
+        pgcIndexViewModel.indexOrderType,
+        pgcIndexViewModel.seasonVersion,
+        pgcIndexViewModel.spokenLanguage,
+        pgcIndexViewModel.area,
+        pgcIndexViewModel.isFinish,
+        pgcIndexViewModel.copyright,
+        pgcIndexViewModel.seasonStatus,
+        pgcIndexViewModel.seasonMonth,
+        pgcIndexViewModel.producer,
+        pgcIndexViewModel.year,
+        pgcIndexViewModel.releaseDate,
+        pgcIndexViewModel.style,
     ) {
         reloadData()
     }
@@ -114,7 +125,8 @@ fun AnimeIndexScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(id = R.string.title_activity_anime_index),
+                        text = stringResource(id = R.string.title_activity_pgc_index) +
+                                " - " + pgcIndexViewModel.pgcType.getDisplayName(context),
                         fontSize = titleFontSize.sp,
                     )
                     Text(
@@ -122,7 +134,6 @@ fun AnimeIndexScreen(
                         color = Color.White.copy(alpha = 0.6f)
                     )
                 }
-
             }
         }
     ) { innerPadding ->
@@ -133,43 +144,27 @@ fun AnimeIndexScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            itemsIndexed(items = indexResultItems) { index, indexResultItem ->
+            itemsIndexed(items = pgcItems) { index, pgcItem ->
                 SeasonCard(
-                    data = SeasonCardData(
-                        seasonId = indexResultItem.seasonId,
-                        title = indexResultItem.title,
-                        cover = indexResultItem.cover.resizedImageUrl(ImageSize.SeasonCoverThumbnail),
-                        rating = indexResultItem.score.takeIf { it.isNotEmpty() },
-                        // TODO 新增一个通用的 Badge
-                        badge = SearchMediaResult.Badge(
-                            text = indexResultItem.badge?.text ?: "",
-                            textColor = "",
-                            textColorNight = "",
-                            bgColor = indexResultItem.badge?.bgColor ?: "",
-                            bgColorNight = indexResultItem.badge?.bgColorNight ?: "",
-                            borderColor = "",
-                            borderColorNight = "",
-                            bgStyle = 0
-                        ).takeIf { indexResultItem.badge != null },
-                    ),
+                    data = SeasonCardData.fromPgcItem(pgcItem),
                     onFocus = {
                         currentSeasonIndex = index
-                        if (index + 30 > indexResultItems.size) {
+                        if (index + 30 > pgcItems.size) {
                             println("load more by focus")
-                            scope.launch(Dispatchers.IO) { animeIndexViewModel.loadMore() }
+                            scope.launch(Dispatchers.IO) { pgcIndexViewModel.loadMore() }
                         }
                     },
                     onClick = {
                         SeasonInfoActivity.actionStart(
                             context = context,
-                            seasonId = indexResultItem.seasonId,
-                            proxyArea = ProxyArea.checkProxyArea(indexResultItem.title)
+                            seasonId = pgcItem.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(pgcItem.title)
                         )
                     },
                     onLongClick = onLongClickSeason
                 )
             }
-            if (indexResultItems.isEmpty() && noMore) {
+            if (pgcItems.isEmpty() && noMore) {
                 item(
                     span = { GridItemSpan(6) }
                 ) {
@@ -192,30 +187,35 @@ fun AnimeIndexScreen(
         }
     }
 
-    AnimeIndexFilter(
+    IndexFilter(
+        type = pgcIndexViewModel.pgcType,
         show = showFilter,
         onDismissRequest = { showFilter = false },
-        order = animeIndexViewModel.order,
-        seasonVersion = animeIndexViewModel.seasonVersion,
-        spokenLanguageType = animeIndexViewModel.spokenLanguageType,
-        area = animeIndexViewModel.area,
-        isFinish = animeIndexViewModel.isFinish,
-        copyright = animeIndexViewModel.copyright,
-        seasonStatus = animeIndexViewModel.seasonStatus,
-        seasonMonth = animeIndexViewModel.seasonMonth,
-        year = animeIndexViewModel.year,
-        styleId = animeIndexViewModel.styleId,
-        desc = animeIndexViewModel.desc,
-        onOrderChange = { animeIndexViewModel.order = it },
-        onSeasonVersionChange = { animeIndexViewModel.seasonVersion = it },
-        onSpokenLanguageTypeChange = { animeIndexViewModel.spokenLanguageType = it },
-        onAreaChange = { animeIndexViewModel.area = it },
-        onIsFinishChange = { animeIndexViewModel.isFinish = it },
-        onCopyrightChange = { animeIndexViewModel.copyright = it },
-        onSeasonStatusChange = { animeIndexViewModel.seasonStatus = it },
-        onSeasonMonthChange = { animeIndexViewModel.seasonMonth = it },
-        onYearChange = { animeIndexViewModel.year = it },
-        onStyleIdChange = { animeIndexViewModel.styleId = it },
-        onDescChange = { animeIndexViewModel.desc = it }
+        order = pgcIndexViewModel.indexOrder,
+        orderType = pgcIndexViewModel.indexOrderType,
+        seasonVersion = pgcIndexViewModel.seasonVersion,
+        spokenLanguage = pgcIndexViewModel.spokenLanguage,
+        area = pgcIndexViewModel.area,
+        isFinish = pgcIndexViewModel.isFinish,
+        copyright = pgcIndexViewModel.copyright,
+        seasonStatus = pgcIndexViewModel.seasonStatus,
+        seasonMonth = pgcIndexViewModel.seasonMonth,
+        producer = pgcIndexViewModel.producer,
+        year = pgcIndexViewModel.year,
+        releaseDate = pgcIndexViewModel.releaseDate,
+        style = pgcIndexViewModel.style,
+        onOrderChange = { pgcIndexViewModel.indexOrder = it },
+        onOrderTypeChange = { pgcIndexViewModel.indexOrderType = it },
+        onSeasonVersionChange = { pgcIndexViewModel.seasonVersion = it },
+        onSpokenLanguageChange = { pgcIndexViewModel.spokenLanguage = it },
+        onAreaChange = { pgcIndexViewModel.area = it },
+        onIsFinishChange = { pgcIndexViewModel.isFinish = it },
+        onCopyrightChange = { pgcIndexViewModel.copyright = it },
+        onSeasonStatusChange = { pgcIndexViewModel.seasonStatus = it },
+        onSeasonMonthChange = { pgcIndexViewModel.seasonMonth = it },
+        onProducerChange = { pgcIndexViewModel.producer = it },
+        onYearChange = { pgcIndexViewModel.year = it },
+        onReleaseDateChange = { pgcIndexViewModel.releaseDate = it },
+        onStyleChange = { pgcIndexViewModel.style = it }
     )
 }

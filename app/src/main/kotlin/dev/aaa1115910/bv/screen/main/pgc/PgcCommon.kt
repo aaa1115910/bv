@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
@@ -34,6 +36,8 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -41,12 +45,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.pgc.PgcFeedData
+import dev.aaa1115910.biliapi.entity.pgc.PgcItem
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.http.SeasonIndexType
-import dev.aaa1115910.biliapi.repositories.PgcType
+import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.component.pgc.PgcCarousel
 import dev.aaa1115910.bv.component.videocard.SeasonCard
@@ -55,6 +64,7 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.resizedImageUrl
+import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.pgc.FeedListType
 import dev.aaa1115910.bv.viewmodel.pgc.PgcViewModel
 
@@ -95,10 +105,10 @@ fun PgcScaffold(
             item {
                 featureButtons()
             }
-        }else{
+        } else {
             item {
                 Spacer(
-                    modifier=Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(24.dp)
                 )
@@ -135,7 +145,7 @@ fun PgcScaffold(
 @Composable
 fun PgcFeedVideoRow(
     modifier: Modifier = Modifier,
-    data: List<PgcFeedData.FeedItem>
+    data: List<PgcItem>
 ) {
     val context = LocalContext.current
     LazyRow(
@@ -305,7 +315,7 @@ fun PgcFeedRankRowPreview() {
         title = "热门热血番剧榜",
         subTitle = "每小时更新",
         items = List(8) {
-            PgcFeedData.FeedItem(
+            PgcItem(
                 cover = "https://i0.hdslb.com/bfs/bangumi/image/f610305ad3922bee9d51748ab38da0c54e785b44.png",
                 title = "解雇后走上人生巅峰",
                 subTitle = "被解雇的暗黑士兵慢生活的第二人生",
@@ -319,4 +329,119 @@ fun PgcFeedRankRowPreview() {
     BVTheme {
         PgcFeedRankRow(data = data)
     }
+}
+
+@Composable
+fun PgcFeatureButtons(
+    modifier: Modifier = Modifier,
+    buttons: List<Triple<String, Any, () -> Unit>>
+) {
+    val buttonWidth = 185.dp
+
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+        contentPadding = PaddingValues(horizontal = 32.dp)
+    ) {
+        items(items = buttons) { (title, icon, onClick) ->
+            when (icon) {
+                is ImageVector -> PgcFeatureButton(
+                    modifier = Modifier.width(buttonWidth),
+                    title = title,
+                    icon = icon,
+                    onClick = { onClick.invoke() }
+                )
+
+                is Painter -> PgcFeatureButton(
+                    modifier = Modifier.width(buttonWidth),
+                    title = title,
+                    icon = icon,
+                    onClick = { onClick.invoke() }
+                )
+
+                else -> {}
+            }
+        }
+    }
+}
+
+
+@Composable
+fun PgcFeatureButton(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(imageVector = icon, contentDescription = null)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PgcFeatureButton(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+            pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = icon,
+                    contentDescription = null
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+    }
+}
+
+val showPlaceholderToast: () -> Unit = {
+    "都说了介个是占位按钮了".toast(BVApp.context)
 }

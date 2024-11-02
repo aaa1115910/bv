@@ -1,7 +1,7 @@
 package dev.aaa1115910.bv.viewmodel.pgc
 
 import dev.aaa1115910.biliapi.repositories.PgcRepository
-import dev.aaa1115910.biliapi.repositories.PgcType
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 
 class PgcAnimeViewModel(
     override val pgcRepository: PgcRepository

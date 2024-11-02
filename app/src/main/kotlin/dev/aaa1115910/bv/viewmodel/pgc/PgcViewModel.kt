@@ -9,8 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.pgc.PgcCarouselData
 import dev.aaa1115910.biliapi.entity.pgc.PgcFeedData
+import dev.aaa1115910.biliapi.entity.pgc.PgcItem
 import dev.aaa1115910.biliapi.repositories.PgcRepository
-import dev.aaa1115910.biliapi.repositories.PgcType
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
@@ -38,7 +39,7 @@ abstract class PgcViewModel(
     /**
      * 推荐数据中会穿插排行榜，为了避免出现某一行仅出现单独几个剧集，因此将不满一行的剧集单独存起来
      */
-    private val restSubItems = mutableListOf<PgcFeedData.FeedItem>()
+    private val restSubItems = mutableListOf<PgcItem>()
 
     var updating by mutableStateOf(false)
     var hasNext by mutableStateOf(true)
@@ -130,7 +131,7 @@ abstract class PgcViewModel(
      */
     private fun updateFeedItems(data: PgcFeedData) {
         logger.fInfo { "update $pgcType feed items: [items: ${data.items.size}, ranks: ${data.ranks.size}]" }
-        val epList = mutableStateListOf<PgcFeedData.FeedItem>()
+        val epList = mutableStateListOf<PgcItem>()
         epList.addAll(restSubItems)
         epList.addAll(data.items)
 
@@ -161,7 +162,7 @@ abstract class PgcViewModel(
 
 data class FeedListItem(
     val type: FeedListType,
-    val items: List<PgcFeedData.FeedItem>? = emptyList(),
+    val items: List<PgcItem>? = emptyList(),
     val rank: PgcFeedData.FeedRank? = null
 )
 
