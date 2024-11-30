@@ -10,13 +10,16 @@ import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.pgc.PgcCarouselData
 import dev.aaa1115910.biliapi.entity.pgc.PgcFeedData
 import dev.aaa1115910.biliapi.entity.pgc.PgcItem
-import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
+import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -93,6 +96,19 @@ abstract class PgcViewModel(
     private suspend fun updateCarousel() {
         logger.fInfo { "Updating $pgcType carousel" }
         runCatching {
+            // 由于未知原因，注入的 PgcRepository 可能获取到的对象为 null
+            var maxRetry = 10
+            while (pgcRepository == null && maxRetry > 0) {
+                delay(10)
+                maxRetry--
+            }
+            if (BuildConfig.DEBUG && maxRetry != 10) {
+                logger.fWarn { "Retry ${10 - maxRetry} times to get pgcRepository" }
+                withContext(Dispatchers.Main) {
+                    "Retry ${10 - maxRetry} times to get pgcRepository($pgcType)".toast(BVApp.context)
+                }
+            }
+
             val carouselData = pgcRepository.getCarousel(pgcType)
             logger.fInfo { "Find $pgcType carousels, size: ${carouselData.items.size}" }
             carouselItems.addAll(carouselData.items)
