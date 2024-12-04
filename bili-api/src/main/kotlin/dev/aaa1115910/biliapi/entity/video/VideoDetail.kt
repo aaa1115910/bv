@@ -103,7 +103,8 @@ data class VideoDetail(
                 author = Author.fromVideoOwner(videoDetail.view.owner),
                 pages = videoDetail.view.pages.map { VideoPage.fromVideoPage(it) },
                 ugcSeason = videoDetail.view.ugcSeason?.let { UgcSeason.fromUgcSeason(it) },
-                relatedVideos = videoDetail.related.map { RelatedVideo.fromRelate(it) },
+                relatedVideos = videoDetail.related?.map { RelatedVideo.fromRelate(it) }
+                    ?: emptyList(),
                 redirectToEp = videoDetail.view.redirectUrl?.contains("ep") ?: false,
                 epid = videoDetail.view.redirectUrl?.split("ep", "?")?.get(1)?.toInt(),
                 argueTip = videoDetail.view.stat.argueMsg.takeIf { it.isNotEmpty() },

@@ -18,7 +18,7 @@ data class VideoDetail(
     //@SerialName("Reply")
     //val reply:Any
     @SerialName("Related")
-    val related: List<RelatedVideoInfo>,
+    val related: List<RelatedVideoInfo>?,
     @SerialName("Spec")
     val spec: JsonObject? = null,
     @SerialName("hot_share")
