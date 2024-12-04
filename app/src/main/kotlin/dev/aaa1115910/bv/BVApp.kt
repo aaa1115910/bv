@@ -18,6 +18,7 @@ import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.biliapi.repositories.SearchRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
+import dev.aaa1115910.biliapi.repositories.UgcRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
@@ -162,6 +163,7 @@ val appModule = module {
     single { SeasonRepository(get()) }
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
     single { PgcRepository() }
+    single { UgcRepository(get()) }
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }

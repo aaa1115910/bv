@@ -9,7 +9,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,9 +21,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import dev.aaa1115910.bv.component.DevelopingTipContent
+import dev.aaa1115910.biliapi.entity.ugc.UgcType
 import dev.aaa1115910.bv.component.TopNav
 import dev.aaa1115910.bv.component.UgcTopNavItem
+import dev.aaa1115910.bv.screen.main.ugc.AnimalContent
+import dev.aaa1115910.bv.screen.main.ugc.CarContent
+import dev.aaa1115910.bv.screen.main.ugc.CinephileContent
+import dev.aaa1115910.bv.screen.main.ugc.DanceContent
+import dev.aaa1115910.bv.screen.main.ugc.DougaContent
+import dev.aaa1115910.bv.screen.main.ugc.EntContent
+import dev.aaa1115910.bv.screen.main.ugc.FashionContent
+import dev.aaa1115910.bv.screen.main.ugc.FoodContent
+import dev.aaa1115910.bv.screen.main.ugc.GameContent
+import dev.aaa1115910.bv.screen.main.ugc.InformationContent
+import dev.aaa1115910.bv.screen.main.ugc.KichikuContent
+import dev.aaa1115910.bv.screen.main.ugc.KnowledgeContent
+import dev.aaa1115910.bv.screen.main.ugc.LifeContent
+import dev.aaa1115910.bv.screen.main.ugc.MusicContent
+import dev.aaa1115910.bv.screen.main.ugc.SportsContent
+import dev.aaa1115910.bv.screen.main.ugc.TechContent
+import dev.aaa1115910.bv.screen.main.ugc.UgcScaffoldState
+import dev.aaa1115910.bv.screen.main.ugc.rememberUgcScaffoldState
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -35,26 +52,25 @@ import kotlinx.coroutines.launch
 fun UgcContent(
     modifier: Modifier = Modifier,
     navFocusRequester: FocusRequester,
+    dougaState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Douga),
+    gameState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Game),
+    kichikuState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Kichiku),
+    musicState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Music),
+    danceState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Dance),
+    cinephileState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Cinephile),
+    entState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Ent),
+    knowledgeState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Knowledge),
+    techState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Tech),
+    informationState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Information),
+    foodState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Food),
+    lifeState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Life),
+    carState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Car),
+    fashionState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Fashion),
+    sportsState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Sports),
+    animalState: UgcScaffoldState = rememberUgcScaffoldState(ugcType = UgcType.Animal)
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("UgcContent")
-
-    val dougaState = rememberLazyListState()
-    val gameState = rememberLazyListState()
-    val kichikuState = rememberLazyListState()
-    val musicState = rememberLazyListState()
-    val danceState = rememberLazyListState()
-    val cinephileState = rememberLazyListState()
-    val entState = rememberLazyListState()
-    val knowledgeState = rememberLazyListState()
-    val techState = rememberLazyListState()
-    val informationState = rememberLazyListState()
-    val foodState = rememberLazyListState()
-    val lifeState = rememberLazyListState()
-    val carState = rememberLazyListState()
-    val fashionState = rememberLazyListState()
-    val sportsState = rememberLazyListState()
-    val animalState = rememberLazyListState()
 
     var selectedTab by remember { mutableStateOf(UgcTopNavItem.Douga) }
     var focusOnContent by remember { mutableStateOf(false) }
@@ -70,28 +86,28 @@ fun UgcContent(
         // scroll to top
         scope.launch(Dispatchers.Main) {
             when (selectedTab) {
-                UgcTopNavItem.Douga -> dougaState.animateScrollToItem(0)
-                UgcTopNavItem.Game -> gameState.animateScrollToItem(0)
-                UgcTopNavItem.Kichiku -> kichikuState.animateScrollToItem(0)
-                UgcTopNavItem.Music -> musicState.animateScrollToItem(0)
-                UgcTopNavItem.Dance -> danceState.animateScrollToItem(0)
-                UgcTopNavItem.Cinephile -> cinephileState.animateScrollToItem(0)
-                UgcTopNavItem.Ent -> entState.animateScrollToItem(0)
-                UgcTopNavItem.Knowledge -> knowledgeState.animateScrollToItem(0)
-                UgcTopNavItem.Tech -> techState.animateScrollToItem(0)
-                UgcTopNavItem.Information -> informationState.animateScrollToItem(0)
-                UgcTopNavItem.Food -> foodState.animateScrollToItem(0)
-                UgcTopNavItem.Life -> lifeState.animateScrollToItem(0)
-                UgcTopNavItem.Car -> carState.animateScrollToItem(0)
-                UgcTopNavItem.Fashion -> fashionState.animateScrollToItem(0)
-                UgcTopNavItem.Sports -> sportsState.animateScrollToItem(0)
-                UgcTopNavItem.Animal -> animalState.animateScrollToItem(0)
+                UgcTopNavItem.Douga -> dougaState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Game -> gameState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Kichiku -> kichikuState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Music -> musicState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Dance -> danceState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Cinephile -> cinephileState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Ent -> entState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Knowledge -> knowledgeState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Tech -> techState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Information -> informationState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Food -> foodState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Life -> lifeState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Car -> carState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Fashion -> fashionState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Sports -> sportsState.lazyListState.animateScrollToItem(0)
+                UgcTopNavItem.Animal -> animalState.lazyListState.animateScrollToItem(0)
             }
         }
     }
 
     Scaffold(
-        modifier = Modifier,
+        modifier = modifier,
         topBar = {
             TopNav(
                 modifier = Modifier
@@ -103,22 +119,22 @@ fun UgcContent(
                 },
                 onClick = { nav ->
                     when (nav) {
-                        UgcTopNavItem.Douga -> {}
-                        UgcTopNavItem.Game -> {}
-                        UgcTopNavItem.Kichiku -> {}
-                        UgcTopNavItem.Music -> {}
-                        UgcTopNavItem.Dance -> {}
-                        UgcTopNavItem.Cinephile -> {}
-                        UgcTopNavItem.Ent -> {}
-                        UgcTopNavItem.Knowledge -> {}
-                        UgcTopNavItem.Tech -> {}
-                        UgcTopNavItem.Information -> {}
-                        UgcTopNavItem.Food -> {}
-                        UgcTopNavItem.Life -> {}
-                        UgcTopNavItem.Car -> {}
-                        UgcTopNavItem.Fashion -> {}
-                        UgcTopNavItem.Sports -> {}
-                        UgcTopNavItem.Animal -> {}
+                        UgcTopNavItem.Douga -> dougaState.reloadAll()
+                        UgcTopNavItem.Game -> gameState.reloadAll()
+                        UgcTopNavItem.Kichiku -> kichikuState.reloadAll()
+                        UgcTopNavItem.Music -> musicState.reloadAll()
+                        UgcTopNavItem.Dance -> danceState.reloadAll()
+                        UgcTopNavItem.Cinephile -> cinephileState.reloadAll()
+                        UgcTopNavItem.Ent -> entState.reloadAll()
+                        UgcTopNavItem.Knowledge -> knowledgeState.reloadAll()
+                        UgcTopNavItem.Tech -> techState.reloadAll()
+                        UgcTopNavItem.Information -> informationState.reloadAll()
+                        UgcTopNavItem.Food -> foodState.reloadAll()
+                        UgcTopNavItem.Life -> lifeState.reloadAll()
+                        UgcTopNavItem.Car -> carState.reloadAll()
+                        UgcTopNavItem.Fashion -> fashionState.reloadAll()
+                        UgcTopNavItem.Sports -> sportsState.reloadAll()
+                        UgcTopNavItem.Animal -> animalState.reloadAll()
                     }
                 }
             )
@@ -144,22 +160,22 @@ fun UgcContent(
                 }
             ) { screen ->
                 when (screen) {
-                    UgcTopNavItem.Douga -> DevelopingTipContent()
-                    UgcTopNavItem.Game -> DevelopingTipContent()
-                    UgcTopNavItem.Kichiku -> DevelopingTipContent()
-                    UgcTopNavItem.Music -> DevelopingTipContent()
-                    UgcTopNavItem.Dance -> DevelopingTipContent()
-                    UgcTopNavItem.Cinephile -> DevelopingTipContent()
-                    UgcTopNavItem.Ent -> DevelopingTipContent()
-                    UgcTopNavItem.Knowledge -> DevelopingTipContent()
-                    UgcTopNavItem.Tech -> DevelopingTipContent()
-                    UgcTopNavItem.Information -> DevelopingTipContent()
-                    UgcTopNavItem.Food -> DevelopingTipContent()
-                    UgcTopNavItem.Life -> DevelopingTipContent()
-                    UgcTopNavItem.Car -> DevelopingTipContent()
-                    UgcTopNavItem.Fashion -> DevelopingTipContent()
-                    UgcTopNavItem.Sports -> DevelopingTipContent()
-                    UgcTopNavItem.Animal -> DevelopingTipContent()
+                    UgcTopNavItem.Douga -> DougaContent(state = dougaState)
+                    UgcTopNavItem.Game -> GameContent(state = gameState)
+                    UgcTopNavItem.Kichiku -> KichikuContent(state = kichikuState)
+                    UgcTopNavItem.Music -> MusicContent(state = musicState)
+                    UgcTopNavItem.Dance -> DanceContent(state = danceState)
+                    UgcTopNavItem.Cinephile -> CinephileContent(state = cinephileState)
+                    UgcTopNavItem.Ent -> EntContent(state = entState)
+                    UgcTopNavItem.Knowledge -> KnowledgeContent(state = knowledgeState)
+                    UgcTopNavItem.Tech -> TechContent(state = techState)
+                    UgcTopNavItem.Information -> InformationContent(state = informationState)
+                    UgcTopNavItem.Food -> FoodContent(state = foodState)
+                    UgcTopNavItem.Life -> LifeContent(state = lifeState)
+                    UgcTopNavItem.Car -> CarContent(state = carState)
+                    UgcTopNavItem.Fashion -> FashionContent(state = fashionState)
+                    UgcTopNavItem.Sports -> SportsContent(state = sportsState)
+                    UgcTopNavItem.Animal -> AnimalContent(state = animalState)
                 }
             }
         }
