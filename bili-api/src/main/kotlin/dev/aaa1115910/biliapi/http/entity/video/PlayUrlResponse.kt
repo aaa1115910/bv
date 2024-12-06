@@ -143,13 +143,16 @@ data class DashFlac(
 @Serializable
 data class DashData(
     val id: Int,
+    @SerialName("base_url")
     val baseUrl: String,
     val backupUrl: List<String> = emptyList(),
     val bandwidth: Int,
+    @SerialName("mime_type")
     val mimeType: String,
     val codecs: String,
     val width: Int,
     val height: Int,
+    @SerialName("frame_rate")
     val frameRate: String,
     val sar: String,
     @SerialName("start_with_sap")

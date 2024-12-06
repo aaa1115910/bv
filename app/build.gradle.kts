@@ -14,9 +14,8 @@ plugins {
     alias(gradleLibs.plugins.kotlin.android)
     alias(gradleLibs.plugins.kotlin.serialization)
 }
-if (file("google-services.json").let {
-        it.exists() && it.readText().contains(AppConfiguration.appId)
-    }) {
+
+if (AppConfiguration.googleServicesAvailable) {
     apply(plugin = gradleLibs.plugins.google.services.get().pluginId)
 }
 
@@ -71,6 +70,9 @@ android {
                 "proguard-rules.pro"
             )
             if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = AppConfiguration.googleServicesAvailable
+            }
         }
         debug {
             isMinifyEnabled = false
@@ -102,6 +104,9 @@ android {
                 "proguard-rules.pro"
             )
             if (signingProp.exists()) signingConfig = signingConfigs.getByName("key")
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = AppConfiguration.googleServicesAvailable
+            }
         }
     }
     // https://issuetracker.google.com/issues/260059413

@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,6 +46,9 @@ object LogCatcherUtil {
             logger.info { "Log file: $logFile" }
 
             with(logFile.writer()) {
+                writeDeviceInfo()
+                writeAppInfo()
+                appendLine("======== Logs ========")
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
                     appendLine(line)
@@ -56,6 +60,31 @@ object LogCatcherUtil {
         }.onFailure {
             logger.error(it) { "write log to file failed" }
         }
+    }
+
+    private fun OutputStreamWriter.writeDeviceInfo() {
+        val info = BVApp.context.packageManager.getPackageInfo(BVApp.context.packageName, 0)
+        appendLine("======== Device info ========")
+        appendLine("App Version: ${info.versionName} (${info.versionCode})")
+        appendLine("Android Version: ${android.os.Build.VERSION.RELEASE} (${android.os.Build.VERSION.SDK_INT})")
+        appendLine("Device: ${android.os.Build.DEVICE}")
+        appendLine("Model: ${android.os.Build.MODEL}")
+        appendLine("Manufacturer: ${android.os.Build.MANUFACTURER}")
+        appendLine("Brand: ${android.os.Build.BRAND}")
+        appendLine("Product: ${android.os.Build.PRODUCT}")
+        appendLine("Type: ${android.os.Build.TYPE}")
+    }
+
+    private fun OutputStreamWriter.writeAppInfo() {
+        appendLine("======== App Prefs ========")
+        appendLine("Login: ${Prefs.isLogin}")
+        appendLine("Incognito Mode: ${Prefs.incognitoMode}")
+        appendLine("Api Type: ${Prefs.apiType.name}")
+        appendLine("Default Resolution: ${Prefs.defaultQuality}")
+        appendLine("Default Codec: ${Prefs.defaultVideoCodec.name}")
+        appendLine("Default Audio: ${Prefs.defaultAudio.name}")
+        appendLine("Enabled Proxy: ${Prefs.enableProxy}")
+        appendLine("Using Old Player: ${Prefs.useOldPlayer}")
     }
 
     private fun createFilename(manual: Boolean): String {

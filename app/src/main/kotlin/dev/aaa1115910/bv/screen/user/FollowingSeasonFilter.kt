@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.AlertDialog
@@ -15,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.Icon
@@ -53,7 +53,7 @@ fun FollowingSeasonFilter(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(filterRowSpace)
                 ) {
-                    TvLazyRow(
+                    LazyRow(
                         modifier = Modifier
                             .then(row1FocusRestorerModifiers.parentModifier),
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace),
@@ -72,7 +72,7 @@ fun FollowingSeasonFilter(
                             )
                         }
                     }
-                    TvLazyRow(
+                    LazyRow(
                         modifier = Modifier
                             .then(row2FocusRestorerModifiers.parentModifier),
                         horizontalArrangement = Arrangement.spacedBy(filterRowSpace),

@@ -1,13 +1,9 @@
 package dev.aaa1115910.biliapi.http
 
 import com.tfowl.ktor.client.plugins.JsoupPlugin
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeFeedData
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageData
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataV1
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataV2
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
@@ -15,6 +11,12 @@ import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
 import dev.aaa1115910.biliapi.http.entity.index.IndexResultData
+import dev.aaa1115910.biliapi.http.entity.pgc.PgcFeedData
+import dev.aaa1115910.biliapi.http.entity.pgc.PgcFeedV3Data
+import dev.aaa1115910.biliapi.http.entity.pgc.PgcWebInitialStateData
+import dev.aaa1115910.biliapi.http.entity.region.RegionDynamic
+import dev.aaa1115910.biliapi.http.entity.region.RegionDynamicList
+import dev.aaa1115910.biliapi.http.entity.region.RegionLocs
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1177,49 +1179,48 @@ object BiliHttpApi {
     }.body()
 
     /** 获取番剧首页数据 */
-    suspend fun getAnimeHomepageData(
-        dataType: AnimeHomepageDataType = AnimeHomepageDataType.V1
-    ): AnimeHomepageData? {
-        val htmlDocuments = client.get("https://www.bilibili.com/anime") {
-            when (dataType) {
-                AnimeHomepageDataType.V1 -> header("Cookie", "ogv_channel_version=v1")
-                AnimeHomepageDataType.V2 -> header("Cookie", "ogv_channel_version=v2")
-            }
-        }.body<Document>()
+    suspend fun getPgcWebInitialStateData(pgcType: PgcType): PgcWebInitialStateData {
+        val path = pgcType.name.lowercase()
+        val htmlDocuments = client.get("https://www.bilibili.com/$path").body<Document>()
 
         val dataScriptTagContent = htmlDocuments.body().select("script").find {
             it.html().contains("__INITIAL_STATE__")
-        }?.html() ?: return null
+        }?.html() ?: throw IllegalStateException("initial state data cannot be null")
         val dataJson =
             dataScriptTagContent.split("__INITIAL_STATE__=", ";(function()")[1]
-
-        return when (dataType) {
-            AnimeHomepageDataType.V1 -> {
-                val dataV1 =
-                    runCatching { json.decodeFromString<AnimeHomepageDataV1>(dataJson) }.getOrNull()
-                AnimeHomepageData(_dataV1 = dataV1)
-            }
-
-            AnimeHomepageDataType.V2 -> {
-                val dataV2 =
-                    runCatching { json.decodeFromString<AnimeHomepageDataV2>(dataJson) }.getOrNull()
-                AnimeHomepageData(_dataV2 = dataV2)
-            }
-        }
+        val initinalData = runCatching {
+            json.decodeFromString<PgcWebInitialStateData>(dataJson)
+        }.onFailure {
+            println("parse initial state data failed: ${it.stackTraceToString()}")
+        }.getOrNull() ?: throw IllegalStateException("parse initial state data failed")
+        return initinalData
     }
 
     /**
-     * 获取猜你喜欢
+     * 获取 PGC 猜你喜欢
      *
      * 返回数据的前几条内包含每小时更新的分类排行榜
      */
-    suspend fun getAnimeFeed(
+    suspend fun getPgcFeedV3(
         name: String = "anime",
         cursor: Int = 0
-    ): BiliResponse<AnimeFeedData> = client.get("/pgc/page/web/v3/feed") {
+    ): BiliResponse<PgcFeedV3Data> = client.get("/pgc/page/web/v3/feed") {
         parameter("name", name)
         parameter("coursor", cursor)
     }.body()
+
+    /**
+     * 获取 PGC 猜你喜欢
+     */
+    suspend fun getPgcFeed(
+        name: String = "movie",
+        cursor: Int = 0
+    ): BiliResponse<PgcFeedData> = client.get("/pgc/page/web/feed") {
+        parameter("name", name)
+        parameter("coursor", cursor)
+        parameter("new_cursor_status", true)
+    }.body()
+
 
     /**
      * 获取用户[mid]的追剧列表
@@ -1552,10 +1553,73 @@ object BiliHttpApi {
         parameter("part", part.value)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
+
+    /**
+     * 获取分区动态（App），包含顶部轮播图，大卡片活动推广位，和视频列表第一页
+     */
+    suspend fun getRegionDynamic(
+        rid: Int,
+        accessKey: String
+    ): BiliResponse<RegionDynamic> = client.get("https://app.bilibili.com/x/v2/region/dynamic") {
+        parameter("access_key", accessKey)
+        parameter("build", BiliAppConf.APP_BUILD_CODE)
+        parameter("rid", rid)
+    }.body()
+
+    /**
+     * 获取分区视频列表（App）,用于[getRegionDynamic]加载数据后下滑加载更多数据
+     */
+    suspend fun getRegionDynamicList(
+        rid: Int,
+        ctime: Long = 0,
+        accessKey: String
+    ): BiliResponse<RegionDynamicList> =
+        client.get("https://app.bilibili.com/x/v2/region/dynamic/list") {
+            parameter("access_key", accessKey)
+            parameter("build", BiliAppConf.APP_BUILD_CODE)
+            parameter("rid", rid)
+            parameter("ctime", ctime)
+            parameter("pull", "false")
+        }.body()
+
+    //
+
+    /**
+     * 获取分区内各种插入的banner，例如顶部轮播图，还有插入的广告横幅（Web）
+     *
+     * id:
+     * 4973  动画  douga
+     * 4991  游戏  game
+     * 5004  鬼畜  kichiku
+     * 4979  音乐  music
+     * 4985  舞蹈  dance
+     * 5008  影视  cinephile
+     * 5007  娱乐  ent
+     * 4997  知识  knowledge
+     * 4998  科技  tech
+     * 5005  资讯  information
+     * 5002  美食  food
+     * 5001  生活  life
+     * 5000  汽车  car
+     * 5006  时尚  fashion
+     * 4999  运动  sports
+     * 5003  动物圈 animal
+     */
+    suspend fun getLocs(
+        ids: List<Int>,
+        sessData: String? = null
+    ): RegionLocs = client.get("/x/web-show/res/locs") {
+        parameter("ids", ids.joinToString(","))
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
+    }.body()
 }
 
 enum class SeasonIndexType(val id: Int) {
-    Anime(1), Movie(2), Documentary(3), Guochuang(4), Tv(5), Variety(7)
+    Anime(1), Movie(2), Documentary(3), Guochuang(4), Tv(5), Variety(7);
+
+    companion object {
+        fun fromId(id: Int) = entries.first { it.id == id }
+    }
 }
 
 private fun checkToken(accessKey: String?, sessData: String?) {
