@@ -8,7 +8,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -26,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -168,23 +166,18 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.4f))
+                        .background(Color.Black.copy(alpha = 0.6f))
                 ) {
                     AnimatedVisibility(
                         modifier = Modifier
-                            .align(Alignment.TopEnd),
+                            .align(Alignment.Center),
                         visible = showUserPanel,
                         enter = fadeIn() + scaleIn(),
-                        exit = shrinkHorizontally()
+                        exit = fadeOut()
                     ) {
                         UserPanel(
                             modifier = Modifier
-                                .padding(12.dp)
-                                .onFocusChanged {
-                                    if (!it.hasFocus) {
-                                        //settingsButtonFocusRequester.requestFocus()
-                                    }
-                                },
+                                .padding(12.dp),
                             username = userViewModel.username,
                             face = userViewModel.face,
                             onHide = { showUserPanel = false },
