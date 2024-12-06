@@ -1,12 +1,17 @@
 package dev.aaa1115910.bv.component.videocard
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +39,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -211,7 +216,8 @@ private fun CoverBottomInfo(
         Text(
             text = time,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White
+            color = Color.White,
+            maxLines = 1
         )
     }
 }
@@ -224,10 +230,20 @@ fun CardCover(
     danmaku: String,
     time: String
 ) {
-    Box(
+    var width by remember { mutableStateOf(200.dp) }
+    val showInfo by remember { derivedStateOf { width > 160.dp } }
+
+    BoxWithConstraints(
         modifier = modifier.clip(MaterialTheme.shapes.large),
         contentAlignment = Alignment.BottomCenter
     ) {
+        val boxWithConstraintsScope = this
+        width = boxWithConstraintsScope.maxWidth
+        val shadowAlpha by animateFloatAsState(
+            targetValue = if (showInfo) 0.8f else 0f,
+            label = "shadow alpha"
+        )
+
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
@@ -245,16 +261,22 @@ fun CardCover(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.8f)
+                            Color.Black.copy(alpha = shadowAlpha)
                         )
                     )
                 )
         )
-        CoverBottomInfo(
-            play = play,
-            danmaku = danmaku,
-            time = time
-        )
+        AnimatedVisibility(
+            visible = showInfo,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            CoverBottomInfo(
+                play = play,
+                danmaku = danmaku,
+                time = time
+            )
+        }
     }
 }
 
