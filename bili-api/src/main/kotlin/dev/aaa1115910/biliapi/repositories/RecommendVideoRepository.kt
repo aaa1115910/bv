@@ -4,11 +4,10 @@ import bilibili.app.show.v1.PopularGrpcKt
 import bilibili.app.show.v1.popularResultReq
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.home.RecommendData
-import dev.aaa1115910.biliapi.entity.home.RecommendItem
 import dev.aaa1115910.biliapi.entity.home.RecommendPage
-import dev.aaa1115910.biliapi.entity.rank.PopularVideo
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoData
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoPage
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 
 class RecommendVideoRepository(
@@ -31,7 +30,7 @@ class RecommendVideoRepository(
                     pageNumber = page.nextWebPageNumber,
                     sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
-                val list = response.list.map { PopularVideo.fromVideoInfo(it) }
+                val list = response.list.map { UgcItem.fromVideoInfo(it) }
                 val nextPage = PopularVideoPage(
                     nextWebPageSize = page.nextWebPageSize,
                     nextWebPageNumber = page.nextWebPageNumber + 1
@@ -49,7 +48,7 @@ class RecommendVideoRepository(
                 })
                 val list = reply?.itemsList
                     ?.filter { it.itemCase == bilibili.app.card.v1.Card.ItemCase.SMALL_COVER_V5 }
-                    ?.map { PopularVideo.fromSmallCoverV5(it.smallCoverV5) }
+                    ?.map { UgcItem.fromSmallCoverV5(it.smallCoverV5) }
                     ?: emptyList()
                 val nextPage = PopularVideoPage(
                     nextAppIndex = list.lastOrNull()?.idx ?: -1
@@ -73,7 +72,7 @@ class RecommendVideoRepository(
                 sessData = authRepository.sessionData
             )
                 .getResponseData().item
-                .map { RecommendItem.fromRcmdItem(it) }
+                .map { UgcItem.fromRcmdItem(it) }
 
             ApiType.App -> BiliHttpApi.getFeedIndex(
                 idx = page.nextAppIdx,
@@ -81,7 +80,7 @@ class RecommendVideoRepository(
             )
                 .getResponseData().items
                 .filter { it.cardGoto == "av" }
-                .map { RecommendItem.fromRcmdItem(it) }
+                .map { UgcItem.fromRcmdItem(it) }
         }
         val nextPage = when (preferApiType) {
             ApiType.Web -> RecommendPage(

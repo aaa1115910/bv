@@ -1,6 +1,6 @@
 package dev.aaa1115910.biliapi.repositories
 
-import dev.aaa1115910.biliapi.entity.pgc.PgcCarouselData
+import dev.aaa1115910.biliapi.entity.CarouselData
 import dev.aaa1115910.biliapi.entity.pgc.PgcFeedData
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.entity.pgc.index.Area
@@ -20,9 +20,9 @@ import dev.aaa1115910.biliapi.entity.pgc.index.Year
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 
 class PgcRepository {
-    suspend fun getCarousel(pgcType: PgcType): PgcCarouselData {
+    suspend fun getCarousel(pgcType: PgcType): CarouselData {
         val initialStateData = BiliHttpApi.getPgcWebInitialStateData(pgcType)
-        val carouselData = PgcCarouselData.fromPgcWebInitialStateData(initialStateData)
+        val carouselData = CarouselData.fromPgcWebInitialStateData(initialStateData)
         return carouselData
     }
 

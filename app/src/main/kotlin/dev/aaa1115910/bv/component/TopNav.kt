@@ -24,13 +24,16 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.TabRowScope
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
+import dev.aaa1115910.biliapi.entity.ugc.UgcType
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.util.getDisplayName
 
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
     items: List<TopNavItem>,
-    isLargePadding:Boolean,
+    isLargePadding: Boolean,
     onSelectedChanged: (TopNavItem) -> Unit = {},
     onClick: (TopNavItem) -> Unit = {}
 ) {
@@ -114,38 +117,38 @@ enum class HomeTopNavItem(private val displayName: String) : TopNavItem {
     }
 }
 
-enum class UgcTopNavItem(private val displayName: String) : TopNavItem {
-    Douga("动画"),
-    Game("游戏"),
-    Kichiku("鬼畜"),
-    Music("音乐"),
-    Dance("舞蹈"),
-    Cinephile("影视"),
-    Ent("娱乐"),
-    Knowledge("知识"),
-    Tech("科技"),
-    Information("资讯"),
-    Food("美食"),
-    Life("生活"),
-    Car("汽车"),
-    Fashion("时尚"),
-    Sports("体育"),
-    Animal("动物圈");
+enum class UgcTopNavItem(private val ugcType: UgcType) : TopNavItem {
+    Douga(UgcType.Douga),
+    Game(UgcType.Game),
+    Kichiku(UgcType.Kichiku),
+    Music(UgcType.Music),
+    Dance(UgcType.Dance),
+    Cinephile(UgcType.Cinephile),
+    Ent(UgcType.Ent),
+    Knowledge(UgcType.Knowledge),
+    Tech(UgcType.Tech),
+    Information(UgcType.Information),
+    Food(UgcType.Food),
+    Life(UgcType.Life),
+    Car(UgcType.Car),
+    Fashion(UgcType.Fashion),
+    Sports(UgcType.Sports),
+    Animal(UgcType.Animal);
 
     override fun getDisplayName(context: Context): String {
-        return displayName
+        return ugcType.getDisplayName(context)
     }
 }
 
-enum class PgcTopNavItem(private val displayName: String) : TopNavItem {
-    Anime("番剧"),
-    GuoChuang("国创"),
-    Movie("电影"),
-    Documentary("纪录片"),
-    Tv("电视剧"),
-    Variety("综艺");
+enum class PgcTopNavItem(private val pgcType: PgcType) : TopNavItem {
+    Anime(PgcType.Anime),
+    GuoChuang(PgcType.GuoChuang),
+    Movie(PgcType.Movie),
+    Documentary(PgcType.Documentary),
+    Tv(PgcType.Tv),
+    Variety(PgcType.Variety);
 
     override fun getDisplayName(context: Context): String {
-        return displayName
+        return pgcType.getDisplayName(context)
     }
 }

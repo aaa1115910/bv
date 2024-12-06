@@ -2,8 +2,8 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.entity.home.RecommendItem
 import dev.aaa1115910.biliapi.entity.home.RecommendPage
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
@@ -18,7 +18,7 @@ class RecommendViewModel(
     private val recommendVideoRepository: RecommendVideoRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
-    val recommendVideoList = mutableStateListOf<RecommendItem>()
+    val recommendVideoList = mutableStateListOf<UgcItem>()
 
     private var nextPage = RecommendPage()
     var loading = false

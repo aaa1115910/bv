@@ -57,7 +57,7 @@ import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.http.SeasonIndexType
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.activities.video.SeasonInfoActivity
-import dev.aaa1115910.bv.component.pgc.PgcCarousel
+import dev.aaa1115910.bv.component.PgcCarousel
 import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea

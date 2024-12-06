@@ -14,6 +14,9 @@ import dev.aaa1115910.biliapi.http.entity.index.IndexResultData
 import dev.aaa1115910.biliapi.http.entity.pgc.PgcFeedData
 import dev.aaa1115910.biliapi.http.entity.pgc.PgcFeedV3Data
 import dev.aaa1115910.biliapi.http.entity.pgc.PgcWebInitialStateData
+import dev.aaa1115910.biliapi.http.entity.region.RegionDynamic
+import dev.aaa1115910.biliapi.http.entity.region.RegionDynamicList
+import dev.aaa1115910.biliapi.http.entity.region.RegionLocs
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -1549,6 +1552,65 @@ object BiliHttpApi {
     ): BiliResponse<Equip> = client.get("/x/garb/user/equip") {
         parameter("part", part.value)
         header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取分区动态（App），包含顶部轮播图，大卡片活动推广位，和视频列表第一页
+     */
+    suspend fun getRegionDynamic(
+        rid: Int,
+        accessKey: String
+    ): BiliResponse<RegionDynamic> = client.get("https://app.bilibili.com/x/v2/region/dynamic") {
+        parameter("access_key", accessKey)
+        parameter("build", BiliAppConf.APP_BUILD_CODE)
+        parameter("rid", rid)
+    }.body()
+
+    /**
+     * 获取分区视频列表（App）,用于[getRegionDynamic]加载数据后下滑加载更多数据
+     */
+    suspend fun getRegionDynamicList(
+        rid: Int,
+        ctime: Long = 0,
+        accessKey: String
+    ): BiliResponse<RegionDynamicList> =
+        client.get("https://app.bilibili.com/x/v2/region/dynamic/list") {
+            parameter("access_key", accessKey)
+            parameter("build", BiliAppConf.APP_BUILD_CODE)
+            parameter("rid", rid)
+            parameter("ctime", ctime)
+            parameter("pull", "false")
+        }.body()
+
+    //
+
+    /**
+     * 获取分区内各种插入的banner，例如顶部轮播图，还有插入的广告横幅（Web）
+     *
+     * id:
+     * 4973  动画  douga
+     * 4991  游戏  game
+     * 5004  鬼畜  kichiku
+     * 4979  音乐  music
+     * 4985  舞蹈  dance
+     * 5008  影视  cinephile
+     * 5007  娱乐  ent
+     * 4997  知识  knowledge
+     * 4998  科技  tech
+     * 5005  资讯  information
+     * 5002  美食  food
+     * 5001  生活  life
+     * 5000  汽车  car
+     * 5006  时尚  fashion
+     * 4999  运动  sports
+     * 5003  动物圈 animal
+     */
+    suspend fun getLocs(
+        ids: List<Int>,
+        sessData: String? = null
+    ): RegionLocs = client.get("/x/web-show/res/locs") {
+        parameter("ids", ids.joinToString(","))
+        sessData?.let { header("Cookie", "SESSDATA=$it;") }
     }.body()
 }
 

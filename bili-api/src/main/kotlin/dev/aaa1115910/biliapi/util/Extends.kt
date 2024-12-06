@@ -8,3 +8,5 @@ fun String.convertStringTimeToSeconds(): Int {
     return (hours * 3600) + (minutes * 60) + seconds
 }
 
+fun Long.toBv(): String = AvBvConverter.av2bv(this)
+fun String.toAv(): Long = AvBvConverter.bv2av(this)

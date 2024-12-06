@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aaa1115910.biliapi.entity.pgc.PgcCarouselData
+import dev.aaa1115910.biliapi.entity.CarouselData
 import dev.aaa1115910.biliapi.entity.pgc.PgcFeedData
 import dev.aaa1115910.biliapi.entity.pgc.PgcItem
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
@@ -32,7 +32,7 @@ abstract class PgcViewModel(
     /**
      * 轮播图
      */
-    val carouselItems = mutableStateListOf<PgcCarouselData.CarouselItem>()
+    val carouselItems = mutableStateListOf<CarouselData.CarouselItem>()
 
     /**
      * 猜你喜欢
