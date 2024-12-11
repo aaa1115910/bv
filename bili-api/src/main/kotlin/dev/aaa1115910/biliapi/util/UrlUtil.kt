@@ -12,7 +12,7 @@ object UrlUtil {
         if (url.startsWith("bilibili://video/")) {
             return url.split("/").last().toLong()
         } else {
-            val pathSegments = Url(url).pathSegments
+            val pathSegments = Url(url).rawSegments
             val videoSegmentIndex = pathSegments.indexOf("video")
             val videoId = pathSegments[videoSegmentIndex + 1]
             return if (videoId.startsWith("BV")) {

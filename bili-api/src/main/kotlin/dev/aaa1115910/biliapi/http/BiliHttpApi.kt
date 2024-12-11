@@ -78,12 +78,11 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.readBytes
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.InternalAPI
-import io.ktor.util.toByteArray
+import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -1131,7 +1130,7 @@ object BiliHttpApi {
             parameter("main_ver", mainVer)
             highlight?.let { parameter("highlight", it) }
             parameter("buvid", buvid)
-        }.content.toByteArray().toString(Charsets.UTF_8)
+        }.readRawBytes().toString(Charsets.UTF_8)
         val keywordSuggest = json.decodeFromString<KeywordSuggest>(responseText)
         val result = json.decodeFromJsonElement<KeywordSuggest.Result>(keywordSuggest.result!!)
         keywordSuggest.suggests.addAll(result.tag)
@@ -1521,7 +1520,7 @@ object BiliHttpApi {
     )
 
     suspend fun download(url: String): ByteArray {
-        return client.get(url).readBytes()
+        return client.get(url).readRawBytes()
     }
 
     suspend fun getWebVideoShot(

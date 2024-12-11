@@ -24,7 +24,7 @@ data class CarouselData(
                         title = it.title,
                         seasonId = it.seasonId ?: -1,
                         episodeId = it.episodeId
-                            ?: Url(it.link).pathSegments.last().substring(2).toInt()
+                            ?: Url(it.link).rawSegments.last().substring(2).toInt()
                     )
                 )
             }
@@ -57,7 +57,7 @@ data class CarouselData(
                         CarouselItem(
                             cover = item.pic,
                             title = item.title,
-                            bvid = Url(item.url).pathSegments.last()
+                            bvid = Url(item.url).rawSegments.last()
                         )
                     )
                 }

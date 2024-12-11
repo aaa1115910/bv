@@ -134,7 +134,7 @@ fun LogsScreen(
 
     LaunchedEffect(Unit) {
         host = getIpAddress()
-        port = HttpServer.server?.resolvedConnectors()?.first()?.port ?: 0
+        port = HttpServer.server?.engine?.resolvedConnectors()?.first()?.port ?: 0
 
         updateLogs()
     }
