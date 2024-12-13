@@ -43,7 +43,7 @@ object NetworkUtil {
                         .filter { it.isNotBlank() }
                         .associate { with(it.split("=")) { this[0] to this[1] } }
                     false
-                }.getOrDefault(true)
+                }.getOrDefault(false)
             }
         }
 
