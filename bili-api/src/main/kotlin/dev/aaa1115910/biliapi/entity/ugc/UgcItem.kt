@@ -19,12 +19,12 @@ data class UgcItem(
         fun fromRcmdItem(rcmdItem: RcmdIndexData.RcmdItem) =
             UgcItem(
                 aid = rcmdItem.args.aid ?: 0,
-                title = rcmdItem.title,
-                cover = rcmdItem.cover,
+                title = rcmdItem.title!!,
+                cover = rcmdItem.cover!!,
                 author = rcmdItem.args.upName ?: "",
                 play = with(rcmdItem.coverLeftText1) {
                     runCatching {
-                        if (this.endsWith("万")) {
+                        if (this!!.endsWith("万")) {
                             (this.substring(0, this.length - 1).toDouble() * 10000).toInt()
                         } else {
                             this.toInt()

@@ -62,6 +62,8 @@ data class RcmdIndexData(
 
     @Serializable
     data class RcmdItem(
+        //@SerialName("ad_info")
+        //val adInfo: AdInfo,
         val args: Args,
         @SerialName("can_play")
         val canPlay: Int? = null,
@@ -69,17 +71,17 @@ data class RcmdIndexData(
         val cardGoto: String,
         @SerialName("card_type")
         val cardType: String,
-        val cover: String,
+        val cover: String? = null,
         @SerialName("cover_left_1_content_description")
-        val coverLeft1ContentDescription: String,
+        val coverLeft1ContentDescription: String? = null,
         @SerialName("cover_left_2_content_description")
         val coverLeft2ContentDescription: String? = null,
         @SerialName("cover_left_icon_1")
-        val coverLeftIcon1: Int,
+        val coverLeftIcon1: Int? = null,
         @SerialName("cover_left_icon_2")
         val coverLeftIcon2: Int? = null,
         @SerialName("cover_left_text_1")
-        val coverLeftText1: String,
+        val coverLeftText1: String? = null,
         @SerialName("cover_left_text_2")
         val coverLeftText2: String? = null,
         @SerialName("cover_right_content_description")
@@ -91,14 +93,14 @@ data class RcmdIndexData(
         val descButton: DescButton? = null,
         @SerialName("ff_cover")
         val ffCover: String? = null,
-        val goto: String,
+        val goto: String? = null,
         @SerialName("goto_icon")
         val gotoIcon: GotoIcon? = null,
         val idx: Int,
         @SerialName("official_icon")
         val officialIcon: Int? = null,
         @SerialName("param")
-        val `param`: String,
+        val `param`: String? = null,
         @SerialName("player_args")
         val playerArgs: PlayerArgs? = null,
         @SerialName("rcmd_reason")
@@ -113,10 +115,10 @@ data class RcmdIndexData(
         val threePoint: ThreePoint? = null,
         @SerialName("three_point_v2")
         val threePointV2: List<ThreePointV2>,
-        val title: String,
+        val title: String? = null,
         @SerialName("track_id")
         val trackId: String? = null,
-        val uri: String
+        val uri: String? = null
     ) {
         @Serializable
         data class Args(
