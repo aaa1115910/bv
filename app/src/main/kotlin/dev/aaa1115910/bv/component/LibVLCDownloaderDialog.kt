@@ -78,8 +78,8 @@ fun LibVLCDownloaderDialog(
                     release,
                     tempFile,
                     object : ProgressListener {
-                        override suspend fun invoke(downloaded: Long, total: Long) {
-                            text = "正在下载(${downloaded / total.toFloat() * 100}%)"
+                        override suspend fun onProgress(downloaded: Long, total: Long?) {
+                            text = "正在下载(${downloaded / (total?.toFloat() ?: 0f) * 100}%)"
                         }
                     })
 

@@ -96,7 +96,8 @@ data class DynamicVideo(
                         aid = archive.avid,
                         bvid = archive.bvid,
                         cid = archive.cid,
-                        title = if (!isDynamicVideo) archive.title else desc!!.text.substring(5),
+                        title = if (!isDynamicVideo) archive.title
+                        else desc?.text?.replace("动态视频｜", "") ?: "",
                         cover = archive.cover,
                         author = author.author.name,
                         duration = convertStringTimeToSeconds(archive.coverLeftText1),

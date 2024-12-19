@@ -14,10 +14,9 @@ import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.wss
 import io.ktor.utils.io.core.ByteReadPacket
 import io.ktor.utils.io.core.buildPacket
-import io.ktor.utils.io.core.readBytes
+import io.ktor.utils.io.core.remaining
 import io.ktor.utils.io.core.toByteArray
-import io.ktor.utils.io.core.writeInt
-import io.ktor.utils.io.core.writeShort
+import io.ktor.utils.io.core.writePacket
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.readByteArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
@@ -95,7 +95,7 @@ object LiveDataWebSocket {
                 port = hosts.wssPort,
                 path = "/sub"
             ) {
-                val byte = b.readBytes()
+                val byte = b.readByteArray()
                 outgoing.send(Frame.Binary(true, byte))
                 launch {
                     delay(5000)
@@ -128,7 +128,7 @@ object LiveDataWebSocket {
             if (data.size <= 16) return@withContext
             val bytePack = ByteReadPacket(data)
             val head = bytePack.readFrameHeader()
-            val body = bytePack.readBytes((head.totalLength - head.headerLength))
+            val body = bytePack.readByteArray((head.totalLength - head.headerLength))
             result.addAll(handleLiveEventBody(head, body))
         }
         return result
@@ -149,42 +149,42 @@ object LiveDataWebSocket {
                     //0 普通包正文不使用压缩
                     //1 心跳及认证包正文不使用压缩
                     0, 1 -> {
-                        val strData = io.ktor.utils.io.core.String(bytePack.readBytes())
+                        val strData = bytePack.readByteArray().decodeToString()
                         handleLiveCMDEventString(strData)?.let { result += it }
                     }
 
                     //普通包正文使用zlib压缩
                     2 -> {
-                        val decompress = bytePack.readBytes().zlibDecompress()
+                        val decompress = bytePack.readByteArray().zlibDecompress()
                         result += handleLiveEventBodyDecompress(decompress)
                     }
 
                     //普通包正文使用brotli压缩,解压为一个带头部的协议0普通包
                     3 -> {
                         logger.warn { "todo package version: ${head.version}" }
-                        bytePack.readBytes()
+                        bytePack.readByteArray()
                     }
 
                     else -> {
                         logger.warn { "Unknown package version: ${head.version}" }
-                        bytePack.readBytes()
+                        bytePack.readByteArray()
                     }
                 }
             }
 
             //认证包回复
             8 -> {
-                bytePack.readBytes(10)
+                bytePack.readByteArray(10)
             }
 
             else -> {
                 logger.warn { "Unknown package type: ${head.type}" }
-                bytePack.readBytes()
+                bytePack.readByteArray()
             }
         }
         return if (bytePack.remaining > 16) result + handleLiveEventBody(
             bytePack.readFrameHeader(),
-            bytePack.readBytes()
+            bytePack.readByteArray()
         )
         else result
     }
@@ -193,9 +193,9 @@ object LiveDataWebSocket {
         val result = mutableListOf<LiveEvent>()
         val bytePack = ByteReadPacket(data)
         val header = bytePack.readFrameHeader()
-        val body = bytePack.readBytes(header.dataLength)
+        val body = bytePack.readByteArray(header.dataLength)
         result += handleLiveCMDEvent(header, body)
-        return if (bytePack.remaining > 0) result + handleLiveEventBodyDecompress(bytePack.readBytes()) else result
+        return if (bytePack.remaining > 0) result + handleLiveEventBodyDecompress(bytePack.readByteArray()) else result
     }
 
     private fun handleLiveCMDEvent(head: FrameHeader, data: ByteArray): List<LiveEvent> {
@@ -203,7 +203,7 @@ object LiveDataWebSocket {
         val strData: String
         when (head.version.toInt()) {
             0 -> {
-                strData = io.ktor.utils.io.core.String(data)
+                strData = data.decodeToString()
             }
 
             2 -> {
@@ -211,11 +211,14 @@ object LiveDataWebSocket {
                 val bytePack = ByteReadPacket(decompress)
                 val packageHeader = bytePack.readFrameHeader()
                 val body =
-                    bytePack.readBytes((packageHeader.totalLength - packageHeader.headerLength))
+                    bytePack.readByteArray((packageHeader.totalLength - packageHeader.headerLength))
                 if (bytePack.remaining > 16) {
-                    result += handleLiveEventBody(bytePack.readFrameHeader(), bytePack.readBytes())
+                    result += handleLiveEventBody(
+                        bytePack.readFrameHeader(),
+                        bytePack.readByteArray()
+                    )
                 }
-                strData = io.ktor.utils.io.core.String(body)
+                strData = body.decodeToString()
             }
 
             else -> return result
