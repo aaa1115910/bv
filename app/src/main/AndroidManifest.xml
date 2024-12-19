@@ -131,6 +131,11 @@
             android:label="@string/title_activity_history"
             android:theme="@style/Theme.BV" />
         <activity
+            android:name=".activities.user.ToViewActivity"
+            android:exported="false"
+            android:label="@string/title_activity_toview"
+            android:theme="@style/Theme.BV" />
+        <activity
             android:name=".activities.user.UserInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_user_info"
