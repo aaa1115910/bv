@@ -8,6 +8,7 @@ import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
+import dev.aaa1115910.biliapi.http.entity.toview.ToViewData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdTopData
 import dev.aaa1115910.biliapi.http.entity.index.IndexResultData
@@ -363,6 +364,24 @@ object BiliHttpApi {
         parameter("business", business)
         parameter("view_at", viewAt)
         parameter("ps", pageSize)
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取稍后再看列表
+     */
+
+    suspend fun getToView(
+        // max: Long = 0,
+        // business: String = "",
+        // viewAt: Long = 0,
+        // pageSize: Int = 20,
+        sessData: String = ""
+    ): BiliResponse<ToViewData> = client.get("/x/v2/history/toview") {
+        // parameter("max", max)
+        // parameter("business", business)
+        // parameter("view_at", viewAt)
+        // parameter("ps", pageSize)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
