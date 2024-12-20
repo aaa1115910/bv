@@ -179,6 +179,7 @@
     <string name="resolution_hdr_short">HDR</string>
 
     <string name="search_input_history">历史记录</string>
+    <string name="title_activity_toview">现在不看</string>
     <string name="search_input_hotword">bilibili 热搜</string>
     <string name="search_input_soft_keybord_clear">清空</string>
     <string name="search_input_soft_keybord_delete">删除</string>

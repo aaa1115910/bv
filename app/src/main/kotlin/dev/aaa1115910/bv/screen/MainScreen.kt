@@ -36,6 +36,7 @@ import dev.aaa1115910.bv.activities.settings.SettingsActivity
 import dev.aaa1115910.bv.activities.user.FavoriteActivity
 import dev.aaa1115910.bv.activities.user.FollowingSeasonActivity
 import dev.aaa1115910.bv.activities.user.HistoryActivity
+import dev.aaa1115910.bv.activities.user.ToViewActivity
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserInfoActivity
 import dev.aaa1115910.bv.component.UserPanel
@@ -199,7 +200,7 @@ fun MainScreen(
                                 )
                             },
                             onGoLater = {
-                                "按钮放在这只是拿来当摆设的！".toast(context)
+                                context.startActivity(Intent(context, ToViewActivity::class.java))
                             }
                         )
                     }
