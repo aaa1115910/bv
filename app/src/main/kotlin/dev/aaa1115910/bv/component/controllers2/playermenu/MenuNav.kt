@@ -1,6 +1,5 @@
 package dev.aaa1115910.bv.component.controllers2.playermenu
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +25,6 @@ fun MenuNavList(
 
     LazyColumn(
         modifier = modifier
-            .animateContentSize()
             .then(focusRestorerModifiers.parentModifier),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)

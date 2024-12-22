@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.component.controllers2
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -217,8 +216,7 @@ private fun MenuList(
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     Box(
-        modifier = modifier
-            .animateContentSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         when (selectedNavMenu) {

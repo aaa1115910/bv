@@ -62,7 +62,7 @@ fun ClosedCaptionMenuList(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val menuItemsModifier = Modifier
-            .width(200.dp)
+            .width(216.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
             when (selectedClosedCaptionMenuItem) {
