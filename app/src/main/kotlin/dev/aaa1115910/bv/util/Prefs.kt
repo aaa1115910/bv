@@ -279,9 +279,11 @@ object Prefs {
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPreferOfficialCdnRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPreferOfficialCdn, value) }
 
-    var enableWebmark: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPreferEnableWebmarkRequest).first() }
-        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableWebmark, value) }
+    var defaultDanmakuMask: Boolean
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefDefaultDanmakuMaskRequest).first()
+        }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefDefaultDanmakuMask, value) }
 }
 
 private object PrefKeys {
@@ -324,7 +326,7 @@ private object PrefKeys {
     val prefLastVersionCodeKey = intPreferencesKey("last_version_code")
     val prefShowedRemoteControllerPanelDemoKey = booleanPreferencesKey("showed_rcpd")
     val prefPreferOfficialCdn = booleanPreferencesKey("prefer_official_cdn")
-    val prefEnableWebmark = booleanPreferencesKey("prefer_enable_webmark")
+    val prefDefaultDanmakuMask = booleanPreferencesKey("prefer_enable_webmark")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -375,5 +377,5 @@ private object PrefKeys {
     val prefShowedRemoteControllerPanelDemoRequest =
         PreferenceRequest(prefShowedRemoteControllerPanelDemoKey, false)
     val prefPreferOfficialCdnRequest = PreferenceRequest(prefPreferOfficialCdn, false)
-    val prefPreferEnableWebmarkRequest = PreferenceRequest(prefEnableWebmark, false)
+    val prefDefaultDanmakuMaskRequest = PreferenceRequest(prefDefaultDanmakuMask, false)
 }

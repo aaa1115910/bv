@@ -90,6 +90,7 @@ class VideoPlayerV3ViewModel(
         addAll(Prefs.defaultDanmakuTypes)
     }
     var currentDanmakuArea by mutableFloatStateOf(Prefs.defaultDanmakuArea)
+    var currentDanmakuMask by mutableStateOf(Prefs.defaultDanmakuMask)
     var currentSubtitleId by mutableLongStateOf(-1L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()
     var currentSubtitleFontSize by mutableStateOf(Prefs.defaultSubtitleFontSize)

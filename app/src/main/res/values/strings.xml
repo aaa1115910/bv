@@ -179,7 +179,6 @@
     <string name="resolution_hdr_short">HDR</string>
 
     <string name="search_input_history">历史记录</string>
-    <string name="title_activity_toview">现在不看</string>
     <string name="search_input_hotword">bilibili 热搜</string>
     <string name="search_input_soft_keybord_clear">清空</string>
     <string name="search_input_soft_keybord_delete">删除</string>
@@ -279,6 +278,7 @@
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>
     <string name="title_activity_tag">视频标签</string>
+    <string name="title_activity_toview">现在不看</string>
     <string name="title_activity_up_info">UP 投稿</string>
     <string name="title_activity_user_info">用户信息</string>
     <string name="title_activity_user_lock_settings">用户锁设置</string>
@@ -465,6 +465,7 @@
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
     <string name="video_player_menu_danmaku_area">显示区域</string>
+    <string name="video_player_menu_danmaku_mask">防遮挡</string>
     <string name="video_player_menu_danmaku_opacity">不透明度</string>
     <string name="video_player_menu_danmaku_size">字体缩放</string>
     <string name="video_player_menu_danmaku_switch">弹幕类型</string>
@@ -472,7 +473,6 @@
     <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
     <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
     <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
-    <string name="video_player_menu_danmaku_webmark">防遮挡</string>
     <string name="video_player_menu_nav_danmaku">弹幕设置</string>
     <string name="video_player_menu_nav_picture">画面音频</string>
     <string name="video_player_menu_nav_subtitle">字幕设置</string>

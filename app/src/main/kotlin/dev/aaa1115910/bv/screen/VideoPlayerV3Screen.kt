@@ -32,7 +32,6 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskFrame
-import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
@@ -447,6 +446,7 @@ fun VideoPlayerV3Screen(
             currentDanmakuScale = playerViewModel.currentDanmakuScale,
             currentDanmakuOpacity = playerViewModel.currentDanmakuOpacity,
             currentDanmakuArea = playerViewModel.currentDanmakuArea,
+            currentDanmakuMask = playerViewModel.currentDanmakuMask,
             currentSubtitleId = playerViewModel.currentSubtitleId,
             currentSubtitleData = playerViewModel.currentSubtitleData,
             currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
@@ -588,6 +588,11 @@ fun VideoPlayerV3Screen(
                 Prefs.defaultDanmakuArea = area
                 playerViewModel.currentDanmakuArea = area
             },
+            onDanmakuMaskChange = { mask ->
+                logger.info { "On danmaku mask change: $mask" }
+                Prefs.defaultDanmakuMask = mask
+                playerViewModel.currentDanmakuMask = mask
+            },
             onSubtitleChange = { subtitle ->
                 playerViewModel.loadSubtitle(subtitle.id)
             },
@@ -634,7 +639,7 @@ fun VideoPlayerV3Screen(
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
                         .alpha(playerViewModel.currentDanmakuOpacity)
                         .ifElse(
-                            { Prefs.enableWebmark },
+                            { playerViewModel.currentDanmakuMask },
                             Modifier.danmakuMask(currentDanmakuMaskFrame)
                         ),
                     danmakuPlayer = playerViewModel.danmakuPlayer
