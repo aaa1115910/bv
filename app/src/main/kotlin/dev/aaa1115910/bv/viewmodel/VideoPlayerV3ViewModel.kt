@@ -547,7 +547,10 @@ class VideoPlayerV3ViewModel(
         val filteredUrls = urls
             .filter { !it.contains(".mcdn.bilivideo.") }
             .filter { !it.contains(".szbdyd.com") }
-            .filter { !Regex("""^https?://\d{1,3}.\d{1,3}""").matches(it) }
+            .filter {
+                !Regex("^(https?://)?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(:\\d{1,5})?)(/[a-zA-Z0-9_./-]*)?(\\?.*)?$")
+                    .matches(it)
+            }
         if (filteredUrls.isEmpty()) {
             logger.fInfo { "doesn't find any official cdn url, select the first url" }
             return urls.first()
