@@ -70,7 +70,7 @@ fun UpdateDialog(
                 val revision = latestReleaseBuild!!
                     .assets.first { it.name.startsWith("BV") }
                     .name.split("_")[1].toInt()
-                if (revision < BuildConfig.VERSION_CODE) {
+                if (revision <= BuildConfig.VERSION_CODE) {
                     updateStatus = UpdateStatus.NoAvailableUpdate
                     return@launch
                 }
