@@ -42,7 +42,9 @@ import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.swapListWithMainContext
 import dev.aaa1115910.bv.util.swapMap
+import dev.aaa1115910.bv.util.swapMapWithMainContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -140,8 +142,8 @@ class VideoPlayerV3ViewModel(
         currentEpid = epid ?: 0
         epid?.let { this.epid = it }
         seasonId?.let { this.seasonId = it }
-        addLogs("加载视频中")
         viewModelScope.launch(Dispatchers.Default) {
+            addLogs("加载视频中")
             releaseDanmakuPlayer()
             initDanmakuPlayer()
             addLogs("初始化弹幕引擎")
@@ -179,7 +181,7 @@ class VideoPlayerV3ViewModel(
         proxyArea: ProxyArea = ProxyArea.MainLand
     ) {
         logger.fInfo { "Load play url: [av=$avid, cid=$cid, preferApi=$preferApi, proxyArea=$proxyArea]" }
-        loadState = RequestState.Ready
+        withContext(Dispatchers.Main) { loadState = RequestState.Ready }
         logger.fInfo { "Set request state: ready" }
         runCatching {
             val playData = if (fromSeason) {
@@ -205,10 +207,10 @@ class VideoPlayerV3ViewModel(
             }
 
             //检查是否需要购买，如果未购买，则正片返回的dash为null，非正片例如可以免费观看的预告片等则会返回数据，此时不做提示
-            needPay = playData.needPay
+            withContext(Dispatchers.Main) { needPay = playData.needPay }
             if (needPay) return@runCatching
 
-            this.playData = playData
+            withContext(Dispatchers.Main) { this@VideoPlayerV3ViewModel.playData = playData }
             logger.fInfo { "Load play data response success" }
             //logger.info { "Play data: $playData" }
 
@@ -223,7 +225,7 @@ class VideoPlayerV3ViewModel(
             }
 
             logger.fInfo { "Video available resolution: $resolutionMap" }
-            availableQuality.swapMap(resolutionMap)
+            availableQuality.swapMapWithMainContext(resolutionMap)
 
             //读取音频
             val audioList = mutableListOf<Audio>()
@@ -244,7 +246,7 @@ class VideoPlayerV3ViewModel(
             }
 
             logger.fInfo { "Video available audio: $audioList" }
-            availableAudio.swapList(audioList)
+            availableAudio.swapListWithMainContext(audioList)
 
             //先确认最终所选清晰度
             val existDefaultResolution =
@@ -252,10 +254,10 @@ class VideoPlayerV3ViewModel(
 
             if (!existDefaultResolution) {
                 val tempList = resolutionMap.keys.sorted()
-                currentQuality = tempList.first()
+                withContext(Dispatchers.Main) { currentQuality = tempList.first() }
                 tempList.forEach {
                     if (it <= Prefs.defaultQuality) {
-                        currentQuality = it
+                        withContext(Dispatchers.Main) { currentQuality = it }
                     }
                 }
             }
@@ -263,13 +265,16 @@ class VideoPlayerV3ViewModel(
             //确认最终所选音质
             val existDefaultAudio = availableAudio.contains(Prefs.defaultAudio)
             if (!existDefaultAudio) {
-                currentAudio = when {
+                val currentAudio = when {
                     Prefs.defaultAudio == Audio.ADolbyAtoms && availableAudio.contains(Audio.AHiRes) -> Audio.AHiRes
                     Prefs.defaultAudio == Audio.AHiRes && availableAudio.contains(Audio.ADolbyAtoms) -> Audio.ADolbyAtoms
                     availableAudio.contains(Audio.A192K) -> Audio.A192K
                     availableAudio.contains(Audio.A132K) -> Audio.A132K
                     availableAudio.contains(Audio.A64K) -> Audio.A64K
                     else -> availableAudio.first()
+                }
+                withContext(Dispatchers.Main) {
+                    this@VideoPlayerV3ViewModel.currentAudio = currentAudio
                 }
             }
 
@@ -290,13 +295,15 @@ class VideoPlayerV3ViewModel(
         }
     }
 
-    fun updateAvailableCodec() {
+    suspend fun updateAvailableCodec() {
         if (Prefs.apiType == ApiType.App && playData!!.codec.isEmpty()) {
             // 纠正当前实际播放的编码
             val videoItem = playData!!.dashVideos
                 .find { it.quality == currentQuality }
                 ?: playData!!.dashVideos.first()
-            currentVideoCodec = VideoCodec.fromCodecId(videoItem.codecId)
+            withContext(Dispatchers.Main) {
+                currentVideoCodec = VideoCodec.fromCodecId(videoItem.codecId)
+            }
             return
         }
 
@@ -304,14 +311,17 @@ class VideoPlayerV3ViewModel(
         val codecList =
             supportedCodec[currentQuality]!!.mapNotNull { VideoCodec.fromCodecString(it) }
 
-        availableVideoCodec.swapList(codecList)
+        availableVideoCodec.swapListWithMainContext(codecList)
         logger.fInfo { "Video available codec: ${availableVideoCodec.toList()}" }
 
         logger.fInfo { "Default codec: $currentVideoCodec" }
-        currentVideoCodec = if (codecList.contains(Prefs.defaultVideoCodec)) {
+        val currentVideoCodec = if (codecList.contains(Prefs.defaultVideoCodec)) {
             Prefs.defaultVideoCodec
         } else {
             codecList.minByOrNull { it.ordinal }!!
+        }
+        withContext(Dispatchers.Main) {
+            this@VideoPlayerV3ViewModel.currentVideoCodec = currentVideoCodec
         }
         logger.fInfo { "Select codec: $currentVideoCodec" }
     }
@@ -366,10 +376,9 @@ class VideoPlayerV3ViewModel(
         logger.fInfo { "Select audio: $audioItem" }
         addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
-        currentVideoHeight = videoItem?.height ?: 0
-        currentVideoWidth = videoItem?.width ?: 0
-
         withContext(Dispatchers.Main) {
+            currentVideoHeight = videoItem?.height ?: 0
+            currentVideoWidth = videoItem?.width ?: 0
             logger.info { "Video url: $videoUrl" }
             logger.info { "Audio url: $audioUrl" }
             videoPlayer!!.playUrl(videoUrl, audioUrl)
@@ -382,8 +391,7 @@ class VideoPlayerV3ViewModel(
         runCatching {
             val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
 
-            danmakuData.clear()
-            danmakuData.addAll(danmakuXmlData.data.map {
+            val danmakuItemDataList = danmakuXmlData.data.map {
                 DanmakuItemData(
                     danmakuId = it.dmid,
                     position = (it.time * 1000).toLong(),
@@ -396,7 +404,8 @@ class VideoPlayerV3ViewModel(
                     textSize = it.size,
                     textColor = Color(it.color).toArgb()
                 )
-            })
+            }
+            danmakuData.swapListWithMainContext(danmakuItemDataList)
             danmakuPlayer?.updateData(danmakuData)
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
@@ -417,20 +426,22 @@ class VideoPlayerV3ViewModel(
                 cid = currentCid,
                 preferApiType = Prefs.apiType
             )
-            availableSubtitle.clear()
-            availableSubtitle.add(
-                Subtitle(
-                    id = -1,
-                    lang = "",
-                    langDoc = "关闭",
-                    url = "",
-                    type = SubtitleType.CC,
-                    aiType = SubtitleAiType.Normal,
-                    aiStatus = SubtitleAiStatus.None
+            withContext(Dispatchers.Main) {
+                availableSubtitle.clear()
+                availableSubtitle.add(
+                    Subtitle(
+                        id = -1,
+                        lang = "",
+                        langDoc = "关闭",
+                        url = "",
+                        type = SubtitleType.CC,
+                        aiType = SubtitleAiType.Normal,
+                        aiStatus = SubtitleAiStatus.None
+                    )
                 )
-            )
-            availableSubtitle.addAll(subtitleData)
-            availableSubtitle.sortBy { it.id }
+                availableSubtitle.addAll(subtitleData)
+                availableSubtitle.sortBy { it.id }
+            }
             addLogs("获取到 ${subtitleData.size} 条字幕: ${subtitleData.map { it.langDoc }}")
             logger.fInfo { "Update subtitle size: ${subtitleData.size}" }
         }.onFailure {
@@ -453,7 +464,7 @@ class VideoPlayerV3ViewModel(
         }
     }
 
-    private fun addLogs(text: String) {
+    private suspend fun addLogs(text: String) {
         logger.fInfo { text }
         val lines = logs.lines().toMutableList()
         lines.add(text)
@@ -464,8 +475,10 @@ class VideoPlayerV3ViewModel(
         lines.forEach {
             newTip += if (newTip == "") it else "\n$it"
         }
-        logs = newTip
-        lastChangedLog = System.currentTimeMillis()
+        withContext(Dispatchers.Main) {
+            logs = newTip
+            lastChangedLog = System.currentTimeMillis()
+        }
     }
 
     suspend fun uploadHistory(time: Int) {
@@ -501,8 +514,10 @@ class VideoPlayerV3ViewModel(
     fun loadSubtitle(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             if (id == 0L) {
-                currentSubtitleData.clear()
-                currentSubtitleId = -1
+                withContext(Dispatchers.Main) {
+                    currentSubtitleData.clear()
+                    currentSubtitleId = -1
+                }
                 return@launch
             }
             var subtitleName = ""
@@ -513,8 +528,10 @@ class VideoPlayerV3ViewModel(
                 val client = HttpClient(OkHttp)
                 val responseText = client.get(subtitle.url).bodyAsText()
                 val subtitleData = SubtitleParser.fromBccString(responseText)
-                currentSubtitleId = id
-                currentSubtitleData.swapList(subtitleData)
+                withContext(Dispatchers.Main) {
+                    currentSubtitleId = id
+                    currentSubtitleData.swapList(subtitleData)
+                }
             }.onFailure {
                 logger.fInfo { "Load subtitle failed: ${it.stackTraceToString()}" }
                 addLogs("加载字幕 $subtitleName 失败: ${it.localizedMessage}")
@@ -561,14 +578,13 @@ class VideoPlayerV3ViewModel(
     }
 
     private suspend fun updateDanmakuMask() {
-        danmakuMasks.clear()
         runCatching {
             val masks = videoPlayRepository.getDanmakuMask(
                 aid = currentAid,
                 cid = currentCid,
                 preferApiType = Prefs.apiType
             )
-            danmakuMasks.addAll(masks)
+            danmakuMasks.swapListWithMainContext(masks)
             logger.fInfo { "Load danmaku mask size: ${danmakuMasks.size}" }
         }.onFailure {
             logger.fWarn { "Load danmaku mask failed: ${it.stackTraceToString()}" }
@@ -576,14 +592,14 @@ class VideoPlayerV3ViewModel(
     }
 
     private suspend fun updateVideoShot() {
-        videoShot = null
+        withContext(Dispatchers.Main) { videoShot = null }
         runCatching {
             val videoShot = videoPlayRepository.getVideoShot(
                 aid = currentAid,
                 cid = currentCid,
                 preferApiType = Prefs.apiType
             )
-            this.videoShot = videoShot
+            withContext(Dispatchers.Main) { this@VideoPlayerV3ViewModel.videoShot = videoShot }
             logger.fInfo { "Load video shot success" }
         }.onFailure {
             logger.fWarn { "Load video shot failed: ${it.stackTraceToString()}" }

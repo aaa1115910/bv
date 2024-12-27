@@ -19,6 +19,7 @@ import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchResultViewModel(
     private val searchRepository: SearchRepository
@@ -87,19 +88,20 @@ class SearchResultViewModel(
                     preferApiType = Prefs.apiType,
                     enableProxy = enableProxySearchResult
                 )
+                withContext(Dispatchers.Main) {
+                    when (searchType) {
+                        SearchType.Video -> videoSearchResult =
+                            videoSearchResult.appendSearchResultData(searchResultResponse)
 
-                when (searchType) {
-                    SearchType.Video -> videoSearchResult =
-                        videoSearchResult.appendSearchResultData(searchResultResponse)
+                        SearchType.MediaBangumi -> mediaBangumiSearchResult =
+                            mediaBangumiSearchResult.appendSearchResultData(searchResultResponse)
 
-                    SearchType.MediaBangumi -> mediaBangumiSearchResult =
-                        mediaBangumiSearchResult.appendSearchResultData(searchResultResponse)
+                        SearchType.MediaFt -> mediaFtSearchResult =
+                            mediaFtSearchResult.appendSearchResultData(searchResultResponse)
 
-                    SearchType.MediaFt -> mediaFtSearchResult =
-                        mediaFtSearchResult.appendSearchResultData(searchResultResponse)
-
-                    SearchType.BiliUser -> biliUserSearchResult =
-                        biliUserSearchResult.appendSearchResultData(searchResultResponse)
+                        SearchType.BiliUser -> biliUserSearchResult =
+                            biliUserSearchResult.appendSearchResultData(searchResultResponse)
+                    }
                 }
 
                 page = searchResultResponse.page

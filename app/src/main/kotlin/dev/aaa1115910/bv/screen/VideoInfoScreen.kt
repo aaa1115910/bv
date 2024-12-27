@@ -121,6 +121,7 @@ import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.launchPlayerActivity
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.swapListWithMainContext
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
@@ -194,8 +195,10 @@ fun VideoInfoScreen(
                 preferApiType = Prefs.apiType
             )
             logger.fInfo { "Following user result: $success" }
-            showFollowButton = success != null
-            isFollowing = success ?: false
+            withContext(Dispatchers.Main) {
+                showFollowButton = success != null
+                isFollowing = success == true
+            }
         }
     }
 
@@ -234,11 +237,11 @@ fun VideoInfoScreen(
                         rid = avid,
                         preferApiType = Prefs.apiType
                     )
-                favoriteFolderMetadataList.swapList(favoriteFolderMetadataListResult)
+                favoriteFolderMetadataList.swapListWithMainContext(favoriteFolderMetadataListResult)
 
                 val videoInFavoriteFolderIdsResult = favoriteFolderMetadataListResult
                     .filter { it.videoInThisFav }
-                videoInFavoriteFolderIds.swapList(videoInFavoriteFolderIdsResult.map { it.id })
+                videoInFavoriteFolderIds.swapListWithMainContext(videoInFavoriteFolderIdsResult.map { it.id })
 
                 logger.fDebug { "Update favoriteFolders: ${favoriteFolderMetadataList.map { it.title }}" }
                 logger.fDebug { "Update videoInFavoriteFolderIds: ${videoInFavoriteFolderIdsResult.map { it.title }}" }

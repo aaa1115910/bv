@@ -11,6 +11,7 @@ import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +49,7 @@ class UpInfoViewModel(
                 preferApiType = Prefs.apiType
             )
             spaceVideoData.videos.forEach { spaceVideoItem ->
-                spaceVideos.add(
+                spaceVideos.addWithMainContext(
                     VideoCardData(
                         avid = spaceVideoItem.aid,
                         title = spaceVideoItem.title,

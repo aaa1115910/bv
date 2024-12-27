@@ -35,22 +35,39 @@ fun <T> SnapshotStateList<T>.swapList(newList: List<T>) {
     addAll(newList)
 }
 
-suspend fun <T> SnapshotStateList<T>.swapList(
+suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(newList: List<T>) =
+    withContext(Dispatchers.Main) { this@swapListWithMainContext.swapList(newList) }
+
+suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(
     newList: List<T>,
     delay: Long,
     afterSwap: () -> Unit
 ) {
-    withContext(Dispatchers.Main) {
-        this@swapList.swapList(newList)
-    }
+    this@swapListWithMainContext.swapListWithMainContext(newList)
     delay(delay)
     afterSwap()
 }
+
+suspend fun <T> SnapshotStateList<T>.addAllWithMainContext(newList: List<T>) =
+    withContext(Dispatchers.Main) { addAll(newList) }
+
+suspend fun <T> SnapshotStateList<T>.addAllWithMainContext(newListBlock: suspend () -> List<T>) {
+    val newList = newListBlock()
+    withContext(Dispatchers.Main) { addAll(newList) }
+}
+
+
+suspend fun <T> SnapshotStateList<T>.addWithMainContext(item: T) =
+    withContext(Dispatchers.Main) { add(item) }
+
 
 fun <K, V> SnapshotStateMap<K, V>.swapMap(newMap: Map<K, V>) {
     clear()
     putAll(newMap)
 }
+
+suspend fun <K, V> SnapshotStateMap<K, V>.swapMapWithMainContext(newMap: Map<K, V>) =
+    withContext(Dispatchers.Main) { this@swapMapWithMainContext.swapMap(newMap) }
 
 fun <K, V> SnapshotStateMap<K, V>.swapMap(newMap: Map<K, V>, afterSwap: () -> Unit) {
     this.swapMap(newMap)

@@ -178,14 +178,17 @@ fun SeasonInfoScreen(
     val updateSeasonData: (seasonId: Int?, epId: Int?) -> Unit = { sId, eId ->
         scope.launch(Dispatchers.IO) {
             runCatching {
-                seasonData = videoDetailRepository.getPgcVideoDetail(
+                val data = videoDetailRepository.getPgcVideoDetail(
                     seasonId = sId,
                     epid = eId,
                     preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 )
-                logger.info { "User status: ${seasonData!!.userStatus}" }
-                isFollowing = seasonData!!.userStatus.follow
-                lastPlayProgress = seasonData!!.userStatus.progress
+                withContext(Dispatchers.Main) {
+                    seasonData = data
+                    logger.info { "User status: ${seasonData!!.userStatus}" }
+                    isFollowing = seasonData!!.userStatus.follow
+                    lastPlayProgress = seasonData!!.userStatus.progress
+                }
             }.onFailure {
                 tip = it.localizedMessage ?: "未知错误"
                 logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
@@ -198,11 +201,12 @@ fun SeasonInfoScreen(
             //延迟 200ms，避免获取到的依旧是旧数据
             delay(200)
             runCatching {
-                lastPlayProgress = videoDetailRepository.getPgcVideoDetail(
+                val data = videoDetailRepository.getPgcVideoDetail(
                     seasonId = seasonId,
                     epid = epId,
                     preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 ).userStatus.progress
+                withContext(Dispatchers.Main) { lastPlayProgress = data }
                 logger.info { "update user status progress: $lastPlayProgress" }
             }.onFailure {
                 logger.fInfo { "update user status progress failed: ${it.stackTraceToString()}" }

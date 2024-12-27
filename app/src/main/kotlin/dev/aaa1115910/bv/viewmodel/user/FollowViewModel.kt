@@ -10,7 +10,7 @@ import dev.aaa1115910.biliapi.entity.user.FollowedUser
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
-import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.swapListWithMainContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,20 +41,20 @@ class FollowViewModel(
                 preferApiType = Prefs.apiType
             )
             logger.fInfo { "Followed user count: ${followedUserList.size}" }
-            followedUsers.swapList(followedUserList)
-            followedUsers.swapList(sortUsers())
+            val sortedUserList = sortUsers(followedUserList)
+            followedUsers.swapListWithMainContext(sortedUserList)
             logger.fInfo { "Load followed user finish" }
         }
         updating = false
     }
 
-    private fun sortUsers(): List<FollowedUser> {
+    private fun sortUsers(users: List<FollowedUser>): List<FollowedUser> {
         val sortedList = mutableStateListOf<FollowedUser>()
         val usersStartWithoutChinese =
-            followedUsers.filter { Regex("^[A-Za-z0-9_-]").containsMatchIn(it.name) }
+            users.filter { Regex("^[A-Za-z0-9_-]").containsMatchIn(it.name) }
                 .toMutableList()
         val usersStartWithChinese =
-            (followedUsers - usersStartWithoutChinese.toSet()).toMutableList()
+            (users - usersStartWithoutChinese.toSet()).toMutableList()
 
         usersStartWithoutChinese.sortWith { o1, o2 ->
             Collator.getInstance(Locale.CHINA).compare(o1.name, o2.name)

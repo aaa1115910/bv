@@ -48,13 +48,13 @@ class SmsLoginViewModel(
             when (sendSmsResult.state) {
                 SendSmsState.Ready -> {
                     logger.info { "this state should be here: $sendSmsState" }
-                    sendSmsState = sendSmsResult.state
+                    withContext(Dispatchers.Main) { sendSmsState = sendSmsResult.state }
                 }
 
                 SendSmsState.Error -> {
                     logger.warn { "Send sms failed: ${sendSmsResult.message}" }
-                    sendSmsState = sendSmsResult.state
                     withContext(Dispatchers.Main) {
+                        sendSmsState = sendSmsResult.state
                         "发送短信失败：${sendSmsResult.message}".toast(BVApp.context)
                     }
                     clearCaptchaData()
@@ -62,9 +62,9 @@ class SmsLoginViewModel(
 
                 SendSmsState.Success -> {
                     logger.info { "Send sms success" }
-                    sendSmsState = sendSmsResult.state
                     captchaKey = sendSmsResult.captchaKey
                     withContext(Dispatchers.Main) {
+                        sendSmsState = sendSmsResult.state
                         "验证码已发送".toast(BVApp.context)
                     }
                 }
@@ -86,15 +86,15 @@ class SmsLoginViewModel(
                     logger.info { "geetestGt: $geetestGt" }
                     logger.info { "geetestChallenge: $geetestChallenge" }
                     onCaptcha(geetestChallenge!!, geetestGt!!)
-                    sendSmsState = sendSmsResult.state
+                    withContext(Dispatchers.Main) { sendSmsState = sendSmsResult.state }
                 }
             }
         }.onFailure {
             logger.warn { "Send sms failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {
                 "发送短信失败：${it.message}".toast(BVApp.context)
+                clearCaptchaData()
             }
-            clearCaptchaData()
         }
     }
 

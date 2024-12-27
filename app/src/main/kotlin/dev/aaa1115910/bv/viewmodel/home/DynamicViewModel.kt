@@ -9,6 +9,7 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.toast
@@ -46,7 +47,7 @@ class DynamicViewModel(
                 updateBaseline = updateBaseline ?: "",
                 preferApiType = Prefs.apiType
             )
-            dynamicList.addAll(dynamicVideoData.videos)
+            dynamicList.addAllWithMainContext(dynamicVideoData.videos)
             historyOffset = dynamicVideoData.historyOffset
             updateBaseline = dynamicVideoData.updateBaseline
             hasMore = dynamicVideoData.hasMore

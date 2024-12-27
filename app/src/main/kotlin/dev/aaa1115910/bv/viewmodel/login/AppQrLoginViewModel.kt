@@ -45,13 +45,13 @@ class AppQrLoginViewModel(
         logger.fInfo { "Request login qr code" }
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
-                state = QrLoginState.RequestingQRCode
+                withContext(Dispatchers.Main) { state = QrLoginState.RequestingQRCode }
                 val qrLoginData = loginRepository.requestAppQrLogin()
                 loginUrl = qrLoginData.url
                 key = qrLoginData.key
                 logger.fInfo { "Get login request code url" }
                 logger.info { qrLoginData.url }
-                generateQRImage()
+                withContext(Dispatchers.Main) { generateQRImage() }
                 runCatching { timer.cancel() }
                 timer = timeTask(1000, 1000, "check qr login result") {
                     viewModelScope.launch {
@@ -61,8 +61,8 @@ class AppQrLoginViewModel(
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     it.message?.toast(BVApp.context)
+                    state = QrLoginState.Error
                 }
-                state = QrLoginState.Error
                 logger.fError { "Get login request code url failed: ${it.stackTraceToString()}" }
                 timer.cancel()
             }
@@ -77,7 +77,7 @@ class AppQrLoginViewModel(
         logger.fInfo { "Check for login result" }
         runCatching {
             val qrLoginResult = loginRepository.checkAppQrLoginState(key)
-            state = qrLoginResult.state
+            withContext(Dispatchers.Main) { state = qrLoginResult.state }
             when (state) {
                 QrLoginState.WaitingForScan -> {
                     logger.fInfo { "Waiting to scan" }
@@ -121,8 +121,8 @@ class AppQrLoginViewModel(
             }
             withContext(Dispatchers.Main) {
                 it.message?.toast(BVApp.context)
+                state = QrLoginState.Error
             }
-            state = QrLoginState.Error
             logger.fError { "Check qr state failed: ${it.stackTraceToString()}" }
         }
     }

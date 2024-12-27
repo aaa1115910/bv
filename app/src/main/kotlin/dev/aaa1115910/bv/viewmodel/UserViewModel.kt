@@ -42,8 +42,8 @@ class UserViewModel(
             userRepository.reloadAvatar()
 
             runCatching {
-                responseData =
-                    BiliHttpApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+                val data = BiliHttpApi.getUserSelfInfo(sessData = Prefs.sessData).getResponseData()
+                withContext(Dispatchers.Main) { responseData = data }
                 logger.fInfo { "Update user info success" }
                 shouldUpdateInfo = false
                 userRepository.username = responseData!!.name

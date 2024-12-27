@@ -23,6 +23,7 @@ import dev.aaa1115910.biliapi.entity.pgc.index.Style
 import dev.aaa1115910.biliapi.entity.pgc.index.Year
 import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.bv.BVApp
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -91,7 +92,7 @@ class PgcIndexViewModel(
                 style = style,
                 page = nextPage
             )
-            indexResultItems.addAll(result.list)
+            indexResultItems.addAllWithMainContext(result.list)
             nextPage = result.nextPage
             logger.info { "load more $pgcType list success, size: ${result.list.size}" }
         }.onFailure {

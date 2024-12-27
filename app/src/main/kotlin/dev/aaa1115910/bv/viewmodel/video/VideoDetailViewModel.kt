@@ -10,8 +10,10 @@ import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
-import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.util.swapListWithMainContext
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class VideoDetailViewModel(
     private val videoDetailRepository: VideoDetailRepository
@@ -26,10 +28,11 @@ class VideoDetailViewModel(
         logger.fInfo { "Load detail: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
         state = VideoInfoState.Loading
         runCatching {
-            videoDetail = videoDetailRepository.getVideoDetail(
+            val videoDetailData = videoDetailRepository.getVideoDetail(
                 aid = aid,
                 preferApiType = Prefs.apiType
             )
+            withContext(Dispatchers.Main) { videoDetail = videoDetailData }
         }.onFailure {
             state = VideoInfoState.Error
             logger.fInfo { "Load video av$aid failed: ${it.stackTraceToString()}" }
@@ -44,10 +47,11 @@ class VideoDetailViewModel(
     suspend fun loadDetailOnlyUpdateHistory(aid: Long) {
         logger.fInfo { "Load detail only update history: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
         runCatching {
-            videoDetail?.history = videoDetailRepository.getVideoDetail(
+            val historyData = videoDetailRepository.getVideoDetail(
                 aid = aid,
                 preferApiType = Prefs.apiType
             ).history
+            withContext(Dispatchers.Main) { videoDetail?.history = historyData }
         }.onFailure {
             logger.fInfo { "Load video av$aid only update history failed: ${it.stackTraceToString()}" }
         }.onSuccess {
@@ -55,7 +59,7 @@ class VideoDetailViewModel(
         }
     }
 
-    private fun updateRelatedVideos() {
+    private suspend fun updateRelatedVideos() {
         logger.fInfo { "Start update relate video" }
         val relateVideoCardDataList = videoDetail?.relatedVideos?.map {
             VideoCardData(
@@ -70,7 +74,7 @@ class VideoDetailViewModel(
                 epId = it.epid
             )
         } ?: emptyList()
-        relatedVideos.swapList(relateVideoCardDataList)
+        relatedVideos.swapListWithMainContext(relateVideoCardDataList)
         logger.fInfo { "Update ${relateVideoCardDataList.size} relate videos" }
     }
 }

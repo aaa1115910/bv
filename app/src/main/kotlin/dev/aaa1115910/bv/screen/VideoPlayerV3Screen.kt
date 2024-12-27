@@ -112,7 +112,7 @@ fun VideoPlayerV3Screen(
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
-        infoData = VideoPlayerInfoData(
+        val videoPlayerInfoData = VideoPlayerInfoData(
             totalDuration = videoPlayer.duration.coerceAtLeast(0L),
             currentTime = videoPlayer.currentPosition.coerceAtLeast(0L),
             bufferedPercentage = videoPlayer.bufferedPercentage,
@@ -120,6 +120,7 @@ fun VideoPlayerV3Screen(
             resolutionHeight = videoPlayer.videoHeight,
             codec = ""//videoPlayer.videoFormat?.sampleMimeType ?: "null"
         )
+        infoData = videoPlayerInfoData
         debugInfo = videoPlayer.debugInfo
     }
 
@@ -316,10 +317,11 @@ fun VideoPlayerV3Screen(
         var updateSeekTimer: Timer? = null
         var resetTimer: ((Long) -> Unit)? = null
 
-        val updateMask: () -> Unit = {
-            currentDanmakuMaskFrame = playerViewModel.danmakuMasks.firstOrNull {
+        val updateMask: suspend () -> Unit = {
+            val danmakuMasks = playerViewModel.danmakuMasks.firstOrNull {
                 currentPosition in it.range
             }?.frames?.firstOrNull { currentPosition in it.range }
+            withContext(Dispatchers.Main) { currentDanmakuMaskFrame = danmakuMasks }
 
             if (currentDanmakuMaskFrame != null) {
                 resetTimer?.invoke(
@@ -331,7 +333,7 @@ fun VideoPlayerV3Screen(
         }
 
         val timerTask: () -> Unit = {
-            scope.launch {
+            scope.launch(Dispatchers.IO) {
                 if (playerViewModel.danmakuMasks.isNotEmpty()) {
                     if (currentDanmakuMaskFrame == null) {
                         //当前无蒙版
@@ -353,7 +355,7 @@ fun VideoPlayerV3Screen(
                     }
                 } else {
                     //定期检查是否有蒙版
-                    currentDanmakuMaskFrame = null
+                    withContext(Dispatchers.Main) { currentDanmakuMaskFrame = null }
                     resetTimer?.invoke(2000)
                 }
             }

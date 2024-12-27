@@ -43,6 +43,7 @@ import dev.aaa1115910.bv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.resizedImageUrl
@@ -80,14 +81,14 @@ fun AnimeTimelineScreen(
     val timelines = remember { mutableStateListOf<Timeline>() }
 
     LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.Default) {
+        scope.launch(Dispatchers.IO) {
             runCatching {
-                timelines.addAll(
+                timelines.addAllWithMainContext {
                     seasonRepository.getTimeline(
                         filter = TimelineFilter.Anime,
                         preferApiType = Prefs.apiType
                     )
-                )
+                }
                 runCatching {
                     delay(200)
                     logger.info { "scroll to item today" }

@@ -413,11 +413,12 @@ fun UserAuthDataDialog(
 ) {
     var qrImage by remember { mutableStateOf(ImageBitmap(1, 1, ImageBitmapConfig.Argb8888)) }
 
-    val createQr: () -> Unit = {
+    val createQr: suspend () -> Unit = {
         val output = ByteArrayOutputStream()
         QRCode(userDB.auth).render().writeImage(output)
         val input = ByteArrayInputStream(output.toByteArray())
-        qrImage = BitmapFactory.decodeStream(input).asImageBitmap()
+        val image = BitmapFactory.decodeStream(input).asImageBitmap()
+        withContext(Dispatchers.Main) { qrImage = image }
     }
 
     LaunchedEffect(show) {

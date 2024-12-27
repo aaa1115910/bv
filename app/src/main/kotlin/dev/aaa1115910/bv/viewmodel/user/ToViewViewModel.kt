@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
-import dev.aaa1115910.biliapi.repositories.HistoryRepository
 import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
@@ -16,6 +15,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.formatMinSec
@@ -56,7 +56,7 @@ class ToViewViewModel(
             )
 
             data.data.forEach { ToViewItem ->
-                histories.add(
+                histories.addWithMainContext(
                     VideoCardData(
                         avid = ToViewItem.oid,
                         title = ToViewItem.title,
@@ -76,7 +76,7 @@ class ToViewViewModel(
             logger.fInfo { "Update toview cursor: [cursor=$cursor]" }
             logger.fInfo { "Update histories success" }
             if (cursor == 0L) {
-                noMore = true
+                withContext(Dispatchers.Main) { noMore = true }
                 logger.fInfo { "No more toview" }
             }
         }.onFailure {
