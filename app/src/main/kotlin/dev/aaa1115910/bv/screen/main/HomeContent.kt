@@ -9,7 +9,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,9 +54,9 @@ fun HomeContent(
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("HomeContent")
 
-    val recommendState = rememberLazyGridState()
-    val popularState = rememberLazyGridState()
-    val dynamicState = rememberLazyGridState()
+    val recommendState = rememberLazyListState()
+    val popularState = rememberLazyListState()
+    val dynamicState = rememberLazyListState()
 
     var selectedTab by remember { mutableStateOf(HomeTopNavItem.Recommend) }
     var focusOnContent by remember { mutableStateOf(false) }
@@ -188,9 +188,9 @@ fun HomeContent(
                 }
             ) { screen ->
                 when (screen) {
-                    HomeTopNavItem.Recommend -> RecommendScreen(lazyGridState = recommendState)
-                    HomeTopNavItem.Popular -> PopularScreen(lazyGridState = popularState)
-                    HomeTopNavItem.Dynamics -> DynamicsScreen(lazyGridState = dynamicState)
+                    HomeTopNavItem.Recommend -> RecommendScreen(lazyListState = recommendState)
+                    HomeTopNavItem.Popular -> PopularScreen(lazyListState = popularState)
+                    HomeTopNavItem.Dynamics -> DynamicsScreen(lazyListState = dynamicState)
                 }
             }
         }

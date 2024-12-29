@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
@@ -107,7 +108,9 @@ fun UgcRegionScaffold(
         gridItems(
             data = state.ugcItems,
             columnCount = 4,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+            modifier = Modifier
+                .width(880.dp)
+                .padding(horizontal = 24.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             itemContent = { index, item ->
                 SmallVideoCard(
@@ -140,22 +143,29 @@ fun <T> LazyListScope.gridItems(
     val size = data.count()
     val rows = if (size == 0) 0 else 1 + (size - 1) / columnCount
     items(rows, key = key) { rowIndex ->
-        Row(
-            verticalAlignment = verticalAlignment,
-            horizontalArrangement = horizontalArrangement,
-            modifier = modifier
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            for (columnIndex in 0 until columnCount) {
-                val itemIndex = rowIndex * columnCount + columnIndex
-                if (itemIndex < size) {
-                    Box(
-                        modifier = Modifier.weight(1F, fill = true),
-                        propagateMinConstraints = true
-                    ) {
-                        itemContent(itemIndex, data[itemIndex])
+            item {
+                Row(
+                    verticalAlignment = verticalAlignment,
+                    horizontalArrangement = horizontalArrangement,
+                    modifier = modifier
+                ) {
+                    for (columnIndex in 0 until columnCount) {
+                        val itemIndex = rowIndex * columnCount + columnIndex
+                        if (itemIndex < size) {
+                            Box(
+                                modifier = Modifier.weight(1F, fill = true),
+                                propagateMinConstraints = true
+                            ) {
+                                itemContent(itemIndex, data[itemIndex])
+                            }
+                        } else {
+                            Spacer(Modifier.weight(1F, fill = true))
+                        }
                     }
-                } else {
-                    Spacer(Modifier.weight(1F, fill = true))
                 }
             }
         }
