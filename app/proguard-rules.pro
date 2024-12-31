@@ -31,6 +31,9 @@
     public <init>(com.kuaishou.akdanmaku.ecs.DanmakuContext);
 }
 -keepclasseswithmembers class com.kuaishou.akdanmaku.ecs.component.*
+-keep class com.kuaishou.akdanmaku.ecs.component.* {
+  <init>(...);
+}
 
 # okhttp
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
