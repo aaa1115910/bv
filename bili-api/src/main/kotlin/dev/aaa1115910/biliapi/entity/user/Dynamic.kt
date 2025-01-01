@@ -537,12 +537,12 @@ data class DynamicVideo(
 
         fun fromDynamicVideoItem(item: bilibili.app.dynamic.v2.DynamicItem): DynamicVideo {
             val author =
-                item.modulesList.first { it.moduleType == DynModuleType.module_author }.moduleAuthor.author
+                item.modulesList.first { it.moduleType == DynModuleType.module_author }.moduleAuthor
             val dynamic =
                 item.modulesList.first { it.moduleType == DynModuleType.module_dynamic }.moduleDynamic
             val desc =
                 item.modulesList.firstOrNull { it.moduleType == DynModuleType.module_desc }?.moduleDesc
-            val isDynamicVideo = desc?.text?.startsWith("动态视频") ?: false
+            val isDynamicVideo = author?.ptimeLabelText?.contains("动态视频") ?: false
             when (dynamic.moduleItemCase) {
                 ModuleItemCase.DYN_ARCHIVE -> {
                     val archive = dynamic.dynArchive
@@ -550,13 +550,14 @@ data class DynamicVideo(
                         aid = archive.avid,
                         bvid = archive.bvid,
                         cid = archive.cid,
-                        title = if (!isDynamicVideo) archive.title else desc!!.text.substring(5),
+                        title = if (!isDynamicVideo) archive.title
+                        else desc?.text?.replace("动态视频｜", "") ?: "",
                         cover = archive.cover,
-                        author = author.name,
+                        author = author.author.name,
                         duration = convertStringTimeToSeconds(archive.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(archive.coverLeftText2),
                         danmaku = convertStringPlayCountToNumberPlayCount(archive.coverLeftText3),
-                        avatar = author.face
+                        avatar = author.author.face
                     )
                 }
 
@@ -570,11 +571,11 @@ data class DynamicVideo(
                         seasonId = pgc.seasonId.toInt(),
                         title = pgc.title,
                         cover = pgc.cover,
-                        author = author.name,
+                        author = author.author.name,
                         duration = convertStringTimeToSeconds(pgc.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText2),
                         danmaku = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText3),
-                        avatar = author.face
+                        avatar = author.author.face
                     )
                 }
 

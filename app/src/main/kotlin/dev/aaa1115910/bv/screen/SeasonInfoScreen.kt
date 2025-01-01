@@ -23,6 +23,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,14 +74,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.itemsIndexed
-import androidx.tv.foundation.lazy.grid.rememberTvLazyGridState
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.itemsIndexed
-import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -161,7 +161,9 @@ fun SeasonInfoScreen(
                     subType = seasonData?.subType,
                     epid = epid,
                     seasonId = seasonData?.seasonId,
-                    proxyArea = proxyArea
+                    proxyArea = proxyArea,
+                    playerIconIdle = seasonData?.playerIcon?.idle ?: "",
+                    playerIconMoving = seasonData?.playerIcon?.moving ?: ""
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
@@ -176,14 +178,17 @@ fun SeasonInfoScreen(
     val updateSeasonData: (seasonId: Int?, epId: Int?) -> Unit = { sId, eId ->
         scope.launch(Dispatchers.IO) {
             runCatching {
-                seasonData = videoDetailRepository.getPgcVideoDetail(
+                val data = videoDetailRepository.getPgcVideoDetail(
                     seasonId = sId,
                     epid = eId,
                     preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 )
-                logger.info { "User status: ${seasonData!!.userStatus}" }
-                isFollowing = seasonData!!.userStatus.follow
-                lastPlayProgress = seasonData!!.userStatus.progress
+                withContext(Dispatchers.Main) {
+                    seasonData = data
+                    logger.info { "User status: ${seasonData!!.userStatus}" }
+                    isFollowing = seasonData!!.userStatus.follow
+                    lastPlayProgress = seasonData!!.userStatus.progress
+                }
             }.onFailure {
                 tip = it.localizedMessage ?: "未知错误"
                 logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
@@ -196,11 +201,12 @@ fun SeasonInfoScreen(
             //延迟 200ms，避免获取到的依旧是旧数据
             delay(200)
             runCatching {
-                lastPlayProgress = videoDetailRepository.getPgcVideoDetail(
+                val data = videoDetailRepository.getPgcVideoDetail(
                     seasonId = seasonId,
                     epid = epId,
                     preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
                 ).userStatus.progress
+                withContext(Dispatchers.Main) { lastPlayProgress = data }
                 logger.info { "update user status progress: $lastPlayProgress" }
             }.onFailure {
                 logger.fInfo { "update user status progress failed: ${it.stackTraceToString()}" }
@@ -265,7 +271,7 @@ fun SeasonInfoScreen(
         Scaffold(
             modifier = modifier
         ) { innerPadding ->
-            TvLazyColumn(
+            LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
@@ -736,7 +742,7 @@ fun SeasonEpisodesDialog(
 
     val tabRowFocusRequester = remember { FocusRequester() }
     val videoListFocusRequester = remember { FocusRequester() }
-    val listState = rememberTvLazyGridState()
+    val listState = rememberLazyGridState()
 
     LaunchedEffect(selectedTabIndex) {
         val fromIndex = selectedTabIndex * 20
@@ -802,9 +808,9 @@ fun SeasonEpisodesDialog(
                         }
                     }
 
-                    TvLazyVerticalGrid(
+                    LazyVerticalGrid(
                         state = listState,
-                        columns = TvGridCells.Fixed(2),
+                        columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
@@ -880,7 +886,7 @@ fun SeasonEpisodeRow(
             color = titleColor
         )
 
-        TvLazyRow(
+        LazyRow(
             modifier = Modifier
                 .padding(top = 15.dp)
                 .then(focusRestorerModifiers.parentModifier),
@@ -997,7 +1003,7 @@ private fun SeasonSelectorContent(
     onClickSeason: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val rowState = rememberTvLazyListState()
+    val rowState = rememberLazyListState()
     val logger = KotlinLogging.logger {}
     val currentSeasonFocusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -1042,11 +1048,11 @@ private fun SeasonSelectorContent(
         shape = RoundedCornerShape(0.dp)
     ) {
         Box(
-            modifier=Modifier.fillMaxSize()
-        ){
+            modifier = Modifier.fillMaxSize()
+        ) {
             Box(
-                modifier=Modifier.fillMaxSize()
-            ){
+                modifier = Modifier.fillMaxSize()
+            ) {
                 AsyncImage(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -1082,16 +1088,17 @@ private fun SeasonSelectorContent(
                         )
                 ) {
                     Text(
-                        text = seasons[currentSeasonIndex].title ?: seasons[currentSeasonIndex].shortTitle,
+                        text = seasons[currentSeasonIndex].title
+                            ?: seasons[currentSeasonIndex].shortTitle,
                         style = MaterialTheme.typography.displayMedium
                     )
                 }
             }
 
             Box(
-                modifier=Modifier.align(Alignment.BottomStart)
-            ){
-                TvLazyRow(
+                modifier = Modifier.align(Alignment.BottomStart)
+            ) {
+                LazyRow(
                     modifier = Modifier.padding(bottom = 48.dp),
                     state = rowState,
                     contentPadding = PaddingValues(horizontal = 48.dp),

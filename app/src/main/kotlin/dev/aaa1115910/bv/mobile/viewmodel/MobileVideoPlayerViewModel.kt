@@ -137,7 +137,6 @@ class MobileVideoPlayerViewModel(
             val playData = videoPlayRepository.getPlayData(
                 aid = avid,
                 cid = cid,
-                preferCodec = CodeType.Code264,
                 preferApiType = preferApiType
             )
 

@@ -15,6 +15,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.formatMinSec
@@ -55,7 +56,7 @@ class HistoryViewModel(
             )
 
             data.data.forEach { historyItem ->
-                histories.add(
+                histories.addWithMainContext(
                     VideoCardData(
                         avid = historyItem.oid,
                         title = historyItem.title,
@@ -75,7 +76,7 @@ class HistoryViewModel(
             logger.fInfo { "Update history cursor: [cursor=$cursor]" }
             logger.fInfo { "Update histories success" }
             if (cursor == 0L) {
-                noMore = true
+                withContext(Dispatchers.Main) { noMore = true }
                 logger.fInfo { "No more history" }
             }
         }.onFailure {

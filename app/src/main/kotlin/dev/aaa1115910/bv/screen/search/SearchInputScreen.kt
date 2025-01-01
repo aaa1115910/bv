@@ -1,13 +1,17 @@
 package dev.aaa1115910.bv.screen.search
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -27,8 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
@@ -44,10 +46,10 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SearchInputScreen(
     modifier: Modifier = Modifier,
+    defaultFocusRequester: FocusRequester,
     searchInputViewModel: SearchInputViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val softKeyboardFirstButtonFocusRequester = remember { FocusRequester() }
     val hotsFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     val historyFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
     val suggestFocusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
@@ -67,12 +69,6 @@ fun SearchInputScreen(
 
     LaunchedEffect(searchKeyword) {
         searchInputViewModel.updateSuggests()
-    }
-
-    LaunchedEffect(Unit) {
-        runCatching {
-            softKeyboardFirstButtonFocusRequester.requestFocus()
-        }
     }
 
     Scaffold(
@@ -97,13 +93,15 @@ fun SearchInputScreen(
         Row(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(vertical = 8.dp)
+                .padding(start = 24.dp)
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
+                    .width(280.dp)
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.TopCenter
             ) {
                 Column(
@@ -124,7 +122,7 @@ fun SearchInputScreen(
                         )
                     )
                     SoftKeyboard(
-                        firstButtonFocusRequester = softKeyboardFirstButtonFocusRequester,
+                        firstButtonFocusRequester = defaultFocusRequester,
                         showSearchWithProxy = Prefs.enableProxy,
                         enableSearchWithProxy = enableProxy,
                         onClick = {
@@ -151,15 +149,15 @@ fun SearchInputScreen(
             if (searchKeyword.isEmpty()) {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
+                        .width(250.dp)
+                        .fillMaxHeight(),
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         text = stringResource(R.string.search_input_hotword),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn(
+                    LazyColumn(
                         modifier = Modifier
                             .then(hotsFocusRestorerModifiers.parentModifier)
                     ) {
@@ -177,15 +175,15 @@ fun SearchInputScreen(
             } else {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
+                        .width(250.dp)
+                        .fillMaxHeight(),
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         text = stringResource(R.string.search_input_suggest),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TvLazyColumn(
+                    LazyColumn(
                         modifier = Modifier
                             .then(suggestFocusRestorerModifiers.parentModifier)
                     ) {
@@ -207,15 +205,16 @@ fun SearchInputScreen(
 
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
+                    .width(250.dp)
+                    .fillMaxHeight()
+                    .padding(end = 10.dp),
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     text = stringResource(R.string.search_input_history),
                     style = MaterialTheme.typography.titleLarge
                 )
-                TvLazyColumn(
+                LazyColumn(
                     modifier = Modifier
                         .then(historyFocusRestorerModifiers.parentModifier)
                 ) {

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,8 +25,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.DanmakuType
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
@@ -36,7 +36,6 @@ import dev.aaa1115910.bv.component.controllers2.playermenu.component.RadioMenuLi
 import dev.aaa1115910.bv.component.controllers2.playermenu.component.StepLessMenuItem
 import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
-import dev.aaa1115910.bv.util.Prefs
 import java.text.NumberFormat
 
 @Composable
@@ -46,6 +45,7 @@ fun DanmakuMenuList(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
+    onDanmakuMaskChange: (Boolean) -> Unit,
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     val context = LocalContext.current
@@ -61,7 +61,7 @@ fun DanmakuMenuList(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val menuItemsModifier = Modifier
-            .width(200.dp)
+            .width(216.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
             when (selectedDanmakuMenuItem) {
@@ -146,17 +146,17 @@ fun DanmakuMenuList(
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
 
-                VideoPlayerDanmakuMenuItem.Webmark -> RadioMenuList(
+                VideoPlayerDanmakuMenuItem.Mask -> RadioMenuList(
                     modifier = menuItemsModifier,
                     items = listOf("关闭", "开启"),
-                    selected = if (Prefs.enableWebmark) 1 else 0,
-                    onSelectedChanged = { Prefs.enableWebmark = it == 1 },
+                    selected = if (data.currentDanmakuMask) 1 else 0,
+                    onSelectedChanged = { onDanmakuMaskChange(it == 1) },
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }
                 )
             }
         }
 
-        TvLazyColumn(
+        LazyColumn(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .padding(horizontal = 8.dp)

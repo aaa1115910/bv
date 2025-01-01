@@ -70,7 +70,7 @@ fun UpdateDialog(
                 val revision = latestReleaseBuild!!
                     .assets.first { it.name.startsWith("BV") }
                     .name.split("_")[1].toInt()
-                if (revision < BuildConfig.VERSION_CODE) {
+                if (revision <= BuildConfig.VERSION_CODE) {
                     updateStatus = UpdateStatus.NoAvailableUpdate
                     return@launch
                 }
@@ -114,9 +114,9 @@ fun UpdateDialog(
                     latestReleaseBuild!!,
                     tempFile,
                     object : ProgressListener {
-                        override suspend fun invoke(downloaded: Long, total: Long) {
+                        override suspend fun onProgress(downloaded: Long, total: Long?) {
                             bytesSentTotal = downloaded
-                            contentLength = total
+                            contentLength = total ?: 0
                             targetProgress =
                                 runCatching { bytesSentTotal.toFloat() / contentLength }
                                     .getOrDefault(0f)

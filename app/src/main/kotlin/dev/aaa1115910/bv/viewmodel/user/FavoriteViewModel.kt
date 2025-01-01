@@ -11,12 +11,15 @@ import dev.aaa1115910.biliapi.entity.FavoriteItemType
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FavoriteViewModel(
     private val favoriteRepository: FavoriteRepository
@@ -52,10 +55,11 @@ class FavoriteViewModel(
                         mid = Prefs.uid,
                         preferApiType = Prefs.apiType
                     )
-                this@FavoriteViewModel.favoriteFolderMetadataList.swapList(
-                    favoriteFolderMetadataList
-                )
-                currentFavoriteFolderMetadata = favoriteFolderMetadataList.firstOrNull()
+                withContext(Dispatchers.Main) {
+                    this@FavoriteViewModel.favoriteFolderMetadataList
+                        .swapList(favoriteFolderMetadataList)
+                    currentFavoriteFolderMetadata = favoriteFolderMetadataList.firstOrNull()
+                }
                 logger.fInfo { "Update favorite folders success: ${favoriteFolderMetadataList.map { it.id }}" }
             }.onFailure {
                 logger.fWarn { "Update favorite folders failed: ${it.stackTraceToString()}" }
@@ -67,11 +71,18 @@ class FavoriteViewModel(
         }
     }
 
-    fun updateFolderItems() {
+    private var updateJob: Job? = null
+
+    fun updateFolderItems(force: Boolean = false) {
+        if (force) {
+            updateJob?.cancel()
+            resetPageNumber()
+            updatingFolderItems = false
+        }
         if (updatingFolderItems || !hasMore) return
         updatingFolderItems = true
         logger.fInfo { "Updating favorite folder items with media id: ${currentFavoriteFolderMetadata?.id}" }
-        viewModelScope.launch(Dispatchers.IO) {
+        updateJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val favoriteFolderData = favoriteRepository.getFavoriteFolderData(
                     mediaId = currentFavoriteFolderMetadata!!.id,
@@ -81,7 +92,7 @@ class FavoriteViewModel(
                 )
                 favoriteFolderData.medias.forEach { favoriteItem ->
                     if (favoriteItem.type != FavoriteItemType.Video) return@forEach
-                    favorites.add(
+                    favorites.addWithMainContext(
                         VideoCardData(
                             avid = favoriteItem.id,
                             title = favoriteItem.title,

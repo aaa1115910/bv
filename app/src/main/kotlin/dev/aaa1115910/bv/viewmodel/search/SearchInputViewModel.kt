@@ -13,6 +13,7 @@ import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.db.SearchHistoryDB
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.swapListWithMainContext
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +46,7 @@ class SearchInputViewModel(
                     preferApiType = Prefs.apiType
                 )
                 logger.debug { "Find hotwords: $hotwordData" }
-                hotwords.addAll(hotwordData)
+                withContext(Dispatchers.Main) { hotwords.addAll(hotwordData) }
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     "bilibili 热搜加载失败".toast(BVApp.context)
@@ -64,8 +65,7 @@ class SearchInputViewModel(
                     preferApiType = Prefs.apiType
                 )
                 logger.debug { "Find suggests: $keywordSuggest" }
-                suggests.clear()
-                suggests.addAll(keywordSuggest)
+                suggests.swapListWithMainContext(keywordSuggest)
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     "bilibili 搜索建议加载失败".toast(BVApp.context)
@@ -78,10 +78,8 @@ class SearchInputViewModel(
     private fun loadSearchHistories() {
         logger.fInfo { "Load search histories" }
         viewModelScope.launch(Dispatchers.IO) {
-            //当第一次调用时，可能会出现异常 IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
-            runCatching { searchHistories.clear() }
             runCatching {
-                searchHistories.addAll(db.searchHistoryDao().getHistories(20))
+                searchHistories.swapListWithMainContext(db.searchHistoryDao().getHistories(20))
                 logger.fInfo { "Load search histories finish, size: ${searchHistories.size}" }
             }
         }

@@ -4,7 +4,6 @@ import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,9 +32,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvGridItemSpan
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -66,9 +62,8 @@ fun UserPanel(
         focusRequester.requestFocus(scope)
     }
 
-    Surface(
+    Box(
         modifier = modifier
-            .width(300.dp)
             .onPreviewKeyEvent {
                 when (it.nativeKeyEvent.keyCode) {
                     KeyEvent.KEYCODE_BACK -> {
@@ -77,47 +72,40 @@ fun UserPanel(
                     }
                 }
                 false
-            },
-        shape = MaterialTheme.shapes.medium
-    ) {
-        TvLazyVerticalGrid(
-            columns = TvGridCells.Fixed(2),
-            contentPadding = PaddingValues(12.dp)
-        ) {
-            item(
-                span = { TvGridItemSpan(2) },
-            ) {
-                UserPanelMyItem(
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .onPreviewKeyEvent {
-                            when (it.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                    return@onPreviewKeyEvent true
-                                }
-
-                                KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                    if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
-                                    return@onPreviewKeyEvent true
-                                }
-                            }
-                            false
-                        },
-                    username = username,
-                    face = face,
-                    onClick = {
-                        onGoMy()
-                        onHide()
-                    }
-                )
             }
-            item {
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            UserPanelMyItem(
+                modifier = Modifier
+                    .width(300.dp)
+                    .focusRequester(focusRequester)
+                    .onPreviewKeyEvent {
+                        when (it.nativeKeyEvent.keyCode) {
+                            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_LEFT -> {
+                                return@onPreviewKeyEvent true
+                            }
+                        }
+                        false
+                    },
+                username = username,
+                face = face,
+                onClick = {
+                    onGoMy()
+                    onHide()
+                }
+            )
+
+            val buttonWidth = 120.dp
+            Row {
                 UserPanelSmallItem(
                     modifier = Modifier
+                        .width(buttonWidth)
                         .onPreviewKeyEvent {
                             when (it.nativeKeyEvent.keyCode) {
                                 KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                    if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
                                     return@onPreviewKeyEvent true
                                 }
                             }
@@ -130,10 +118,9 @@ fun UserPanel(
                         onHide()
                     }
                 )
-            }
-            item {
                 UserPanelSmallItem(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .width(buttonWidth),
                     title = "私人藏品",
                     icon = Icons.Rounded.FavoriteBorder,
                     onClick = {
@@ -141,20 +128,9 @@ fun UserPanel(
                         onHide()
                     }
                 )
-            }
-            item {
                 UserPanelSmallItem(
                     modifier = Modifier
-                        .onPreviewKeyEvent {
-                            println(it.nativeKeyEvent)
-                            when (it.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                    if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) onHide()
-                                    return@onPreviewKeyEvent true
-                                }
-                            }
-                            false
-                        },
+                        .width(buttonWidth),
                     title = "我追的番",
                     icon = Icons.Rounded.CrueltyFree,
                     onClick = {
@@ -162,10 +138,9 @@ fun UserPanel(
                         onHide()
                     }
                 )
-            }
-            item {
                 UserPanelSmallItem(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .width(buttonWidth),
                     title = "现在不看",
                     icon = Icons.Rounded.Schedule,
                     onClick = {
@@ -266,7 +241,7 @@ private fun UserPanelSmallItem(
 }
 
 
-@Preview
+@Preview(device = "id:tv_1080p")
 @Composable
 private fun UserPanelPreview() {
     BVTheme {

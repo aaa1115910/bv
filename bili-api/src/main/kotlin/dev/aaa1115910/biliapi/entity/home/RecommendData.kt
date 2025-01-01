@@ -1,7 +1,9 @@
 package dev.aaa1115910.biliapi.entity.home
 
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
+
 data class RecommendData(
-    val items: List<RecommendItem>,
+    val items: List<UgcItem>,
     val nextPage: RecommendPage
 )
 

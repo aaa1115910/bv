@@ -15,6 +15,7 @@ import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FollowingSeasonViewModel(
     private val seasonRepository: SeasonRepository
@@ -63,10 +64,11 @@ class FollowingSeasonViewModel(
                 pageSize = pageSize,
                 preferApiType = Prefs.apiType
             )
-
-            if (pageSize * pageNumber >= response.total) noMore = true
-            pageNumber++
-            followingSeasons.addAll(response.list)
+            withContext(Dispatchers.Main) {
+                if (pageSize * pageNumber >= response.total) noMore = true
+                pageNumber++
+                followingSeasons.addAll(response.list)
+            }
             logger.fInfo { "Following season count: ${response.list.size}" }
         }.onFailure {
             logger.fInfo { "Update following seasons failed: ${it.stackTraceToString()}" }

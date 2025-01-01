@@ -1,11 +1,10 @@
-name: Alpha Build Manually (Without sign)
+name: Alpha Build Manually (Without signature)
 
 on:
   workflow_dispatch:
     inputs:
       google_services_json:
-        description: "google-services.json"
-        required: true
+        description: "google-services.json (optional)"
 
 jobs:
   build-alpha:
@@ -34,71 +33,28 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build lite apk
-        run: ./gradlew assembleLiteAlpha assembleLiteDebug
-
-      - name: Build default apk
+      - name: Build apk
         run: ./gradlew assembleDefaultAlpha assembleDefaultDebug
 
-      - name: Read lite alpha apk output metadata
-        id: apk-meta-lite-alpha
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: app/build/outputs/apk/lite/alpha/output-metadata.json
-
-      - name: Read lite debug apk output metadata
-        id: apk-meta-lite-debug
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: app/build/outputs/apk/lite/debug/output-metadata.json
-
-      - name: Read default alpha apk output metadata
-        id: apk-meta-default-alpha
+      - name: Read alpha apk output metadata
+        id: apk-meta-alpha
         uses: juliangruber/read-file-action@v1
         with:
           path: app/build/outputs/apk/default/alpha/output-metadata.json
 
-      - name: Read default debug apk output metadata
-        id: apk-meta-default-debug
+      - name: Read alpha debug apk output metadata
+        id: apk-meta-alpha-debug
         uses: juliangruber/read-file-action@v1
         with:
           path: app/build/outputs/apk/default/debug/output-metadata.json
 
-      - name: Parse lite apks info
-        id: lite-info
+      - name: Parse apk infos
+        id: apk-infos
         run: |
-          echo "lite_alpha_info_apk_filename=${{ fromJson(steps.apk-meta-lite-alpha.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-          echo "lite_debug_info_apk_filename=${{ fromJson(steps.apk-meta-lite-debug.outputs.content).elements[0].outputFile }}" >> $GITHUB_ENV
-
-      - name: Parse default apks info
-        id: default-info
-        run: |
-          echo "default_alpha_info_version_code=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "default_alpha_info_version_name=${{ fromJson(steps.apk-meta-default-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "default_debug_info_version_code=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "default_debug_info_version_name=${{ fromJson(steps.apk-meta-default-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-
-      # upload artifacts lite-debug
-
-      - name: Archive lite debug build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Lite debug build artifact
-          path: app/build/outputs/apk/lite/debug/${{ env.lite_debug_info_apk_filename }}
-
-      # upload artifacts lite-alpha
-
-      - name: Archive lite alpha build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Lite alpha build artifact
-          path: app/build/outputs/apk/lite/alpha/${{ env.lite_alpha_info_apk_filename }}
-
-      - name: Archive lite alpha build mappings
-        uses: actions/upload-artifact@v4
-        with:
-          name: Lite alpha build mappings
-          path: app/build/outputs/mapping/liteAlpha
+          echo "alpha_info_version_code=${{ fromJson(steps.apk-meta-alpha.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "alpha_info_version_name=${{ fromJson(steps.apk-meta-alpha.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
+          echo "alpha_debug_info_version_code=${{ fromJson(steps.apk-meta-alpha-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
+          echo "alpha_debug_info_version_name=${{ fromJson(steps.apk-meta-alpha-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
 
       # upload artifacts default-debug
 
@@ -106,31 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Default debug build artifact (universal)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_universal.apk
-
-      - name: Archive default debug build artifacts (armeabi-v7a)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default debug build artifact (armeabi-v7a)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_armeabi-v7a.apk
-
-      - name: Archive default debug build artifacts (arm64-v8a)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default debug build artifact (arm64-v8a)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_arm64-v8a.apk
-
-      - name: Archive default debug build artifacts (x86)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default debug build artifact (x86)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86.apk
-
-      - name: Archive default debug build artifacts (x86_64)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default debug build artifact (x86_64)
-          path: app/build/outputs/apk/default/debug/BV_${{ env.default_debug_info_version_code }}_${{ env.default_debug_info_version_name }}_default_x86_64.apk
+          path: app/build/outputs/apk/default/debug/BV_${{ env.alpha_debug_info_version_code }}_${{ env.alpha_debug_info_version_name }}_default_universal.apk
 
       # upload artifacts default-alpha
 
@@ -144,28 +76,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Default alpha build artifact (universal)
-          path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_universal.apk
-
-      - name: Archive default alpha build artifacts (armeabi-v7a)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default alpha build artifact (armeabi-v7a)
-          path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_armeabi-v7a.apk
-
-      - name: Archive default alpha build artifacts (arm64-v8a)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default alpha build artifact (arm64-v8a)
-          path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_arm64-v8a.apk
-
-      - name: Archive default alpha build artifacts (x86)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default alpha build artifact (x86)
-          path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86.apk
-
-      - name: Archive default alpha build artifacts (x86_64)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Default alpha build artifact (x86_64)
-          path: app/build/outputs/apk/default/alpha/BV_${{ env.default_alpha_info_version_code }}_${{ env.default_alpha_info_version_name }}_default_x86_64.apk
+          path: app/build/outputs/apk/default/alpha/BV_${{ env.alpha_info_version_code }}_${{ env.alpha_info_version_name }}_default_universal.apk

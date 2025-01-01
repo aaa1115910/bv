@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.entity.video.season
 
+import dev.aaa1115910.biliapi.entity.video.VideoDetail.PlayerIcon
 import dev.aaa1115910.biliapi.http.entity.season.AppSeasonData
 import dev.aaa1115910.biliapi.http.entity.season.WebSeasonData
 
@@ -33,7 +34,8 @@ data class SeasonDetail(
     val newEpDesc: String,
     val seasons: List<PgcSeason> = emptyList(),
     val episodes: List<Episode> = emptyList(),
-    val sections: List<Section> = emptyList()
+    val sections: List<Section> = emptyList(),
+    var playerIcon: PlayerIcon? = null
 ) {
     companion object {
         fun fromSeasonData(seasonData: WebSeasonData): SeasonDetail {
@@ -77,7 +79,8 @@ data class SeasonDetail(
                     ?: emptyList(),
                 sections = seasonData.modules
                     .filter { it.style == "section" }
-                    .map { Section.fromModule(it) }
+                    .map { Section.fromModule(it) },
+                playerIcon = PlayerIcon.fromPlayerIcon(seasonData.playerIcon)
             )
         }
     }

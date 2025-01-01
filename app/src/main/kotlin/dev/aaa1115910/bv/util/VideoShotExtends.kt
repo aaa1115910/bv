@@ -3,6 +3,9 @@ package dev.aaa1115910.bv.util
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,9 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.tv.foundation.lazy.grid.TvGridCells
-import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
-import androidx.tv.foundation.lazy.grid.items
 import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import org.koin.compose.getKoin
@@ -77,9 +77,9 @@ fun VideoShotTest(
     }
 
     if (videoShot != null) {
-        TvLazyVerticalGrid(
+        LazyVerticalGrid(
             modifier = modifier,
-            columns = TvGridCells.Fixed(10),
+            columns = GridCells.Fixed(10),
         ) {
             items(videoShot!!.times) { time ->
                 val bitmap = videoShot!!.getImage(time.toInt())

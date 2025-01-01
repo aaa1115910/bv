@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -52,9 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.TvLazyRow
-import androidx.tv.foundation.lazy.list.items
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -314,7 +314,7 @@ fun UserInfoScreen(
 
         }
     ) { innerPadding ->
-        TvLazyColumn(
+        LazyColumn(
             modifier = Modifier.padding(innerPadding),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
@@ -628,7 +628,7 @@ private fun UserRow(
         label = "animate following number"
     )
 
-    TvLazyRow(
+    LazyRow(
         modifier = modifier.padding(vertical = 28.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
         contentPadding = PaddingValues(horizontal = 50.dp)
@@ -707,7 +707,7 @@ private fun FollowingAnimeVideosRow(
             fontSize = titleFontSize.sp,
             color = titleColor
         )
-        TvLazyRow(
+        LazyRow(
             modifier = Modifier
                 .padding(top = 15.dp)
                 .onGloballyPositioned {

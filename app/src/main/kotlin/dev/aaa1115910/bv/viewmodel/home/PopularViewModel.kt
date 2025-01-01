@@ -2,11 +2,12 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.entity.rank.PopularVideo
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoPage
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
@@ -18,7 +19,7 @@ class PopularViewModel(
     private val recommendVideoRepository: RecommendVideoRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
-    val popularVideoList = mutableStateListOf<PopularVideo>()
+    val popularVideoList = mutableStateListOf<UgcItem>()
 
     private var nextPage = PopularVideoPage()
     var loading = false
@@ -43,7 +44,7 @@ class PopularViewModel(
             )
             beforeAppendData()
             nextPage = popularVideoData.nextPage
-            popularVideoList.addAll(popularVideoData.list)
+            popularVideoList.addAllWithMainContext(popularVideoData.list)
         }.onFailure {
             logger.fError { "Load popular video list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {

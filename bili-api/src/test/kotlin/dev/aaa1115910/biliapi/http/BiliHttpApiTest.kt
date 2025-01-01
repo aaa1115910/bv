@@ -1,10 +1,11 @@
 package dev.aaa1115910.biliapi.http
 
+import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
-import dev.aaa1115910.biliapi.http.entity.anime.AnimeHomepageDataType
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
@@ -559,18 +560,37 @@ internal class BiliHttpApiTest {
     }
 
     @Test
-    fun `get anime homepage data`() {
+    fun `get web initial state data`() {
         runBlocking {
-            AnimeHomepageDataType.values().forEach {
-                println(BiliHttpApi.getAnimeHomepageData(dataType = it))
+            PgcType.entries.forEach { pgcType ->
+                println("type: ${pgcType.name}")
+                println(
+                    BiliHttpApi.getPgcWebInitialStateData(pgcType)
+                        .toString().replace("\n", "")
+                )
             }
         }
     }
 
     @Test
-    fun `get anime feed data`() {
+    fun `get pgc feed data`() {
         runBlocking {
-            println(BiliHttpApi.getAnimeFeed())
+            PgcType.entries.forEach { pgcType ->
+                println("type: ${pgcType.name}")
+                when (pgcType) {
+                    PgcType.Anime, PgcType.GuoChuang ->
+                        println(
+                            BiliHttpApi.getPgcFeedV3(name = pgcType.name.lowercase())
+                                .toString().replace("\n", "")
+                        )
+
+                    PgcType.Tv, PgcType.Movie, PgcType.Documentary, PgcType.Variety ->
+                        println(
+                            BiliHttpApi.getPgcFeed(name = pgcType.name.lowercase())
+                                .toString().replace("\n", "")
+                        )
+                }
+            }
         }
     }
 
@@ -674,5 +694,61 @@ internal class BiliHttpApiTest {
     fun `get app video shot`() = runBlocking {
         val result = BiliHttpApi.getAppVideoShot(aid = 170001, cid = 279786)
         println(result)
+    }
+
+    @Test
+    fun `get app region dynamic`() = runBlocking {
+        val rids = listOf(
+            1, 13, 167, 3, 129, 4, 36, 188, 234, 223, 160,
+            211, 217, 119, 155, 202, 5, 181, 177, 23, 11
+        )
+        rids
+            .shuffled()
+            .forEach { rid ->
+                println("rid $rid:")
+                val result = BiliHttpApi.getRegionDynamic(
+                    rid = rid,
+                    accessKey = ACCESS_TOKEN
+                )
+                println(result)
+                delay((800L..2000L).random())
+            }
+    }
+
+
+    @Test
+    fun `get app region dynamic list`() = runBlocking {
+        val rids = listOf(
+            1, 13, 167, 3, 129, 4, 36, 188, 234, 223, 160,
+            211, 217, 119, 155, 202, 5, 181, 177, 23, 11
+        )
+        rids
+            .shuffled()
+            .forEach { rid ->
+                println("rid $rid:")
+                val result = BiliHttpApi.getRegionDynamicList(
+                    rid = rid,
+                    accessKey = ACCESS_TOKEN
+                )
+                println(result)
+                delay((800L..2000L).random())
+            }
+    }
+
+    @Test
+    fun `get locs`() = runBlocking {
+        val locIds = listOf(
+            4973, 4991, 5004, 4979, 4985, 5008, 5007, 4997,
+            4998, 5005, 5002, 5001, 5000, 5006, 4999, 5003
+        )
+
+        locIds.chunked(3).forEach { locs ->
+            println("${locs.joinToString(",")}:")
+            val result = BiliHttpApi.getLocs(
+                ids = locs
+            )
+            println(result)
+            delay((800L..2000L).random())
+        }
     }
 }

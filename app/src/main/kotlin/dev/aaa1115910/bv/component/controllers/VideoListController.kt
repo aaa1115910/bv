@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -18,9 +21,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.items
-import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import dev.aaa1115910.bv.repository.VideoListItem
@@ -32,7 +32,7 @@ fun VideoListController(
     onVideoSwitch: (VideoListItem) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val listState = rememberTvLazyListState()
+    val listState = rememberLazyListState()
     val videoPlayerControllerData = LocalVideoPlayerControllerData.current
     val focusRequester = remember { FocusRequester() }
 
@@ -57,7 +57,7 @@ fun VideoListController(
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
-            TvLazyColumn(
+            LazyColumn(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 120.dp)

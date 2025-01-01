@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.component.controllers2
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -77,6 +76,7 @@ fun MenuController(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
+    onDanmakuMaskChange: (Boolean) -> Unit = {},
     onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
@@ -112,6 +112,7 @@ fun MenuController(
                 onDanmakuSizeChange = onDanmakuSizeChange,
                 onDanmakuOpacityChange = onDanmakuOpacityChange,
                 onDanmakuAreaChange = onDanmakuAreaChange,
+                onDanmakuMaskChange = onDanmakuMaskChange,
                 onSubtitleChange = onSubtitleChange,
                 onSubtitleSizeChange = onSubtitleSizeChange,
                 onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
@@ -134,6 +135,7 @@ fun MenuController(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
+    onDanmakuMaskChange: (Boolean) -> Unit = {},
     onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
@@ -169,6 +171,7 @@ fun MenuController(
                     onDanmakuSizeChange = onDanmakuSizeChange,
                     onDanmakuOpacityChange = onDanmakuOpacityChange,
                     onDanmakuAreaChange = onDanmakuAreaChange,
+                    onDanmakuMaskChange = onDanmakuMaskChange,
                     onFocusStateChange = { focusState = it },
                     onSubtitleChange = onSubtitleChange,
                     onSubtitleSizeChange = onSubtitleSizeChange,
@@ -210,6 +213,7 @@ private fun MenuList(
     onDanmakuSizeChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
+    onDanmakuMaskChange: (Boolean) -> Unit = {},
     onSubtitleChange: (Subtitle) -> Unit,
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
@@ -217,8 +221,7 @@ private fun MenuList(
     onFocusStateChange: (MenuFocusState) -> Unit
 ) {
     Box(
-        modifier = modifier
-            .animateContentSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         when (selectedNavMenu) {
@@ -240,6 +243,7 @@ private fun MenuList(
                     onDanmakuOpacityChange = onDanmakuOpacityChange,
                     onDanmakuAreaChange = onDanmakuAreaChange,
                     onFocusStateChange = onFocusStateChange,
+                    onDanmakuMaskChange = onDanmakuMaskChange
                 )
             }
 
@@ -280,7 +284,7 @@ enum class VideoPlayerDanmakuMenuItem(private val strRes: Int) {
     Size(R.string.video_player_menu_danmaku_size),
     Opacity(R.string.video_player_menu_danmaku_opacity),
     Area(R.string.video_player_menu_danmaku_area),
-    Webmark(R.string.video_player_menu_danmaku_webmark);
+    Mask(R.string.video_player_menu_danmaku_mask);
 
     fun getDisplayName(context: Context) = context.getString(strRes)
 }
@@ -319,6 +323,7 @@ fun MenuControllerPreview() {
     var currentDanmakuSize by remember { mutableFloatStateOf(1f) }
     var currentDanmakuOpacity by remember { mutableFloatStateOf(1f) }
     var currentDanmakuArea by remember { mutableFloatStateOf(1f) }
+    var currentDanmakuMask by remember { mutableStateOf(false) }
 
     var currentSubtitleId by remember { mutableLongStateOf(-1L) }
     val currentSubtitleList = remember { mutableStateListOf<Subtitle>() }
@@ -400,6 +405,7 @@ fun MenuControllerPreview() {
                         currentDanmakuScale = currentDanmakuSize,
                         currentDanmakuOpacity = currentDanmakuOpacity,
                         currentDanmakuArea = currentDanmakuArea,
+                        currentDanmakuMask = currentDanmakuMask,
 
                         currentSubtitleId = currentSubtitleId,
                         availableSubtitleTracks = currentSubtitleList,
@@ -428,6 +434,7 @@ fun MenuControllerPreview() {
                         onDanmakuSizeChange = { currentDanmakuSize = it },
                         onDanmakuOpacityChange = { currentDanmakuOpacity = it },
                         onDanmakuAreaChange = { currentDanmakuArea = it },
+                        onDanmakuMaskChange = { currentDanmakuMask = it },
                         onSubtitleChange = { currentSubtitleId = it.id },
                         onSubtitleSizeChange = { currentSubtitleFontSize = it },
                         onSubtitleBackgroundOpacityChange = {

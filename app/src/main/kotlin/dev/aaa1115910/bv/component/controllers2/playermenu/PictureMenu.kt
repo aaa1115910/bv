@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +25,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
-import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
 import dev.aaa1115910.bv.component.controllers2.MenuFocusState
@@ -39,7 +38,6 @@ import dev.aaa1115910.bv.entity.Audio
 import dev.aaa1115910.bv.entity.Resolution
 import dev.aaa1115910.bv.entity.VideoAspectRatio
 import dev.aaa1115910.bv.entity.VideoCodec
-import dev.aaa1115910.bv.util.Prefs
 import kotlin.math.roundToInt
 
 @Composable
@@ -74,7 +72,7 @@ fun PictureMenuList(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val menuItemsModifier = Modifier
-            .width(200.dp)
+            .width(216.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
             when (selectedPictureMenuItem) {
@@ -139,7 +137,7 @@ fun PictureMenuList(
             }
         }
 
-        TvLazyColumn(
+        LazyColumn(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .padding(horizontal = 8.dp)
@@ -161,13 +159,7 @@ fun PictureMenuList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(8.dp)
         ) {
-            val menuList = when (Prefs.apiType) {
-                ApiType.Web -> VideoPlayerPictureMenuItem.entries.toMutableList()
-                ApiType.App -> VideoPlayerPictureMenuItem.entries.toMutableList().apply {
-                    this.remove(VideoPlayerPictureMenuItem.Codec)
-                }
-            }
-            itemsIndexed(menuList) { index, item ->
+            itemsIndexed(VideoPlayerPictureMenuItem.entries.toMutableList()) { index, item ->
                 MenuListItem(
                     modifier = Modifier
                         .ifElse(index == 0, focusRestorerModifiers.childModifier),

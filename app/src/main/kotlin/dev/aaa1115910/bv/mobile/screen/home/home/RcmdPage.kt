@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.aaa1115910.biliapi.entity.home.RecommendItem
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 
@@ -24,7 +24,7 @@ import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 @Composable
 fun RcmdPage(
     state: LazyGridState,
-    videos: List<RecommendItem>,
+    videos: List<UgcItem>,
     onClickVideo: (aid: Long) -> Unit,
     refreshing: Boolean,
     onRefresh: () -> Unit,

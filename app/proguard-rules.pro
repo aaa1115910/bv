@@ -31,6 +31,9 @@
     public <init>(com.kuaishou.akdanmaku.ecs.DanmakuContext);
 }
 -keepclasseswithmembers class com.kuaishou.akdanmaku.ecs.component.*
+-keep class com.kuaishou.akdanmaku.ecs.component.* {
+  <init>(...);
+}
 
 # okhttp
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
@@ -102,3 +105,10 @@
 -dontwarn com.google.protobuf.GeneratedMessageV3$FieldAccessorTable
 -dontwarn com.google.protobuf.GeneratedMessageV3
 -dontwarn com.google.protobuf.RepeatedFieldBuilderV3
+
+# kotlin-logging
+-dontwarn ch.qos.logback.classic.Level
+-dontwarn ch.qos.logback.classic.Logger
+-dontwarn ch.qos.logback.classic.spi.ILoggingEvent
+-dontwarn ch.qos.logback.classic.spi.LogbackServiceProvider
+-dontwarn ch.qos.logback.classic.spi.LoggingEvent

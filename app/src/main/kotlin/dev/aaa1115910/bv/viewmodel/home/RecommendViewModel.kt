@@ -2,11 +2,12 @@ package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.biliapi.entity.home.RecommendItem
 import dev.aaa1115910.biliapi.entity.home.RecommendPage
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
@@ -18,7 +19,7 @@ class RecommendViewModel(
     private val recommendVideoRepository: RecommendVideoRepository
 ) : ViewModel() {
     private val logger = KotlinLogging.logger {}
-    val recommendVideoList = mutableStateListOf<RecommendItem>()
+    val recommendVideoList = mutableStateListOf<UgcItem>()
 
     private var nextPage = RecommendPage()
     var loading = false
@@ -56,7 +57,7 @@ class RecommendViewModel(
             )
             beforeAppendData()
             nextPage = recommendData.nextPage
-            recommendVideoList.addAll(recommendData.items)
+            recommendVideoList.addAllWithMainContext(recommendData.items)
         }.onFailure {
             logger.fError { "Load recommend video list failed: ${it.stackTraceToString()}" }
             withContext(Dispatchers.Main) {

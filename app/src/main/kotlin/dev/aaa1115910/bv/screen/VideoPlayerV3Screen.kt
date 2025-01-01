@@ -32,7 +32,6 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.ecs.component.filter.TypeFilter
 import com.kuaishou.akdanmaku.ext.RETAINER_BILIBILI
 import dev.aaa1115910.biliapi.entity.danmaku.DanmakuMaskFrame
-import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.bv.component.DanmakuPlayerCompose
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers.VideoPlayerControllerData
@@ -113,7 +112,7 @@ fun VideoPlayerV3Screen(
 
     val updateSeek: () -> Unit = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
-        infoData = VideoPlayerInfoData(
+        val videoPlayerInfoData = VideoPlayerInfoData(
             totalDuration = videoPlayer.duration.coerceAtLeast(0L),
             currentTime = videoPlayer.currentPosition.coerceAtLeast(0L),
             bufferedPercentage = videoPlayer.bufferedPercentage,
@@ -121,6 +120,7 @@ fun VideoPlayerV3Screen(
             resolutionHeight = videoPlayer.videoHeight,
             codec = ""//videoPlayer.videoFormat?.sampleMimeType ?: "null"
         )
+        infoData = videoPlayerInfoData
         debugInfo = videoPlayer.debugInfo
     }
 
@@ -321,10 +321,11 @@ fun VideoPlayerV3Screen(
         var updateSeekTimer: Timer? = null
         var resetTimer: ((Long) -> Unit)? = null
 
-        val updateMask: () -> Unit = {
-            currentDanmakuMaskFrame = playerViewModel.danmakuMasks.firstOrNull {
+        val updateMask: suspend () -> Unit = {
+            val danmakuMasks = playerViewModel.danmakuMasks.firstOrNull {
                 currentPosition in it.range
             }?.frames?.firstOrNull { currentPosition in it.range }
+            withContext(Dispatchers.Main) { currentDanmakuMaskFrame = danmakuMasks }
 
             if (currentDanmakuMaskFrame != null) {
                 resetTimer?.invoke(
@@ -336,7 +337,7 @@ fun VideoPlayerV3Screen(
         }
 
         val timerTask: () -> Unit = {
-            scope.launch {
+            scope.launch(Dispatchers.IO) {
                 if (playerViewModel.danmakuMasks.isNotEmpty()) {
                     if (currentDanmakuMaskFrame == null) {
                         //当前无蒙版
@@ -358,7 +359,7 @@ fun VideoPlayerV3Screen(
                     }
                 } else {
                     //定期检查是否有蒙版
-                    currentDanmakuMaskFrame = null
+                    withContext(Dispatchers.Main) { currentDanmakuMaskFrame = null }
                     resetTimer?.invoke(2000)
                 }
             }
@@ -451,6 +452,7 @@ fun VideoPlayerV3Screen(
             currentDanmakuScale = playerViewModel.currentDanmakuScale,
             currentDanmakuOpacity = playerViewModel.currentDanmakuOpacity,
             currentDanmakuArea = playerViewModel.currentDanmakuArea,
+            currentDanmakuMask = playerViewModel.currentDanmakuMask,
             currentSubtitleId = playerViewModel.currentSubtitleId,
             currentSubtitleData = playerViewModel.currentSubtitleData,
             currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
@@ -592,6 +594,11 @@ fun VideoPlayerV3Screen(
                 Prefs.defaultDanmakuArea = area
                 playerViewModel.currentDanmakuArea = area
             },
+            onDanmakuMaskChange = { mask ->
+                logger.info { "On danmaku mask change: $mask" }
+                Prefs.defaultDanmakuMask = mask
+                playerViewModel.currentDanmakuMask = mask
+            },
             onSubtitleChange = { subtitle ->
                 playerViewModel.loadSubtitle(subtitle.id)
             },
@@ -638,7 +645,7 @@ fun VideoPlayerV3Screen(
                         // 突然变成完全不透明一瞬间，因此这次新版选择直接在此处设置透明度
                         .alpha(playerViewModel.currentDanmakuOpacity)
                         .ifElse(
-                            { Prefs.enableWebmark },
+                            { playerViewModel.currentDanmakuMask },
                             Modifier.danmakuMask(currentDanmakuMaskFrame)
                         ),
                     danmakuPlayer = playerViewModel.danmakuPlayer

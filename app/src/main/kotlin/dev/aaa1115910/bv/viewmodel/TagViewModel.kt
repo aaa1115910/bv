@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +54,7 @@ class TagViewModel : ViewModel() {
             val videoList = response.data
             if (videoList.isEmpty()) noMore = true
             videoList.forEach { tagVideoItem ->
-                topVideos.add(
+                topVideos.addWithMainContext(
                     VideoCardData(
                         avid = tagVideoItem.aid,
                         title = tagVideoItem.title,

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,8 +28,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.bv.component.controllers.LocalVideoPlayerControllerData
 import dev.aaa1115910.bv.component.controllers2.LocalMenuFocusStateData
@@ -62,7 +62,7 @@ fun ClosedCaptionMenuList(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val menuItemsModifier = Modifier
-            .width(200.dp)
+            .width(216.dp)
             .padding(horizontal = 8.dp)
         AnimatedVisibility(visible = focusState.focusState != MenuFocusState.MenuNav) {
             when (selectedClosedCaptionMenuItem) {
@@ -111,7 +111,7 @@ fun ClosedCaptionMenuList(
             }
         }
 
-        TvLazyColumn(
+        LazyColumn(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .padding(horizontal = 8.dp)

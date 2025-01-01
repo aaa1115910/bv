@@ -49,6 +49,7 @@ val indexFilterSeasonMonth = mapOf(
 
 val indexFilterYear = mapOf(
     "-1" to "全部",
+    "[2024,2025)" to "2024",
     "[2023,2024)" to "2023",
     "[2022,2023)" to "2022",
     "[2021,2022)" to "2021",
@@ -80,6 +81,7 @@ val indexFilterProducerId get() = IndexFilterProducerId.producerIds
 
 val indexFilterReleaseDate = mapOf(
     "-1" to "全部",
+    "[2024-01-01 00:00:00,2025-01-01 00:00:00)" to "2024",
     "[2023-01-01 00:00:00,2024-01-01 00:00:00)" to "2023",
     "[2022-01-01 00:00:00,2023-01-01 00:00:00)" to "2022",
     "[2021-01-01 00:00:00,2022-01-01 00:00:00)" to "2021",

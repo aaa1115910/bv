@@ -21,7 +21,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.aaa1115910.biliapi.entity.rank.PopularVideo
+import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 
@@ -29,7 +29,7 @@ import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
 @Composable
 fun PopularPage(
     state: LazyGridState,
-    videos: List<PopularVideo>,
+    videos: List<UgcItem>,
     onClickVideo: (aid: Long) -> Unit,
     refreshing: Boolean,
     onRefresh: () -> Unit,

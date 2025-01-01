@@ -38,7 +38,9 @@ fun BVTheme(
     val fontScale = LocalDensity.current.fontScale
     val view = LocalView.current
 
-    val colorSchemeTv = darkColorScheme()
+    val colorSchemeTv = darkColorScheme(
+        border = Color.White
+    )
     val colorSchemeCommon = androidx.compose.material3.darkColorScheme()
     val typographyTv =
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) android6AndBelowTypographyTv else Typography()

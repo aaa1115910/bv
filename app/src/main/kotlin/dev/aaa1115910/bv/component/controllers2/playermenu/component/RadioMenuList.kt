@@ -3,6 +3,8 @@ package dev.aaa1115910.bv.component.controllers2.playermenu.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -11,8 +13,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.itemsIndexed
 import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.component.ifElse
 
@@ -25,7 +25,7 @@ fun RadioMenuList(
     onFocusBackToParent: () -> Unit
 ) {
     val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
-    TvLazyColumn(
+    LazyColumn(
         modifier = modifier
             .onPreviewKeyEvent {
                 println(it)

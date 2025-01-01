@@ -369,7 +369,7 @@ data class SearchTopicResult(
 @Serializable
 data class SearchVideoResult(
     val type: String,
-    val id: Int,
+    val id: Long,
     val author: String,
     val mid: Long,
     @SerialName("typeid")
