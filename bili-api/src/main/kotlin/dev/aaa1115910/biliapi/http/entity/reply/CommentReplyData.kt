@@ -10,10 +10,10 @@ data class CommentReplyData(
     val page: Page,
     val replies: List<CommentData.Reply> = emptyList(),
     val root: CommentData.Reply,
-    @SerialName("show_text")
-    val showText: String,
-    @SerialName("show_type")
-    val showType: Int,
+//    @SerialName("show_text")
+//    val showText: String,
+//    @SerialName("show_type")
+//    val showType: Int,
     val upper: Upper
 ) {
     @Serializable

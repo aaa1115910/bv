@@ -222,9 +222,9 @@ data class DynamicItem(
     }
 
     data class DynamicVideoModule(
-        val aid: Int,
+        val aid: Long,
         val bvid: String? = null,
-        val cid: Int,
+        val cid: Long,
         val epid: Int? = null,
         val seasonId: Int? = null,
         val title: String,
@@ -237,7 +237,7 @@ data class DynamicItem(
         companion object {
             fun fromModuleArchive(moduleArchive: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem.Modules.Dynamic.Major.Archive) =
                 DynamicVideoModule(
-                    aid = moduleArchive.aid.toInt(),
+                    aid = moduleArchive.aid.toLong(),
                     bvid = moduleArchive.bvid,
                     cid = 0,
                     title = moduleArchive.title,
@@ -250,9 +250,9 @@ data class DynamicItem(
 
             fun fromModuleArchive(moduleArchive: bilibili.app.dynamic.v2.MdlDynArchive) =
                 DynamicVideoModule(
-                    aid = moduleArchive.avid.toInt(),
+                    aid = moduleArchive.avid,
                     bvid = moduleArchive.bvid,
-                    cid = moduleArchive.cid.toInt(),
+                    cid = moduleArchive.cid,
                     epid = moduleArchive.episodeId.toInt(),
                     seasonId = moduleArchive.pgcSeasonId.toInt(),
                     title = moduleArchive.title,
