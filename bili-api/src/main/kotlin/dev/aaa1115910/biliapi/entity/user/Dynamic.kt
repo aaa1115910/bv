@@ -84,8 +84,9 @@ data class DynamicData(
 }
 
 data class DynamicItem(
+    var id: String = "",
     var commentId: Long = 0,
-    var commentType: Int = 0,
+    var commentType: Long = 0,
     var type: DynamicType,
     val author: DynamicAuthorModule,
     var video: DynamicVideoModule? = null,
@@ -99,6 +100,7 @@ data class DynamicItem(
         fun fromDynamicItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicItem {
             val dynamicType = DynamicType.fromWebValue(item.type)
             val dynamicItem = DynamicItem(
+                id = item.idStr,
                 commentId = item.basic.commentIdStr.toLongOrDefault(0),
                 commentType = item.basic.commentType,
                 type = dynamicType,
@@ -132,9 +134,24 @@ data class DynamicItem(
             isForwardItem: Boolean = false
         ): DynamicItem {
             val dynamicType = DynamicType.fromAppValue(item.cardType)
+            val commentType: Long = when (item.cardType) {
+                bilibili.app.dynamic.v2.DynamicType.av -> 1
+
+                bilibili.app.dynamic.v2.DynamicType.draw -> 11
+
+                bilibili.app.dynamic.v2.DynamicType.forward,
+                bilibili.app.dynamic.v2.DynamicType.word,
+                bilibili.app.dynamic.v2.DynamicType.article,
+                bilibili.app.dynamic.v2.DynamicType.live_rcmd -> 17
+
+                else -> 17
+            }
             val dynamicItem = DynamicItem(
+                id = item.extend.dynIdStr,
                 commentId = item.extend.businessId.toLongOrDefault(0),
-                commentType = item.extend.rType,
+                commentType = commentType,
+                // item.extend.rType 总是为 0
+                //commentType = item.extend.rType,
                 type = dynamicType,
                 author = if (isForwardItem) {
                     DynamicAuthorModule.fromExtendAndModuleAuthorForward(
@@ -148,7 +165,12 @@ data class DynamicItem(
                         text = item.getDescModule()?.text ?: ""
                     }
                 },
-                footer = if (!isForwardItem) DynamicFooterModule.fromModuleStat(item.getStatModule()!!) else null
+                footer = if (!isForwardItem) {
+                    // 获取动态详情时 module_list 中没有 module_stat，但 module_bottom 中包含了 module_stat
+                    DynamicFooterModule.fromModuleStat(
+                        item.getStatModule() ?: item.getBottomModule()!!.moduleStat
+                    )
+                } else null
             )
 
             when (dynamicType) {
@@ -160,13 +182,25 @@ data class DynamicItem(
 
                 DynamicType.UgcSeason -> TODO()
                 DynamicType.Draw -> dynamicItem.draw =
-                    DynamicDrawModule.fromModuleOpusSummaryAndModuleDynamic(
-                        item.getOpusSummaryModule()!!,
-                        item.getDynamicModule()!!
-                    )
+                    item.getOpusSummaryModule()?.let { opusSummaryModule ->
+                        DynamicDrawModule.fromModuleOpusSummaryAndModuleDynamic(
+                            opusSummaryModule,
+                            item.getDynamicModule()!!
+                        )
+                    } ?: let {
+                        DynamicDrawModule.fromModuleDescAndModuleDynamic(
+                            item.getDescModule()!!,
+                            item.getDynamicModule()!!
+                        )
+                    }
+
 
                 DynamicType.Word -> dynamicItem.word =
-                    DynamicWordModule.fromModuleOpusSummary(item.getOpusSummaryModule()!!)
+                    item.getOpusSummaryModule()?.let { opusSummaryModule ->
+                        DynamicWordModule.fromModuleOpusSummary(opusSummaryModule)
+                    } ?: let {
+                        DynamicWordModule.fromModuleDesc(item.getDescModule()!!)
+                    }
 
                 DynamicType.Forward -> dynamicItem.apply {
                     word = DynamicWordModule.fromModuleDesc(item.getDescModule()!!)
@@ -286,6 +320,9 @@ data class DynamicItem(
                     comment = moduleStat.reply.toInt(),
                     share = moduleStat.repost.toInt()
                 )
+
+            fun fromModuleBottom(moduleButtom: bilibili.app.dynamic.v2.ModuleButtom) =
+                fromModuleStat(moduleButtom.moduleStat)
         }
     }
 
@@ -315,6 +352,29 @@ data class DynamicItem(
 
                     else -> println("not implemented: ModuleOpusSummary summaryContentType: $summaryContentType")
                 }
+
+                when (val dynamicItemType = moduleDynamic.moduleItemCase) {
+                    ModuleItemCase.DYN_DRAW -> images.addAll(
+                        moduleDynamic.dynDraw.itemsList.map(Picture::fromPicture)
+                    )
+
+                    else -> println("not implemented: ModuleOpusSummary dynamicItemType $dynamicItemType")
+                }
+
+                return DynamicDrawModule(
+                    text = text,
+                    images = images.distinctBy { it.url }
+                )
+            }
+
+            fun fromModuleDescAndModuleDynamic(
+                moduleDesc: bilibili.app.dynamic.v2.ModuleDesc,
+                moduleDynamic: bilibili.app.dynamic.v2.ModuleDynamic
+            ): DynamicDrawModule {
+                var text = ""
+                val images = mutableListOf<Picture>()
+
+                text = moduleDesc.descList.joinToString("") { it.text }
 
                 when (val dynamicItemType = moduleDynamic.moduleItemCase) {
                     ModuleItemCase.DYN_DRAW -> images.addAll(
@@ -537,12 +597,12 @@ data class DynamicVideo(
 
         fun fromDynamicVideoItem(item: bilibili.app.dynamic.v2.DynamicItem): DynamicVideo {
             val author =
-                item.modulesList.first { it.moduleType == DynModuleType.module_author }.moduleAuthor
+                item.modulesList.first { it.moduleType == DynModuleType.module_author }.moduleAuthor.author
             val dynamic =
                 item.modulesList.first { it.moduleType == DynModuleType.module_dynamic }.moduleDynamic
             val desc =
                 item.modulesList.firstOrNull { it.moduleType == DynModuleType.module_desc }?.moduleDesc
-            val isDynamicVideo = author?.ptimeLabelText?.contains("动态视频") ?: false
+            val isDynamicVideo = desc?.text?.startsWith("动态视频") ?: false
             when (dynamic.moduleItemCase) {
                 ModuleItemCase.DYN_ARCHIVE -> {
                     val archive = dynamic.dynArchive
@@ -550,14 +610,13 @@ data class DynamicVideo(
                         aid = archive.avid,
                         bvid = archive.bvid,
                         cid = archive.cid,
-                        title = if (!isDynamicVideo) archive.title
-                        else desc?.text?.replace("动态视频｜", "") ?: "",
+                        title = if (!isDynamicVideo) archive.title else desc!!.text.substring(5),
                         cover = archive.cover,
-                        author = author.author.name,
+                        author = author.name,
                         duration = convertStringTimeToSeconds(archive.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(archive.coverLeftText2),
                         danmaku = convertStringPlayCountToNumberPlayCount(archive.coverLeftText3),
-                        avatar = author.author.face
+                        avatar = author.face
                     )
                 }
 
@@ -571,11 +630,11 @@ data class DynamicVideo(
                         seasonId = pgc.seasonId.toInt(),
                         title = pgc.title,
                         cover = pgc.cover,
-                        author = author.author.name,
+                        author = author.name,
                         duration = convertStringTimeToSeconds(pgc.coverLeftText1),
                         play = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText2),
                         danmaku = convertStringPlayCountToNumberPlayCount(pgc.coverLeftText3),
-                        avatar = author.author.face
+                        avatar = author.face
                     )
                 }
 
@@ -636,6 +695,7 @@ private fun Module.isDescModule() = moduleType == DynModuleType.module_desc
 private fun Module.isDynamicModule() = moduleType == DynModuleType.module_dynamic
 private fun Module.isModuleOpusSummary() = moduleType == DynModuleType.module_opus_summary
 private fun Module.isStatModule() = moduleType == DynModuleType.module_stat
+private fun Module.isBottomModel() = moduleType == DynModuleType.module_bottom
 
 private fun bilibili.app.dynamic.v2.DynamicItem.getAuthorModule() =
     modulesList.firstOrNull { it.isAuthorModule() }?.moduleAuthor
@@ -646,7 +706,6 @@ private fun bilibili.app.dynamic.v2.DynamicItem.getAuthorModuleForward() =
 private fun bilibili.app.dynamic.v2.DynamicItem.getDescModule() =
     modulesList.firstOrNull { it.isDescModule() }?.moduleDesc
 
-
 private fun bilibili.app.dynamic.v2.DynamicItem.getDynamicModule() =
     modulesList.firstOrNull { it.isDynamicModule() }?.moduleDynamic
 
@@ -656,4 +715,5 @@ private fun bilibili.app.dynamic.v2.DynamicItem.getOpusSummaryModule() =
 private fun bilibili.app.dynamic.v2.DynamicItem.getStatModule() =
     modulesList.firstOrNull { it.isStatModule() }?.moduleStat
 
-
+private fun bilibili.app.dynamic.v2.DynamicItem.getBottomModule() =
+    modulesList.firstOrNull { it.isBottomModel() }?.moduleButtom

@@ -141,7 +141,7 @@ fun CommentItem(
                         onShowPreviewer = onShowPreviewer
                     )
                 }
-                if (showReplies && comment.replies.isNotEmpty()) {
+                if (showReplies && (comment.repliesCount != 0 || comment.replies.isNotEmpty())) {
                     CommentReplies(
                         replies = comment.replies,
                         repliesCount = comment.repliesCount,
@@ -403,6 +403,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("单行文字。你好", "[doge]", "World!"),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -422,6 +423,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("超长评论。If you were a web designer in the early days of the Internet, you might remember that there were few “web safe” typefaces, such as Arial and Georgia. As a result, many websites looked similar. To use a new typeface, you had to embed small Flash files for each heading in your layout."),
             member = Comment.Member(
                 mid = 0,
@@ -445,6 +447,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("单图片, 1 picture."),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -465,6 +468,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("双图片, 2 pictures."),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -481,6 +485,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("三图片, 3 pictures."),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -498,6 +503,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("四图片, four pictures."),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -516,6 +522,7 @@ private class CommentItemPreviewParameterProvider :
             mid = 0,
             oid = 0,
             parent = 0,
+            type = 0,
             content = listOf("先兼容后慢慢过渡到完全自主，虽然看起来像安卓套壳，但能避免跨度太大扯到蛋。"),
             member = Comment.Member(mid = 0, avatar = "", name = "username"),
             timeDesc = "4小时前",
@@ -532,6 +539,7 @@ private class CommentItemPreviewParameterProvider :
                     mid = 0,
                     oid = 0,
                     parent = 0,
+                    type = 0,
                     content = listOf("其他视频的置顶：美国商务部的源文件里写的很清楚，对于消费用途的产品（consumer application）是exemption(豁免)。但是基于AD102的产品不得在中国大陆生产，也就是说未来国内销售的RTX 4090将会是在境外生产再运输回国内卖，这是唯一的不同点。估计后续也会是商家炒作显卡涨价的理由。"),
                     member = Comment.Member(mid = 0, avatar = "", name = "余Mercury"),
                     timeDesc = "4小时前",
@@ -545,6 +553,7 @@ private class CommentItemPreviewParameterProvider :
                     mid = 0,
                     oid = 0,
                     parent = 0,
+                    type = 0,
                     content = listOf("回复 @余Mercury : 中东佬禁酒,用的泡沫水"),
                     member = Comment.Member(mid = 0, avatar = "", name = "铭轩-T"),
                     timeDesc = "4小时前",
@@ -558,6 +567,7 @@ private class CommentItemPreviewParameterProvider :
                     mid = 0,
                     oid = 0,
                     parent = 0,
+                    type = 0,
                     content = listOf("澄清完更好笑了"),
                     member = Comment.Member(mid = 0, avatar = "", name = "Gemini好辣辣"),
                     timeDesc = "4小时前",

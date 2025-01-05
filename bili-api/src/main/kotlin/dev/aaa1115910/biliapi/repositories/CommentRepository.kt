@@ -11,6 +11,7 @@ import dev.aaa1115910.biliapi.entity.reply.CommentRepliesData
 import dev.aaa1115910.biliapi.entity.reply.CommentReplyPage
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.biliapi.entity.reply.CommentsData
+import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -26,7 +27,7 @@ class CommentRepository(
 
     suspend fun getComments(
         id: Long,
-        type: Int,
+        type: Long,
         sort: CommentSort = CommentSort.Hot,
         page: CommentPage = CommentPage(),
         preferApiType: ApiType = ApiType.Web
@@ -45,28 +46,32 @@ class CommentRepository(
             }
 
             ApiType.App -> {
-                val appComments = replyStub?.mainList(
-                    mainListReq {
-                        this.oid = id.toLong()
-                        this.type = type.toLong()
-                        mode = when (sort) {
-                            CommentSort.Hot -> Mode.MAIN_LIST_HOT
-                            CommentSort.HotAndTime -> Mode.DEFAULT
-                            CommentSort.Time -> Mode.MAIN_LIST_TIME
+                runCatching {
+                    val appComments = replyStub?.mainList(
+                        mainListReq {
+                            this.oid = id.toLong()
+                            this.type = type.toLong()
+                            mode = when (sort) {
+                                CommentSort.Hot -> Mode.MAIN_LIST_HOT
+                                CommentSort.HotAndTime -> Mode.DEFAULT
+                                CommentSort.Time -> Mode.MAIN_LIST_TIME
+                            }
+                            pagination = feedPagination {
+                                offset = page.nextAppPage
+                            }
                         }
-                        pagination = feedPagination {
-                            offset = page.nextAppPage
-                        }
-                    }
-                ) ?: throw IllegalStateException("Reply stub is not initialized")
-                return CommentsData.fromMainListReply(appComments)
+                    ) ?: throw IllegalStateException("Reply stub is not initialized")
+                    return CommentsData.fromMainListReply(appComments)
+                }.onFailure {
+                    handleGrpcException(it)
+                }.getOrThrow()
             }
         }
     }
 
     suspend fun getCommentReplies(
-        id: Long,
-        type: Int,
+        rpid: Long,
+        type: Long,
         commentId: Long,
         page: CommentReplyPage = CommentReplyPage(),
         sort: CommentSort = CommentSort.Hot,
@@ -75,9 +80,9 @@ class CommentRepository(
         when (preferApiType) {
             ApiType.Web -> {
                 val webReplies = BiliHttpApi.getCommentReplies(
-                    oid = id,
+                    oid = commentId,
                     type = type,
-                    root = commentId,
+                    root = rpid,
                     pageSize = 20,
                     pageNumber = page.nextWebPage,
                 ).getResponseData()
@@ -87,9 +92,9 @@ class CommentRepository(
             ApiType.App -> {
                 val appReplies = replyStub?.detailList(
                     detailListReq {
-                        this.oid = id.toLong()
-                        this.type = type.toLong()
-                        root = commentId
+                        this.oid = commentId
+                        this.type = type
+                        root = rpid
                         mode = when (sort) {
                             CommentSort.Hot -> Mode.MAIN_LIST_HOT
                             CommentSort.HotAndTime -> Mode.DEFAULT

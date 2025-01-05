@@ -65,6 +65,7 @@ import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
 import dev.aaa1115910.bv.mobile.screen.home.UserSwitchDialog
 import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
@@ -81,6 +82,7 @@ fun MobileMainScreen(
     userViewModel: UserViewModel = koinViewModel(),
     userSwitchViewModel: UserSwitchViewModel = koinViewModel()
 ) {
+    val logger = KotlinLogging.logger("MobileMainScreen")
     val state = rememberMobileMainScreenState(
         homeViewModel = homeViewModel,
         userViewModel = userViewModel,
@@ -111,6 +113,7 @@ fun MobileMainScreen(
     val onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit =
         { newPictures, afterSetPictures ->
             pictures.swapList(newPictures)
+            logger.fInfo { "update image previewer pictures list: $newPictures" }
             afterSetPictures()
         }
 
@@ -210,7 +213,7 @@ fun MobileMainScreen(
         state = previewerState,
         imageLoader = { index ->
             val imageRequest = ImageRequest.Builder(LocalContext.current)
-                .data(pictures[index])
+                .data(pictures[index].url)
                 .size(Size.ORIGINAL)
                 .build()
             rememberAsyncImagePainter(imageRequest)

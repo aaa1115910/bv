@@ -27,6 +27,7 @@ import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
+import dev.aaa1115910.bv.mobile.viewmodel.DynamicDetailViewModel
 import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
@@ -199,6 +200,7 @@ val appModule = module {
     viewModel { PgcTvViewModel(get()) }
     viewModel { PgcVarietyViewModel(get()) }
     viewModel { CommentViewModel(get()) }
+    viewModel { DynamicDetailViewModel(get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

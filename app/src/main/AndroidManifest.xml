@@ -203,6 +203,11 @@
             android:exported="false"
             android:label="@string/title_mobile_activity_settings"
             android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.DynamicDetailActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_dynamic_detail"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>

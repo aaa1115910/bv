@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -34,23 +34,24 @@ import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Comments(
     modifier: Modifier = Modifier,
-    header: (@Composable () -> Unit)? = null,
     previewerState: ImagePreviewerState,
+    header: (@Composable () -> Unit)? = null,
     comments: List<Comment>,
     commentSort: CommentSort,
-    refreshingComments: Boolean,
+    isLoading: Boolean,
+    isRefreshing: Boolean,
     onLoadMoreComments: () -> Unit,
     onRefreshComments: () -> Unit,
     onSwitchCommentSort: (CommentSort) -> Unit,
     onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
-    onShowReplies: (rpId: Long, repliesCount: Int) -> Unit
+    onShowReplies: (comment: Comment) -> Unit
 ) {
     val listState = rememberLazyListState()
-    val pullRefreshState = rememberPullRefreshState(refreshingComments, { onRefreshComments() })
+    val pullToRefreshState = rememberPullToRefreshState()
 
     val shouldLoadMore by remember {
         derivedStateOf {
@@ -65,12 +66,13 @@ fun Comments(
         if (shouldLoadMore) onLoadMoreComments()
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pullRefresh(state = pullRefreshState)
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        state = pullToRefreshState,
+        onRefresh = onRefreshComments
     ) {
         LazyColumn(
+            modifier = modifier.fillMaxSize(),
             state = listState
         ) {
             item {
@@ -119,29 +121,42 @@ fun Comments(
                         comment = comment,
                         previewerState = previewerState,
                         onShowPreviewer = onShowPreviewer,
-                        onShowReply = { rpId ->
-                            onShowReplies(rpId, comment.repliesCount)
+                        onShowReply = { _ ->
+                            onShowReplies(comment)
                         }
                     )
                 }
             }
-            if (comments.isEmpty()) {
+
+            if (comments.isEmpty() && !(isLoading || isRefreshing)) {
                 item {
                     Box(
-                        modifier = Modifier.height(400.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        //Text(text="Empty")
+                        Text(text = "啥都没有")
                     }
                 }
             }
+
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
             item {
                 Spacer(modifier = Modifier.navigationBarsPadding())
             }
         }
-        PullRefreshIndicator(
-            refreshingComments,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter)
-        )
     }
 }

@@ -111,7 +111,7 @@ class UserRepositoryTest {
             )
             historyOffset = dynamicData.historyOffset
             updateBaseline = dynamicData.updateBaseline
-            println("page $i: $dynamicData")
+            println("page $i: ${dynamicData.dynamics.joinToString { it.commentType.toString() }}")
             delay((1000L..3000L).random())
         }
     }
@@ -130,7 +130,7 @@ class UserRepositoryTest {
             )
             historyOffset = dynamicData.historyOffset
             updateBaseline = dynamicData.updateBaseline
-            println("page $i: $dynamicData")
+            println("page $i: ${dynamicData.dynamics.joinToString { it.commentType.toString() }}")
             delay((1000L..3000L).random())
         }
     }
@@ -151,5 +151,17 @@ class UserRepositoryTest {
             preferApiType = ApiType.App
         )
         println(result)
+    }
+
+    @Test
+    fun `get dynamic detail`() = runBlocking {
+        ApiType.entries.forEach { apiType ->
+            val result = userRepository.getDynamicDetail(
+                dynamicId = "946265944846499863",
+                preferApiType = apiType
+            )
+            println("apiType: $apiType")
+            println(result)
+        }
     }
 }

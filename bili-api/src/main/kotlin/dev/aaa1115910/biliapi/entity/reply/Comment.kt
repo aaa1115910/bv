@@ -35,6 +35,7 @@ data class Comment(
     val rpid: Long,
     val mid: Long,
     val oid: Long,
+    val type: Long,
     val parent: Long,
     val content: List<String>,
     val member: Member,
@@ -50,6 +51,7 @@ data class Comment(
                 rpid = reply.rpid,
                 mid = reply.mid,
                 oid = reply.oid.toLong(),
+                type = reply.type,
                 parent = reply.parent,
                 content = reply.content.message.splitWithEmotes(*reply.content.emote.keys.toTypedArray()),
                 member = Member(
@@ -70,6 +72,7 @@ data class Comment(
                 rpid = reply.id,
                 mid = reply.mid,
                 oid = reply.oid,
+                type = reply.type,
                 parent = reply.parent,
                 content = reply.content.message.splitWithEmotes(*reply.content.emoteMap.keys.toTypedArray()),
                 member = Member(
@@ -81,7 +84,8 @@ data class Comment(
                 emotes = reply.content.emoteMap.values.map { Emote.fromEmote(it) },
                 pictures = reply.content.picturesList.map { Picture.fromPicture(it) },
                 replies = reply.repliesList.map { fromReplyInfo(it) },
-                repliesCount = reply.repliesCount
+                repliesCount = runCatching { reply.replyControl.subReplyEntryText.split(" ")[1].toInt() }
+                    .getOrDefault(0)
             )
         }
     }

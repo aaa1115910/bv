@@ -40,7 +40,7 @@ data class DynamicItem(
         @SerialName("comment_id_str")
         val commentIdStr: String,
         @SerialName("comment_type")
-        val commentType: Int,
+        val commentType: Long,
         @SerialName("like_icon")
         val likeIcon: LikeIcon,
         @SerialName("rid_str")

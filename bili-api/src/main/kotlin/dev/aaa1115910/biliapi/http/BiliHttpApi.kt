@@ -7,6 +7,7 @@ import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
+import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicDetailData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.toview.ToViewData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
@@ -309,6 +310,21 @@ object BiliHttpApi {
         parameter("type", type)
         parameter("page", page)
         offset?.let { parameter("offset", offset) }
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取动态详情
+     *
+     * @param id 动态id
+     */
+    suspend fun getDynamicDetail(
+        timezoneOffset: Int = -480,
+        id: String,
+        sessData: String = ""
+    ): BiliResponse<DynamicDetailData> = client.get("/x/polymer/web-dynamic/v1/detail") {
+        parameter("timezone_offset", timezoneOffset)
+        parameter("id", id)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
@@ -1642,7 +1658,7 @@ object BiliHttpApi {
      * @param paginationStr 分页参数
      */
     suspend fun getComments(
-        type: Int,
+        type: Long,
         oid: Long,
         mode: Int = 3,
         paginationStr: String = """{"offset":""}""",
@@ -1661,7 +1677,7 @@ object BiliHttpApi {
 
     suspend fun getCommentReplies(
         oid: Long,
-        type: Int,
+        type: Long,
         root: Long,
         pageSize: Int = 10,
         pageNumber: Int = 1

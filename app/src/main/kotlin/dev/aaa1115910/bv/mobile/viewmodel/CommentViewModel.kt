@@ -30,7 +30,7 @@ class CommentViewModel(
     }
 
     var commentId = 0L
-    var commentType = 0
+    var commentType = 0L
 
     val comments = mutableStateListOf<Comment>()
     val replies = mutableStateListOf<Comment>()
@@ -49,8 +49,8 @@ class CommentViewModel(
     var hasMoreReplies by mutableStateOf(true)
     var refreshingComments by mutableStateOf(false)
     var refreshingReplies by mutableStateOf(false)
-    var updatingComments = false
-    var updatingReplies = false
+    var updatingComments by mutableStateOf(false)
+    var updatingReplies by mutableStateOf(false)
 
     suspend fun loadMoreComment() {
         if (updatingComments) return
@@ -61,7 +61,7 @@ class CommentViewModel(
             refreshingComments = false
             return
         }
-        logger.fInfo { "Load more comments, page=$nextCommentPage" }
+        logger.fInfo { "Load more comments: [commentId=$commentId, commentType=$commentType, page=$nextCommentPage]" }
         runCatching {
             val commentsData = commentRepository.getComments(
                 id = commentId,
@@ -108,12 +108,12 @@ class CommentViewModel(
             refreshingReplies = false
             return
         }
-        logger.fInfo { "Load more replies, page=$nextCommentReplyPage" }
+        logger.fInfo { "Load more replies, commentId=$commentId, commentType=$commentType, page=$nextCommentReplyPage" }
         runCatching {
             val commentRepliesData = commentRepository.getCommentReplies(
-                id = commentId,
+                rpid = rpid,
                 type = commentType,
-                commentId = rpid,
+                commentId = commentId,
                 page = nextCommentReplyPage,
                 sort = replySort,
                 preferApiType = Prefs.apiType

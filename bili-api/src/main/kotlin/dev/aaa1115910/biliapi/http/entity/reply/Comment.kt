@@ -103,7 +103,7 @@ data class CommentData(
         @SerialName("rpid_str")
         val rpidStr: String,
         val state: Int,
-        val type: Int,
+        val type: Long,
         @SerialName("up_action")
         val upAction: UpAction
     ) {
