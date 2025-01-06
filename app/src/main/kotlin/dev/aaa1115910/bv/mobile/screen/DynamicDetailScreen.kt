@@ -350,8 +350,9 @@ fun DynamicDetailScreenPadContent(
                 horizontalArrangement = Arrangement.Center
             ) {
                 DynamicPart(
-                    modifier = Modifier.width(screenWidth / 3 - 10.dp),
-                    //modifier = Modifier.width(screenWidth / 2),
+                    modifier = Modifier
+                        .width(screenWidth / 3 - 10.dp)
+                        .verticalScroll(rememberScrollState()),
                     dynamicItem = dynamicDetailState.dynamicItem,
                     previewerState = dynamicDetailState.imagePreviewerState,
                     onShowPreviewer = onShowPreviewer
@@ -527,7 +528,6 @@ private fun DynamicPart(
 ) {
     Column(
         modifier = modifier
-            .verticalScroll(rememberScrollState())
     ) {
         if (dynamicItem != null) {
             DynamicHeader(
