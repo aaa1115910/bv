@@ -1,5 +1,7 @@
 package dev.aaa1115910.bv.mobile.component.reply
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
@@ -37,6 +41,7 @@ import dev.aaa1115910.biliapi.entity.reply.CommentReplyPage
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.util.OnBottomReached
 import dev.aaa1115910.bv.util.Prefs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -65,9 +70,11 @@ fun ReplySheetScaffold(
     val replies = remember { mutableStateListOf<Comment>() }
     var sort by remember { mutableStateOf(CommentSort.Time) }
     var hasNext by remember { mutableStateOf(true) }
+    var loading by remember { mutableStateOf(false) }
 
     val loadMoreReply = {
-        if (hasNext) {
+        if (hasNext && !loading) {
+            loading = true
             logger.info { "load more reply: [aid=$aid, rpid=$rpid, next=$nextPage]" }
             scope.launch(Dispatchers.IO) {
                 runCatching {
@@ -84,7 +91,9 @@ fun ReplySheetScaffold(
                     replies.addAll(commentRepliesData.replies)
                 }.onFailure {
                     it.printStackTrace()
+                    hasNext = false
                 }
+                loading = false
             }
         }
     }
@@ -96,12 +105,15 @@ fun ReplySheetScaffold(
         nextPage = CommentReplyPage()
     }
 
-    val shouldLoadMore by remember {
+    val sheetExpanded by remember {
         derivedStateOf {
-            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-                ?: return@derivedStateOf true
+            sheetState.bottomSheetState.currentValue == SheetValue.Expanded
+        }
+    }
 
-            rpid != 0L && lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 10
+    if (sheetExpanded) {
+        listState.OnBottomReached(loading = loading) {
+            loadMoreReply()
         }
     }
 
@@ -111,10 +123,6 @@ fun ReplySheetScaffold(
         loadMoreReply()
     }
 
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) loadMoreReply()
-    }
-
     LaunchedEffect(rpid) {
         clearData()
     }
@@ -122,12 +130,26 @@ fun ReplySheetScaffold(
     LaunchedEffect(sheetState.bottomSheetState.currentValue) {
         when (sheetState.bottomSheetState.currentValue) {
             SheetValue.Hidden, SheetValue.PartiallyExpanded -> clearData()
-            SheetValue.Expanded -> loadMoreReply()
+            SheetValue.Expanded -> {}//loadMoreReply()
         }
     }
 
+    BackHandler(
+        sheetState.bottomSheetState.currentValue != SheetValue.PartiallyExpanded
+                && !(previewerState.canClose || previewerState.animating)
+    ) {
+        scope.launch { sheetState.bottomSheetState.partialExpand() }
+    }
+
     BottomSheetScaffold(
-        modifier = modifier,
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clip(
+                MaterialTheme.shapes.extraLarge.copy(
+                    bottomStart = CornerSize(0.dp),
+                    bottomEnd = CornerSize(0.dp)
+                )
+            ),
         scaffoldState = sheetState,
         sheetPeekHeight = 0.dp,
         sheetContent = {
@@ -141,7 +163,8 @@ fun ReplySheetScaffold(
                             comment = comment!!,
                             previewerState = previewerState,
                             onShowPreviewer = onShowPreviewer,
-                            showReplies = false
+                            showReplies = false,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         )
                     }
                 }
@@ -184,7 +207,8 @@ fun ReplySheetScaffold(
                             comment = reply,
                             previewerState = previewerState,
                             onShowPreviewer = onShowPreviewer,
-                            showReplies = false
+                            showReplies = false,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         )
 
                         if (BuildConfig.DEBUG) {

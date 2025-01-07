@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -82,6 +83,7 @@ import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.CommentSort
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.reply.CommentItem
 import dev.aaa1115910.bv.mobile.component.reply.ReplySheetScaffold
@@ -130,7 +132,10 @@ fun VideoPlayerScreen(
     SideEffect {
         systemUiController.isStatusBarVisible = !isVideoFullscreen
         systemUiController.isNavigationBarVisible = !isVideoFullscreen
-        systemUiController.setStatusBarColor(Color.Black)
+        if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
+            systemUiController.statusBarDarkContentEnabled = true
+            systemUiController.setStatusBarColor(Color.Black)
+        }
         if (forcePortrait) {
             if (isVideoFullscreen) {
                 (context as Activity).requestedOrientation =
@@ -166,6 +171,10 @@ fun VideoPlayerScreen(
         }
     }
 
+    BackHandler(isVideoFullscreen) {
+        isVideoFullscreen = false
+    }
+
     /*val bvPlayerContent = remember {
         // TODO movableContentOf here doesn't avoid Media from recreating its surface view when
         // screen rotation changed. Seems like a bug of Compose.
@@ -191,9 +200,16 @@ fun VideoPlayerScreen(
         }
     }*/
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        containerColor = if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) Color.Black else MaterialTheme.colorScheme.surfaceContainer
+    ) { innerPadding ->
         Row(
-            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier
+                .ifElse(
+                    !isVideoFullscreen,
+                    Modifier.padding(top = innerPadding.calculateTopPadding())
+                )
+            //.padding(top = innerPadding.calculateTopPadding())
         ) {
             val leftPartWidth by animateFloatAsState(
                 targetValue = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded && !isVideoFullscreen) 0.6f else 1f,
@@ -220,6 +236,12 @@ fun VideoPlayerScreen(
                                 .fillMaxSize()
                                 .zIndex(1f)
                             else Modifier
+                                .ifElse(
+                                    { windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded },
+                                    Modifier
+                                        .padding(12.dp, 0.dp, 12.dp, 12.dp)
+                                        .clip(MaterialTheme.shapes.large)
+                                )
                                 .fillMaxWidth()
                                 .aspectRatio(16f / 9f),
                             isFullScreen = isVideoFullscreen,
@@ -267,6 +289,7 @@ fun VideoPlayerScreen(
                     pageCount = { 2 }
                 )
                 if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
+                    // 小屏幕下的视频详情推荐/评论
                     ReplySheetScaffold(
                         aid = playerViewModel.avid,
                         rpid = playerViewModel.rpid,
@@ -376,8 +399,11 @@ fun VideoPlayerScreen(
                         }
                     }
                 } else {
+                    // 大屏幕下视频下方的视频详情和推荐视频
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp)
                     ) {
                         item {
                             VideoPlayerInfo(
@@ -392,13 +418,36 @@ fun VideoPlayerScreen(
                                     ?: 0,
                                 date = playerViewModel.videoDetail?.publishDate
                                     ?.formatPubTimeString(context) ?: "",
-                                avid = playerViewModel.videoDetail?.aid ?: 0
+                                avid = playerViewModel.videoDetail?.aid ?: 0,
+                                backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                             )
                         }
-                        items(
+                        itemsIndexed(
                             items = playerViewModel.videoDetail?.relatedVideos ?: emptyList()
-                        ) { relatedVideo ->
+                        ) { index, relatedVideo ->
                             RelatedVideoItem(
+                                modifier = Modifier
+                                    .ifElse(
+                                        { index == 0 },
+                                        Modifier.clip(
+                                            MaterialTheme.shapes.large.copy(
+                                                bottomStart = CornerSize(0.dp),
+                                                bottomEnd = CornerSize(0.dp)
+                                            )
+                                        )
+                                    )
+                                    .ifElse(
+                                        {
+                                            index == (playerViewModel.videoDetail?.relatedVideos?.size
+                                                ?: 0) - 1
+                                        },
+                                        Modifier.clip(
+                                            MaterialTheme.shapes.large.copy(
+                                                topStart = CornerSize(0.dp),
+                                                topEnd = CornerSize(0.dp)
+                                            )
+                                        )
+                                    ),
                                 relatedVideo = relatedVideo,
                                 onClick = {
                                     VideoPlayerActivity.actionStart(
@@ -416,37 +465,43 @@ fun VideoPlayerScreen(
                 }
             }
             if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
-                ReplySheetScaffold(
-                    aid = playerViewModel.avid,
-                    rpid = playerViewModel.rpid,
-                    repliesCount = playerViewModel.rpCount,
-                    sheetState = replySheetState,
-                    previewerState = previewerState,
-                    onShowPreviewer = setPreviewerPictures
+                // 大屏幕下的右侧评论
+                Box(
+                    modifier = Modifier.padding(end = 12.dp)
                 ) {
-                    VideoComments(
-                        modifier = Modifier.fillMaxWidth(),
+                    ReplySheetScaffold(
+                        modifier = Modifier,
+                        aid = playerViewModel.avid,
+                        rpid = playerViewModel.rpid,
+                        repliesCount = playerViewModel.rpCount,
+                        sheetState = replySheetState,
                         previewerState = previewerState,
-                        comments = playerViewModel.comments,
-                        commentSort = playerViewModel.commentSort,
-                        refreshingComments = playerViewModel.refreshingComments,
-                        onLoadMoreComments = {
-                            scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
-                        },
-                        onRefreshComments = {
-                            scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
-                        },
-                        onSwitchCommentSort = {
-                            scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
-                        },
-                        onShowPreviewer = setPreviewerPictures,
-                        onShowReplies = { rpId, repliesCount ->
-                            //logger.info { "show reply sheet: rpid=$replyId" }
-                            playerViewModel.rpid = rpId
-                            playerViewModel.rpCount = repliesCount
-                            scope.launch { replySheetState.bottomSheetState.expand() }
-                        }
-                    )
+                        onShowPreviewer = setPreviewerPictures
+                    ) {
+                        VideoComments(
+                            modifier = Modifier.fillMaxWidth(),
+                            previewerState = previewerState,
+                            comments = playerViewModel.comments,
+                            commentSort = playerViewModel.commentSort,
+                            refreshingComments = playerViewModel.refreshingComments,
+                            onLoadMoreComments = {
+                                scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                            },
+                            onRefreshComments = {
+                                scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                            },
+                            onSwitchCommentSort = {
+                                scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
+                            },
+                            onShowPreviewer = setPreviewerPictures,
+                            onShowReplies = { rpId, repliesCount ->
+                                //logger.info { "show reply sheet: rpid=$replyId" }
+                                playerViewModel.rpid = rpId
+                                playerViewModel.rpCount = repliesCount
+                                scope.launch { replySheetState.bottomSheetState.expand() }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -479,7 +534,8 @@ fun VideoPlayerInfo(
     playCount: Int,
     danmakuCount: Int,
     date: String,
-    avid: Long
+    avid: Long,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface
 ) {
     val summaryTextStyle = MaterialTheme.typography.bodySmall.copy(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -487,7 +543,8 @@ fun VideoPlayerInfo(
 
     Column(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(backgroundColor),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(

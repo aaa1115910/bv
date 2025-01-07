@@ -64,11 +64,13 @@ fun CommentItem(
     comment: Comment,
     previewerState: ImagePreviewerState,
     showReplies: Boolean = true,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
     onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
     onShowReply: (rpid: Long) -> Unit = {}
 ) {
     Surface(
-        modifier = modifier
+        modifier = modifier,
+        color = containerColor
     ) {
         Column(
             modifier = Modifier
@@ -364,9 +366,9 @@ fun CommentReplies(
     onOpenCommentSheet: () -> Unit
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
         shape = MaterialTheme.shapes.medium,
-        onClick = onOpenCommentSheet
+        onClick = onOpenCommentSheet,
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(
             modifier = modifier.padding(8.dp),
