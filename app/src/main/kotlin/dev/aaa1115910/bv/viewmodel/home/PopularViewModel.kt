@@ -1,6 +1,9 @@
 package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.entity.rank.PopularVideoPage
 import dev.aaa1115910.biliapi.entity.ugc.UgcItem
@@ -22,7 +25,12 @@ class PopularViewModel(
     val popularVideoList = mutableStateListOf<UgcItem>()
 
     private var nextPage = PopularVideoPage()
-    var loading = false
+    var refreshing by mutableStateOf(false)
+    var loading by mutableStateOf(false)
+
+    init {
+        println("=====init PopularViewModel")
+    }
 
     suspend fun loadMore(
         beforeAppendData: () -> Unit = {}
@@ -62,5 +70,6 @@ class PopularViewModel(
 
     fun resetPage() {
         nextPage = PopularVideoPage()
+        refreshing = true
     }
 }

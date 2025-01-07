@@ -75,7 +75,8 @@ fun DynamicItem(
 
     Surface(
         modifier = modifier,
-        onClick = { onClick(dynamicItem) }
+        onClick = { onClick(dynamicItem) },
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(
             modifier = Modifier.padding(vertical = paddingSize),

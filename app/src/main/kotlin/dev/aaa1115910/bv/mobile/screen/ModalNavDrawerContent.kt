@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -72,10 +74,10 @@ fun ModalNavDrawerContent(
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = MobileMainScreenNav.FollowingUser.displayName) },
+            label = { Text(text = "我的关注") },
             icon = {
                 Icon(
-                    imageVector = MobileMainScreenNav.FollowingUser.icon,
+                    imageVector = Icons.Default.SupervisorAccount,
                     contentDescription = null
                 )
             },
@@ -87,10 +89,10 @@ fun ModalNavDrawerContent(
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = MobileMainScreenNav.History.displayName) },
+            label = { Text(text = "历史记录") },
             icon = {
                 Icon(
-                    imageVector = MobileMainScreenNav.History.icon,
+                    imageVector = Icons.Default.History,
                     contentDescription = null
                 )
             },
@@ -102,10 +104,10 @@ fun ModalNavDrawerContent(
         )
         NavigationDrawerItem(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-            label = { Text(text = MobileMainScreenNav.Favorite.displayName) },
+            label = { Text(text = "我的收藏") },
             icon = {
                 Icon(
-                    imageVector = MobileMainScreenNav.Favorite.icon,
+                    imageVector = Icons.Default.Favorite,
                     contentDescription = null
                 )
             },

@@ -3,7 +3,13 @@ package dev.aaa1115910.bv.util
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusRequester
@@ -142,3 +148,69 @@ fun LazyStaggeredGridState.isScrolledToEnd() =
 
 fun LazyStaggeredGridState.getLane() =
     layoutInfo.visibleItemsInfo.maxOfOrNull { it.lane + 1 }
+
+@Composable
+fun LazyListState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}
+
+@Composable
+fun LazyGridState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}
+
+@Composable
+fun LazyStaggeredGridState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}

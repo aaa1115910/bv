@@ -1,28 +1,45 @@
 package dev.aaa1115910.bv.mobile.screen
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.automirrored.rounded.Segment
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.FiberNew
-import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -45,6 +62,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraph
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,10 +76,10 @@ import com.origeek.imageViewer.previewer.ImagePreviewer
 import com.origeek.imageViewer.previewer.VerticalDragType
 import com.origeek.imageViewer.previewer.rememberPreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
+import dev.aaa1115910.bv.component.DevelopingTipContent
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.SettingsActivity
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
-import dev.aaa1115910.bv.mobile.screen.home.FollowingUserScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
 import dev.aaa1115910.bv.mobile.screen.home.UserSwitchDialog
 import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
@@ -78,13 +97,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MobileMainScreen(
     modifier: Modifier = Modifier,
-    homeViewModel: PopularViewModel = koinViewModel(),
+    popularViewModel: PopularViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel(),
     userSwitchViewModel: UserSwitchViewModel = koinViewModel()
 ) {
     val logger = KotlinLogging.logger("MobileMainScreen")
     val state = rememberMobileMainScreenState(
-        homeViewModel = homeViewModel,
+        popularViewModel = popularViewModel,
         userViewModel = userViewModel,
         userSwitchViewModel = userSwitchViewModel
     )
@@ -93,15 +112,6 @@ fun MobileMainScreen(
 
     val navSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
-    val navigationItems = when (navSuiteType) {
-        NavigationSuiteType.NavigationBar -> listOf(
-            MobileMainScreenNav.Home,
-            MobileMainScreenNav.Dynamic
-        )
-
-        NavigationSuiteType.NavigationRail -> MobileMainScreenNav.entries
-        else -> MobileMainScreenNav.entries
-    }
 
     val pictures = remember { mutableStateListOf<Picture>() }
     val previewerState = rememberPreviewerState(
@@ -115,6 +125,75 @@ fun MobileMainScreen(
             pictures.swapList(newPictures)
             logger.fInfo { "update image previewer pictures list: $newPictures" }
             afterSetPictures()
+        }
+
+    val verticalNavOrder = listOf(
+        MobileMainScreenNav.Search, MobileMainScreenNav.Home,
+        MobileMainScreenNav.Zone, MobileMainScreenNav.Dynamic
+    ).map { it.name }
+    val horizontalNavOrder = listOf(
+        MobileMainScreenNav.Home, MobileMainScreenNav.Zone,
+        MobileMainScreenNav.Search, MobileMainScreenNav.Dynamic,
+    ).map { it.name }
+
+    val compareNavIndex: (String?, String?) -> Boolean = { a, b ->
+        if (navSuiteType == NavigationSuiteType.NavigationBar) {
+            horizontalNavOrder.indexOf(a) < horizontalNavOrder.indexOf(b)
+        } else {
+            verticalNavOrder.indexOf(a) < verticalNavOrder.indexOf(b)
+        }
+    }
+
+    val navEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        {
+            val coefficient = 10
+            if (navSuiteType == NavigationSuiteType.NavigationBar) {
+                if (compareNavIndex(
+                        targetState.destination.route,
+                        initialState.destination.route
+                    )
+                ) {
+                    fadeIn() + slideInHorizontally { -it / coefficient }
+                } else {
+                    fadeIn() + slideInHorizontally { it / coefficient }
+                }
+            } else {
+                if (compareNavIndex(
+                        targetState.destination.route,
+                        initialState.destination.route
+                    )
+                ) {
+                    fadeIn() + slideInVertically { -it / coefficient }
+                } else {
+                    fadeIn() + slideInVertically { it / coefficient }
+                }
+            }
+        }
+
+    val navExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        {
+            val coefficient = 10
+            if (navSuiteType == NavigationSuiteType.NavigationBar) {
+                if (compareNavIndex(
+                        targetState.destination.route,
+                        initialState.destination.route
+                    )
+                ) {
+                    fadeOut() + slideOutHorizontally { it / coefficient }
+                } else {
+                    fadeOut() + slideOutHorizontally { -it / coefficient }
+                }
+            } else {
+                if (compareNavIndex(
+                        targetState.destination.route,
+                        initialState.destination.route
+                    )
+                ) {
+                    fadeOut() + slideOutVertically { it / coefficient }
+                } else {
+                    fadeOut() + slideOutVertically { -it / coefficient }
+                }
+            }
         }
 
     BackHandler(previewerState.canClose || previewerState.animating) {
@@ -140,35 +219,34 @@ fun MobileMainScreen(
                 onLogin = { context.startActivity(Intent(context, LoginActivity::class.java)) },
                 onLogout = { },
                 onGoHome = { state.navigate(MobileMainScreenNav.Home) },
-                onGoHistory = { state.navigate(MobileMainScreenNav.History) },
-                onGoFavorite = { state.navigate(MobileMainScreenNav.Favorite) },
+                onGoHistory = { },
+                onGoFavorite = { },
                 onGoSetting = { state.navigate(MobileMainScreenNav.Setting) },
-                onGoMyFollowingUser = { state.navigate(MobileMainScreenNav.FollowingUser) },
+                onGoMyFollowingUser = { },
             )
         }
     ) {
-        NavigationSuiteScaffold(
-            navigationSuiteItems = {
-                navigationItems.forEach { navItem ->
-                    item(
-                        icon = { Icon(navItem.icon, contentDescription = navItem.displayName) },
-                        label = { Text(navItem.displayName) },
-                        selected = state.currentNavItem == navItem,
-                        onClick = { state.navigate(navItem) }
-                    )
-                }
+        NavigationSuiteScaffoldLayout(
+            navigationSuite = {
+                NavigationSuit(
+                    mobileMainScreenState = state,
+                    navigationSuiteType = navSuiteType,
+                    onNavigate = state::navigate
+                )
             }
         ) {
             NavHost(
                 navController = state.navController,
-                startDestination = MobileMainScreenNav.Home.name
+                startDestination = MobileMainScreenNav.Home.name,
+                enterTransition = navEnterTransition,
+                exitTransition = navExitTransition
             ) {
                 composable(MobileMainScreenNav.Home.name) {
                     HomeScreen(
                         drawerState = state.drawerState,
-                        gridState = state.lazyGridState,
+                        rcmdGridState = state.rcmdGridState,
+                        popularGridState = state.popularGridState,
                         windowSize = state.windowSizeClass.widthSizeClass,
-                        onSearchActiveChange = { state.activeSearch = it },
                         onShowSwitchUser = state::showUserSwitch
                     )
                 }
@@ -181,27 +259,18 @@ fun MobileMainScreen(
                     }
 
                     DynamicScreen(
+                        dynamicGridState = state.dynamicGridState,
                         previewerState = previewerState,
-                        onShowPreviewer = onShowPreviewer
+                        onShowPreviewer = onShowPreviewer,
+                        // dynamicViewModel = dynamicViewModel
                     )
                 }
 
-                composable(MobileMainScreenNav.History.name) {
-                    Text(text = "History")
-                }
                 composable(MobileMainScreenNav.Search.name) {
-                    Text(text = "Search")
+                    DevelopingTipContent()
                 }
-                composable(MobileMainScreenNav.Setting.name) {
-                    Text(text = "Setting")
-                }
-                composable(MobileMainScreenNav.Favorite.name) {
-                    Text(text = "Favorite")
-                }
-                composable(MobileMainScreenNav.FollowingUser.name) {
-                    FollowingUserScreen(
-                        onBack = {}
-                    )
+                composable(MobileMainScreenNav.Zone.name) {
+                    DevelopingTipContent()
                 }
             }
         }
@@ -239,12 +308,82 @@ fun MobileMainScreen(
     )
 }
 
+@Composable
+private fun NavigationSuit(
+    modifier: Modifier = Modifier,
+    mobileMainScreenState: MobileMainScreenState,
+    navigationSuiteType: NavigationSuiteType,
+    onNavigate: (MobileMainScreenNav) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    when (navigationSuiteType) {
+        NavigationSuiteType.NavigationBar -> {
+            NavigationSuite(
+                modifier = modifier
+            ) {
+                listOf(
+                    MobileMainScreenNav.Home,
+                    MobileMainScreenNav.Zone,
+                    MobileMainScreenNav.Search,
+                    MobileMainScreenNav.Dynamic,
+                ).forEach { navItem ->
+                    item(
+                        icon = { Icon(navItem.icon, contentDescription = navItem.displayName) },
+                        label = { Text(navItem.displayName) },
+                        selected = mobileMainScreenState.currentNavItem == navItem,
+                        onClick = { onNavigate(navItem) }
+                    )
+                }
+            }
+        }
+
+        NavigationSuiteType.NavigationRail -> {
+            NavigationRail(
+                modifier = modifier,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ) {
+                IconButton(onClick = {
+                    scope.launch { mobileMainScreenState.drawerState.open() }
+                }) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+                }
+                Spacer(Modifier.weight(1f))
+                listOf(
+                    MobileMainScreenNav.Search,
+                    MobileMainScreenNav.Home,
+                    MobileMainScreenNav.Zone,
+                    MobileMainScreenNav.Dynamic,
+                ).forEach { navItem ->
+                    NavigationRailItem(
+                        icon = { Icon(navItem.icon, contentDescription = navItem.displayName) },
+                        label = { Text(navItem.displayName) },
+                        selected = mobileMainScreenState.currentNavItem == navItem,
+                        onClick = { onNavigate(navItem) }
+                    )
+                }
+                Spacer(Modifier.weight(1f))
+                listOf(MobileMainScreenNav.Setting).forEach { navItem ->
+                    NavigationRailItem(
+                        icon = { Icon(navItem.icon, contentDescription = navItem.displayName) },
+                        label = { Text(navItem.displayName) },
+                        selected = mobileMainScreenState.currentNavItem == navItem,
+                        onClick = { onNavigate(navItem) }
+                    )
+                }
+            }
+        }
+    }
+}
+
 data class MobileMainScreenState(
     val context: Context,
     val scope: CoroutineScope,
     val windowSizeClass: WindowSizeClass,
     val drawerState: DrawerState,
-    val lazyGridState: LazyGridState,
+    val rcmdGridState: LazyGridState,
+    val popularGridState: LazyGridState,
+    val dynamicGridState: LazyStaggeredGridState,
     val navController: NavHostController,
     val currentBackStackEntry: NavBackStackEntry?,
     val currentNavItem: MobileMainScreenNav,
@@ -261,24 +400,35 @@ data class MobileMainScreenState(
     var showUserSwitchDialog by mutableStateOf(false)
 
     fun navigate(navItem: MobileMainScreenNav) {
-        logger.info { "Navigate to ${navItem.name}" }
+        logger.fInfo { "Navigate to ${navItem.name}" }
+
+        val navigateToRoute: () -> Unit = {
+            val route = navItem.name
+            navController.navigate(route) {
+                launchSingleTop = true
+                popUpTo(navController.graph.findStartDestination().id) {
+                    inclusive = false
+                    saveState = true
+                }
+                restoreState = true
+            }
+        }
+
+        val notCurrentNavItem = currentNavItem != navItem
+
         when (navItem) {
             MobileMainScreenNav.Home -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(navItem.name)
-                    launchSingleTop = true
+                if (notCurrentNavItem) {
+                    navigateToRoute()
+                } else {
+                    scope.launch { rcmdGridState.animateScrollToItem(0) }
+                    scope.launch { popularGridState.animateScrollToItem(0) }
                 }
             }
 
             MobileMainScreenNav.Search -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(MobileMainScreenNav.Home.name)
-                }
-            }
-
-            MobileMainScreenNav.Favorite -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(MobileMainScreenNav.Home.name)
+                if (notCurrentNavItem) {
+                    navigateToRoute()
                 }
             }
 
@@ -286,24 +436,29 @@ data class MobileMainScreenState(
                 context.startActivity(Intent(context, SettingsActivity::class.java))
             }
 
-            MobileMainScreenNav.FollowingUser -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(MobileMainScreenNav.Home.name)
-                }
-            }
-
             MobileMainScreenNav.Dynamic -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(MobileMainScreenNav.Home.name)
+                if (notCurrentNavItem) {
+                    navigateToRoute()
+                } else {
+                    scope.launch { dynamicGridState.animateScrollToItem(0) }
                 }
             }
 
-            MobileMainScreenNav.History -> {
-                navController.navigate(navItem.name) {
-                    popUpTo(MobileMainScreenNav.Home.name)
+            MobileMainScreenNav.Zone -> {
+                if (notCurrentNavItem) {
+                    navigateToRoute()
                 }
             }
         }
+
+        @SuppressLint("RestrictedApi")
+        val breadcrumb = navController
+            .currentBackStack
+            .value
+            .map { it.destination }
+            .filterNot { it is NavGraph }
+            .joinToString(" > ") { it.route ?: "null" }
+        logger.fInfo { "Navigation Stack: > $breadcrumb" }
     }
 
     fun showUserSwitch() {
@@ -325,9 +480,11 @@ fun rememberMobileMainScreenState(
     scope: CoroutineScope = rememberCoroutineScope(),
     windowSizeClass: WindowSizeClass = calculateWindowSizeClass(context as Activity),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    lazyGridState: LazyGridState = rememberLazyGridState(),
+    rcmdGridState: LazyGridState = rememberLazyGridState(),
+    popularGridState: LazyGridState = rememberLazyGridState(),
+    dynamicGridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     navController: NavHostController = rememberNavController(),
-    homeViewModel: PopularViewModel,//= koinNavViewModel(),
+    popularViewModel: PopularViewModel,//= koinNavViewModel(),
     userViewModel: UserViewModel,//= koinNavViewModel(),
     userSwitchViewModel: UserSwitchViewModel //= koinNavViewModel()
 ): MobileMainScreenState {
@@ -341,8 +498,8 @@ fun rememberMobileMainScreenState(
     }
 
     LaunchedEffect(Unit) {
-        if (homeViewModel.popularVideoList.isNotEmpty()) {
-            scope.launch(Dispatchers.IO) { homeViewModel.loadMore() }
+        if (popularViewModel.popularVideoList.isNotEmpty()) {
+            scope.launch(Dispatchers.IO) { popularViewModel.loadMore() }
         }
     }
 
@@ -377,7 +534,9 @@ fun rememberMobileMainScreenState(
         scope,
         windowSizeClass,
         drawerState,
-        lazyGridState,
+        rcmdGridState,
+        popularGridState,
+        dynamicGridState,
         navController,
         currentNavItem
     ) {
@@ -386,11 +545,13 @@ fun rememberMobileMainScreenState(
             scope,
             windowSizeClass,
             drawerState,
-            lazyGridState,
+            rcmdGridState,
+            popularGridState,
+            dynamicGridState,
             navController,
             currentBackStackEntry,
             currentNavItem,
-            homeViewModel,
+            popularViewModel,
             userViewModel,
             userSwitchViewModel
         )
@@ -399,12 +560,10 @@ fun rememberMobileMainScreenState(
 
 enum class MobileMainScreenNav(val displayName: String, val icon: ImageVector) {
     Home("首页", Icons.Rounded.Home),
+    Zone("分区", Icons.AutoMirrored.Rounded.Segment),
     Search("搜索", Icons.Rounded.Search),
     Dynamic("动态", Icons.Rounded.FiberNew),
-    Setting("设置", Icons.Rounded.Settings),
-    History("历史记录", Icons.Rounded.History),
-    Favorite("私人藏品", Icons.Rounded.FavoriteBorder),
-    FollowingUser("我推的UP", Icons.Rounded.People);
+    Setting("设置", Icons.Rounded.Settings), ;
 
     companion object {
         fun fromName(name: String) = entries.firstOrNull { it.name == name } ?: Home

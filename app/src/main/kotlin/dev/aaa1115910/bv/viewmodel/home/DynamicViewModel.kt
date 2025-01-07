@@ -1,6 +1,9 @@
 package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicVideo
@@ -36,13 +39,17 @@ class DynamicViewModel(
     private var videoHistoryOffset: String? = null
     private var videoUpdateBaseline: String? = null
 
-    private var currentAllPage=0
-    var loadingAll=false
-    var allHasMore=true
+    private var currentAllPage = 0
+    var loadingAll by mutableStateOf(false)
+    var allHasMore by mutableStateOf(true)
     private var allHistoryOffset: String? = null
     private var allUpdateBaseline: String? = null
 
     val isLogin get() = bvUserRepository.isLogin
+
+    init {
+        println("=====init DynamicViewModel")
+    }
 
     suspend fun loadMoreVideo() {
         if (!loadingVideo) loadVideoData()
@@ -96,7 +103,7 @@ class DynamicViewModel(
         loadingVideo = false
     }
 
-    private suspend fun loadAllData(){
+    private suspend fun loadAllData() {
         if (!allHasMore || !bvUserRepository.isLogin) return
         loadingAll = true
         logger.fInfo { "Load more dynamic all [apiType=${Prefs.apiType}, offset=$allHistoryOffset, page=${currentVideoPage + 1}]" }

@@ -1,55 +1,64 @@
 package dev.aaa1115910.bv.mobile.screen.home
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicType
+import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.mobile.activities.DynamicDetailActivity
 import dev.aaa1115910.bv.mobile.component.home.dynamic.DynamicItem
-import dev.aaa1115910.bv.player.mobile.util.ifElse
+import dev.aaa1115910.bv.util.OnBottomReached
+import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getLane
-import dev.aaa1115910.bv.util.isScrolledToEnd
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
-import org.koin.androidx.compose.navigation.koinNavViewModel
+import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DynamicScreen(
     modifier: Modifier = Modifier,
-    dynamicViewModel: DynamicViewModel = koinNavViewModel(),
+    dynamicViewModel: DynamicViewModel = koinViewModel(),
+    dynamicGridState: LazyStaggeredGridState,
     previewerState: ImagePreviewerState,
     onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scope = rememberCoroutineScope()
+    val logger = KotlinLogging.logger { }
+    val windowSize = calculateWindowSizeClass(context as Activity).widthSizeClass
 
-    val dynamicGridState = rememberLazyStaggeredGridState()
-    val endOfGridReached by remember { derivedStateOf { dynamicGridState.isScrolledToEnd() } }
     val lane by remember { derivedStateOf { dynamicGridState.getLane() } }
 
     val onClickDynamicItem: (DynamicItem) -> Unit = { dynamicItem ->
@@ -63,28 +72,38 @@ fun DynamicScreen(
             )*/
     }
 
-    LaunchedEffect(Unit) {
-        dynamicViewModel.loadMoreAll()
-    }
-
-    LaunchedEffect(endOfGridReached) {
-        dynamicViewModel.loadMoreAll()
+    dynamicGridState.OnBottomReached(
+        loading = dynamicViewModel.loadingAll
+    ) {
+        logger.fInfo { "on reached rcmd page bottom" }
+        scope.launch(Dispatchers.IO) {
+            dynamicViewModel.loadMoreAll()
+        }
     }
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text(text = "Dynamic") },
-                scrollBehavior = scrollBehavior
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         ) {
             LazyVerticalStaggeredGrid(
-                modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+                modifier = modifier
+                    .fillMaxSize()
+                    .ifElse(
+                        { windowSize != WindowWidthSizeClass.Compact },
+                        Modifier.clip(MaterialTheme.shapes.large)
+                    )
+                    .background(MaterialTheme.colorScheme.surface),
                 columns = StaggeredGridCells.Adaptive(300.dp),
                 state = dynamicGridState,
                 verticalItemSpacing = 8.dp,
