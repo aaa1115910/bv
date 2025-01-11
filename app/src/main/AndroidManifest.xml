@@ -33,121 +33,145 @@
         tools:ignore="UnusedAttribute">
         <activity
             android:name=".activities.user.UserLockSettingsActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
             android:label="@string/title_activity_user_lock_settings"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.RemoteControllerPanelDemoActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_remote_controller_panel_demo"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.settings.LogsActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_logs"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.UserSwitchActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
             android:label="@string/title_activity_user_switch"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.settings.MediaCodecActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
             android:label="@string/title_activity_media_codec"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.VideoPlayerV3Activity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
             android:label="@string/title_activity_video_player_v3"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.TagActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_tag"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.pgc.PgcIndexActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_pgc_index"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.FollowingSeasonActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_following_season"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.pgc.anime.AnimeTimelineActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_anime_timeline"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.search.SearchResultActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_search_result"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.search.SearchInputActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_search_input"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.FollowActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_follow"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.SeasonInfoActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_season_info"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.settings.SpeedTestActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_speed_test"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.FavoriteActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_favorite"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.VideoPlayerActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_video_player"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.UpInfoActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_up_info"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.settings.SettingsActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.HistoryActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_history"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.ToViewActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_toview"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.UserInfoActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_user_info"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.user.LoginActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.BV" />
         <activity
             android:name=".activities.video.VideoInfoActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="false"
             android:label="@string/title_activity_video_info"
             android:theme="@style/Theme.BV" />
