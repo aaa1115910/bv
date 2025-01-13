@@ -178,6 +178,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:banner="@drawable/ic_banner"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.BV.Splash">
