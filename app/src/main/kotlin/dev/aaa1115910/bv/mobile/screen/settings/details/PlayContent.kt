@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.bv.dataStore
-import dev.aaa1115910.bv.entity.Audio
-import dev.aaa1115910.bv.entity.Resolution
+import dev.aaa1115910.bv.player.entity.Audio
+import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.mobile.component.preferences.RadioPreferenceItem
 import dev.aaa1115910.bv.mobile.component.preferences.getOrDefault
 import dev.aaa1115910.bv.util.PrefKeys

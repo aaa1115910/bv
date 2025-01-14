@@ -14,7 +14,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.OkHttpUtil
 import dev.aaa1115910.bv.player.VideoPlayerOptions
-import dev.aaa1115910.bv.player.formatMinSec
+import dev.aaa1115910.bv.util.formatMinSec
 
 @OptIn(UnstableApi::class)
 class ExoMediaPlayer(

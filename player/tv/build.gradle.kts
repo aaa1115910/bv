@@ -44,7 +44,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
@@ -59,16 +58,18 @@ dependencies {
     implementation(project(":player:core"))
     implementation(project(":player:shared"))
     implementation(androidx.activity.compose)
-    implementation(androidx.core.ktx)
-    implementation(androidx.compose.ui)
-    implementation(androidx.compose.ui.util)
-    implementation(androidx.compose.ui.tooling.preview)
+    implementation(androidx.compose.constraintlayout)
+    implementation(androidx.compose.material.icons)
+    implementation(androidx.compose.material3)
     implementation(androidx.compose.tv.foundation)
     implementation(androidx.compose.tv.material)
-    implementation(androidx.compose.material3)
+    implementation(androidx.compose.ui)
+    implementation(androidx.compose.ui.tooling.preview)
+    implementation(androidx.compose.ui.util)
+    implementation(androidx.core.ktx)
+    implementation(libs.logging)
     implementation(libs.material)
-    testImplementation(libs.kotlin.test)
-    androidTestImplementation(androidx.compose.ui.test.junit4)
+    implementation(libs.qrcode)
     debugImplementation(androidx.compose.ui.test.manifest)
     debugImplementation(androidx.compose.ui.tooling)
 }

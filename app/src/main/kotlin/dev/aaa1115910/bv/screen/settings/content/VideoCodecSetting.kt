@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.component.settings.SettingsMenuSelectItem
-import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.screen.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.util.Prefs
 

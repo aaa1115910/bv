@@ -73,7 +73,7 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.user.LoginActivity
 import dev.aaa1115910.bv.activities.user.UserLockSettingsActivity
-import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.repository.UserRepository

@@ -33,7 +33,7 @@ import com.origeek.imageViewer.previewer.ImagePreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.biliapi.entity.user.DynamicItem
 import dev.aaa1115910.biliapi.entity.user.DynamicType
-import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.mobile.activities.DynamicDetailActivity
 import dev.aaa1115910.bv.mobile.component.home.dynamic.DynamicItem
 import dev.aaa1115910.bv.util.OnBottomReached

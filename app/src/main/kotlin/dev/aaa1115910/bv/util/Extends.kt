@@ -30,19 +30,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
-fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(context, this, duration).show()
-}
-
-fun Int.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(context, context.getText(this), duration).show()
-}
-
-fun <T> SnapshotStateList<T>.swapList(newList: List<T>) {
-    clear()
-    addAll(newList)
-}
-
 suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(newList: List<T>) =
     withContext(Dispatchers.Main) { this@swapListWithMainContext.swapList(newList) }
 
@@ -110,20 +97,6 @@ fun Long.formatMinSec(): String {
                         TimeUnit.MILLISECONDS.toMinutes(this)
                     )
         )
-    }
-}
-
-/**
- * 改进的请求焦点的方法，失败后等待 100ms 后重试
- */
-fun FocusRequester.requestFocus(scope: CoroutineScope) {
-    scope.launch(Dispatchers.Default) {
-        runCatching {
-            requestFocus()
-        }.onFailure {
-            delay(100)
-            runCatching { requestFocus() }
-        }
     }
 }
 

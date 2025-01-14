@@ -10,12 +10,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
-import androidx.media3.exoplayer.ExoPlayer
 import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
-import dev.aaa1115910.biliapi.entity.CodeType
 import dev.aaa1115910.biliapi.entity.PlayData
 import dev.aaa1115910.biliapi.entity.reply.Comment
 import dev.aaa1115910.biliapi.entity.reply.CommentPage
@@ -29,12 +27,11 @@ import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.entity.Audio
-import dev.aaa1115910.bv.entity.Resolution
-import dev.aaa1115910.bv.entity.VideoCodec
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
-import dev.aaa1115910.bv.player.mobile.component.DanmakuType
-import dev.aaa1115910.bv.player.mobile.component.playUrl
+import dev.aaa1115910.bv.player.entity.Audio
+import dev.aaa1115910.bv.player.entity.DanmakuType
+import dev.aaa1115910.bv.player.entity.Resolution
+import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
@@ -81,16 +78,8 @@ class MobileVideoPlayerViewModel(
     var currentDanmakuScale by mutableStateOf(Prefs.defaultDanmakuScale)
     var currentDanmakuOpacity by mutableStateOf(Prefs.defaultDanmakuOpacity)
     var currentDanmakuEnabled by mutableStateOf(Prefs.defaultDanmakuEnabled)
-    val currentDanmakuTypes = mutableStateListOf<DanmakuType>().apply {
-        addAll(Prefs.defaultDanmakuTypes.map {
-            when (it) {
-                dev.aaa1115910.bv.component.controllers2.DanmakuType.All -> DanmakuType.All
-                dev.aaa1115910.bv.component.controllers2.DanmakuType.Rolling -> DanmakuType.Rolling
-                dev.aaa1115910.bv.component.controllers2.DanmakuType.Top -> DanmakuType.Top
-                dev.aaa1115910.bv.component.controllers2.DanmakuType.Bottom -> DanmakuType.Bottom
-            }
-        })
-    }
+    val currentDanmakuTypes = mutableStateListOf<DanmakuType>()
+        .apply { addAll(Prefs.defaultDanmakuTypes) }
     var currentDanmakuArea by mutableStateOf(Prefs.defaultDanmakuArea)
     var currentSubtitleId by mutableStateOf(-1L)
     var currentSubtitleData = mutableStateListOf<SubtitleItem>()

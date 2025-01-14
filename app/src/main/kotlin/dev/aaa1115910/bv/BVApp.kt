@@ -14,12 +14,12 @@ import dev.aaa1115910.biliapi.repositories.ChannelRepository
 import dev.aaa1115910.biliapi.repositories.CommentRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
-import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.biliapi.repositories.SearchRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
+import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.biliapi.repositories.UgcRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
@@ -36,7 +36,6 @@ import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
 import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.Prefs
-import dev.aaa1115910.bv.viewmodel.PlayerViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -177,7 +176,6 @@ val appModule = module {
     viewModel { PopularViewModel(get()) }
     viewModel { AppQrLoginViewModel(get(), get()) }
     viewModel { SmsLoginViewModel(get(), get()) }
-    viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { ToViewViewModel(get(), get()) }

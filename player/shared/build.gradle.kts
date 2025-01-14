@@ -54,19 +54,26 @@ java {
     }
 }
 
-
 dependencies {
+    api(project(":utils"))
+    api(project(":bili-api"))
+    api(project(":bili-subtitle"))
+    api(libs.akdanmaku)
     implementation(androidx.activity.compose)
     implementation(androidx.core.ktx)
-    implementation(androidx.compose.ui)
-    implementation(androidx.compose.ui.util)
-    implementation(androidx.compose.ui.tooling.preview)
+    implementation(androidx.compose.constraintlayout)
+    implementation(androidx.compose.material)
+    implementation(androidx.compose.material.icons)
+    implementation(androidx.compose.material3)
     implementation(androidx.compose.tv.foundation)
     implementation(androidx.compose.tv.material)
-    implementation(androidx.compose.material)
+    implementation(androidx.compose.ui)
+    implementation(androidx.compose.ui.tooling.preview)
+    implementation(androidx.compose.ui.util)
+    implementation(libs.androidSvg)
+    implementation(libs.logging)
+    implementation(libs.lottie)
     implementation(libs.material)
-    testImplementation(libs.kotlin.test)
-    androidTestImplementation(androidx.compose.ui.test.junit4)
     debugImplementation(androidx.compose.ui.test.manifest)
     debugImplementation(androidx.compose.ui.tooling)
 }

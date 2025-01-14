@@ -21,8 +21,6 @@ fun BvVideoPlayer(
     modifier: Modifier = Modifier,
     videoPlayer: AbstractVideoPlayer,
     playerListener: VideoPlayerListener,
-    // LibVLC 要用，误删
-    isVerticalVideo: Boolean = false
 ) {
     DisposableEffect(Unit) {
         videoPlayer.setPlayerEventListener(playerListener)
