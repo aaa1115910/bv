@@ -1,19 +1,19 @@
 package dev.aaa1115910.bv.mobile.screen.home
 
-import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.DrawerState
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,16 +29,19 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import dev.aaa1115910.bv.mobile.activities.LoginActivity
+import coil.compose.AsyncImage
 import dev.aaa1115910.bv.mobile.activities.VideoPlayerActivity
 import dev.aaa1115910.bv.mobile.component.home.HomeTab
 import dev.aaa1115910.bv.mobile.screen.home.home.PopularPage
 import dev.aaa1115910.bv.mobile.screen.home.home.RcmdPage
-import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,15 +54,14 @@ import kotlin.Int
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    drawerState: DrawerState,
     rcmdGridState: LazyGridState,
     popularGridState: LazyGridState,
     popularViewModel: PopularViewModel = koinViewModel(),
     recommendViewModel: RecommendViewModel = koinViewModel(),
+    userViewModel: UserViewModel = koinViewModel(),
     windowSize: WindowWidthSizeClass,
-    onShowSwitchUser: () -> Unit
+    onShowUserDialog: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val pageState = rememberPagerState(pageCount = { 2 })
 
@@ -69,14 +71,8 @@ fun HomeScreen(
         topBar = {
             HomeTopAppBar(
                 windowSize = windowSize,
-                onOpenDrawer = { scope.launch { drawerState.open() } },
-                onSwitchUser = {
-                    if (Prefs.isLogin) {
-                        onShowSwitchUser()
-                    } else {
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    }
-                }
+                avatar = userViewModel.face,
+                onShowUserDialog = onShowUserDialog
             )
         }
     ) { innerPadding ->
@@ -217,22 +213,37 @@ fun HomeScreenContent(
 private fun HomeTopAppBar(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
-    onOpenDrawer: () -> Unit,
-    onSwitchUser: () -> Unit,
+    avatar: String,
+    onShowUserDialog: () -> Unit,
 ) {
     if (windowSize == WindowWidthSizeClass.Compact) {
         TopAppBar(
             modifier = modifier,
             title = {
             },
-            navigationIcon = {
-                IconButton(onClick = onOpenDrawer) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
-                }
-            },
+            navigationIcon = {},
             actions = {
-                IconButton(onClick = onSwitchUser) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = null)
+                IconButton(onClick = onShowUserDialog) {
+                    if (avatar.isBlank()) {
+                        Icon(
+                            imageVector = Icons.Rounded.Person,
+                            contentDescription = null
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Gray)
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .size(36.dp),
+                                model = avatar,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(

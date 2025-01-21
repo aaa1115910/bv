@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.mobile.screen.home
+package dev.aaa1115910.bv.mobile.screen
 
 import android.app.Activity
 import androidx.compose.foundation.background
@@ -19,7 +19,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,11 +42,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.user.FollowedUser
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.activities.UserSpaceActivity
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
 import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
@@ -57,7 +59,6 @@ import org.koin.androidx.compose.koinViewModel
 fun FollowingUserScreen(
     modifier: Modifier = Modifier,
     followViewModel: FollowViewModel = koinViewModel(),
-    onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val windowSizeClass = calculateWindowSizeClass(context as Activity)
@@ -79,10 +80,13 @@ fun FollowingUserScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = "我推的 UP") },
+                title = { Text(text = stringResource(R.string.title_mobile_activity_following_user)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    IconButton(onClick = { context.finish() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior

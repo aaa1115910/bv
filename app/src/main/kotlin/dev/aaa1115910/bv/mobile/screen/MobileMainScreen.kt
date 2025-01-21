@@ -14,25 +14,27 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Segment
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.FiberNew
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
@@ -56,8 +58,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -69,6 +75,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
@@ -77,13 +84,13 @@ import com.origeek.imageViewer.previewer.VerticalDragType
 import com.origeek.imageViewer.previewer.rememberPreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.bv.component.DevelopingTipContent
+import dev.aaa1115910.bv.mobile.activities.FollowingUserActivity
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.SettingsActivity
+import dev.aaa1115910.bv.mobile.component.home.UserDialog
 import dev.aaa1115910.bv.mobile.screen.home.DynamicScreen
 import dev.aaa1115910.bv.mobile.screen.home.HomeScreen
-import dev.aaa1115910.bv.mobile.screen.home.UserSwitchDialog
 import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
-import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.UserViewModel
@@ -94,6 +101,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun MobileMainScreen(
     modifier: Modifier = Modifier,
@@ -109,6 +117,7 @@ fun MobileMainScreen(
     )
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val windowSizeClass = calculateWindowSizeClass(context as Activity)
 
     val navSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
@@ -202,36 +211,21 @@ fun MobileMainScreen(
         }
     }
 
-    BackHandler(state.showUserSwitchDialog) {
-        state.hideUserSwitch()
+    BackHandler(state.showUserDialog) {
+        state.hideUserDialog()
     }
 
-    ModalNavigationDrawer(
+    Box(
         modifier = modifier,
-        drawerState = state.drawerState,
-        gesturesEnabled = !state.activeSearch,
-        drawerContent = {
-            ModalNavDrawerContent(
-                avatar = userViewModel.face,
-                username = userViewModel.username,
-                isLogin = Prefs.isLogin,
-                onCloseDrawer = { scope.launch { state.drawerState.close() } },
-                onLogin = { context.startActivity(Intent(context, LoginActivity::class.java)) },
-                onLogout = { },
-                onGoHome = { state.navigate(MobileMainScreenNav.Home) },
-                onGoHistory = { },
-                onGoFavorite = { },
-                onGoSetting = { state.navigate(MobileMainScreenNav.Setting) },
-                onGoMyFollowingUser = { },
-            )
-        }
     ) {
         NavigationSuiteScaffoldLayout(
             navigationSuite = {
                 NavigationSuit(
                     mobileMainScreenState = state,
                     navigationSuiteType = navSuiteType,
-                    onNavigate = state::navigate
+                    avatar = userViewModel.face,
+                    onNavigate = state::navigate,
+                    onShowUserDialog = state::showUserDialog
                 )
             }
         ) {
@@ -243,11 +237,10 @@ fun MobileMainScreen(
             ) {
                 composable(MobileMainScreenNav.Home.name) {
                     HomeScreen(
-                        drawerState = state.drawerState,
                         rcmdGridState = state.rcmdGridState,
                         popularGridState = state.popularGridState,
                         windowSize = state.windowSizeClass.widthSizeClass,
-                        onShowSwitchUser = state::showUserSwitch
+                        onShowUserDialog = state::showUserDialog
                     )
                 }
 
@@ -289,10 +282,11 @@ fun MobileMainScreen(
         }
     )
 
-    UserSwitchDialog(
-        show = state.showUserSwitchDialog,
-        onHideDialog = { state.showUserSwitchDialog = false },
-        currentUser = userSwitchViewModel.currentUser,
+    UserDialog(
+        show = state.showUserDialog,
+        windowWidthSizeClass = windowSizeClass.widthSizeClass,
+        onHideDialog = { state.showUserDialog = false },
+        currentUser = userSwitchViewModel.currentUser.takeIf { it.id != -1 },
         userList = userSwitchViewModel.userDbList,
         onSwitchUser = { user ->
             scope.launch(Dispatchers.IO) {
@@ -304,7 +298,17 @@ fun MobileMainScreen(
             scope.launch(Dispatchers.IO) {
                 userSwitchViewModel.deleteUser(user)
             }
-        }
+        },
+        onOpenFollowingUser = {
+            context.startActivity(
+                Intent(context, FollowingUserActivity::class.java)
+            )
+        },
+        onOpenHistory = {},
+        onOpenFavorite = {},
+        onOpenFollowingPgc = {},
+        onOpenToView = {},
+        onOpenSettings = { context.startActivity(Intent(context, SettingsActivity::class.java)) }
     )
 }
 
@@ -313,10 +317,10 @@ private fun NavigationSuit(
     modifier: Modifier = Modifier,
     mobileMainScreenState: MobileMainScreenState,
     navigationSuiteType: NavigationSuiteType,
+    avatar: String,
     onNavigate: (MobileMainScreenNav) -> Unit,
+    onShowUserDialog: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     when (navigationSuiteType) {
         NavigationSuiteType.NavigationBar -> {
             NavigationSuite(
@@ -343,11 +347,29 @@ private fun NavigationSuit(
                 modifier = modifier,
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             ) {
-                IconButton(onClick = {
-                    scope.launch { mobileMainScreenState.drawerState.open() }
-                }) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
-                }
+                NavigationRailItem(
+                    icon = {
+                        if (avatar.isBlank()) {
+                            Icon(Icons.Rounded.Person, contentDescription = "User Avatar")
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(Color.Gray)
+                            ) {
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .size(36.dp),
+                                    model = avatar,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    },
+                    selected = false,
+                    onClick = onShowUserDialog
+                )
                 Spacer(Modifier.weight(1f))
                 listOf(
                     MobileMainScreenNav.Search,
@@ -380,7 +402,7 @@ data class MobileMainScreenState(
     val context: Context,
     val scope: CoroutineScope,
     val windowSizeClass: WindowSizeClass,
-    val drawerState: DrawerState,
+    //val drawerState: DrawerState,
     val rcmdGridState: LazyGridState,
     val popularGridState: LazyGridState,
     val dynamicGridState: LazyStaggeredGridState,
@@ -397,7 +419,7 @@ data class MobileMainScreenState(
 
     var activeSearch by mutableStateOf(false)
 
-    var showUserSwitchDialog by mutableStateOf(false)
+    var showUserDialog by mutableStateOf(false)
 
     fun navigate(navItem: MobileMainScreenNav) {
         logger.fInfo { "Navigate to ${navItem.name}" }
@@ -461,15 +483,15 @@ data class MobileMainScreenState(
         logger.fInfo { "Navigation Stack: > $breadcrumb" }
     }
 
-    fun showUserSwitch() {
+    fun showUserDialog() {
         scope.launch(Dispatchers.IO) {
             userSwitchViewModel.updateUserDbList()
-            showUserSwitchDialog = true
+            this@MobileMainScreenState.showUserDialog = true
         }
     }
 
-    fun hideUserSwitch() {
-        showUserSwitchDialog = false
+    fun hideUserDialog() {
+        this@MobileMainScreenState.showUserDialog = false
     }
 }
 
@@ -544,7 +566,7 @@ fun rememberMobileMainScreenState(
             context,
             scope,
             windowSizeClass,
-            drawerState,
+            //drawerState,
             rcmdGridState,
             popularGridState,
             dynamicGridState,

@@ -227,6 +227,11 @@
             android:exported="false"
             android:label="@string/title_mobile_activity_dynamic_detail"
             android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.FollowingUserActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_following_user"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>
