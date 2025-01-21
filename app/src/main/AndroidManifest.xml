@@ -232,6 +232,11 @@
             android:exported="false"
             android:label="@string/title_mobile_activity_following_user"
             android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.HistoryActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_history"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>

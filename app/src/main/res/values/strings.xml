@@ -256,6 +256,7 @@
     <string name="title_activity_video_player_v3">视频播放</string>
     <string name="title_mobile_activity_dynamic_detail">动态详情</string>
     <string name="title_mobile_activity_following_user">我的关注</string>
+    <string name="title_mobile_activity_history">历史记录</string>
     <string name="title_mobile_activity_login">用户登录</string>
     <string name="title_mobile_activity_settings">设置</string>
     <string name="title_mobile_activity_user_space">用户空间</string>

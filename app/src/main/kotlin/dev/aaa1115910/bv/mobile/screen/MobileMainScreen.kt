@@ -85,6 +85,7 @@ import com.origeek.imageViewer.previewer.rememberPreviewerState
 import dev.aaa1115910.biliapi.entity.Picture
 import dev.aaa1115910.bv.component.DevelopingTipContent
 import dev.aaa1115910.bv.mobile.activities.FollowingUserActivity
+import dev.aaa1115910.bv.mobile.activities.HistoryActivity
 import dev.aaa1115910.bv.mobile.activities.LoginActivity
 import dev.aaa1115910.bv.mobile.activities.SettingsActivity
 import dev.aaa1115910.bv.mobile.component.home.UserDialog
@@ -304,7 +305,11 @@ fun MobileMainScreen(
                 Intent(context, FollowingUserActivity::class.java)
             )
         },
-        onOpenHistory = {},
+        onOpenHistory = {
+            context.startActivity(
+                Intent(context, HistoryActivity::class.java)
+            )
+        },
         onOpenFavorite = {},
         onOpenFollowingPgc = {},
         onOpenToView = {},
