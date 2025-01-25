@@ -17,6 +17,7 @@ dependencies {
 
 sourceSets["main"].proto {
     srcDir("./proto")
+    ProtobufConfiguration.excludeProtoFiles.forEach(::exclude)
 }
 
 protobuf {
