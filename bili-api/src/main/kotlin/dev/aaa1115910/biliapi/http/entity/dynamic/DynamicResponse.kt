@@ -17,12 +17,21 @@ data class DynamicData(
     val items: List<DynamicItem> = emptyList()
 )
 
+/**
+ * @param basic 基础信息
+ * @param idStr 动态 id
+ * @param modules 动态内容
+ * @param orig 转发内容
+ * @param type 动态类型
+ * @param visible 是否可见
+ */
 @Serializable
 data class DynamicItem(
     val basic: Basic,
     @SerialName("id_str")
     val idStr: String,
     val modules: Modules,
+    val orig: DynamicItem? = null,
     val type: String,
     val visible: Boolean
 ) {
@@ -31,7 +40,7 @@ data class DynamicItem(
         @SerialName("comment_id_str")
         val commentIdStr: String,
         @SerialName("comment_type")
-        val commentType: Int,
+        val commentType: Long,
         @SerialName("like_icon")
         val likeIcon: LikeIcon,
         @SerialName("rid_str")
@@ -49,6 +58,12 @@ data class DynamicItem(
         )
     }
 
+    /**
+     * @param moduleAuthor 作者信息
+     * @param moduleDynamic 动态内容
+     * @param moduleMore 更多菜单按钮信息 当位于转发内容 [DynamicItem.orig] 时，该项为 null
+     * @param moduleStat 动态底部按钮信息 当位于转发内容 [DynamicItem.orig] 时，该项为 null
+     */
     @Serializable
     data class Modules(
         @SerialName("module_author")
@@ -56,9 +71,9 @@ data class DynamicItem(
         @SerialName("module_dynamic")
         val moduleDynamic: Dynamic,
         @SerialName("module_more")
-        val moduleMore: More,
+        val moduleMore: More? = null,
         @SerialName("module_stat")
-        val moduleStat: Stat
+        val moduleStat: Stat? = null
     ) {
         @Serializable
         data class Author(
@@ -72,18 +87,18 @@ data class DynamicItem(
             val mid: Long,
             val name: String,
             @SerialName("official_verify")
-            val officialVerify: OfficialVerify,
-            val pendant: Pendant,
+            val officialVerify: OfficialVerify? = null,
+            val pendant: Pendant? = null,
             @SerialName("pub_action")
             val pubAction: String,
             @SerialName("pub_location_text")
-            val pubLocationText: String,
+            val pubLocationText: String? = null,
             @SerialName("pub_time")
             val pubTime: String,
             @SerialName("pub_ts")
             val pubTs: Int,
             val type: String,
-            val vip: Vip
+            val vip: Vip? = null
         ) {
             @Serializable
             data class OfficialVerify(
@@ -154,7 +169,7 @@ data class DynamicItem(
                 val reserveTotal: Int,
                 val rid: Int,
                 val state: Int,
-                val stypc: Int,
+                val stypc: Int? = null,
                 val title: String,
                 @SerialName("up_mid")
                 val upMid: Int
@@ -163,7 +178,7 @@ data class DynamicItem(
                 data class Desc(
                     val style: Int,
                     val text: String,
-                    val visible: Boolean
+                    val visible: Boolean? = null
                 )
             }
 
@@ -192,11 +207,17 @@ data class DynamicItem(
                 }
             }
 
+            /**
+             * 在一些情况下会出现数据存放的位置不一样的情况
+             * 例如默认情况下 draw 的文字会放在上一次级类的 desc 中，而浏览器里默认在请求时会带上一些 features，使内容放在 opus 内
+             */
             @Serializable
             data class Major(
                 val archive: Archive? = null,
                 @SerialName("live_rcmd")
                 val liveRcmd: LiveRcmd? = null,
+                val opus: Opus? = null,
+                val draw: Draw? = null,
                 val type: String
             ) {
                 @Serializable
@@ -237,6 +258,46 @@ data class DynamicItem(
                     @SerialName("reserve_type")
                     val reserveType: Int
                 )
+
+                /**
+                 * @param foldAction [展开,收起]
+                 * @param jumpUrl 跳转地址
+                 * @param pics 动态内的图片
+                 * @param summary 动态内的文字
+                 */
+                @Serializable
+                data class Opus(
+                    @SerialName("fold_action")
+                    val foldAction: List<String>,
+                    @SerialName("jump_url")
+                    val jumpUrl: String,
+                    val pics: List<Pic>,
+                    val summary: Desc,
+                    val title: String? = null
+                ) {
+                    @Serializable
+                    data class Pic(
+                        val height: Int,
+                        val width: Int,
+                        val size: Float,
+                        val url: String
+                    )
+                }
+
+                @Serializable
+                data class Draw(
+                    val id: Int,
+                    val items: List<Pic>,
+                ) {
+                    @Serializable
+                    data class Pic(
+                        val height: Int,
+                        val width: Int,
+                        val size: Float,
+                        val src: String,
+                        val tags: List<String>
+                    )
+                }
             }
 
             @Serializable

@@ -10,7 +10,7 @@ enum class CodeType(val str: String, val codecId: Int) {
     CodeAv1("av01", 13),
     Unrecognized("unknown", 0);
 
-    companion object{
+    companion object {
         fun fromCodecId(code: Int?) = runCatching {
             entries.find { it.codecId == code }!!
         }.getOrDefault(NoCode)

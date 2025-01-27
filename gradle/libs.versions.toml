@@ -1,4 +1,5 @@
 [versions]
+accompanist = "0.34.0"
 akdanmaku = "1.0.3"
 androidsvg = "1.4"
 coil = "2.7.0"
@@ -25,6 +26,9 @@ slf4j-simple = "2.0.9"
 vlc = "3.6.0-eap5"
 
 [libraries]
+# https://google.github.io/accompanist/
+accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+
 # https://github.com/KwaiAppTeam/AkDanmaku
 akdanmaku = { module = "com.kuaishou:akdanmaku", version.ref = "akdanmaku" }
 
@@ -61,6 +65,7 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
+koin-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation", version.ref = "koin-compose" }
 
 # https://kotlinlang.org/docs/jvm-test-using-junit.html
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }

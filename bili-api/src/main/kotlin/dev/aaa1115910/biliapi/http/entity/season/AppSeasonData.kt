@@ -232,7 +232,7 @@ data class AppSeasonData(
     @Serializable
     data class Module(
         val data: ModuleData,
-        val id: Int,
+        val id: Long,
         @SerialName("module_style")
         val moduleStyle: ModuleStyle,
         val more: String = "",

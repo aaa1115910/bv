@@ -84,7 +84,6 @@ object LogCatcherUtil {
         appendLine("Default Codec: ${Prefs.defaultVideoCodec.name}")
         appendLine("Default Audio: ${Prefs.defaultAudio.name}")
         appendLine("Enabled Proxy: ${Prefs.enableProxy}")
-        appendLine("Using Old Player: ${Prefs.useOldPlayer}")
     }
 
     private fun createFilename(manual: Boolean): String {

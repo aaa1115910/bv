@@ -37,8 +37,8 @@ class FavoriteViewModel(
     private var pageNumber = 1
     private var hasMore = true
 
-    private var updatingFolders = false
-    private var updatingFolderItems = false
+    var updatingFolders by mutableStateOf(false)
+    var updatingFolderItems by mutableStateOf(false)
 
     init {
         updateFoldersInfo()

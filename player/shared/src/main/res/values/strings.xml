@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="audio_132k">132K</string>
+    <string name="audio_192k">192K</string>
+    <string name="audio_64k">64K</string>
+    <string name="audio_dolby_atoms">Dolby Atoms</string>
+    <string name="audio_hi_res">Hi-Res</string>
+
+    <string name="resolution_1080p">1080P 高清</string>
+    <string name="resolution_1080p_60">1080P60 高帧率</string>
+    <string name="resolution_1080p_60_short">1080P60</string>
+    <string name="resolution_1080p_plus">1080P+ 高码率</string>
+    <string name="resolution_1080p_plus_short">1080P+</string>
+    <string name="resolution_1080p_short">1080P</string>
+    <string name="resolution_240p">240P 极速</string>
+    <string name="resolution_240p_short">240P</string>
+    <string name="resolution_360p">360P 流畅</string>
+    <string name="resolution_360p_short">360P</string>
+    <string name="resolution_480p">480P 清晰</string>
+    <string name="resolution_480p_short">480P</string>
+    <string name="resolution_4k">4K 超清</string>
+    <string name="resolution_4k_short">4K</string>
+    <string name="resolution_720p">720P 高清</string>
+    <string name="resolution_720p_60_short">720P60</string>
+    <string name="resolution_720p_short">720P</string>
+    <string name="resolution_8k">8K 超高清</string>
+    <string name="resolution_8k_short">8K</string>
+    <string name="resolution__720p_60">720P60 高帧率</string>
+    <string name="resolution_dolby_bision_short">杜比视界</string>
+    <string name="resolution_dolby_vision">杜比视界</string>
+    <string name="resolution_hdr">HDR 真彩色</string>
+    <string name="resolution_hdr_short">HDR</string>
+
+    <string name="video_aspect_ratio_default">默认</string>
+    <string name="video_aspect_ratio_four_to_three">4:3</string>
+    <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
+    <string name="video_codec_av1" tools:ignore="Typos">AV1</string>
+    <string name="video_codec_avc">H.264</string>
+    <string name="video_codec_dvh1" tools:ignore="Typos">Dolby Vision (DVH1)</string>
+    <string name="video_codec_hevc">H.265</string>
+    <string name="video_codec_hvc1" tools:ignore="Typos">Dolby Vision (HVC1)</string>
+    <string name="video_player_menu_danmaku_area">显示区域</string>
+    <string name="video_player_menu_danmaku_mask">防遮挡</string>
+    <string name="video_player_menu_danmaku_opacity">不透明度</string>
+    <string name="video_player_menu_danmaku_size">字体缩放</string>
+    <string name="video_player_menu_danmaku_switch">弹幕类型</string>
+    <string name="video_player_menu_danmaku_type_all">全部弹幕</string>
+    <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
+    <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
+    <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
+    <string name="video_player_menu_nav_danmaku">弹幕设置</string>
+    <string name="video_player_menu_nav_picture">画面音频</string>
+    <string name="video_player_menu_nav_subtitle">字幕设置</string>
+    <string name="video_player_menu_picture_aspect_ratio">画面比例</string>
+    <string name="video_player_menu_picture_audio">音频编码</string>
+    <string name="video_player_menu_picture_codec">视频编码</string>
+    <string name="video_player_menu_picture_play_speed">播放速度</string>
+    <string name="video_player_menu_picture_resolution">清晰度</string>
+    <string name="video_player_menu_subtitle_background_opacity">背景不透明度</string>
+    <string name="video_player_menu_subtitle_bottom_padding">底部间距</string>
+    <string name="video_player_menu_subtitle_size">字体大小</string>
+    <string name="video_player_menu_subtitle_switch">选择字幕</string>
+    <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
+</resources>

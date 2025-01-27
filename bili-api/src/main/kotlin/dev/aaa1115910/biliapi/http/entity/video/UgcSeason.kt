@@ -32,7 +32,7 @@ data class UgcSeason(
     data class Section(
         @SerialName("season_id")
         val seasonId: Int,
-        val id: Int,
+        val id: Long,
         val title: String,
         val type: Int,
         val episodes: List<Episode>

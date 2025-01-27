@@ -7,6 +7,7 @@ import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuResponse
 import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicData
+import dev.aaa1115910.biliapi.http.entity.dynamic.DynamicDetailData
 import dev.aaa1115910.biliapi.http.entity.history.HistoryData
 import dev.aaa1115910.biliapi.http.entity.toview.ToViewData
 import dev.aaa1115910.biliapi.http.entity.home.RcmdIndexData
@@ -18,6 +19,8 @@ import dev.aaa1115910.biliapi.http.entity.pgc.PgcWebInitialStateData
 import dev.aaa1115910.biliapi.http.entity.region.RegionDynamic
 import dev.aaa1115910.biliapi.http.entity.region.RegionDynamicList
 import dev.aaa1115910.biliapi.http.entity.region.RegionLocs
+import dev.aaa1115910.biliapi.http.entity.reply.CommentData
+import dev.aaa1115910.biliapi.http.entity.reply.CommentReplyData
 import dev.aaa1115910.biliapi.http.entity.search.AppSearchSquareData
 import dev.aaa1115910.biliapi.http.entity.search.KeywordSuggest
 import dev.aaa1115910.biliapi.http.entity.search.SearchResultData
@@ -307,6 +310,21 @@ object BiliHttpApi {
         parameter("type", type)
         parameter("page", page)
         offset?.let { parameter("offset", offset) }
+        header("Cookie", "SESSDATA=$sessData;")
+    }.body()
+
+    /**
+     * 获取动态详情
+     *
+     * @param id 动态id
+     */
+    suspend fun getDynamicDetail(
+        timezoneOffset: Int = -480,
+        id: String,
+        sessData: String = ""
+    ): BiliResponse<DynamicDetailData> = client.get("/x/polymer/web-dynamic/v1/detail") {
+        parameter("timezone_offset", timezoneOffset)
+        parameter("id", id)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
 
@@ -1629,6 +1647,46 @@ object BiliHttpApi {
     ): RegionLocs = client.get("/x/web-show/res/locs") {
         parameter("ids", ids.joinToString(","))
         sessData?.let { header("Cookie", "SESSDATA=$it;") }
+    }.body()
+
+    /**
+     * 获取评论
+     *
+     * @param type 评论类型
+     * @param oid 评论区id
+     * @param mode 评论排序方式 默认为 3， 0 3：仅按热度 1：按热度+按时间 2：仅按时间
+     * @param paginationStr 分页参数
+     */
+    suspend fun getComments(
+        type: Long,
+        oid: Long,
+        mode: Int = 3,
+        paginationStr: String = """{"offset":""}""",
+        //webLocation: Int = 1815875,
+        sessData: String? = null,
+        buvid3: String? = null
+    ): BiliResponse<CommentData> =
+        client.get("/x/v2/reply/wbi/main") {
+            parameter("type", type)
+            parameter("oid", oid)
+            parameter("mode", mode)
+            parameter("pagination_str", paginationStr)
+            //parameter("web_location", webLocation)
+            sessData?.let { header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3;") }
+        }.body()
+
+    suspend fun getCommentReplies(
+        oid: Long,
+        type: Long,
+        root: Long,
+        pageSize: Int = 10,
+        pageNumber: Int = 1
+    ): BiliResponse<CommentReplyData> = client.get("/x/v2/reply/reply") {
+        parameter("oid", oid)
+        parameter("type", type)
+        parameter("root", root)
+        parameter("ps", pageSize)
+        parameter("pn", pageNumber)
     }.body()
 }
 

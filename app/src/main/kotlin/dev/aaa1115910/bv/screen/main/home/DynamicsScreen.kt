@@ -43,7 +43,7 @@ fun DynamicsScreen(
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { currentFocusedIndex + 24 > dynamicViewModel.dynamicList.size }
+        derivedStateOf { currentFocusedIndex + 24 > dynamicViewModel.dynamicVideoList.size }
     }
 
     val onClickVideo: (DynamicVideo) -> Unit = { dynamic ->
@@ -58,7 +58,7 @@ fun DynamicsScreen(
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
             scope.launch(Dispatchers.IO) {
-                dynamicViewModel.loadMore()
+                dynamicViewModel.loadMoreVideo()
                 //加载完成后重置shouldLoadMore为false，避免如果加载失败后无法重新加载
                 currentFocusedIndex = -100
             }
@@ -71,7 +71,7 @@ fun DynamicsScreen(
             state = lazyListState
         ) {
             gridItems(
-                data = dynamicViewModel.dynamicList,
+                data = dynamicViewModel.dynamicVideoList,
                 columnCount = 4,
                 modifier = Modifier
                     .width(880.dp)
@@ -94,7 +94,7 @@ fun DynamicsScreen(
                 }
             )
 
-            if (dynamicViewModel.loading)
+            if (dynamicViewModel.loadingVideo)
                 item {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -104,7 +104,7 @@ fun DynamicsScreen(
                     }
                 }
 
-            if (!dynamicViewModel.hasMore)
+            if (!dynamicViewModel.videoHasMore)
                 item {
                     Text(
                         text = "没有更多了捏",

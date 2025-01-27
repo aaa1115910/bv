@@ -36,7 +36,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.screen.user.UserItem
 import dev.aaa1115910.bv.util.toast

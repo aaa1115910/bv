@@ -55,9 +55,9 @@ import dev.aaa1115910.biliapi.entity.pgc.index.SpokenLanguage
 import dev.aaa1115910.biliapi.entity.pgc.index.Style
 import dev.aaa1115910.biliapi.entity.pgc.index.Year
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
-import dev.aaa1115910.bv.component.ifElse
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.util.getDisplayName
 
 @Composable

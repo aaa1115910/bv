@@ -30,12 +30,14 @@ import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
-import dev.aaa1115910.bv.component.controllers2.DanmakuType
-import dev.aaa1115910.bv.entity.Audio
-import dev.aaa1115910.bv.entity.Resolution
-import dev.aaa1115910.bv.entity.VideoCodec
+import dev.aaa1115910.bv.player.entity.Audio
+import dev.aaa1115910.bv.player.entity.Resolution
+import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
+import dev.aaa1115910.bv.player.entity.DanmakuType
+import dev.aaa1115910.bv.player.entity.RequestState
+import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -43,7 +45,6 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapListWithMainContext
-import dev.aaa1115910.bv.util.swapMap
 import dev.aaa1115910.bv.util.swapMapWithMainContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
@@ -84,6 +85,8 @@ class VideoPlayerV3ViewModel(
 
     var currentQuality by mutableIntStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
+    var currentPlaySpeed by mutableFloatStateOf(Prefs.defaultPlaySpeed)
+    var currentVideoAspectRatio by mutableStateOf(VideoAspectRatio.Default)
     var currentAudio by mutableStateOf(Prefs.defaultAudio)
     var currentDanmakuScale by mutableFloatStateOf(Prefs.defaultDanmakuScale)
     var currentDanmakuOpacity by mutableFloatStateOf(Prefs.defaultDanmakuOpacity)

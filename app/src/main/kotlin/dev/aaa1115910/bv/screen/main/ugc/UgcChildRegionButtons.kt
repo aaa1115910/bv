@@ -16,11 +16,11 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.SuggestionChip
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.ugc.UgcType
-import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
-import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 

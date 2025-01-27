@@ -40,9 +40,9 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import androidx.tv.material3.rememberDrawerState
 import coil.compose.AsyncImage
-import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
-import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.isDpadRight
 import dev.aaa1115910.bv.util.isKeyDown
 

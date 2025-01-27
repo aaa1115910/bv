@@ -84,7 +84,7 @@ fun HomeContent(
             popularViewModel.loadMore()
         }
         scope.launch(Dispatchers.IO) {
-            dynamicViewModel.loadMore()
+            dynamicViewModel.loadMoreVideo()
         }
         scope.launch(Dispatchers.IO) {
             userViewModel.updateUserInfo()
@@ -137,8 +137,8 @@ fun HomeContent(
                         HomeTopNavItem.Recommend -> {}
                         HomeTopNavItem.Popular -> {}
                         HomeTopNavItem.Dynamics -> {
-                            if (!dynamicViewModel.loading && dynamicViewModel.isLogin && dynamicViewModel.dynamicList.isEmpty()) {
-                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
+                            if (!dynamicViewModel.loadingVideo && dynamicViewModel.isLogin && dynamicViewModel.dynamicVideoList.isEmpty()) {
+                                scope.launch(Dispatchers.IO) { dynamicViewModel.loadMoreVideo() }
                             }
                         }
                     }
@@ -160,8 +160,10 @@ fun HomeContent(
                         }
 
                         HomeTopNavItem.Dynamics -> {
-                            dynamicViewModel.clearData()
-                            scope.launch(Dispatchers.IO) { dynamicViewModel.loadMore() }
+                            logger.fInfo { "clear dynamic data" }
+                            dynamicViewModel.clearVideoData()
+                            logger.fInfo { "reload dynamic data" }
+                            scope.launch(Dispatchers.IO) { dynamicViewModel.loadMoreVideo() }
                         }
                     }
                 }

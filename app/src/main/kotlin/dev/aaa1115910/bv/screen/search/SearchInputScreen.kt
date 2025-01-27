@@ -35,11 +35,11 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.search.SearchResultActivity
-import dev.aaa1115910.bv.component.createCustomInitialFocusRestorerModifiers
-import dev.aaa1115910.bv.component.ifElse
 import dev.aaa1115910.bv.component.search.SearchKeyword
 import dev.aaa1115910.bv.component.search.SoftKeyboard
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.createCustomInitialFocusRestorerModifiers
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.viewmodel.search.SearchInputViewModel
 import org.koin.androidx.compose.koinViewModel
 

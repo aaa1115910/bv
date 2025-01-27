@@ -1,6 +1,9 @@
 package dev.aaa1115910.bv.viewmodel.home
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dev.aaa1115910.biliapi.entity.home.RecommendPage
 import dev.aaa1115910.biliapi.entity.ugc.UgcItem
@@ -22,26 +25,33 @@ class RecommendViewModel(
     val recommendVideoList = mutableStateListOf<UgcItem>()
 
     private var nextPage = RecommendPage()
-    var loading = false
+    var refreshing by mutableStateOf(true)
+    var loading by mutableStateOf(false)
 
-    suspend fun loadMore() {
+    suspend fun loadMore(
+        beforeAppendData: () -> Unit = {}
+    ) {
         var loadCount = 0
         val maxLoadMoreCount = 3
         if (!loading) {
             if (recommendVideoList.size == 0) {
                 // first load data
-                while (recommendVideoList.size < 14 && loadCount < maxLoadMoreCount) {
-                    loadData()
+                while (recommendVideoList.size < 24 && loadCount < maxLoadMoreCount) {
+                    val emptyFun: () -> Unit = {}
+                    loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
                     if (loadCount != 0) logger.fInfo { "Load more recommend videos because items too less" }
                     loadCount++
                 }
             } else {
-                loadData()
+                val emptyFun: () -> Unit = {}
+                loadData(beforeAppendData = if (loadCount == 0) beforeAppendData else emptyFun)
             }
         }
     }
 
-    private suspend fun loadData() {
+    private suspend fun loadData(
+        beforeAppendData: () -> Unit
+    ) {
         loading = true
         logger.fInfo { "Load more recommend videos" }
         runCatching {
@@ -49,6 +59,7 @@ class RecommendViewModel(
                 page = nextPage,
                 preferApiType = Prefs.apiType
             )
+            beforeAppendData()
             nextPage = recommendData.nextPage
             recommendVideoList.addAllWithMainContext(recommendData.items)
         }.onFailure {
@@ -62,7 +73,12 @@ class RecommendViewModel(
 
     fun clearData() {
         recommendVideoList.clear()
-        nextPage = RecommendPage()
+        resetPage()
         loading = false
+    }
+
+    fun resetPage() {
+        nextPage = RecommendPage()
+        refreshing = true
     }
 }

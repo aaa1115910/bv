@@ -23,5 +23,15 @@ data class SeasonCardData(
                 badge = null
             )
         }
+
+        fun fromFollowingSeason(followingSeason: dev.aaa1115910.biliapi.entity.season.FollowingSeason): SeasonCardData {
+            return SeasonCardData(
+                seasonId = followingSeason.seasonId,
+                title = followingSeason.title,
+                cover = followingSeason.cover,
+                rating = null,
+                badge = null
+            )
+        }
     }
 }
