@@ -237,6 +237,11 @@
             android:exported="false"
             android:label="@string/title_mobile_activity_history"
             android:theme="@style/Theme.BVMobile" />
+        <activity
+            android:name=".mobile.activities.FavoriteActivity"
+            android:exported="false"
+            android:label="@string/title_mobile_activity_favorite"
+            android:theme="@style/Theme.BVMobile" />
     </application>
 
 </manifest>
