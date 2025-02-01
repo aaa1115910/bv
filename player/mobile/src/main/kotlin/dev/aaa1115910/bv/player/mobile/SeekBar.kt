@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.player.mobile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -62,7 +64,7 @@ fun VideoSeekBar(
     var previewPosition by remember { mutableLongStateOf(0L) }
     var thumbSize by remember { mutableIntStateOf(0) }
     var thumbOffsetXMax by remember { mutableFloatStateOf(1f) }
-    var thumbOffsetXMin by remember { mutableFloatStateOf(0f) }
+    val thumbOffsetXMin by remember { mutableFloatStateOf(0f) }
     var seekMoveState by remember { mutableStateOf<SeekMoveState?>(null) }
 
     val draggableState = rememberDraggableState {
@@ -82,6 +84,12 @@ fun VideoSeekBar(
         thumbOffsetXMax = with(density) { max(1f, (sliderWidth - 32.dp).toPx()) }
     }
 
+    LaunchedEffect(position) {
+        if (pressing) return@LaunchedEffect
+        val percent = (position.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+        thumbOffsetX = (percent * thumbOffsetXMax).coerceIn(thumbOffsetXMin, thumbOffsetXMax)
+    }
+
     BoxWithConstraints(
         modifier = modifier
             .draggable(
@@ -93,7 +101,16 @@ fun VideoSeekBar(
                     delay(200)
                     pressing = false
                 }
-            ),
+            )
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    val xDp = with(density) { it.x.toDp() }
+                    val percent =
+                        (xDp.coerceIn(16.dp, sliderWidth - 16.dp) - 16.dp) / (sliderWidth - 32.dp)
+                    val newPosition = (percent * duration).toLong()
+                    onPositionChange?.invoke(newPosition, false)
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         sliderWidth = this.maxWidth
