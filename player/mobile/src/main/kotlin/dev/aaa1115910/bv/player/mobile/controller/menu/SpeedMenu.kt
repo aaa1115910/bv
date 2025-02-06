@@ -19,12 +19,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.util.ifElse
 
 @Composable
@@ -71,10 +74,10 @@ private fun SpeedMenu(
 fun SpeedMenuController(
     modifier: Modifier = Modifier,
     show: Boolean,
-    currentSpeed: Float,
     onHideController: () -> Unit = {},
     onClickSpeed: (Float) -> Unit
 ) {
+    val videoPlayerConfigData = LocalVideoPlayerConfigData.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -92,7 +95,7 @@ fun SpeedMenuController(
         ) {
             SpeedMenu(
                 modifier = Modifier,
-                currentSpeed = currentSpeed,
+                currentSpeed = videoPlayerConfigData.currentVideoSpeed,
                 onClickSpeed = onClickSpeed
             )
         }
@@ -174,10 +177,15 @@ private fun ResolutionMenuPreview() {
 @Composable
 private fun SpeedMenuControllerPreview() {
     MaterialTheme {
-        SpeedMenuController(
-            show = true,
-            currentSpeed = 1.0f,
-            onClickSpeed = {}
-        )
+        CompositionLocalProvider(
+            LocalVideoPlayerConfigData provides VideoPlayerConfigData(
+                currentVideoSpeed = 1.0f
+            )
+        ) {
+            SpeedMenuController(
+                show = true,
+                onClickSpeed = {}
+            )
+        }
     }
 }

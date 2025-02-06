@@ -28,7 +28,6 @@ import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
 import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
 import dev.aaa1115910.bv.mobile.viewmodel.DynamicDetailViewModel
-import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
 import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -36,6 +35,7 @@ import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
 import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.viewmodel.SeasonViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -188,7 +188,6 @@ val appModule = module {
     viewModel { TagViewModel() }
     viewModel { VideoPlayerV3ViewModel(get(), get()) }
     viewModel { VideoDetailViewModel(get()) }
-    viewModel { MobileVideoPlayerViewModel(get(), get()) }
     viewModel { UserSwitchViewModel(get()) }
     viewModel { PgcIndexViewModel(get()) }
     viewModel { PgcAnimeViewModel(get()) }
@@ -199,6 +198,7 @@ val appModule = module {
     viewModel { PgcVarietyViewModel(get()) }
     viewModel { CommentViewModel(get()) }
     viewModel { DynamicDetailViewModel(get()) }
+    viewModel { SeasonViewModel(get(), get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

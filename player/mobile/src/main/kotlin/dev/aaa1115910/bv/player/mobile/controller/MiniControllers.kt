@@ -13,6 +13,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,18 +21,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.util.formatMinSec
-import kotlin.math.roundToInt
 
 @Composable
 fun MiniControllers(
     modifier: Modifier = Modifier,
-    isPlaying: Boolean,
-    currentTime: Long,
-    totalTime: Long,
-    currentSeekPosition: Float,
-    bufferedSeekPosition: Float,
     onBack: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
@@ -52,11 +51,6 @@ fun MiniControllers(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
-            isPlaying = isPlaying,
-            currentTime = currentTime,
-            totalTime = totalTime,
-            currentSeekPosition = currentSeekPosition,
-            bufferedSeekPosition = bufferedSeekPosition,
             onPlay = onPlay,
             onPause = onPause,
             onEnterFullScreen = onEnterFullScreen,
@@ -97,16 +91,13 @@ private fun TopControllers(
 @Composable
 private fun BottomControllers(
     modifier: Modifier = Modifier,
-    isPlaying: Boolean,
-    currentTime: Long,
-    totalTime: Long,
-    currentSeekPosition: Float,
-    bufferedSeekPosition: Float,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onEnterFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit
 ) {
+    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerStateData = LocalVideoPlayerStateData.current
     Box(
         modifier = modifier
             .background(Color.Black.copy(alpha = 0.6f))
@@ -121,7 +112,7 @@ private fun BottomControllers(
                         start.linkTo(parent.start)
                         bottom.linkTo(parent.bottom)
                     },
-                isPlaying = isPlaying,
+                isPlaying = videoPlayerStateData.isPlaying,
                 onPlay = onPlay,
                 onPause = onPause
             )
@@ -134,9 +125,9 @@ private fun BottomControllers(
                     end.linkTo(positionText.start)
                     width = Dimension.preferredWrapContent
                 },
-                duration = totalTime,
-                position = currentTime,
-                bufferedPercentage = (bufferedSeekPosition * 100).roundToInt(),
+                duration = videoPlayerSeekData.duration,
+                position = videoPlayerSeekData.position,
+                bufferedPercentage = videoPlayerSeekData.bufferedPercentage,
                 onPositionChange = { newPosition, isPressing ->
                     if (!isPressing) onSeekToPosition(newPosition)
                 }
@@ -148,7 +139,7 @@ private fun BottomControllers(
                     bottom.linkTo(parent.bottom)
                     end.linkTo(fullscreenButton.start)
                 },
-                text = "${currentTime.formatMinSec()}/${totalTime.formatMinSec()}",
+                text = "${videoPlayerSeekData.position.formatMinSec()}/${videoPlayerSeekData.duration.formatMinSec()}",
                 color = Color.White
             )
 
@@ -174,17 +165,23 @@ private fun BottomControllers(
 @Composable
 fun MiniControllerPreview() {
     MaterialTheme {
-        MiniControllers(
-            isPlaying = true,
-            currentTime = 12345,
-            totalTime = 123456,
-            currentSeekPosition = 0.3f,
-            bufferedSeekPosition = 0.6f,
-            onBack = {},
-            onPlay = {},
-            onPause = {},
-            onEnterFullScreen = {},
-            onSeekToPosition = {},
-        )
+        CompositionLocalProvider(
+            LocalVideoPlayerSeekData provides VideoPlayerSeekData(
+                duration = 123456,
+                position = 12345,
+                bufferedPercentage = 60
+            ),
+            LocalVideoPlayerStateData provides VideoPlayerStateData(
+                isPlaying = true
+            )
+        ) {
+            MiniControllers(
+                onBack = {},
+                onPlay = {},
+                onPause = {},
+                onEnterFullScreen = {},
+                onSeekToPosition = {},
+            )
+        }
     }
 }

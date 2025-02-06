@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.player.entity.DanmakuType
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
 import dev.aaa1115910.bv.player.mobile.noRippleClickable
 import dev.aaa1115910.bv.util.ifElse
 
@@ -248,15 +249,12 @@ fun DanmakuMenuController(
     modifier: Modifier = Modifier,
     show: Boolean,
     onHideController: () -> Unit = {},
-    enabledDanmakuTypes: List<DanmakuType>,
-    danmakuScale: Float,
-    danmakuOpacity: Float,
-    danmakuArea: Float,
     onEnabledDanmakuTypesChange: (List<DanmakuType>) -> Unit,
     onDanmakuScaleChange: (Float) -> Unit,
     onDanmakuOpacityChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit
 ) {
+    val videoPlayerConfigData = LocalVideoPlayerConfigData.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -274,10 +272,10 @@ fun DanmakuMenuController(
         ) {
             DanmakuMenu(
                 modifier = Modifier,
-                enabledDanmakuTypes = enabledDanmakuTypes,
-                danmakuScale = danmakuScale,
-                danmakuOpacity = danmakuOpacity,
-                danmakuArea = danmakuArea,
+                enabledDanmakuTypes = videoPlayerConfigData.currentDanmakuEnabledList,
+                danmakuScale = videoPlayerConfigData.currentDanmakuScale,
+                danmakuOpacity = videoPlayerConfigData.currentDanmakuOpacity,
+                danmakuArea = videoPlayerConfigData.currentDanmakuArea,
                 onEnabledDanmakuTypeChange = onEnabledDanmakuTypesChange,
                 onDanmakuScaleChange = onDanmakuScaleChange,
                 onDanmakuOpacityChange = onDanmakuOpacityChange,

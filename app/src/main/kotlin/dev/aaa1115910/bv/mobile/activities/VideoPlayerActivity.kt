@@ -15,12 +15,14 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.mobile.screen.VideoPlayerScreen
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
-import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
+import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.player.impl.exo.ExoPlayerFactory
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
+import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
+import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,7 +41,9 @@ class VideoPlayerActivity : ComponentActivity() {
         }
     }
 
-    private val playerViewModel: MobileVideoPlayerViewModel by viewModel()
+    private val playerViewModel: VideoPlayerV3ViewModel by viewModel()
+    private val commentViewModel: CommentViewModel by viewModel()
+    private val videoDetailViewModel: VideoDetailViewModel by viewModel()
     private val logger = KotlinLogging.logger {}
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -86,16 +90,23 @@ class VideoPlayerActivity : ComponentActivity() {
 
     private fun parseIntent() {
         val aid = intent.getLongExtra("aid", 0)
+
+        commentViewModel.commentType = 1
+        commentViewModel.commentId = aid
+
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {
-                playerViewModel.updateVideoInfo(aid)
+                videoDetailViewModel.loadDetail(aid)
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     it.message?.toast(this@VideoPlayerActivity)
                 }
             }
             runCatching {
-                playerViewModel.playFirstPartVideo()
+                playerViewModel.loadPlayUrl(
+                    avid = videoDetailViewModel.videoDetail?.aid ?: 0,
+                    cid = videoDetailViewModel.videoDetail?.cid ?: 0
+                )
             }.onFailure {
                 withContext(Dispatchers.Main) {
                     it.message?.toast(this@VideoPlayerActivity)

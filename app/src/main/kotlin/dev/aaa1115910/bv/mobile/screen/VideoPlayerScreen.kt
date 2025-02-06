@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,22 +87,44 @@ import dev.aaa1115910.bv.mobile.component.reply.CommentItem
 import dev.aaa1115910.bv.mobile.component.reply.ReplySheetScaffold
 import dev.aaa1115910.bv.mobile.component.videocard.RelatedVideoItem
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
-import dev.aaa1115910.bv.mobile.viewmodel.MobileVideoPlayerViewModel
+import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerDanmakuMasksData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerHistoryData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerLoadStateData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerLogsData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerPaymentData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
+import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.VideoPlayerDanmakuMasksData
+import dev.aaa1115910.bv.player.entity.VideoPlayerHistoryData
+import dev.aaa1115910.bv.player.entity.VideoPlayerLoadStateData
+import dev.aaa1115910.bv.player.entity.VideoPlayerLogsData
+import dev.aaa1115910.bv.player.entity.VideoPlayerPaymentData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
+import dev.aaa1115910.bv.player.entity.VideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.mobile.BvPlayer
-import dev.aaa1115910.bv.player.mobile.LocalMobileVideoPlayerData
-import dev.aaa1115910.bv.player.mobile.MobileVideoPlayerData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.swapList
+import dev.aaa1115910.bv.viewmodel.SeasonViewModel
+import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
+import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoPlayerScreen(
-    playerViewModel: MobileVideoPlayerViewModel = koinViewModel(),
+    playerViewModel: VideoPlayerV3ViewModel = koinViewModel(),
+    commentVideModel: CommentViewModel = koinViewModel(),
+    seasonVideModel: SeasonViewModel = koinViewModel(),
+    videoDetailViewModel: VideoDetailViewModel = koinViewModel(),
     windowSizeClass: WindowSizeClass
 ) {
     val context = LocalContext.current
@@ -175,31 +196,6 @@ fun VideoPlayerScreen(
         isVideoFullscreen = false
     }
 
-    /*val bvPlayerContent = remember {
-        // TODO movableContentOf here doesn't avoid Media from recreating its surface view when
-        // screen rotation changed. Seems like a bug of Compose.
-        // see: https://kotlinlang.slack.com/archives/CJLTWPH7S/p1654734644676989
-        movableContentOf { isLandscape: Boolean, modifier: Modifier ->
-            BvPlayer(
-                modifier = modifier,
-                isFullScreen = isLandscape,
-                videoPlayer = playerViewModel.videoPlayer!!,
-                danmakuPlayer = playerViewModel.danmakuPlayer!!,
-                onEnterFullScreen = {
-                    isVideoFullscreen = true
-                    //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-                },
-                onExitFullScreen = {
-                    isVideoFullscreen = false
-                    //@SuppressLint("SourceLockedOrientationActivity")
-                    //(context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                },
-                onBack = { (context as Activity).finish() },
-                onChangeResolution = {},
-            )
-        }
-    }*/
-
     Scaffold(
         containerColor = if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     ) { innerPadding ->
@@ -221,15 +217,62 @@ fun VideoPlayerScreen(
             ) {
                 if (playerViewModel.videoPlayer != null) {
                     CompositionLocalProvider(
-                        LocalMobileVideoPlayerData provides MobileVideoPlayerData(
-                            currentResolutionCode = playerViewModel.currentQuality,
+                        LocalVideoPlayerSeekThumbData provides VideoPlayerSeekThumbData(
+                            idleIcon = playerViewModel.playerIconIdle,
+                            movingIcon = playerViewModel.playerIconMoving
+                        ),
+                        LocalVideoPlayerVideoInfoData provides VideoPlayerVideoInfoData(
+                            width = playerViewModel.currentVideoWidth,
+                            height = playerViewModel.currentVideoHeight,
+                            codec = playerViewModel.currentVideoCodec.name,
+                            title = playerViewModel.title,
+                            partTitle = playerViewModel.partTitle,
+                        ),
+                        LocalVideoPlayerLogsData provides VideoPlayerLogsData(
+                            logs = playerViewModel.logs
+                        ),
+                        LocalVideoPlayerHistoryData provides VideoPlayerHistoryData(
+                            lastPlayed = playerViewModel.lastPlayed,
+                        ),
+                        LocalVideoPlayerPaymentData provides VideoPlayerPaymentData(
+                            needPay = playerViewModel.needPay,
+                            epid = playerViewModel.epid,
+                        ),
+                        LocalVideoPlayerLoadStateData provides VideoPlayerLoadStateData(
+                            loadState = playerViewModel.loadState,
+                            errorMessage = playerViewModel.errorMessage,
+                        ),
+                        LocalVideoPlayerConfigData provides VideoPlayerConfigData(
                             availableResolutionMap = playerViewModel.availableQuality,
-                            enabledDanmaku = playerViewModel.currentDanmakuEnabled,
-                            currentDanmakuTypes = playerViewModel.currentDanmakuTypes,
+                            availableVideoCodec = playerViewModel.availableVideoCodec,
+                            availableAudio = playerViewModel.availableAudio,
+                            availableSubtitleTracks = playerViewModel.availableSubtitle,
+                            availableVideoList = playerViewModel.availableVideoList,
+                            currentVideoCid = playerViewModel.currentCid,
+                            currentResolution = playerViewModel.currentQuality,
+                            currentVideoCodec = playerViewModel.currentVideoCodec,
+                            currentVideoAspectRatio = playerViewModel.currentVideoAspectRatio,
+                            currentVideoSpeed = playerViewModel.currentPlaySpeed,
+                            currentAudio = playerViewModel.currentAudio,
+                            currentDanmakuEnabled = playerViewModel.currentDanmakuEnabled,
+                            currentDanmakuEnabledList = playerViewModel.currentDanmakuTypes,
                             currentDanmakuScale = playerViewModel.currentDanmakuScale,
                             currentDanmakuOpacity = playerViewModel.currentDanmakuOpacity,
-                            currentDanmakuArea = playerViewModel.currentDanmakuArea
-                        )
+                            currentDanmakuArea = playerViewModel.currentDanmakuArea,
+                            currentDanmakuMask = playerViewModel.currentDanmakuMask,
+                            currentSubtitleId = playerViewModel.currentSubtitleId,
+                            currentSubtitleData = playerViewModel.currentSubtitleData,
+                            currentSubtitleFontSize = playerViewModel.currentSubtitleFontSize,
+                            currentSubtitleBackgroundOpacity = playerViewModel.currentSubtitleBackgroundOpacity,
+                            currentSubtitleBottomPadding = playerViewModel.currentSubtitleBottomPadding,
+                            incognitoMode = Prefs.incognitoMode,
+                        ),
+                        LocalVideoPlayerDanmakuMasksData provides VideoPlayerDanmakuMasksData(
+                            danmakuMasks = playerViewModel.danmakuMasks,
+                        ),
+                        LocalVideoPlayerVideoShotData provides VideoPlayerVideoShotData(
+                            videoShot = playerViewModel.videoShot,
+                        ),
                     ) {
                         BvPlayer(
                             modifier = if (isVideoFullscreen) Modifier
@@ -247,6 +290,7 @@ fun VideoPlayerScreen(
                             isFullScreen = isVideoFullscreen,
                             videoPlayer = playerViewModel.videoPlayer!!,
                             danmakuPlayer = playerViewModel.danmakuPlayer,
+                            onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
                             onEnterFullScreen = {
                                 isVideoFullscreen = true
                             },
@@ -291,9 +335,9 @@ fun VideoPlayerScreen(
                 if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
                     // 小屏幕下的视频详情推荐/评论
                     ReplySheetScaffold(
-                        aid = playerViewModel.avid,
-                        rpid = playerViewModel.rpid,
-                        repliesCount = playerViewModel.rpCount,
+                        aid = commentVideModel.commentId,
+                        rpid = commentVideModel.rpid,
+                        repliesCount = commentVideModel.rpCount,
                         sheetState = replySheetState,
                         previewerState = previewerState,
                         onShowPreviewer = setPreviewerPictures
@@ -327,26 +371,27 @@ fun VideoPlayerScreen(
                                             item {
                                                 VideoPlayerInfo(
                                                     modifier = Modifier.padding(12.dp),
-                                                    upAvatar = playerViewModel.videoDetail?.author?.face
+                                                    upAvatar = videoDetailViewModel.videoDetail?.author?.face
                                                         ?: "",
-                                                    upName = playerViewModel.videoDetail?.author?.name
+                                                    upName = videoDetailViewModel.videoDetail?.author?.name
                                                         ?: "",
                                                     upFansCount = 0,
-                                                    title = playerViewModel.videoDetail?.title
+                                                    title = videoDetailViewModel.videoDetail?.title
                                                         ?: "",
-                                                    description = playerViewModel.videoDetail?.description
+                                                    description = videoDetailViewModel.videoDetail?.description
                                                         ?: "",
-                                                    playCount = playerViewModel.videoDetail?.stat?.view
+                                                    playCount = videoDetailViewModel.videoDetail?.stat?.view
                                                         ?: 0,
-                                                    danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
+                                                    danmakuCount = videoDetailViewModel.videoDetail?.stat?.danmaku
                                                         ?: 0,
-                                                    date = playerViewModel.videoDetail?.publishDate
+                                                    date = videoDetailViewModel.videoDetail?.publishDate
                                                         ?.formatPubTimeString(context) ?: "",
-                                                    avid = playerViewModel.videoDetail?.aid ?: 0
+                                                    avid = videoDetailViewModel.videoDetail?.aid
+                                                        ?: 0
                                                 )
                                             }
                                             items(
-                                                items = playerViewModel.videoDetail?.relatedVideos
+                                                items = videoDetailViewModel.videoDetail?.relatedVideos
                                                     ?: emptyList()
                                             ) { relatedVideo ->
                                                 RelatedVideoItem(
@@ -369,27 +414,25 @@ fun VideoPlayerScreen(
                                     1 -> {
                                         VideoComments(
                                             previewerState = previewerState,
-                                            comments = playerViewModel.comments,
-                                            commentSort = playerViewModel.commentSort,
-                                            refreshingComments = playerViewModel.refreshingComments,
+                                            comments = commentVideModel.comments,
+                                            commentSort = commentVideModel.commentSort,
+                                            refreshingComments = commentVideModel.refreshingComments,
                                             onLoadMoreComments = {
-                                                scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                                                scope.launch(Dispatchers.IO) { commentVideModel.loadMoreComment() }
                                             },
                                             onRefreshComments = {
-                                                scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                                                scope.launch(Dispatchers.IO) { commentVideModel.refreshComments() }
                                             },
                                             onSwitchCommentSort = {
                                                 scope.launch(Dispatchers.IO) {
-                                                    playerViewModel.switchCommentSort(
-                                                        it
-                                                    )
+                                                    commentVideModel.switchCommentSort(it)
                                                 }
                                             },
                                             onShowPreviewer = setPreviewerPictures,
                                             onShowReplies = { rpId, repliesCount ->
                                                 //logger.info { "show reply sheet: rpid=$replyId" }
-                                                playerViewModel.rpid = rpId
-                                                playerViewModel.rpCount = repliesCount
+                                                commentVideModel.rpid = rpId
+                                                commentVideModel.rpCount = repliesCount
                                                 scope.launch { replySheetState.bottomSheetState.expand() }
                                             }
                                         )
@@ -408,22 +451,25 @@ fun VideoPlayerScreen(
                         item {
                             VideoPlayerInfo(
                                 modifier = Modifier.padding(12.dp),
-                                upAvatar = playerViewModel.videoDetail?.author?.face ?: "",
-                                upName = playerViewModel.videoDetail?.author?.name ?: "",
+                                upAvatar = videoDetailViewModel.videoDetail?.author?.face
+                                    ?: "",
+                                upName = videoDetailViewModel.videoDetail?.author?.name ?: "",
                                 upFansCount = 0,
-                                title = playerViewModel.videoDetail?.title ?: "",
-                                description = playerViewModel.videoDetail?.description ?: "",
-                                playCount = playerViewModel.videoDetail?.stat?.view ?: 0,
-                                danmakuCount = playerViewModel.videoDetail?.stat?.danmaku
+                                title = videoDetailViewModel.videoDetail?.title ?: "",
+                                description = videoDetailViewModel.videoDetail?.description
+                                    ?: "",
+                                playCount = videoDetailViewModel.videoDetail?.stat?.view ?: 0,
+                                danmakuCount = videoDetailViewModel.videoDetail?.stat?.danmaku
                                     ?: 0,
-                                date = playerViewModel.videoDetail?.publishDate
+                                date = videoDetailViewModel.videoDetail?.publishDate
                                     ?.formatPubTimeString(context) ?: "",
-                                avid = playerViewModel.videoDetail?.aid ?: 0,
+                                avid = videoDetailViewModel.videoDetail?.aid ?: 0,
                                 backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                             )
                         }
                         itemsIndexed(
-                            items = playerViewModel.videoDetail?.relatedVideos ?: emptyList()
+                            items = videoDetailViewModel.videoDetail?.relatedVideos
+                                ?: emptyList()
                         ) { index, relatedVideo ->
                             RelatedVideoItem(
                                 modifier = Modifier
@@ -438,7 +484,7 @@ fun VideoPlayerScreen(
                                     )
                                     .ifElse(
                                         {
-                                            index == (playerViewModel.videoDetail?.relatedVideos?.size
+                                            index == (videoDetailViewModel.videoDetail?.relatedVideos?.size
                                                 ?: 0) - 1
                                         },
                                         Modifier.clip(
@@ -471,9 +517,9 @@ fun VideoPlayerScreen(
                 ) {
                     ReplySheetScaffold(
                         modifier = Modifier,
-                        aid = playerViewModel.avid,
-                        rpid = playerViewModel.rpid,
-                        repliesCount = playerViewModel.rpCount,
+                        aid = commentVideModel.commentId,
+                        rpid = commentVideModel.rpid,
+                        repliesCount = commentVideModel.rpCount,
                         sheetState = replySheetState,
                         previewerState = previewerState,
                         onShowPreviewer = setPreviewerPictures
@@ -481,23 +527,25 @@ fun VideoPlayerScreen(
                         VideoComments(
                             modifier = Modifier.fillMaxWidth(),
                             previewerState = previewerState,
-                            comments = playerViewModel.comments,
-                            commentSort = playerViewModel.commentSort,
-                            refreshingComments = playerViewModel.refreshingComments,
+                            comments = commentVideModel.comments,
+                            commentSort = commentVideModel.commentSort,
+                            refreshingComments = commentVideModel.refreshingComments,
                             onLoadMoreComments = {
-                                scope.launch(Dispatchers.IO) { playerViewModel.loadMoreComment() }
+                                scope.launch(Dispatchers.IO) { commentVideModel.loadMoreComment() }
                             },
                             onRefreshComments = {
-                                scope.launch(Dispatchers.IO) { playerViewModel.refreshComments() }
+                                scope.launch(Dispatchers.IO) { commentVideModel.refreshComments() }
                             },
                             onSwitchCommentSort = {
-                                scope.launch(Dispatchers.IO) { playerViewModel.switchCommentSort(it) }
+                                scope.launch(Dispatchers.IO) {
+                                    commentVideModel.switchCommentSort(it)
+                                }
                             },
                             onShowPreviewer = setPreviewerPictures,
                             onShowReplies = { rpId, repliesCount ->
                                 //logger.info { "show reply sheet: rpid=$replyId" }
-                                playerViewModel.rpid = rpId
-                                playerViewModel.rpCount = repliesCount
+                                commentVideModel.rpid = rpId
+                                commentVideModel.rpCount = repliesCount
                                 scope.launch { replySheetState.bottomSheetState.expand() }
                             }
                         )

@@ -19,9 +19,11 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,21 +31,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
+import dev.aaa1115910.bv.player.entity.Resolution
+import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.player.mobile.noRippleClickable
 import dev.aaa1115910.bv.util.formatMinSec
-import kotlin.math.roundToInt
 
 @Composable
 fun FullscreenControllers(
     modifier: Modifier = Modifier,
-    isPlaying: Boolean,
-    currentTime: Long,
-    totalTime: Long,
-    currentSeekPosition: Float,
-    bufferedSeekPosition: Float,
-    currentResolutionName: String,
-    enabledDanmaku: Boolean,
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onExitFullScreen: () -> Unit,
@@ -53,6 +54,10 @@ fun FullscreenControllers(
     onToggleDanmaku: (Boolean) -> Unit,
     onShowDanmakuController: () -> Unit
 ) {
+    val context = LocalContext.current
+    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerStateData = LocalVideoPlayerStateData.current
+    val videoPlayerConfigData = LocalVideoPlayerConfigData.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -68,13 +73,14 @@ fun FullscreenControllers(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .noRippleClickable { },
-            isPlaying = isPlaying,
-            currentTime = currentTime,
-            totalTime = totalTime,
-            currentSeekPosition = currentSeekPosition,
-            bufferedSeekPosition = bufferedSeekPosition,
-            currentResolutionName = currentResolutionName,
-            enabledDanmaku = enabledDanmaku,
+            isPlaying = videoPlayerStateData.isPlaying,
+            currentTime = videoPlayerSeekData.position,
+            totalTime = videoPlayerSeekData.duration,
+            bufferedSeekPosition = videoPlayerSeekData.bufferedPercentage,
+            currentResolutionName = (Resolution.fromCode(
+                videoPlayerConfigData.currentResolution ?: 6
+            ) ?: Resolution.R1080P).getDisplayName(context),
+            enabledDanmaku = videoPlayerConfigData.currentDanmakuEnabled,
             onPlay = onPlay,
             onPause = onPause,
             onExitFullScreen = onExitFullScreen,
@@ -116,8 +122,7 @@ private fun BottomControllers(
     isPlaying: Boolean,
     currentTime: Long,
     totalTime: Long,
-    currentSeekPosition: Float,
-    bufferedSeekPosition: Float,
+    bufferedSeekPosition: Int,
     currentResolutionName: String,
     enabledDanmaku: Boolean,
     onPlay: () -> Unit,
@@ -161,7 +166,7 @@ private fun BottomControllers(
                     },
                     duration = totalTime,
                     position = currentTime,
-                    bufferedPercentage = (bufferedSeekPosition * 100).roundToInt(),
+                    bufferedPercentage = bufferedSeekPosition,
                     onPositionChange = { newPosition, isPressing ->
                         if (!isPressing) onSeekToPosition(newPosition)
                     }
@@ -231,22 +236,30 @@ private fun BottomControllers(
 @Composable
 fun FullscreenControllerPreview() {
     MaterialTheme {
-        FullscreenControllers(
-            isPlaying = true,
-            currentTime = 12345,
-            totalTime = 123456,
-            currentSeekPosition = 0.3f,
-            bufferedSeekPosition = 0.6f,
-            currentResolutionName = "1080P",
-            enabledDanmaku = false,
-            onPlay = {},
-            onPause = {},
-            onExitFullScreen = {},
-            onSeekToPosition = {},
-            onShowResolutionController = {},
-            onShowSpeedController = {},
-            onToggleDanmaku = {},
-            onShowDanmakuController = {}
-        )
+        CompositionLocalProvider(
+            LocalVideoPlayerSeekData provides VideoPlayerSeekData(
+                duration = 123456,
+                position = 12345,
+                bufferedPercentage = 60
+            ),
+            LocalVideoPlayerStateData provides VideoPlayerStateData(
+                isPlaying = true,
+            ),
+            LocalVideoPlayerConfigData provides VideoPlayerConfigData(
+                currentResolution = Resolution.R1080P.code,
+                currentDanmakuEnabled = false
+            )
+        ) {
+            FullscreenControllers(
+                onPlay = {},
+                onPause = {},
+                onExitFullScreen = {},
+                onSeekToPosition = {},
+                onShowResolutionController = {},
+                onShowSpeedController = {},
+                onToggleDanmaku = {},
+                onShowDanmakuController = {}
+            )
+        }
     }
 }

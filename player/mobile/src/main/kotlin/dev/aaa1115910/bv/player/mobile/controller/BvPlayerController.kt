@@ -12,18 +12,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import dev.aaa1115910.bv.player.entity.DanmakuType
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.controller.menu.DanmakuMenuController
 import dev.aaa1115910.bv.player.mobile.controller.menu.ResolutionMenuController
 import dev.aaa1115910.bv.player.mobile.controller.menu.SpeedMenuController
@@ -33,20 +37,7 @@ import kotlin.math.roundToInt
 @Composable
 fun BvPlayerController(
     modifier: Modifier = Modifier,
-    isPlaying: Boolean,
     isFullScreen: Boolean,
-    currentTime: Long,
-    totalTime: Long,
-    currentSeekPosition: Float,
-    bufferedSeekPosition: Float,
-    currentResolutionCode: Int,
-    availableResolutionMap: Map<Int, String>,
-    currentSpeed: Float,
-    enabledDanmaku: Boolean,
-    enabledDanmakuTypes: List<DanmakuType>,
-    danmakuOpacity: Float,
-    danmakuScale: Float,
-    danmakuArea: Float,
     onEnterFullScreen: () -> Unit,
     onExitFullScreen: () -> Unit,
     onBack: () -> Unit,
@@ -63,6 +54,8 @@ fun BvPlayerController(
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
+    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerStateData = LocalVideoPlayerStateData.current
     var showBaseUi by remember { mutableStateOf(false) }
 
     var showResolutionController by remember { mutableStateOf(false) }
@@ -70,10 +63,10 @@ fun BvPlayerController(
     var showDanmakuController by remember { mutableStateOf(false) }
 
     //在手势触发的事件中，直接读取 isPlaying currentTime 参数都只会读取到错误的值，原因未知
-    var isPlaying2 by remember { mutableStateOf(isPlaying) }
-    LaunchedEffect(isPlaying) { isPlaying2 = isPlaying }
-    var currentTime2 by remember { mutableStateOf(currentTime) }
-    LaunchedEffect(currentTime) { currentTime2 = currentTime }
+    var isPlaying by remember { mutableStateOf(videoPlayerStateData.isPlaying) }
+    LaunchedEffect(videoPlayerStateData.isPlaying) { isPlaying = videoPlayerStateData.isPlaying }
+    var currentTime by remember { mutableStateOf(videoPlayerSeekData.position) }
+    LaunchedEffect(videoPlayerSeekData.position) { currentTime = videoPlayerSeekData.position }
 
 
     var isMovingSeek by remember { mutableStateOf(false) }
@@ -105,8 +98,11 @@ fun BvPlayerController(
     }
 
     val onDoubleTap: () -> Unit = {
-        Log.i("BvPlayerController", "Screen double tap, isPlaying: $isPlaying")
-        if (isPlaying2) onPause() else onPlay()
+        Log.i(
+            "BvPlayerController",
+            "Screen double tap, isPlaying: $isPlaying"
+        )
+        if (isPlaying) onPause() else onPlay()
     }
 
     val onHorizontalDrag: (Float) -> Unit = { move ->
@@ -157,7 +153,7 @@ fun BvPlayerController(
     }
 
     LaunchedEffect(isMovingSeek) {
-        if (isMovingSeek) moveStartTime = currentTime
+        if (isMovingSeek) moveStartTime = videoPlayerSeekData.position
     }
 
     Box(
@@ -166,11 +162,19 @@ fun BvPlayerController(
     ) {
         content()
 
+        Text(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .background(Color.Black),
+            text = "${videoPlayerStateData}",
+            color = Color.White
+        )
+
         SeekMoveTip(
             show = isMovingSeek,
             startTime = moveStartTime,
             move = moveMs,
-            totalTime = totalTime
+            totalTime = videoPlayerSeekData.duration
         )
         BrightnessTip(show = isMovingBrightness, progress = currentBrightnessProgress)
         VolumeTip(show = isMovingVolume, progress = currentVolumeProgress)
@@ -235,14 +239,6 @@ fun BvPlayerController(
         if (showBaseUi) {
             if (isFullScreen) {
                 FullscreenControllers(
-                    isPlaying = isPlaying,
-                    currentTime = currentTime,
-                    totalTime = totalTime,
-                    currentSeekPosition = currentSeekPosition,
-                    bufferedSeekPosition = bufferedSeekPosition,
-                    currentResolutionName = availableResolutionMap[currentResolutionCode]
-                        ?: "Unknown",
-                    enabledDanmaku = enabledDanmaku,
                     onPlay = onPlay,
                     onPause = onPause,
                     onExitFullScreen = onExitFullScreen,
@@ -263,11 +259,6 @@ fun BvPlayerController(
                 )
             } else {
                 MiniControllers(
-                    isPlaying = isPlaying,
-                    currentTime = currentTime,
-                    totalTime = totalTime,
-                    currentSeekPosition = currentSeekPosition,
-                    bufferedSeekPosition = bufferedSeekPosition,
                     onBack = onBack,
                     onPlay = onPlay,
                     onPause = onPause,
@@ -279,8 +270,6 @@ fun BvPlayerController(
 
         ResolutionMenuController(
             show = showResolutionController,
-            currentResolutionCode = currentResolutionCode,
-            availableResolutionMap = availableResolutionMap,
             onHideController = { showResolutionController = false },
             onClickResolution = { code ->
                 onChangeResolution(code)
@@ -290,7 +279,6 @@ fun BvPlayerController(
 
         SpeedMenuController(
             show = showSpeedController,
-            currentSpeed = currentSpeed,
             onHideController = { showSpeedController = false },
             onClickSpeed = { speed ->
                 onChangeSpeed(speed)
@@ -301,10 +289,6 @@ fun BvPlayerController(
         DanmakuMenuController(
             show = showDanmakuController,
             onHideController = { showDanmakuController = false },
-            enabledDanmakuTypes = enabledDanmakuTypes,
-            danmakuOpacity = danmakuOpacity,
-            danmakuScale = danmakuScale,
-            danmakuArea = danmakuArea,
             onEnabledDanmakuTypesChange = onEnabledDanmakuTypesChange,
             onDanmakuOpacityChange = onDanmakuOpacityChange,
             onDanmakuScaleChange = onDanmakuScaleChange,

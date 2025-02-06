@@ -19,12 +19,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
+import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.util.ifElse
 
 @Composable
@@ -72,11 +75,10 @@ private fun ResolutionMenu(
 fun ResolutionMenuController(
     modifier: Modifier = Modifier,
     show: Boolean,
-    currentResolutionCode: Int,
-    availableResolutionMap: Map<Int, String>,
     onHideController: () -> Unit = {},
     onClickResolution: (Int) -> Unit
 ) {
+    val videoPlayerConfigData = LocalVideoPlayerConfigData.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -94,8 +96,8 @@ fun ResolutionMenuController(
         ) {
             ResolutionMenu(
                 modifier = Modifier,
-                currentResolutionCode = currentResolutionCode,
-                availableResolutionMap = availableResolutionMap,
+                currentResolutionCode = videoPlayerConfigData.currentResolution,
+                availableResolutionMap = videoPlayerConfigData.availableResolutionMap,
                 onClickResolution = onClickResolution
             )
         }
@@ -173,11 +175,18 @@ private fun ResolutionListItemUnselectedPreview() {
 @Composable
 private fun ResolutionMenuPreview() {
     MaterialTheme {
-        ResolutionMenu(
-            currentResolutionCode = 32,
-            availableResolutionMap = availableResolutionMap,
-            onClickResolution = {}
-        )
+        CompositionLocalProvider(
+            LocalVideoPlayerConfigData provides VideoPlayerConfigData(
+                currentResolution = 32,
+                availableResolutionMap = availableResolutionMap
+            )
+        ) {
+            ResolutionMenu(
+                currentResolutionCode = 32,
+                availableResolutionMap = availableResolutionMap,
+                onClickResolution = {}
+            )
+        }
     }
 }
 
@@ -185,11 +194,16 @@ private fun ResolutionMenuPreview() {
 @Composable
 private fun ResolutionMenuControllerPreview() {
     MaterialTheme {
-        ResolutionMenuController(
-            show = true,
-            currentResolutionCode = 32,
-            availableResolutionMap = availableResolutionMap,
-            onClickResolution = {}
-        )
+        CompositionLocalProvider(
+            LocalVideoPlayerConfigData provides VideoPlayerConfigData(
+                currentResolution = 32,
+                availableResolutionMap = availableResolutionMap
+            )
+        ) {
+            ResolutionMenuController(
+                show = true,
+                onClickResolution = {}
+            )
+        }
     }
 }

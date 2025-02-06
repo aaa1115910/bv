@@ -69,7 +69,7 @@ data class VideoPlayerConfigData(
     val availableSubtitleTracks: List<Subtitle> = emptyList(),
     val availableVideoList: List<VideoListItem> = emptyList(),
     val currentVideoCid: Long = 0,
-    val currentResolution: Int? = null,
+    val currentResolution: Int = 6,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
     val currentVideoSpeed: Float = 1f,

@@ -87,12 +87,8 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
-import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.entity.video.season.PgcSeason
-import dev.aaa1115910.biliapi.entity.video.season.SeasonDetail
-import dev.aaa1115910.biliapi.repositories.UserRepository
-import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.component.buttons.SeasonInfoButtons
@@ -101,7 +97,6 @@ import dev.aaa1115910.bv.player.entity.VideoListItem
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
-import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.createCustomInitialFocusRestorerModifiers
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedScale
@@ -111,39 +106,28 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
+import dev.aaa1115910.bv.viewmodel.SeasonViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.compose.getKoin
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import kotlin.math.ceil
 
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    videoInfoRepository: VideoInfoRepository = getKoin().get(),
-    videoDetailRepository: VideoDetailRepository = getKoin().get(),
-    userRepository: UserRepository = getKoin().get()
+    videoInfoRepository: VideoInfoRepository = koinInject(),
+    seasonViewModel: SeasonViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val intent = (context as Activity).intent
     val logger = KotlinLogging.logger { }
 
-    var seasonId: Int? by remember { mutableStateOf(null) }
-    var epId: Int? by remember { mutableStateOf(null) }
-    var proxyArea: ProxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
-
-    var seasonData: SeasonDetail? by remember { mutableStateOf(null) }
-    var lastPlayProgress: SeasonDetail.UserStatus.Progress? by remember { mutableStateOf(null) }
-    var isFollowing by remember { mutableStateOf(false) }
-    var tip by remember { mutableStateOf("Loading") }
     var paused by remember { mutableStateOf(false) }
-
     var showSeasonSelector by remember { mutableStateOf(false) }
-
     val defaultFocusRequester = remember { FocusRequester() }
 
     val onClickVideo: (avid: Long, cid: Long, epid: Int, episodeTitle: String, startTime: Int) -> Unit =
@@ -154,16 +138,16 @@ fun SeasonInfoScreen(
                     context = context,
                     avid = avid,
                     cid = cid,
-                    title = seasonData!!.title,
+                    title = seasonViewModel.seasonData!!.title,
                     partTitle = episodeTitle,
                     played = startTime * 1000,
                     fromSeason = true,
-                    subType = seasonData?.subType,
+                    subType = seasonViewModel.seasonData?.subType,
                     epid = epid,
-                    seasonId = seasonData?.seasonId,
-                    proxyArea = proxyArea,
-                    playerIconIdle = seasonData?.playerIcon?.idle ?: "",
-                    playerIconMoving = seasonData?.playerIcon?.moving ?: ""
+                    seasonId = seasonViewModel.seasonData?.seasonId,
+                    proxyArea = seasonViewModel.proxyArea,
+                    playerIconIdle = seasonViewModel.seasonData?.playerIcon?.idle ?: "",
+                    playerIconMoving = seasonViewModel.seasonData?.playerIcon?.moving ?: ""
                 )
             } else {
                 //如果 cid==0，就需要跳转回 VideoInfoActivity 去获取 cid 再跳转播放器
@@ -175,65 +159,40 @@ fun SeasonInfoScreen(
             }
         }
 
-    val updateSeasonData: (seasonId: Int?, epId: Int?) -> Unit = { sId, eId ->
+    val onClickFollow: (Boolean) -> Unit = { isFollowing ->
         scope.launch(Dispatchers.IO) {
-            runCatching {
-                val data = videoDetailRepository.getPgcVideoDetail(
-                    seasonId = sId,
-                    epid = eId,
-                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
-                )
-                withContext(Dispatchers.Main) {
-                    seasonData = data
-                    logger.info { "User status: ${seasonData!!.userStatus}" }
-                    isFollowing = seasonData!!.userStatus.follow
-                    lastPlayProgress = seasonData!!.userStatus.progress
-                }
-            }.onFailure {
-                tip = it.localizedMessage ?: "未知错误"
-                logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
-            }
+            if (isFollowing) seasonViewModel.unFollowSeason() else seasonViewModel.followSeason()
         }
     }
 
-    val updateHistoryAfterBack = {
-        scope.launch(Dispatchers.IO) {
-            //延迟 200ms，避免获取到的依旧是旧数据
-            delay(200)
-            runCatching {
-                val data = videoDetailRepository.getPgcVideoDetail(
-                    seasonId = seasonId,
-                    epid = epId,
-                    preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
-                ).userStatus.progress
-                withContext(Dispatchers.Main) { lastPlayProgress = data }
-                logger.info { "update user status progress: $lastPlayProgress" }
-            }.onFailure {
-                logger.fInfo { "update user status progress failed: ${it.stackTraceToString()}" }
-            }
-        }
+    val onClickCover = {
+        if (seasonViewModel.seasonData?.seasons?.isNotEmpty() == true) showSeasonSelector = true
     }
 
     LaunchedEffect(Unit) {
-        val epId1 = intent.getIntExtra("epid", 0)
-        val seasonId1 = intent.getIntExtra("seasonid", 0)
-        val proxyArea1 = intent.getIntExtra("proxy_area", 0)
-        logger.fInfo { "Read extras from content: [epId=$epId1, seasonId=$seasonId1, proxyArea=$proxyArea1]" }
-
-        epId = intent.getIntExtra("epid", 0).takeIf { it > 0 }
-        seasonId = intent.getIntExtra("seasonid", 0).takeIf { it > 0 }
-        proxyArea = ProxyArea.entries[proxyArea1]
+        val epId = intent.getIntExtra("epid", 0)
+        val seasonId = intent.getIntExtra("seasonid", 0)
+        val proxyAreaIndex = intent.getIntExtra("proxy_area", 0)
+        val proxyArea = ProxyArea.entries[proxyAreaIndex]
         logger.fInfo { "Read extras from content: [epId=$epId, seasonId=$seasonId, proxyArea=$proxyArea]" }
-        if (epId != null || seasonId != null) {
-            updateSeasonData(seasonId, epId)
+
+        seasonViewModel.epId = epId
+        seasonViewModel.seasonId = seasonId
+        seasonViewModel.proxyArea = proxyArea
+
+        if (seasonViewModel.epId != null || seasonViewModel.seasonId != null) {
+            scope.launch(Dispatchers.IO) {
+                seasonViewModel.updateSeasonData()
+            }
         } else {
             context.finish()
         }
     }
 
-    LaunchedEffect(seasonData) {
-        seasonData?.let {
-            lastPlayProgress = it.userStatus.progress
+    LaunchedEffect(seasonViewModel.seasonData) {
+        seasonViewModel.seasonData?.let {
+            logger.fInfo { "season data change: ${seasonViewModel.seasonData}" }
+            seasonViewModel.lastPlayProgress = it.userStatus.progress
             //请求默认焦点到剧集封面上
             defaultFocusRequester.requestFocus(scope)
         }
@@ -245,7 +204,11 @@ fun SeasonInfoScreen(
                 paused = true
             } else if (event == Lifecycle.Event.ON_RESUME) {
                 // 如果 pause==true 那可能是从播放页返回回来的，此时更新历史记录
-                if (paused) updateHistoryAfterBack()
+                if (paused) {
+                    scope.launch(Dispatchers.IO) {
+                        seasonViewModel.updateLastPlayProgress()
+                    }
+                }
             }
         }
 
@@ -256,7 +219,7 @@ fun SeasonInfoScreen(
         }
     }
 
-    if (seasonData == null) {
+    if (seasonViewModel.seasonData == null) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -264,7 +227,7 @@ fun SeasonInfoScreen(
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = tip
+                text = seasonViewModel.tip
             )
         }
     } else {
@@ -281,48 +244,51 @@ fun SeasonInfoScreen(
                 item {
                     SeasonInfoPart(
                         modifier = Modifier.focusRequester(defaultFocusRequester),
-                        title = seasonData!!.title,
-                        cover = seasonData!!.cover,
-                        newEpDesc = seasonData!!.newEpDesc,
-                        description = seasonData!!.description,
-                        lastPlayedIndex = lastPlayProgress?.lastEpId ?: -1,
-                        lastPlayedTitle = lastPlayProgress?.lastEpIndex ?: "Unknown",
-                        following = isFollowing,
-                        isPublished = seasonData!!.publish.isPublished,
-                        publishDate = seasonData!!.publish.publishDate,
-                        seasonCount = seasonData!!.seasons.size,
+                        title = seasonViewModel.seasonData!!.title,
+                        cover = seasonViewModel.seasonData!!.cover,
+                        newEpDesc = seasonViewModel.seasonData!!.newEpDesc,
+                        description = seasonViewModel.seasonData!!.description,
+                        lastPlayedIndex = seasonViewModel.lastPlayProgress?.lastEpId ?: -1,
+                        lastPlayedTitle = seasonViewModel.lastPlayProgress?.lastEpIndex
+                            ?: "Unknown",
+                        following = seasonViewModel.isFollowing,
+                        isPublished = seasonViewModel.seasonData!!.publish.isPublished,
+                        publishDate = seasonViewModel.seasonData!!.publish.publishDate,
+                        seasonCount = seasonViewModel.seasonData!!.seasons.size,
                         onPlay = {
                             logger.fInfo { "Click play button" }
                             var playAid = -1L
                             var playCid = -1L
                             val playEpid: Int
                             var episodeList: List<Episode> = emptyList()
-                            if (lastPlayProgress == null) {
+                            if (seasonViewModel.lastPlayProgress == null) {
                                 logger.fInfo { "Didn't find any play record" }
                                 //未登录或无播放记录，此时lastPlayProgress==null，默认播放第一集正片
-                                playAid = seasonData?.episodes?.first()?.aid ?: -1
-                                playCid = seasonData?.episodes?.first()?.cid ?: -1
-                                playEpid = seasonData?.episodes?.first()?.id ?: -1
+                                playAid = seasonViewModel.seasonData?.episodes?.first()?.aid ?: -1
+                                playCid = seasonViewModel.seasonData?.episodes?.first()?.cid ?: -1
+                                playEpid = seasonViewModel.seasonData?.episodes?.first()?.id ?: -1
                                 if (playCid == -1L) {
                                     R.string.season_no_feature_film.toast(context)
                                 } else {
-                                    episodeList = seasonData?.episodes ?: emptyList()
+                                    episodeList =
+                                        seasonViewModel.seasonData?.episodes ?: emptyList()
                                 }
                             } else {
                                 //已登录且有播放记录
-                                logger.fInfo { "Find play record: $lastPlayProgress" }
+                                logger.fInfo { "Find play record: ${seasonViewModel.lastPlayProgress}" }
 
                                 //懒得去改播放器那边来支持epid，就直接在这边查找cid了
-                                playEpid = lastPlayProgress!!.lastEpId
-                                seasonData?.episodes?.forEach {
+                                playEpid = seasonViewModel.lastPlayProgress!!.lastEpId
+                                seasonViewModel.seasonData?.episodes?.forEach {
                                     if (it.id == playEpid) {
                                         playAid = it.aid
                                         playCid = it.cid
-                                        episodeList = seasonData?.episodes ?: emptyList()
+                                        episodeList =
+                                            seasonViewModel.seasonData?.episodes ?: emptyList()
                                     }
                                 }
                                 if (playCid == -1L) {
-                                    seasonData?.sections?.forEach { section ->
+                                    seasonViewModel.seasonData?.sections?.forEach { section ->
                                         section.episodes.forEach {
                                             if (it.id == playEpid) {
                                                 playAid = it.aid
@@ -345,8 +311,8 @@ fun SeasonInfoScreen(
                                     playAid,
                                     playCid,
                                     playEpid,
-                                    lastPlayProgress?.lastEpIndex ?: "",
-                                    lastPlayProgress?.lastTime ?: 0
+                                    seasonViewModel.lastPlayProgress?.lastEpIndex ?: "",
+                                    seasonViewModel.lastPlayProgress?.lastTime ?: 0
                                 )
 
                                 val partVideoList = episodeList.mapIndexed { index, episode ->
@@ -354,7 +320,7 @@ fun SeasonInfoScreen(
                                         aid = episode.aid,
                                         cid = episode.cid,
                                         epid = episode.id,
-                                        seasonId = seasonData?.seasonId,
+                                        seasonId = seasonViewModel.seasonData?.seasonId,
                                         title = runCatching {
                                             "第 ${episode.title.toInt()} 集"
                                         }.getOrDefault(episode.title) + " " + episode.longTitle,
@@ -366,67 +332,27 @@ fun SeasonInfoScreen(
                                 videoInfoRepository.videoList.addAll(partVideoList)
                             }
                         },
-                        onClickFollow = {
-                            if (isFollowing) {
-                                scope.launch(Dispatchers.Default) {
-                                    runCatching {
-                                        val resultToast = userRepository.delSeasonFollow(
-                                            seasonId = seasonData?.seasonId ?: return@launch,
-                                            preferApiType = Prefs.apiType
-                                        )
-                                        isFollowing = false
-                                        withContext(Dispatchers.Main) {
-                                            resultToast.toast(context)
-                                        }
-                                    }.onFailure {
-                                        logger.fInfo { "Del season follow failed: ${it.stackTraceToString()}" }
-                                        withContext(Dispatchers.Main) {
-                                            R.string.follow_bangumi_disable_fail.toast(context)
-                                        }
-                                    }
-                                }
-                            } else {
-                                scope.launch(Dispatchers.Default) {
-                                    runCatching {
-                                        val resultToast = userRepository.addSeasonFollow(
-                                            seasonId = seasonData?.seasonId ?: return@launch,
-                                            preferApiType = Prefs.apiType
-                                        )
-                                        isFollowing = true
-                                        withContext(Dispatchers.Main) {
-                                            resultToast.toast(context)
-                                        }
-                                    }.onFailure {
-                                        logger.fInfo { "Add season follow failed: ${it.stackTraceToString()}" }
-                                        withContext(Dispatchers.Main) {
-                                            R.string.follow_bangumi_enable_fail.toast(context)
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        onClickCover = {
-                            if (seasonData?.seasons?.isNotEmpty() == true) showSeasonSelector = true
-                        }
+                        onClickFollow = onClickFollow,
+                        onClickCover = onClickCover
                     )
                 }
-                if (seasonData?.episodes?.isNotEmpty() == true) {
+                if (seasonViewModel.seasonData?.episodes?.isNotEmpty() == true) {
                     item {
                         SeasonEpisodeRow(
                             title = stringResource(R.string.season_feature_film),
-                            episodes = seasonData?.episodes ?: emptyList(),
-                            lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
-                            lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
+                            episodes = seasonViewModel.seasonData?.episodes ?: emptyList(),
+                            lastPlayedId = seasonViewModel.lastPlayProgress?.lastEpId ?: 0,
+                            lastPlayedTime = seasonViewModel.lastPlayProgress?.lastTime ?: 0,
                             onClick = { avid, cid, epid, episodeTitle, startTime ->
                                 onClickVideo(avid, cid, epid, episodeTitle, startTime)
 
                                 val partVideoList =
-                                    seasonData?.episodes?.mapIndexed { index, episode ->
+                                    seasonViewModel.seasonData?.episodes?.mapIndexed { index, episode ->
                                         VideoListItem(
                                             aid = episode.aid,
                                             cid = episode.cid,
                                             epid = episode.id,
-                                            seasonId = seasonData?.seasonId,
+                                            seasonId = seasonViewModel.seasonData?.seasonId,
                                             title = runCatching {
                                                 "第 ${episode.title.toInt()} 集"
                                             }.getOrDefault(episode.title) + " " + episode.longTitle,
@@ -440,13 +366,13 @@ fun SeasonInfoScreen(
                         )
                     }
                 }
-                seasonData?.sections?.forEach { section ->
+                seasonViewModel.seasonData?.sections?.forEach { section ->
                     item {
                         SeasonEpisodeRow(
                             title = section.title,
                             episodes = section.episodes,
-                            lastPlayedId = lastPlayProgress?.lastEpId ?: 0,
-                            lastPlayedTime = lastPlayProgress?.lastTime ?: 0,
+                            lastPlayedId = seasonViewModel.lastPlayProgress?.lastEpId ?: 0,
+                            lastPlayedTime = seasonViewModel.lastPlayProgress?.lastTime ?: 0,
                             onClick = { avid, cid, epid, episodeTitle, startTime ->
                                 onClickVideo(avid, cid, epid, episodeTitle, startTime)
 
@@ -455,7 +381,7 @@ fun SeasonInfoScreen(
                                         aid = episode.aid,
                                         cid = episode.cid,
                                         epid = episode.id,
-                                        seasonId = seasonData?.seasonId,
+                                        seasonId = seasonViewModel.seasonData?.seasonId,
                                         title = runCatching {
                                             "第 ${episode.title.toInt()} 集"
                                         }.getOrDefault(episode.title) + " " + episode.longTitle,
@@ -484,13 +410,14 @@ fun SeasonInfoScreen(
                 defaultFocusRequester.requestFocus(scope)
             }
         },
-        currentSeasonId = seasonId ?: 0,
-        seasons = seasonData?.seasons ?: emptyList(),
+        currentSeasonId = seasonViewModel.seasonId ?: 0,
+        seasons = seasonViewModel.seasonData?.seasons ?: emptyList(),
         onClickSeason = { sid ->
-            if ((seasonId ?: 0) != sid) {
-                seasonData = null
-                updateSeasonData(sid, null)
-                seasonId = sid
+            if ((seasonViewModel.seasonId ?: 0) != sid) {
+                seasonViewModel.seasonData = null
+                seasonViewModel.seasonId = sid
+                seasonViewModel.epId = null
+                scope.launch(Dispatchers.IO) { seasonViewModel.updateSeasonData() }
             }
         }
     )
