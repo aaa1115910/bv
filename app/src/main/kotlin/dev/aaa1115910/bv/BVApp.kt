@@ -11,20 +11,23 @@ import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
+import dev.aaa1115910.biliapi.repositories.CommentRepository
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.HistoryRepository
-import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.biliapi.repositories.LoginRepository
 import dev.aaa1115910.biliapi.repositories.PgcRepository
 import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
 import dev.aaa1115910.biliapi.repositories.SearchRepository
 import dev.aaa1115910.biliapi.repositories.SeasonRepository
+import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.biliapi.repositories.UgcRepository
 import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
+import dev.aaa1115910.bv.mobile.viewmodel.CommentViewModel
+import dev.aaa1115910.bv.mobile.viewmodel.DynamicDetailViewModel
 import dev.aaa1115910.bv.network.HttpServer
 import dev.aaa1115910.bv.repository.UserRepository
 import dev.aaa1115910.bv.repository.VideoInfoRepository
@@ -32,7 +35,7 @@ import dev.aaa1115910.bv.screen.user.UserSwitchViewModel
 import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.Prefs
-import dev.aaa1115910.bv.viewmodel.PlayerViewModel
+import dev.aaa1115910.bv.viewmodel.SeasonViewModel
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -55,7 +58,7 @@ import dev.aaa1115910.bv.viewmodel.user.FollowViewModel
 import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import dev.aaa1115910.bv.viewmodel.user.ToViewViewModel
-import dev.aaa1115910.bv.viewmodel.user.UpInfoViewModel
+import dev.aaa1115910.bv.viewmodel.user.UserSpaceViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
@@ -158,7 +161,7 @@ val appModule = module {
     single { ChannelRepository() }
     single { FavoriteRepository(get()) }
     single { HistoryRepository(get(), get()) }
-    single { ToViewRepository(get(), get()) }    
+    single { ToViewRepository(get(), get()) }
     single { SearchRepository(get(), get()) }
     single { VideoPlayRepository(get(), get()) }
     single { RecommendVideoRepository(get(), get()) }
@@ -167,17 +170,17 @@ val appModule = module {
     single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
     single { PgcRepository() }
     single { UgcRepository(get()) }
+    single { CommentRepository(get(), get()) }
     viewModel { DynamicViewModel(get(), get()) }
     viewModel { RecommendViewModel(get()) }
     viewModel { PopularViewModel(get()) }
     viewModel { AppQrLoginViewModel(get(), get()) }
     viewModel { SmsLoginViewModel(get(), get()) }
-    viewModel { PlayerViewModel(get()) }
     viewModel { UserViewModel(get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { ToViewViewModel(get(), get()) }
     viewModel { FavoriteViewModel(get()) }
-    viewModel { UpInfoViewModel(get()) }
+    viewModel { UserSpaceViewModel(get()) }
     viewModel { FollowViewModel(get()) }
     viewModel { SearchInputViewModel(get()) }
     viewModel { SearchResultViewModel(get()) }
@@ -193,6 +196,9 @@ val appModule = module {
     viewModel { PgcMovieViewModel(get()) }
     viewModel { PgcTvViewModel(get()) }
     viewModel { PgcVarietyViewModel(get()) }
+    viewModel { CommentViewModel(get()) }
+    viewModel { DynamicDetailViewModel(get()) }
+    viewModel { SeasonViewModel(get(), get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

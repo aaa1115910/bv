@@ -47,17 +47,17 @@ class PgcRepositoryTest {
     }
 
     @Test
-    fun `get pgc index`(){
+    fun `get pgc index`() {
         runBlocking {
             PgcType.entries.forEach { pgcType ->
                 println("pgcType: $pgcType")
-                val data=pgcRepository.getPgcIndex(
+                val data = pgcRepository.getPgcIndex(
                     pgcType = pgcType,
                     indexOrder = IndexOrder.PlayCount,
                     indexOrderType = IndexOrderType.Desc,
                     seasonVersion = SeasonVersion.All,
                     spokenLanguage = SpokenLanguage.All,
-                    area=Area.All,
+                    area = Area.All,
                     isFinish = IsFinish.All,
                     copyright = Copyright.All,
                     seasonStatus = SeasonStatus.All,

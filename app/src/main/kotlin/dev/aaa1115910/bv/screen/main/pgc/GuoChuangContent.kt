@@ -24,7 +24,7 @@ fun GuoChuangContent(
     lazyListState: LazyListState,
     pgcViewModel: PgcGuoChuangViewModel = koinViewModel()
 ) {
-    val context= LocalContext.current
+    val context = LocalContext.current
 
     val onOpenIndex: () -> Unit = {
         PgcIndexActivity.actionStart(context = context, pgcType = PgcType.GuoChuang)

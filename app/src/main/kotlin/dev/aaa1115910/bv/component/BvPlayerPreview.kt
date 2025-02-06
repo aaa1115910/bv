@@ -54,6 +54,11 @@ private val videoPlayerListener = object : VideoPlayerListener {
         //TODO("Not yet implemented")
     }
 
+    override fun onIdle() {
+        println("onIdle")
+        //TODO("Not yet implemented")
+    }
+
     override fun onSeekBack(seekBackIncrementMs: Long) {
         //TODO("Not yet implemented")
     }

@@ -8,12 +8,6 @@
 
     <string name="app_name">BV</string>
 
-    <string name="audio_132k">132K</string>
-    <string name="audio_192k">192K</string>
-    <string name="audio_64k">64K</string>
-    <string name="audio_dolby_atoms">Dolby Atoms</string>
-    <string name="audio_hi_res">Hi-Res</string>
-
     <string name="codec_detail_audio_bitrate_range_title">音频码率范围</string>
     <string name="codec_detail_color_formats_title">颜色格式</string>
     <string name="codec_detail_hs_hardware">硬解</string>
@@ -68,6 +62,8 @@
     <string name="following_season_type_film_and_television">影视</string>
 
     <string name="home_press_back_again_to_exit">再次按下返回键退出 Bug Video</string>
+    <string name="home_tab_popular">热门</string>
+    <string name="home_tab_rcmd">推荐</string>
 
     <string name="load_data_count">已加载 %1$d 条数据</string>
     <string name="load_data_count_no_more">已加载全部共 %1$d 条数据</string>
@@ -153,31 +149,6 @@
     <string name="remote_control_panel_demo_tip_lr">后退/前进</string>
     <string name="remote_control_panel_demo_tip_up">剧集/合集/分 P 列表</string>
 
-    <string name="resolution_1080p">1080P 高清</string>
-    <string name="resolution_1080p_60">1080P60 高帧率</string>
-    <string name="resolution_1080p_60_short">1080P60</string>
-    <string name="resolution_1080p_plus">1080P+ 高码率</string>
-    <string name="resolution_1080p_plus_short">1080P+</string>
-    <string name="resolution_1080p_short">1080P</string>
-    <string name="resolution_240p">240P 极速</string>
-    <string name="resolution_240p_short">240P</string>
-    <string name="resolution_360p">360P 流畅</string>
-    <string name="resolution_360p_short">360P</string>
-    <string name="resolution_480p">480P 清晰</string>
-    <string name="resolution_480p_short">480P</string>
-    <string name="resolution_4k">4K 超清</string>
-    <string name="resolution_4k_short">4K</string>
-    <string name="resolution_720p">720P 高清</string>
-    <string name="resolution_720p_60_short">720P60</string>
-    <string name="resolution_720p_short">720P</string>
-    <string name="resolution_8k">8K 超高清</string>
-    <string name="resolution_8k_short">8K</string>
-    <string name="resolution__720p_60">720P60 高帧率</string>
-    <string name="resolution_dolby_bision_short">杜比视界</string>
-    <string name="resolution_dolby_vision">杜比视界</string>
-    <string name="resolution_hdr">HDR 真彩色</string>
-    <string name="resolution_hdr_short">HDR</string>
-
     <string name="search_input_history">历史记录</string>
     <string name="search_input_hotword">bilibili 热搜</string>
     <string name="search_input_soft_keybord_clear">清空</string>
@@ -243,8 +214,6 @@
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
     <string name="settings_other_fps_title">FPS 显示</string>
-    <string name="settings_other_old_player_text">使用旧版播放器，旧版播放器不会再有任何新特性更新，并且将在后续版本内移除</string>
-    <string name="settings_other_old_player_title">旧版播放器</string>
     <string name="settings_storage_calculating">计算中</string>
     <string name="settings_storage_crash_logs">崩溃日志</string>
     <string name="settings_storage_image_cache">图片缓存</string>
@@ -284,8 +253,16 @@
     <string name="title_activity_user_lock_settings">用户锁设置</string>
     <string name="title_activity_user_switch">用户切换</string>
     <string name="title_activity_video_info">视频信息</string>
-    <string name="title_activity_video_player">视频播放</string>
     <string name="title_activity_video_player_v3">视频播放</string>
+    <string name="title_mobile_activity_dynamic_detail">动态详情</string>
+    <string name="title_mobile_activity_favorite">我的收藏</string>
+    <string name="title_mobile_activity_following_season">我的追番</string>
+    <string name="title_mobile_activity_following_user">我的关注</string>
+    <string name="title_mobile_activity_history">历史记录</string>
+    <string name="title_mobile_activity_login">用户登录</string>
+    <string name="title_mobile_activity_settings">设置</string>
+    <string name="title_mobile_activity_user_space">用户空间</string>
+    <string name="title_mobile_activity_video_player">视频播放</string>
 
     <string name="top_nav_item_anime">番剧</string>
     <string name="top_nav_item_dynamics">动态</string>
@@ -447,14 +424,6 @@
     <string name="user_switch_menu_user_lock">用户锁设置</string>
     <string name="user_switch_title">选择账号</string>
 
-    <string name="video_aspect_ratio_default">默认</string>
-    <string name="video_aspect_ratio_four_to_three">4:3</string>
-    <string name="video_aspect_ratio_sixteen_to_nine">16:9</string>
-    <string name="video_codec_av1" tools:ignore="Typos">AV1</string>
-    <string name="video_codec_avc">H.264</string>
-    <string name="video_codec_dvh1" tools:ignore="Typos">Dolby Vision (DVH1)</string>
-    <string name="video_codec_hevc">H.265</string>
-    <string name="video_codec_hvc1" tools:ignore="Typos">Dolby Vision (HVC1)</string>
     <string name="video_controller_menu_danmaku_area_tip">按 “上键” 或 “下键” 进行调节</string>
     <string name="video_info_argue_tip_vertical_screen">温馨提示：该稿件包含竖屏视频内容</string>
     <string name="video_info_description_title">视频简介</string>
@@ -464,28 +433,6 @@
     <string name="video_info_related_video_title">视频推荐</string>
     <string name="video_info_tags">标签</string>
     <string name="video_info_time">投稿时间: %1$s</string>
-    <string name="video_player_menu_danmaku_area">显示区域</string>
-    <string name="video_player_menu_danmaku_mask">防遮挡</string>
-    <string name="video_player_menu_danmaku_opacity">不透明度</string>
-    <string name="video_player_menu_danmaku_size">字体缩放</string>
-    <string name="video_player_menu_danmaku_switch">弹幕类型</string>
-    <string name="video_player_menu_danmaku_type_all">全部弹幕</string>
-    <string name="video_player_menu_danmaku_type_bottom">底部弹幕</string>
-    <string name="video_player_menu_danmaku_type_cross">滚动弹幕</string>
-    <string name="video_player_menu_danmaku_type_top">顶部弹幕</string>
-    <string name="video_player_menu_nav_danmaku">弹幕设置</string>
-    <string name="video_player_menu_nav_picture">画面音频</string>
-    <string name="video_player_menu_nav_subtitle">字幕设置</string>
-    <string name="video_player_menu_picture_aspect_ratio">画面比例</string>
-    <string name="video_player_menu_picture_audio">音频编码</string>
-    <string name="video_player_menu_picture_codec">视频编码</string>
-    <string name="video_player_menu_picture_play_speed">播放速度</string>
-    <string name="video_player_menu_picture_resolution">清晰度</string>
-    <string name="video_player_menu_subtitle_background_opacity">背景不透明度</string>
-    <string name="video_player_menu_subtitle_bottom_padding">底部间距</string>
-    <string name="video_player_menu_subtitle_size">字体大小</string>
-    <string name="video_player_menu_subtitle_switch">选择字幕</string>
-    <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
     <string name="video_player_referer">https://www.bilibili.com</string>
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>

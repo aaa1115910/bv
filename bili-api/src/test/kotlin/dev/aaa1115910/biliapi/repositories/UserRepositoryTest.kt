@@ -98,6 +98,44 @@ class UserRepositoryTest {
     }
 
     @Test
+    fun `get dynamics with web api`() = runBlocking {
+        val totalPage = 10
+        var historyOffset = ""
+        var updateBaseline = ""
+        for (i in 1..totalPage) {
+            val dynamicData = userRepository.getDynamics(
+                page = i,
+                offset = historyOffset,
+                updateBaseline = updateBaseline,
+                preferApiType = ApiType.Web
+            )
+            historyOffset = dynamicData.historyOffset
+            updateBaseline = dynamicData.updateBaseline
+            println("page $i: ${dynamicData.dynamics.joinToString { it.commentType.toString() }}")
+            delay((1000L..3000L).random())
+        }
+    }
+
+    @Test
+    fun `get dynamics with grpc api`() = runBlocking {
+        val totalPage = 10
+        var historyOffset = ""
+        var updateBaseline = ""
+        for (i in 1..totalPage) {
+            val dynamicData = userRepository.getDynamics(
+                page = i,
+                offset = historyOffset,
+                updateBaseline = updateBaseline,
+                preferApiType = ApiType.App
+            )
+            historyOffset = dynamicData.historyOffset
+            updateBaseline = dynamicData.updateBaseline
+            println("page $i: ${dynamicData.dynamics.joinToString { it.commentType.toString() }}")
+            delay((1000L..3000L).random())
+        }
+    }
+
+    @Test
     fun `get following users with web api`() = runBlocking {
         val result = userRepository.getFollowedUsers(
             mid = UID,
@@ -113,5 +151,17 @@ class UserRepositoryTest {
             preferApiType = ApiType.App
         )
         println(result)
+    }
+
+    @Test
+    fun `get dynamic detail`() = runBlocking {
+        ApiType.entries.forEach { apiType ->
+            val result = userRepository.getDynamicDetail(
+                dynamicId = "946265944846499863",
+                preferApiType = apiType
+            )
+            println("apiType: $apiType")
+            println(result)
+        }
     }
 }

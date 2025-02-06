@@ -25,13 +25,13 @@ class FollowingSeasonViewModel(
     }
 
     val followingSeasons = mutableStateListOf<FollowingSeason>()
-    var followingSeasonType = FollowingSeasonType.Bangumi
-    var followingSeasonStatus = FollowingSeasonStatus.All
+    var followingSeasonType by mutableStateOf(FollowingSeasonType.Bangumi)
+    var followingSeasonStatus by mutableStateOf(FollowingSeasonStatus.All)
 
     private var pageNumber = 1
     private var pageSize = 30
     var noMore by mutableStateOf(false)
-    private var updating = false
+    var updating by mutableStateOf(false)
 
     init {
         followingSeasonType = FollowingSeasonType.Bangumi

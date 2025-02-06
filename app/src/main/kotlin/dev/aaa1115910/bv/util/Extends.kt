@@ -2,6 +2,14 @@ package dev.aaa1115910.bv.util
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusRequester
@@ -21,19 +29,6 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
-
-fun String.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(context, this, duration).show()
-}
-
-fun Int.toast(context: Context, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(context, context.getText(this), duration).show()
-}
-
-fun <T> SnapshotStateList<T>.swapList(newList: List<T>) {
-    clear()
-    addAll(newList)
-}
 
 suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(newList: List<T>) =
     withContext(Dispatchers.Main) { this@swapListWithMainContext.swapList(newList) }
@@ -105,20 +100,6 @@ fun Long.formatMinSec(): String {
     }
 }
 
-/**
- * 改进的请求焦点的方法，失败后等待 100ms 后重试
- */
-fun FocusRequester.requestFocus(scope: CoroutineScope) {
-    scope.launch(Dispatchers.Default) {
-        runCatching {
-            requestFocus()
-        }.onFailure {
-            delay(100)
-            runCatching { requestFocus() }
-        }
-    }
-}
-
 fun String.removeHtmlTags(): String = HtmlCompat.fromHtml(
     this, HtmlCompat.FROM_HTML_MODE_LEGACY
 ).toString()
@@ -131,3 +112,78 @@ fun KeyEvent.isDpadLeft(): Boolean = key == Key.DirectionLeft
 fun KeyEvent.isDpadRight(): Boolean = key == Key.DirectionRight
 
 fun Int.stringRes(context: Context): String = context.getString(this)
+
+fun LazyListState.isScrolledToEnd() =
+    canScrollForward || firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+fun LazyStaggeredGridState.isScrolledToEnd() =
+    canScrollForward || firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+fun LazyStaggeredGridState.getLane() =
+    layoutInfo.visibleItemsInfo.maxOfOrNull { it.lane + 1 }
+
+@Composable
+fun LazyListState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}
+
+@Composable
+fun LazyGridState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}
+
+@Composable
+fun LazyStaggeredGridState.OnBottomReached(
+    loading: Boolean = false,
+    loadMore: () -> Unit
+) {
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+
+            lastVisibleItem.index >= layoutInfo.totalItemsCount - 5
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, loading) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                if (it && !loading) loadMore()
+            }
+    }
+}

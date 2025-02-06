@@ -6,5 +6,12 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
     </style>
 
+    <style name="Theme.BVMobile.Splash" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.BVMobile</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+    </style>
+
     <style name="Theme.BV" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="Theme.BVMobile" parent="Theme.Material3.DayNight.NoActionBar" />
 </resources>
