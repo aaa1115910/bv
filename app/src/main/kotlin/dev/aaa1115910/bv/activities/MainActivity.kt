@@ -62,9 +62,9 @@ class MainActivity : ComponentActivity() {
             BVTheme {
                 if (isChecking) {
                     //避免在检查网络的期间加载屏幕内容，导致检查完毕后显示屏幕内容时出现初始焦点未成功设置的问题
-                } else if (isMainlandChina) {
+                } else /*if (isMainlandChina) {
                     RegionBlockScreen()
-                } else {
+                } else */{
                     //HomeScreen()
                     if (!userLockLocked) {
                         MainScreen()
