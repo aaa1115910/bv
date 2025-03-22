@@ -111,8 +111,8 @@ data class Episode(
      */
     @Serializable
     data class EpisodeRights(
-        @SerialName("allow_demand")
-        val allowDemand: Int,
+        //@SerialName("allow_demand")
+        //val allowDemand: Int,
         @SerialName("allow_dm")
         val allowDm: Int,
         @SerialName("allow_download")
@@ -120,7 +120,7 @@ data class Episode(
         @SerialName("area_limit")
         val areaLimit: Int
     ) {
-        val isAllowDemand = allowDemand == 1
+        //val isAllowDemand = allowDemand == 1
         val isAllowDm = allowDm == 1
         val isAllowDownload = allowDownload == 1
         val usAreaLimit = areaLimit == 1
