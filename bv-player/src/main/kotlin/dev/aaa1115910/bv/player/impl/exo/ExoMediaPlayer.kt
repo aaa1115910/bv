@@ -2,12 +2,15 @@ package dev.aaa1115910.bv.player.impl.exo
 
 import android.content.Context
 import androidx.annotation.OptIn
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
@@ -37,8 +40,17 @@ class ExoMediaPlayer(
 
     @OptIn(UnstableApi::class)
     override fun initPlayer() {
+        val renderersFactory = DefaultRenderersFactory(context).apply {
+            setExtensionRendererMode(
+                when (options.enableFfmpegAudioRenderer) {
+                    true -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                    false -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
+                }
+            )
+        }
         mPlayer = ExoPlayer
             .Builder(context)
+            .setRenderersFactory(renderersFactory)
             .setSeekForwardIncrementMs(1000 * 10)
             .setSeekBackIncrementMs(1000 * 5)
             .build()
@@ -156,9 +168,22 @@ class ExoMediaPlayer(
                 resolution: ${mPlayer?.videoSize?.width} x ${mPlayer?.videoSize?.height}
                 audio: ${mPlayer?.audioFormat?.bitrate ?: 0} kbps
                 video codec: ${mPlayer?.videoFormat?.sampleMimeType ?: "null"}
-                audio codec: ${mPlayer?.audioFormat?.sampleMimeType ?: "null"}
-            """.trimIndent()
+                audio codec: ${mPlayer?.audioFormat?.sampleMimeType ?: "null"} (${getAudioRendererName()})
+            """.trimIndent().also {
+                println(mPlayer?.audioFormat)
+            }
         }
+
+    private fun getAudioRendererName(): String {
+        val rendererCount = mPlayer?.rendererCount ?: return "UnknownRenderer"
+        for (i in 0 until rendererCount) {
+            val renderer = mPlayer!!.getRenderer(i)
+            if (renderer.trackType == C.TRACK_TYPE_AUDIO && renderer.state == Renderer.STATE_STARTED) {
+                return renderer.name
+            }
+        }
+        return "UnknownRenderer"
+    }
 
     override val videoWidth: Int
         get() = mPlayer?.videoSize?.width ?: 0
