@@ -158,6 +158,10 @@ android {
     }
 }
 
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_build_reports")
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
