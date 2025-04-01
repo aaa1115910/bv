@@ -160,6 +160,9 @@ android {
 
 composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_build_reports")
+    stabilityConfigurationFiles.addAll(
+        layout.projectDirectory.file("compose_compiler_config.conf")
+    )
 }
 
 java {
