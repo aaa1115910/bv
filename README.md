@@ -14,8 +14,9 @@
 [![Android Sdk Require](https://img.shields.io/badge/Android-5.0%2B-informational?logo=android)](https://apilevels.com/#:~:text=Jetpack%20Compose%20requires%20a%20minSdk%20of%2021%20or%20higher)
 [![GitHub](https://img.shields.io/github/license/aaa1115910/bv)](https://github.com/aaa1115910/bv)
 
-**修改版BV~已解锁中国大陆限制**
-
+**修改版BV~**
+**已解锁中国大陆限制！**
+### 不过，请在24小时内删除此app，否则后果自负(也不会有啥后果就是了)
 </div>
 
 ---
