@@ -625,7 +625,7 @@ fun BvPlayer(
                 modifier = Modifier
                     .fillMaxHeight()
                     .aspectRatio(aspectRatio)
-                    .alpha(0.1f),
+                    .alpha(1f),
                 videoPlayer = videoPlayer,
                 playerListener = videoPlayerListener,
             )
