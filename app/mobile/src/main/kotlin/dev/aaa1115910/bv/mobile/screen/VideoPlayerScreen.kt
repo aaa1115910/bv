@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,6 +30,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -131,7 +134,7 @@ fun VideoPlayerScreen(
     commentVideModel: CommentViewModel = koinViewModel(),
     seasonVideModel: SeasonViewModel = koinViewModel(),
     videoDetailViewModel: VideoDetailViewModel = koinViewModel(),
-    windowSizeClass: WindowSizeClass
+    windowSizeClass: WindowSizeClass,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -706,7 +709,7 @@ fun VideoPlayerInfo(
     danmakuCount: Int,
     date: String,
     avid: Long,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     val summaryTextStyle = MaterialTheme.typography.bodySmall.copy(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -762,7 +765,7 @@ fun VideoPlayerInfo(
             }
 
             Button(onClick = { /*TODO*/ }) {
-                Text(text = "Follow")
+                Text(text = "关注")
             }
         }
         Text(
@@ -820,7 +823,7 @@ fun VideoComments(
     onRefreshComments: () -> Unit,
     onSwitchCommentSort: (CommentSort) -> Unit,
     onShowPreviewer: (newPictures: List<Picture>, afterSetPictures: () -> Unit) -> Unit,
-    onShowReplies: (rpId: Long, repliesCount: Int) -> Unit
+    onShowReplies: (rpId: Long, repliesCount: Int) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(refreshingComments, { onRefreshComments() })
@@ -862,6 +865,7 @@ fun VideoComments(
                         },
                         style = MaterialTheme.typography.titleMedium
                     )
+
                     TextButton(onClick = {
                         onSwitchCommentSort(
                             when (commentSort) {
@@ -871,13 +875,23 @@ fun VideoComments(
                             }
                         )
                     }) {
-                        Text(
-                            text = when (commentSort) {
-                                CommentSort.Hot -> "按热度"
-                                CommentSort.Time -> "按时间"
-                                else -> ""
-                            }
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                imageVector = Icons.AutoMirrored.Default.Sort,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = when (commentSort) {
+                                    CommentSort.Hot -> "按时间"
+                                    CommentSort.Time -> "按热度"
+                                    else -> ""
+                                }
+                            )
+                        }
                     }
                 }
             }
