@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
@@ -34,6 +35,7 @@ import dev.aaa1115910.bv.tv.screens.main.pgc.TvContent
 import dev.aaa1115910.bv.tv.screens.main.pgc.VarietyContent
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
+import dev.aaa1115910.bv.util.rememberDebouncer
 import dev.aaa1115910.bv.viewmodel.pgc.PgcAnimeViewModel
 import dev.aaa1115910.bv.viewmodel.pgc.PgcDocumentaryViewModel
 import dev.aaa1115910.bv.viewmodel.pgc.PgcGuoChuangViewModel
@@ -65,9 +67,28 @@ fun PgcContent(
     val documentaryState = rememberLazyListState()
     val tvState = rememberLazyListState()
     val varietyState = rememberLazyListState()
-
-    var selectedTab by remember { mutableStateOf(PgcTopNavItem.Anime) }
+    
     var focusOnContent by remember { mutableStateOf(false) }
+    var topNavHasFocus by remember { mutableStateOf(false) }
+
+    // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
+    val tabSelectionDebouncer = rememberDebouncer<PgcTopNavItem>(250L)
+
+    // 使用remember的key参数确保只有在DrawerItem.PGC的tab状态变化时才重新计算
+    val initialSelectedTabIndex = currentSelectedTabs[DrawerItem.PGC]
+    var selectedTab by remember(initialSelectedTabIndex) {
+        mutableStateOf(
+            initialSelectedTabIndex
+                ?.let { PgcTopNavItem.entries.getOrNull(it) }
+                ?: PgcTopNavItem.Anime
+        )
+    }
+
+    // 当选中标签变化时，保存到全局状态
+    LaunchedEffect(selectedTab) {
+        currentSelectedTabs[DrawerItem.PGC] = selectedTab.ordinal
+    }
+
     val currentListOnTop by remember {
         derivedStateOf {
             with(
@@ -90,33 +111,42 @@ fun PgcContent(
 
     }
 
-    BackHandler(focusOnContent) {
+    BackHandler(focusOnContent || topNavHasFocus) {
         logger.fInfo { "onFocusBackToNav" }
-        navFocusRequester.requestFocus(scope)
-        // scroll to top
-        scope.launch(Dispatchers.Main) {
-            when (selectedTab) {
-                PgcTopNavItem.Anime -> animeState.animateScrollToItem(0)
-                PgcTopNavItem.GuoChuang -> guoChuangState.animateScrollToItem(0)
-                PgcTopNavItem.Movie -> movieState.animateScrollToItem(0)
-                PgcTopNavItem.Documentary -> documentaryState.animateScrollToItem(0)
-                PgcTopNavItem.Tv -> tvState.animateScrollToItem(0)
-                PgcTopNavItem.Variety -> varietyState.animateScrollToItem(0)
-            }
+        // 如果顶部导航有焦点，则返回到左边栏的PGC位置
+        if (topNavHasFocus) {
+            drawerItemFocusRequesters[DrawerItem.PGC]?.requestFocus()
+            return@BackHandler
         }
+        navFocusRequester.requestFocus(scope)
+        // // scroll to top
+        // scope.launch(Dispatchers.Main) {
+        //     when (selectedTab) {
+        //         PgcTopNavItem.Anime -> animeState.animateScrollToItem(0)
+        //         PgcTopNavItem.GuoChuang -> guoChuangState.animateScrollToItem(0)
+        //         PgcTopNavItem.Movie -> movieState.animateScrollToItem(0)
+        //         PgcTopNavItem.Documentary -> documentaryState.animateScrollToItem(0)
+        //         PgcTopNavItem.Tv -> tvState.animateScrollToItem(0)
+        //         PgcTopNavItem.Variety -> varietyState.animateScrollToItem(0)
+        //     }
+        // }
     }
 
     Scaffold(
-        modifier = Modifier,
+        modifier = modifier,
         topBar = {
             TopNav(
                 modifier = Modifier
                     .focusRequester(navFocusRequester)
-                    .padding(end = 80.dp),
+                    .padding(end = 80.dp)
+                    .onFocusChanged { topNavHasFocus = it.hasFocus },
                 items = PgcTopNavItem.entries,
                 isLargePadding = !focusOnContent && currentListOnTop,
+                initialSelectedItem = selectedTab,
                 onSelectedChanged = { nav ->
-                    selectedTab = nav as PgcTopNavItem
+                    tabSelectionDebouncer.debounce(scope, nav as PgcTopNavItem) { selectedNavItem ->
+                        selectedTab = selectedNavItem
+                    }
                 },
                 onClick = { nav ->
                     when (nav) {
@@ -127,6 +157,10 @@ fun PgcContent(
                         PgcTopNavItem.Tv -> pgcTvViewModel.reloadAll()
                         PgcTopNavItem.Variety -> pgcVarietyViewModel.reloadAll()
                     }
+                },
+                onLeftKeyEvent = {
+                    // 顶部栏最左侧按左键时，跳转到左侧导航栏
+                    drawerItemFocusRequesters[DrawerItem.PGC]?.requestFocus()
                 }
             )
         }
@@ -134,20 +168,14 @@ fun PgcContent(
         Box(
             modifier = Modifier
                 .padding(innerPadding)
+                .fillMaxSize()
                 .onFocusChanged { focusOnContent = it.hasFocus }
         ) {
             AnimatedContent(
                 targetState = selectedTab,
                 label = "pgc animated content",
                 transitionSpec = {
-                    val coefficient = 10
-                    if (targetState.ordinal < initialState.ordinal) {
-                        fadeIn() + slideInHorizontally { -it / coefficient } togetherWith
-                                fadeOut() + slideOutHorizontally { it / coefficient }
-                    } else {
-                        fadeIn() + slideInHorizontally { it / coefficient } togetherWith
-                                fadeOut() + slideOutHorizontally { -it / coefficient }
-                    }
+                    fadeIn() togetherWith fadeOut()
                 }
             ) { screen ->
                 when (screen) {

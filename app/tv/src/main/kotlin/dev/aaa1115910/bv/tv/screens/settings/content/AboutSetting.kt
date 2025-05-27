@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +49,10 @@ fun AboutSetting(
         launch(Dispatchers.IO) {
             runCatching {
                 latestVersionName = GithubApi.getLatestBuild().name
+                if (latestVersionName.isEmpty()) {
+                    latestVersionName = GithubApi.getLatestBuild().tagName
+                }
+
                 logger.fInfo { "Find latest version $latestVersionName" }
             }.onFailure {
                 logger.fException(it) { "Failed to get latest version" }
@@ -73,6 +78,11 @@ fun AboutSetting(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
+                    text = stringResource(R.string.about_statement),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Red
+                )
+                Text(
                     text = stringResource(
                         R.string.settings_version_current_version,
                         "${BuildConfig.VERSION_NAME}.${BuildConfig.BUILD_TYPE}"
@@ -93,10 +103,10 @@ fun AboutSetting(
                 Text(text = stringResource(R.string.settings_version_check_update_button))
             }
         }
-        Text(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            text = "https://github.com/aaa1115910/bv"
-        )
+        // Text(
+        //     modifier = Modifier.align(Alignment.BottomCenter),
+        //     text = "https://github.com/aaa1115910/bv"
+        // )
     }
 
     UpdateDialog(

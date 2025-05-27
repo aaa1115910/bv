@@ -22,7 +22,7 @@ fun SeekBar(
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
 ) {
-    val trackWidth = 32f
+    val trackWidth = 24f
     Canvas(
         modifier = modifier
             .fillMaxWidth()
@@ -36,7 +36,7 @@ fun SeekBar(
             cap = StrokeCap.Round
         )
         drawLine(
-            color = colors.disabledActiveTrackColor,
+            color = colors.disabledInactiveTrackColor,
             start = Offset(0f, center.y),
             end = Offset(size.width * bufferedPercentage / 100, center.y),
             strokeWidth = trackWidth,

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--视频 Grid 中上下左右间距-->
+    <dimen name="grid_padding">12dp</dimen>
+
+    <!--视频 Grid 内部间距-->
+    <dimen name="grid_spacedBy">18dp</dimen>
+
+</resources>

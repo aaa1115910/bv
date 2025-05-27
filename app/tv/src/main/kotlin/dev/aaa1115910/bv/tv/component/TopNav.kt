@@ -20,8 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -36,21 +34,34 @@ import dev.aaa1115910.biliapi.entity.ugc.UgcTypeV2
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.getDisplayName
 import dev.aaa1115910.bv.util.ifElse
+import dev.aaa1115910.bv.util.isDpadLeft
 import dev.aaa1115910.bv.util.isKeyDown
-import kotlinx.coroutines.delay
 
 @Composable
 fun TopNav(
     modifier: Modifier = Modifier,
     items: List<TopNavItem>,
     isLargePadding: Boolean,
+    initialSelectedItem: TopNavItem? = null,
     onSelectedChanged: (TopNavItem) -> Unit = {},
-    onClick: (TopNavItem) -> Unit = {}
+    onClick: (TopNavItem) -> Unit = {},
+    onLeftKeyEvent: () -> Unit = {}
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    var selectedNav by remember { mutableStateOf(items.first()) }
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedNav by remember(initialSelectedItem) {
+        mutableStateOf(initialSelectedItem ?: items.first())
+    }
+
+    var selectedTabIndex by remember(initialSelectedItem) {
+        mutableIntStateOf(
+            if (initialSelectedItem != null) {
+                val index = items.indexOf(initialSelectedItem)
+                if (index >= 0) index else 0
+            } else 0
+        )
+    }
+
     val verticalPadding by animateDpAsState(
         targetValue = if (isLargePadding) 24.dp else 12.dp,
         label = "top nav vertical padding"
@@ -74,8 +85,12 @@ fun TopNav(
         TabRow(
             modifier = Modifier
                 .focusRestorer(focusRequester)
-                .onPreviewKeyEvent {
-                    if (it.isKeyDown() && it.key == Key.DirectionDown) return@onPreviewKeyEvent !tabMoved
+                .onPreviewKeyEvent { keyEvent ->
+                    // 只有在最左边的选项，按左键时才向外传递事件
+                    if (keyEvent.isDpadLeft() && keyEvent.isKeyDown() && selectedTabIndex == 0) {
+                        onLeftKeyEvent()
+                        return@onPreviewKeyEvent true
+                    }
                     false
                 },
             selectedTabIndex = selectedTabIndex,
@@ -84,7 +99,7 @@ fun TopNav(
             items.forEachIndexed { index, tab ->
                 NavItemTab(
                     modifier = Modifier
-                        .ifElse(index == 0, Modifier.focusRequester(focusRequester)),
+                        .ifElse(index == selectedTabIndex, Modifier.focusRequester(focusRequester)),
                     topNavItem = tab,
                     selected = index == selectedTabIndex,
                     onFocus = {

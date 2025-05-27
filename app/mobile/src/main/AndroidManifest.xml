@@ -1,83 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <application>
-        <activity
-            android:name="dev.aaa1115910.bv.mobile.activities.MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.BV.Mobile.Splash">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.VideoPlayerActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/title_mobile_activity_video_player"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.LoginActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_login"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.UserSpaceActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_user_space"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_settings"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.DynamicDetailActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_dynamic_detail"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.FollowingUserActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_following_user"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.HistoryActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_history"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.FavoriteActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_favorite"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.FollowingSeasonActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_following_season"
-            android:theme="@style/Theme.BV.Mobile" />
-        <activity
-            android:name=".activities.IntentHandlerActivity"
-            android:exported="true"
-            android:label="@string/title_mobile_activity_intent_handler"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.BV.Mobile">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="qrtoken"
-                    android:scheme="bugvideo" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.QrTokenResultActivity"
-            android:exported="false"
-            android:label="@string/title_mobile_activity_qr_token_result"
-            android:theme="@style/Theme.BV.Mobile" />
-    </application>
+<application>
+    <activity
+        android:name="dev.aaa1115910.bv.mobile.activities.MainActivity"
+        android:exported="true"
+        android:theme="@style/Theme.BV.Mobile.Splash">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+        </intent-filter>
+    </activity>
+    <activity
+        android:name=".activities.VideoPlayerActivity"
+        android:configChanges="orientation|screenSize"
+        android:exported="true"
+        android:label="@string/title_mobile_activity_video_player"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.LoginActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_login"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.UserSpaceActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_user_space"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.SettingsActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_settings"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.DynamicDetailActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_dynamic_detail"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.FollowingUserActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_following_user"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.HistoryActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_history"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.FavoriteActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_favorite"
+        android:theme="@style/Theme.BV.Mobile" />
+    <activity
+        android:name=".activities.FollowingSeasonActivity"
+        android:exported="false"
+        android:label="@string/title_mobile_activity_following_season"
+        android:theme="@style/Theme.BV.Mobile" />
+</application>
 </manifest>

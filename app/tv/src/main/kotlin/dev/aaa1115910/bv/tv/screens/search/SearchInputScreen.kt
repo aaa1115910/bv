@@ -1,13 +1,12 @@
 package dev.aaa1115910.bv.tv.screens.search
 
-import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.focusGroup
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import dev.aaa1115910.bv.tv.screens.main.drawerItemFocusRequesters
+import dev.aaa1115910.bv.tv.screens.main.DrawerItem
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,6 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -77,6 +79,8 @@ fun SearchInputScreen(
 
     var enableProxy by remember { mutableStateOf(false) }
 
+    var focusOnContent by remember { mutableStateOf(false) }
+
     val onSearch: (String) -> Unit = { keyword ->
         SearchResultActivity.actionStart(context, keyword, enableProxy)
         searchInputViewModel.keyword = keyword
@@ -87,41 +91,13 @@ fun SearchInputScreen(
         searchInputViewModel.updateSuggests()
     }
 
-    SearchInputScreenContent(
-        modifier = modifier,
-        defaultFocusRequester = defaultFocusRequester,
-        searchKeyword = searchKeyword,
-        onSearchKeywordChange = { searchInputViewModel.keyword = it },
-        onSearch = onSearch,
-        showProxyOptions = Prefs.enableProxy,
-        enableProxy = enableProxy,
-        onEnableProxyChange = { enableProxy = it },
-        hotwords = hotwords,
-        suggests = suggests,
-        histories = searchHistories,
-        onDeleteHistory = { searchInputViewModel.deleteSearchHistory(it) },
-        onDeleteAllHistories = { searchInputViewModel.deleteAllSearchHistories() }
-    )
-}
+    BackHandler(enabled = focusOnContent) {
+        drawerItemFocusRequesters[DrawerItem.Search]?.requestFocus()
+    }
 
-@Composable
-private fun SearchInputScreenContent(
-    modifier: Modifier = Modifier,
-    defaultFocusRequester: FocusRequester,
-    searchKeyword: String,
-    onSearchKeywordChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    showProxyOptions: Boolean,
-    enableProxy: Boolean,
-    onEnableProxyChange: (Boolean) -> Unit,
-    hotwords: List<Hotword>,
-    suggests: List<String>,
-    histories: List<SearchHistoryDB>,
-    onDeleteHistory: (SearchHistoryDB) -> Unit,
-    onDeleteAllHistories: () -> Unit
-) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier
+            .onFocusChanged { focusOnContent = it.hasFocus },
         topBar = {
             Box(
                 modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)

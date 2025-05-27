@@ -4,11 +4,13 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
@@ -26,10 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.Icon
@@ -53,22 +57,37 @@ fun FavoriteButton(
 
     Button(
         modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
+        shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)), // 设置为小圆角4.dp
         onClick = {
             if (showFavoriteDialog) return@Button
             if (isFavorite) {
+                // 有收藏状态，显示收藏夹选择对话框
                 showFavoriteDialog = true
-            } else onAddToDefaultFavoriteFolder()
+            } else {
+                // 无收藏状态
+                if (userFavoriteFolders.size > 1) {
+                    // 有多个收藏夹，显示收藏夹选择对话框
+                    showFavoriteDialog = true
+                } else {
+                    // 否则使用默认收藏夹
+                    onAddToDefaultFavoriteFolder()
+                }
+            }
         }
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp), // 减小间距
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = null
+                contentDescription = null,
+                tint = if (isFavorite) Color(0xfffb7299) else Color.Gray
             )
-            Text(text = stringResource(R.string.favorite_button_text))
+            Text(
+                text = stringResource(R.string.favorite_button_text)
+            )
         }
     }
 

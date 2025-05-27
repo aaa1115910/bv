@@ -130,7 +130,7 @@ fun BvPlayer(
     var bufferedPercentage by remember { mutableStateOf(0) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
     var currentPosition by remember { mutableLongStateOf(0L) }
-    //var currentPlaySpeed by remember { mutableFloatStateOf(Prefs.defaultPlaySpeed) }
+    var currentPlaySpeed by remember { mutableFloatStateOf(1f) }
     var aspectRatioValue by remember { mutableFloatStateOf(16f / 9f) }
     val aspectRatio by animateFloatAsState(
         targetValue = aspectRatioValue,
@@ -251,12 +251,16 @@ fun BvPlayer(
         //if (videoPlayerHistoryData.lastPlayed > 0 && hideBackToHistoryTimer == null) {
         if (lastPlayed > 0 && hideBackToHistoryTimer == null) {
             logger.info { "show showBackToHistory: ${videoPlayerHistoryData.lastPlayed}" }
-            showBackToHistory = true
-            hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
-                showBackToHistory = false
-                hideBackToHistoryTimer = null
-                //playerViewModel.lastPlayed = 0
-                onClearBackToHistoryData()
+            scope.launch(Dispatchers.Main) {
+                showBackToHistory = true
+                hideBackToHistoryTimer = countDownTimer(5000, 1000, "hideBackToHistoryTimer") {
+                    scope.launch(Dispatchers.Main) {
+                        showBackToHistory = false
+                        hideBackToHistoryTimer = null
+                        //playerViewModel.lastPlayed = 0
+                        onClearBackToHistoryData()
+                    }
+                }
             }
         }
     }
@@ -264,51 +268,64 @@ fun BvPlayer(
     val videoPlayerListener = object : VideoPlayerListener {
         override fun onError(error: Exception) {
             logger.info { "onError: $error" }
-            isError = true
-            exception = error.cause as Exception?
+            scope.launch(Dispatchers.Main) {
+                isError = true
+                exception = error.cause as Exception?
+            }
         }
 
         override fun onReady() {
             logger.info { "onReady" }
-            isError = false
-            exception = null
-            initDanmakuConfig()
-            updateVideoAspectRatio()
+            scope.launch(Dispatchers.Main) {
+                isError = false
+                exception = null
+                initDanmakuConfig()
+                updateVideoAspectRatio()
 
-            //reset default play speed
-            logger.info { "Reset default play speed: ${videoPlayerConfigData.currentVideoSpeed}" }
-            videoPlayer.speed = videoPlayerConfigData.currentVideoSpeed
-            mDanmakuPlayer?.updatePlaySpeed(videoPlayerConfigData.currentVideoSpeed)
+                //reset default play speed
+                onPlaySpeedChange(currentPlaySpeed)
+                logger.info { "Reset default play speed: $currentPlaySpeed" }
+                videoPlayer.speed = currentPlaySpeed
+                mDanmakuPlayer?.updatePlaySpeed(currentPlaySpeed)
+            }
         }
 
         override fun onPlay() {
             logger.info { "onPlay" }
             mDanmakuPlayer?.start()
             logger.info { "danmakuplayer null? ${danmakuPlayer == null}" }
-            isPlaying = true
-            isBuffering = false
-            updateBackToHistory()
+            scope.launch(Dispatchers.Main) {
+                isPlaying = true
+                isBuffering = false
+                updateBackToHistory()
+            }
         }
 
         override fun onPause() {
             logger.info { "onPause" }
             mDanmakuPlayer?.pause()
-            isPlaying = false
+            scope.launch(Dispatchers.Main) {
+                isPlaying = false
+            }
         }
 
         override fun onBuffering() {
             logger.info { "onBuffering" }
-            isBuffering = true
+            scope.launch(Dispatchers.Main) {
+                isBuffering = true
+            }
             mDanmakuPlayer?.pause()
         }
 
         override fun onEnd() {
             logger.info { "onEnd" }
             mDanmakuPlayer?.pause()
-            isPlaying = false
-            if (!videoPlayerConfigData.incognitoMode) sendHeartbeat()
+            scope.launch(Dispatchers.Main) {
+                isPlaying = false
+                if (!videoPlayerConfigData.incognitoMode) sendHeartbeat()
 
-            onLoadNextVideo()
+                onLoadNextVideo()
+            }
         }
 
         override fun onIdle() {
@@ -442,7 +459,9 @@ fun BvPlayer(
         hideLogsTimer?.cancel()
         showLogs = true
         hideLogsTimer = countDownTimer(3000, 1000, "hideLogsTimer") {
-            showLogs = false
+            scope.launch(Dispatchers.Main) {
+                showLogs = false
+            }
         }
     }
 
@@ -463,7 +482,9 @@ fun BvPlayer(
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
                 val minute = calendar.get(Calendar.MINUTE)
                 val second = calendar.get(Calendar.SECOND)
-                clock = Triple(hour, minute, second)
+                scope.launch(Dispatchers.Main) {
+                    clock = Triple(hour, minute, second)
+                }
             }
         )
         onDispose {
@@ -577,6 +598,7 @@ fun BvPlayer(
             },
             onPlaySpeedChange = { speed ->
                 logger.info { "Set default play speed: $speed" }
+                currentPlaySpeed = speed
                 onPlaySpeedChange(speed)
                 videoPlayer.speed = speed
                 mDanmakuPlayer?.updatePlaySpeed(speed)

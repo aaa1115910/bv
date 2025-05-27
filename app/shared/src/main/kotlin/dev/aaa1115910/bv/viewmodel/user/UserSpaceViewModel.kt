@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
+import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.entity.user.SpaceVideo
 import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.repositories.UserRepository
@@ -61,7 +63,8 @@ class UserSpaceViewModel(
                         //TODO 这里在改造 app 端接口时，没找到在空间内显示为合集样式封面的UP,没法进一步测试接口
                         cover = spaceVideoItem.cover,
                         upName = spaceVideoItem.author,
-                        time = spaceVideoItem.duration * 1000L
+                        time = spaceVideoItem.duration * 1000L,
+                        pubTime = spaceVideoItem.publishDate.getTime().toSmartDate()
                     )
                 )
             }

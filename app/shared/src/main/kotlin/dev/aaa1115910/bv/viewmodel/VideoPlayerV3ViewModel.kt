@@ -250,17 +250,29 @@ class VideoPlayerV3ViewModel(
             logger.fInfo { "Video available audio: $audioList" }
             availableAudio.swapListWithMainContext(audioList)
 
+            // 确定使用哪个默认分辨率
+            val defaultQualityToUse = if (isVerticalVideo && Prefs.portraitVideoQualityLimitMax1080P && Prefs.defaultQuality >= Resolution.R4K) {
+                // 如果是竖屏视频且用户设置了竖屏视频限制最高使用1080P
+                Resolution.R1080P60
+            } else {
+                // 否则使用普通设置
+                Prefs.defaultQuality
+            }
+
             //先确认最终所选清晰度
             val existDefaultResolution =
-                availableQuality.find { it == Prefs.defaultQuality } != null
+                availableQuality.find { it == defaultQualityToUse } != null
 
             if (!existDefaultResolution) {
                 val tempList = resolutionList.sortedByDescending { it.code }
-                val currentQuality = tempList.firstOrNull { it.code < Prefs.defaultQuality.code }
+                val currentQuality = tempList.firstOrNull { it.code < defaultQualityToUse.code }
                     ?: tempList.last()
                 withContext(Dispatchers.Main) {
                     this@VideoPlayerV3ViewModel.currentQuality = currentQuality
                 }
+            } else {
+                // 如果默认清晰度可用，直接使用
+                withContext(Dispatchers.Main) { currentQuality = defaultQualityToUse }
             }
 
             //确认最终所选音质
@@ -485,6 +497,9 @@ class VideoPlayerV3ViewModel(
 
     private suspend fun addLogs(text: String) {
         logger.fInfo { text }
+        if (!Prefs.playerShowDebugInfo) {
+            return
+        }
         val lines = logs.lines().toMutableList()
         lines.add(text)
         while (lines.size > 8) {

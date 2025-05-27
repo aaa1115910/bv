@@ -1,12 +1,8 @@
 package dev.aaa1115910.bv.tv.component.videocard
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,8 +10,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,7 +34,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -100,8 +100,9 @@ fun SmallVideoCardContent(
         animationSpec = spring(),
         label = "info scale"
     )*/
-    val infoOffsetY by animateDpAsState(
-        targetValue = if (hasFocus) 8.dp else 0.dp,
+    val finalOffsetY = LocalDensity.current.run { 6.dp.toPx() }
+    val infoOffsetY by animateFloatAsState(
+        targetValue = if (hasFocus) finalOffsetY else 0f,
         animationSpec = spring(),
         label = "info offset y"
     )
@@ -132,13 +133,14 @@ fun SmallVideoCardContent(
                 time = data.timeString
             )
         }
-
+        Spacer(modifier = Modifier.height(8.dp))
         CardInfo(
-            modifier = Modifier
-                //.scale(infoScale)
-                .offset(y = infoOffsetY),
+            modifier = Modifier.graphicsLayer {
+                translationY = infoOffsetY
+            },
             title = data.title,
-            upName = data.upName
+            upName = data.upName,
+            pubTime = data.pubTime
         )
     }
 }
@@ -269,11 +271,7 @@ fun CardCover(
                     )
                 )
         )
-        AnimatedVisibility(
-            visible = showInfo,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        if (showInfo) {
             CoverBottomInfo(
                 play = play,
                 danmaku = danmaku,
@@ -284,31 +282,45 @@ fun CardCover(
 }
 
 @Composable
-private fun CardInfo(
+private fun ColumnScope.CardInfo(
     modifier: Modifier = Modifier,
     title: String,
-    upName: String
+    upName: String,
+    pubTime: String?
 ) {
-    Column(
-        modifier = modifier.padding(8.dp)
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
+            modifier = Modifier,
             text = title,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            style = MaterialTheme.typography.titleSmall,
+            maxLines = 2,
+            minLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             UpIcon()
             Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 2.dp),
                 text = upName,
                 style = MaterialTheme.typography.labelMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            pubTime?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Visible
+                )
+            }
         }
     }
 }
@@ -321,17 +333,17 @@ fun SmallVideoCardWithoutFocusPreview() {
         avid = 0,
         title = "震惊！太震惊了！真的是太震惊了！我的天呐！真TMD震惊！",
         cover = "http://i2.hdslb.com/bfs/archive/af17fc07b8f735e822563cc45b7b5607a491dfff.jpg",
-        upName = "bishi",
+        upName = "震惊！太震惊了！真的是太震惊了！我的天呐！真TMD震惊！",
         play = 2333,
         danmaku = 666,
-        time = 2333 * 1000
+        time = 2333 * 1000,
+        pubTime = "3小时前"
     )
     BVTheme {
         Surface(
             modifier = Modifier.width(300.dp)
         ) {
             SmallVideoCardContent(
-                modifier = Modifier.padding(20.dp),
                 data = data,
                 hasFocus = false
             )
@@ -350,7 +362,8 @@ fun SmallVideoCardWithFocusPreview() {
         upName = "bishi",
         play = 2333,
         danmaku = 666,
-        time = 2333 * 1000
+        time = 2333 * 1000,
+        pubTime = "3小时前"
     )
     BVTheme {
         Surface(
@@ -377,7 +390,8 @@ fun SmallVideoCardsPreview() {
         upName = "bishi",
         play = 2333,
         danmaku = 666,
-        time = 2333 * 1000
+        time = 2333 * 1000,
+        pubTime = "3小时前"
     )
     BVTheme {
         LazyVerticalGrid(

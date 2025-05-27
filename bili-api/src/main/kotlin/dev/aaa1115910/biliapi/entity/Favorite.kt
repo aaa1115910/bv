@@ -109,7 +109,7 @@ data class FavoriteItem(
     val duration: Int,
     val upper: Upper,
     val link: String,
-    val pubtime: Long,
+    val favTime: Long,
     val bvid: String
 ) {
     companion object {
@@ -124,7 +124,7 @@ data class FavoriteItem(
                 duration = httpFavoriteItem.duration,
                 upper = Upper.fromHttpUpper(httpFavoriteItem.upper),
                 link = httpFavoriteItem.link,
-                pubtime = httpFavoriteItem.pubtime,
+                favTime = httpFavoriteItem.favTime,
                 bvid = httpFavoriteItem.bvid
             )
         }

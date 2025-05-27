@@ -665,9 +665,11 @@ object BiliHttpApi {
         avid: Long? = null,
         bvid: String? = null,
         like: Boolean = true,
-        csrf: String,
-        sessData: String
+        accessKey: String? = null,
+        csrf: String? = null,
+        sessData: String? = null
     ): Pair<Boolean, String> {
+        checkToken(accessKey, sessData)
         val response = client.post("/x/web-interface/archive/like") {
             require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
             setBody(
@@ -676,10 +678,11 @@ object BiliHttpApi {
                         avid?.let { append("aid", "$it") }
                         bvid?.let { append("bvid", it) }
                         append("like", "${if (like) 1 else 2}")
-                        append("csrf", csrf)
+                        csrf?.let { append("csrf", it) }
+                        accessKey?.let { append("access_key", it) }
                     }
                 ))
-            header("Cookie", "SESSDATA=$sessData;")
+            sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponseWithoutData>()
         return Pair(response.code == 0, response.message)
     }
@@ -690,13 +693,16 @@ object BiliHttpApi {
     suspend fun checkVideoLiked(
         avid: Long? = null,
         bvid: String? = null,
-        sessData: String
+        accessKey: String? = null,
+        sessData: String? = null
     ): Boolean {
+        checkToken(accessKey, sessData)
         val response = client.get("/x/web-interface/archive/has/like") {
             require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
             avid?.let { parameter("aid", it) }
             bvid?.let { parameter("bvid", it) }
-            header("Cookie", "SESSDATA=$sessData;")
+            accessKey?.let { parameter("access_key", it) }
+            sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponse<Int>>()
         return runCatching {
             response.getResponseData() == 1
@@ -716,22 +722,27 @@ object BiliHttpApi {
         bvid: String? = null,
         multiply: Int = 1,
         like: Boolean = false,
-        csrf: String,
-        sessData: String
+        accessKey: String? = null,
+        csrf: String? = null,
+        sessData: String? = null,
+        buvid3: String? = null
     ): Pair<Boolean, String> {
+        checkToken(accessKey, sessData)
         require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
         val response = client.post("/x/web-interface/coin/add") {
-            setBody(
-                FormDataContent(
-                    Parameters.build {
-                        avid?.let { append("aid", "$it") }
-                        bvid?.let { append("bvid", it) }
-                        append("multiply", "$multiply")
-                        append("select_like", "${if (like) 1 else 0}")
-                        append("csrf", csrf)
-                    }
-                ))
-            header("Cookie", "SESSDATA=$sessData;")
+            setBody(FormDataContent(
+                Parameters.build {
+                    avid?.let { append("aid", "$it") }
+                    bvid?.let { append("bvid", it) }
+                    append("multiply", "$multiply")
+                    append("select_like", "${if (like) 1 else 0}")
+                    csrf?.let { append("csrf", it) }
+                    accessKey?.let { append("access_key", it) }
+                }
+            ))
+            if (sessData != null && buvid3 != null) {
+                header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3")
+            }
         }.body<BiliResponse<AddCoin>>()
         return Pair(response.code == 0, response.message)
     }
@@ -742,13 +753,16 @@ object BiliHttpApi {
     suspend fun checkVideoSentCoin(
         avid: Long? = null,
         bvid: String? = null,
-        sessData: String
+        accessKey: String? = null,
+        sessData: String? = null
     ): Boolean {
+        checkToken(accessKey, sessData)
         val response = client.get("/x/web-interface/archive/coins") {
             require(avid != null || bvid != null) { "avid and bvid cannot be null at the same time" }
             avid?.let { parameter("aid", it) }
             bvid?.let { parameter("bvid", it) }
-            header("Cookie", "SESSDATA=$sessData;")
+            accessKey?.let { parameter("access_key", it) }
+            sessData?.let { header("Cookie", "SESSDATA=$it;") }
         }.body<BiliResponse<CheckSentCoin>>()
         return runCatching {
             response.getResponseData().multiply != 0
@@ -834,7 +848,8 @@ object BiliHttpApi {
         // 风控
         parameter("dm_img_list", "[]")
         parameter("dm_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
-        parameter("dm_cover_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
+        parameter("dm_cover_img_str", "QU5HTEUgKEFNRCwgQU1EIFJhZGVvbiA3ODBNIEdyYXBoaWNzICgweDAwMDAxNUJGKSBEaXJlY3QzRDExIHZzXzVfMCBwc181XzAsIEQzRDExKUdvb2dsZSBJbmMuIChBTU")
+        parameter("dm_img_inter", "{\"ds\":[],\"wh\":[4769,2793,43],\"of\":[285,570,285]}")
         header("Cookie", "SESSDATA=$sessData;")
         header("referer", "https://space.bilibili.com")
     }.body()
@@ -1248,6 +1263,7 @@ object BiliHttpApi {
 
     /**
      * 分类搜索与[keyword]相关的[type]类型的相关结果
+     * 必须串行，要等前一个请求完成才能发起下一个请求，否则取不到数据
      */
     suspend fun searchType(
         keyword: String,
@@ -1257,15 +1273,40 @@ object BiliHttpApi {
         order: String? = null,
         duration: Int? = null,
         buvid3: String? = null
-    ): BiliResponse<SearchResultData> = client.get("/x/web-interface/wbi/search/type") {
-        parameter("keyword", keyword)
-        parameter("search_type", type)
-        parameter("page", page)
-        tid?.let { parameter("tids", it) }
-        order?.let { parameter("order", it) }
-        duration?.let { parameter("duration", it) }
-        header("Cookie", "buvid3=$buvid3;")
-    }.body()
+    ): BiliResponse<SearchResultData> {
+        val response = client.get("/x/web-interface/wbi/search/type") {
+            parameter("keyword", keyword)
+            parameter("search_type", type)
+            parameter("page", page)
+            tid?.let { parameter("tids", it) }
+            order?.let { parameter("order", it) }
+            duration?.let { parameter("duration", it) }
+            header("Cookie", "buvid3=$buvid3;")
+            header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36")
+            header("referer", "https://search.bilibili.com/")
+
+            // val chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            // val len = 32
+            // val qvid = buildString {
+            //     repeat(len) {
+            //         val r = Math.random()
+            //         val index = (r * chars.length).toInt()
+            //         append(chars[index])
+            //     }
+            // }
+            // parameter("qv_id", qvid)
+            // parameter("from_spmid", "333.337")
+            // parameter("platform", "pc")
+        }
+
+         return try {
+             response.body()
+         } catch (e: Exception) {
+             val responseText = response.bodyAsText()
+             println("searchType 序列化失败，原始响应内容: $responseText")
+             throw e
+         }
+    }
 
     /** 获取番剧首页数据 */
     suspend fun getPgcWebInitialStateData(pgcType: PgcType): PgcWebInitialStateData {

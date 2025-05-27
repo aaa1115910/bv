@@ -58,7 +58,8 @@ class VideoDetailViewModel(
         runCatching {
             val historyData = videoDetailRepository.getVideoDetail(
                 aid = aid,
-                preferApiType = Prefs.apiType
+                preferApiType = Prefs.apiType,
+                withoutUserActions = true
             ).history
             withContext(Dispatchers.Main) { videoDetail?.history = historyData }
         }.onFailure {
@@ -80,7 +81,8 @@ class VideoDetailViewModel(
                 play = it.view,
                 danmaku = it.danmaku,
                 jumpToSeason = it.jumpToSeason,
-                epId = it.epid
+                epId = it.epid,
+                pubTime = it.pubTime
             )
         } ?: emptyList()
         relatedVideos.swapListWithMainContext(relateVideoCardDataList)

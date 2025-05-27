@@ -49,7 +49,7 @@ data class Release(
         @SerialName("download_count")
         val downloadCount: Int,
         val id: Int,
-        val label: String,
+        val label: String?,
         val name: String,
         @SerialName("node_id")
         val nodeId: String,

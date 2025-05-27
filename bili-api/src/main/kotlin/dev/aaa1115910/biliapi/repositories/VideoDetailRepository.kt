@@ -21,6 +21,7 @@ import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
@@ -28,7 +29,9 @@ import org.koin.core.annotation.Single
 class VideoDetailRepository(
     private val authRepository: AuthRepository,
     private val channelRepository: ChannelRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val likeRepository: LikeRepository,
+    private val coinRepository: CoinRepository
 ) {
     private val viewStub
         get() = runCatching {
@@ -41,12 +44,14 @@ class VideoDetailRepository(
 
     suspend fun getVideoDetail(
         aid: Long,
-        preferApiType: ApiType = ApiType.Web
+        preferApiType: ApiType = ApiType.Web,
+        withoutUserActions: Boolean = false
     ): VideoDetail {
         return when (preferApiType) {
             ApiType.Web -> {
                 withContext(Dispatchers.IO) {
-                    val videoDetailWithoutUserActions = async {
+                    // 串行执行：获取视频详情
+                    val videoDetailWithoutUserActions = run {
                         val httpVideoDetail = BiliHttpApi.getVideoDetail(
                             av = aid,
                             sessData = authRepository.sessionData ?: ""
@@ -54,9 +59,34 @@ class VideoDetailRepository(
                         VideoDetail.fromVideoDetail(httpVideoDetail)
                     }
 
-                    //check liked, favoured, coined status...
-                    val isFavoured = async {
-                        runCatching {
+                    // 声明变量
+                    var isLiked = false
+                    var isFavoured = false
+                    var isCoined = false
+
+                    if (!withoutUserActions) {
+                        // 串行执行：检查点赞状态
+                        isLiked = runCatching {
+                            likeRepository.checkVideoLike(
+                                aid = aid,
+                                preferApiType = ApiType.Web
+                            )
+                        }.onFailure {
+                            println("Check video liked failed: $it")
+                        }.getOrDefault(false)
+
+                        // 串行执行：检查投币状态
+                        isCoined =  runCatching {
+                            coinRepository.checkVideoCoin(
+                                aid = aid,
+                                preferApiType = ApiType.Web
+                            )
+                        }.onFailure {
+                            println("Check video liked failed: $it")
+                        }.getOrDefault(false)
+
+                        // 串行执行：检查收藏状态
+                        isFavoured = runCatching {
                             favoriteRepository.checkVideoFavoured(
                                 aid = aid,
                                 preferApiType = ApiType.Web
@@ -66,29 +96,30 @@ class VideoDetailRepository(
                         }.getOrDefault(false)
                     }
 
-                    val historyAndPlayerIcon = async {
-                        runCatching {
-                            val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
-                                avid = aid,
-                                cid = videoDetailWithoutUserActions.await().cid,
-                                sessData = authRepository.sessionData ?: "",
-                                buvid3 = authRepository.buvid3 ?: ""
-                            ).getResponseData()
-                            val history = VideoDetail.History(
-                                progress = videoModeInfo.lastPlayTime / 1000,
-                                lastPlayedCid = videoModeInfo.lastPlayCid
-                            )
-                            val playerIcon =
-                                VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
-                            history to playerIcon
-                        }.onFailure {
-                            println("Get video history failed: $it")
-                        }.getOrDefault(VideoDetail.History(0, 0) to null)
-                    }
+                    // 串行执行：获取历史和播放器图标
+                    val (history, playerIcon) = runCatching {
+                        val videoModeInfo = BiliHttpApi.getVideoMoreInfo(
+                            avid = aid,
+                            cid = videoDetailWithoutUserActions.cid,
+                            sessData = authRepository.sessionData ?: "",
+                            buvid3 = authRepository.buvid3 ?: ""
+                        ).getResponseData()
+                        val history = VideoDetail.History(
+                            progress = videoModeInfo.lastPlayTime / 1000,
+                            lastPlayedCid = videoModeInfo.lastPlayCid
+                        )
+                        val playerIcon =
+                            VideoDetail.PlayerIcon.fromPlayerIcon(videoModeInfo.playerIcon)
+                        history to playerIcon
+                    }.onFailure {
+                        println("Get video history failed: $it")
+                    }.getOrDefault(VideoDetail.History(0, 0) to null)
 
-                    videoDetailWithoutUserActions.await().apply {
-                        userActions.favorite = isFavoured.await()
-                        val (history, playerIcon) = historyAndPlayerIcon.await()
+                    // 更新并返回结果
+                    videoDetailWithoutUserActions.apply {
+                        userActions.like = isLiked
+                        userActions.coin = isCoined
+                        userActions.favorite = isFavoured
                         this.history = history
                         this.playerIcon = playerIcon
                     }

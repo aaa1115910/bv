@@ -132,6 +132,8 @@ fun VideoPlayerV3Screen(
                         seasonId = nextVideo.seasonId,
                         continuePlayNext = true
                     )
+                } else if (Prefs.playerExitWhenAllIsPlayed) {
+                    (context as Activity).finish()
                 }
             },
             onExit = { (context as Activity).finish() },

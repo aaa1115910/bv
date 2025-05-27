@@ -12,15 +12,19 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
+import dev.aaa1115910.bv.util.rememberDebouncer
+import kotlinx.coroutines.Job
 
 /**
  * 获取到焦点时显示白色边框
@@ -67,4 +71,22 @@ fun Modifier.focusedScale(
 
     onFocusChanged { hasFocus = it.hasFocus }
         .scale(scaleValue)
+}
+
+/**
+ * 延迟处理焦点变化的Modifier扩展函数
+ * 
+ * @param delayTime 延迟时间（毫秒）
+ * @param action 延迟后要执行的操作
+ */
+fun Modifier.onDelayFocusChanged(
+    delayTime: Long = 250,
+    action: (FocusState) -> Unit
+) = composed {
+    val scope = rememberCoroutineScope()
+    val debouncer = rememberDebouncer<FocusState>(delayTime)
+    
+    onFocusChanged { focusState ->
+        debouncer.debounce(scope, focusState, action)
+    }
 }

@@ -8,6 +8,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
@@ -48,11 +49,29 @@ class ExoMediaPlayer(
                 }
             )
         }
+
+        // 创建自定义LoadControl来限制缓冲大小
+        val loadControl = DefaultLoadControl.Builder()
+            // 设置缓冲区大小
+            .setBufferDurationsMs(
+                20000, // 最小缓冲时间 (默认50000ms，这里改小一些)
+                35000, // 最大缓冲时间 (默认50000ms，这里改小一些)
+                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, // 开始播放前的缓冲时间
+                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS // 重新缓冲后的播放缓冲
+            )
+            // 设置是否在缓冲策略中优先考虑时间阈值而不是大小阈值
+            .setPrioritizeTimeOverSizeThresholds(true)
+            // 根据系统可用内存动态计算缓冲区大小
+            .setTargetBufferBytes(calculateOptimalBufferSize())
+            .setBackBuffer(12000, false) // 保证一次回退即可，减少回退缓冲到12秒，节省更多内存给前向缓冲
+            .build()
+
         mPlayer = ExoPlayer
             .Builder(context)
             .setRenderersFactory(renderersFactory)
+            .setLoadControl(loadControl)
             .setSeekForwardIncrementMs(1000 * 10)
-            .setSeekBackIncrementMs(1000 * 5)
+            .setSeekBackIncrementMs(1000 * 10)
             .build()
 
         initListener()
@@ -190,5 +209,32 @@ class ExoMediaPlayer(
 
     override fun onPlayerError(error: PlaybackException) {
         mPlayerEventListener?.onError(error)
+    }
+
+    /**
+     * 根据系统可用内存动态计算最佳缓冲区大小
+     * 使用系统可用内存的10%作为缓冲区大小
+     * 同时设置最小和最大限制，确保在各种设备上都能正常工作
+     */
+    private fun calculateOptimalBufferSize(): Int {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        val memoryInfo = android.app.ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memoryInfo)
+
+        // 获取当前可用内存（以字节为单位）
+        val availableMemory = memoryInfo.availMem
+
+        // 计算可用内存的10%作为缓冲区大小
+        val tenPercentOfAvailableMemory = (availableMemory * 0.15).toLong()
+
+        // 设置最小和最大限制（10MB到200MB）
+        val minBufferSize = 10 * 1024 * 1024
+        val maxBufferSize = 200 * 1024 * 1024
+
+        return when {
+            tenPercentOfAvailableMemory < minBufferSize -> minBufferSize
+            tenPercentOfAvailableMemory > maxBufferSize -> maxBufferSize
+            else -> tenPercentOfAvailableMemory.toInt()
+        }
     }
 }

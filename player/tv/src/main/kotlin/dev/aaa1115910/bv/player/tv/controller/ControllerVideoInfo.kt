@@ -135,9 +135,9 @@ fun ControllerVideoInfoTop(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 100.dp),
+                    .padding(end = 120.dp),
                 text = title,
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.headlineMedium,
                 color = Color.White,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -166,14 +166,13 @@ fun ControllerVideoInfoBottom(
                 MaterialTheme.shapes.large
                     .copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
             )
-            .background(Color.Black.copy(0.5f))
-            .padding(bottom = 12.dp),
+            .background(Color.Black.copy(0.5f)),
         verticalArrangement = Arrangement.Bottom
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp)
+                .padding(top = 12.dp)
                 .focusable(false),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
@@ -186,13 +185,11 @@ fun ControllerVideoInfoBottom(
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontSize = (MaterialTheme.typography.displaySmall.fontSize.value - 10).sp
-                ),
+                style = MaterialTheme.typography.headlineSmall,
             )
             Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 0.dp, end = 40.dp),
-                text = "${seekData.position.formatHourMinSec()} / ${seekData.duration.formatHourMinSec()}",
+                modifier = Modifier.padding(top = 16.dp, bottom = 0.dp, end = 32.dp),
+                text = "${seekData.position.formatMinSec()} / ${seekData.duration.formatMinSec()}",
                 color = Color.White
             )
         }

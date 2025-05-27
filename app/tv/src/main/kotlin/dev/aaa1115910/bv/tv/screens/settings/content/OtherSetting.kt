@@ -22,8 +22,10 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.tv.component.settings.SettingListItem
-import dev.aaa1115910.bv.tv.component.settings.SettingSwitchListItem
+import dev.aaa1115910.bv.component.settings.CookiesDialog
+import dev.aaa1115910.bv.component.settings.SettingListItem
+import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
+import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.tv.activities.settings.LogsActivity
 import dev.aaa1115910.bv.tv.screens.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.util.FirebaseUtil
@@ -38,6 +40,8 @@ fun OtherSetting(
     var showFps by remember { mutableStateOf(Prefs.showFps) }
     var updateAlpha by remember { mutableStateOf(Prefs.updateAlpha) }
     var enableFfmpegAudioRenderer by remember { mutableStateOf(Prefs.enableFfmpegAudioRenderer) }
+    var portraitVideoQualityLimitMax1080P by remember { mutableStateOf(Prefs.portraitVideoQualityLimitMax1080P) }
+    var playerExitWhenAllIsPlayed by remember { mutableStateOf(Prefs.playerExitWhenAllIsPlayed) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -117,6 +121,28 @@ fun OtherSetting(
                     onCheckedChange = {
                         enableFfmpegAudioRenderer = it
                         Prefs.enableFfmpegAudioRenderer = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_other_portrait_video_quality_title),
+                    supportText = stringResource(R.string.settings_other_portrait_video_quality_text),
+                    checked = portraitVideoQualityLimitMax1080P,
+                    onCheckedChange = {
+                        portraitVideoQualityLimitMax1080P = it
+                        Prefs.portraitVideoQualityLimitMax1080P = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_player_exit_when_all_is_played_title),
+                    supportText = stringResource(R.string.settings_player_exit_when_all_is_played_text),
+                    checked = playerExitWhenAllIsPlayed,
+                    onCheckedChange = {
+                        playerExitWhenAllIsPlayed = it
+                        Prefs.playerExitWhenAllIsPlayed = it
                     }
                 )
             }

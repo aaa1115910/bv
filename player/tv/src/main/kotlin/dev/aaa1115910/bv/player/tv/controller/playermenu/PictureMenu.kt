@@ -55,7 +55,7 @@ fun PictureMenuList(
     val videoPlayerConfigData = LocalVideoPlayerConfigData.current
     val parentMenuFocusRequester = remember { FocusRequester() }
     val parentMenuPositionFocusRequester = remember { FocusRequester() }
-    var selectedPictureMenuItem by remember { mutableStateOf(VideoPlayerPictureMenuItem.Resolution) }
+    var selectedPictureMenuItem by remember { mutableStateOf(VideoPlayerPictureMenuItem.PlaySpeed) }
     val resolutionList = remember(videoPlayerConfigData.availableResolutions) {
         videoPlayerConfigData.availableResolutions.sortedByDescending { it.code }
     }

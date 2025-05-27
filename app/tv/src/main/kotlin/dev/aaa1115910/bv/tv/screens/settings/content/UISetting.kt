@@ -44,6 +44,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.RadioButton
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.component.settings.SettingListItem
+import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.entity.ThemeType
 import dev.aaa1115910.bv.tv.component.TvAlertDialog
 import dev.aaa1115910.bv.tv.component.settings.SettingListItem
@@ -63,6 +65,7 @@ fun UISetting(
     var showThemeTypeDialog by remember { mutableStateOf(false) }
     val density by Prefs.densityFlow.collectAsState(context.resources.displayMetrics.widthPixels / 960f)
     val themeType by Prefs.themeTypeFlow.collectAsState(Prefs.themeType)
+    var playerShowDebugInfo by remember { mutableStateOf(Prefs.playerShowDebugInfo) }
 
     Box(modifier = modifier) {
         Column(
@@ -92,6 +95,17 @@ fun UISetting(
                         title = stringResource(R.string.settings_ui_theme_type_title),
                         supportText = stringResource(R.string.settings_ui_theme_type_text),
                         onClick = { showThemeTypeDialog = true }
+                    )
+                }
+                item {
+                    SettingSwitchListItem(
+                        title = stringResource(R.string.settings_player_show_debug_info_title),
+                        supportText = stringResource(R.string.settings_player_show_debug_info_text),
+                        checked = playerShowDebugInfo,
+                        onCheckedChange = {
+                            playerShowDebugInfo = it
+                            Prefs.playerShowDebugInfo = it
+                        }
                     )
                 }
             }

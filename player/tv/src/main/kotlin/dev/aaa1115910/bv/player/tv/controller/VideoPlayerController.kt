@@ -104,10 +104,24 @@ fun VideoPlayerController(
     var moveState by remember { mutableStateOf(SeekMoveState.Idle) }
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    var autoSeekConfirmTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val openSeekController = {
         if (!showSeekController) goTime = videoPlayerSeekData.position
         showSeekController = true
+    }
+
+    val resetAutoSeekConfirmTimer = {
+        autoSeekConfirmTimer?.cancel()
+        if (showSeekController) {
+            autoSeekConfirmTimer = countDownTimer(1000, 1000, "autoSeekConfirmTimer") {
+                if (showSeekController) {
+                    onGoTime(goTime)
+                    moveState = SeekMoveState.Idle
+                    showSeekController = false
+                }
+            }
+        }
     }
 
     val calCoefficient = {
@@ -126,13 +140,15 @@ fun VideoPlayerController(
             if (targetTime > videoPlayerSeekData.duration) videoPlayerSeekData.duration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
         moveState = SeekMoveState.Forward
+        resetAutoSeekConfirmTimer()
         logger.info { "onTimeForward: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
     val onTimeBack = {
-        val targetTime = goTime - (5000 + calCoefficient() * 5000)
+        val targetTime = goTime - (10000 + calCoefficient() * 5000)
         goTime = if (targetTime < 0) 0 else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
         moveState = SeekMoveState.Backward
+        resetAutoSeekConfirmTimer()
         logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
 
@@ -241,6 +257,20 @@ fun VideoPlayerController(
                     Key.Back -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
+
+                        // 有任何控制器显示中，先隐藏控制器
+                        if (showSeekController || showListController || showMenuController || showInfo) {
+                            logger.fInfo { "隐藏控制器" }
+                            showSeekController = false
+                            showListController = false
+                            showMenuController = false
+                            showInfo = false
+                            if (hideVideoInfoTimer != null) {
+                                hideVideoInfoTimer?.cancel()
+                                hideVideoInfoTimer = null
+                            }
+                            return@onPreviewKeyEvent true
+                        }
 
                         if (!videoPlayer.isPlaying) {
                             logger.fInfo { "Exiting video player" }

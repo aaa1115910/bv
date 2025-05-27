@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.biliapi.entity.FavoriteItemType
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
 import dev.aaa1115910.biliapi.repositories.FavoriteRepository
+import dev.aaa1115910.bv.BVApp.Companion.context
+import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.addWithMainContext
@@ -100,7 +103,8 @@ class FavoriteViewModel(
                             title = favoriteItem.title,
                             cover = favoriteItem.cover,
                             upName = favoriteItem.upper.name,
-                            time = favoriteItem.duration * 1000L
+                            time = favoriteItem.duration * 1000L,
+                            pubTime = favoriteItem.favTime.toSmartDate() + context.getString(R.string.favorite_at)
                         )
                     )
                 }

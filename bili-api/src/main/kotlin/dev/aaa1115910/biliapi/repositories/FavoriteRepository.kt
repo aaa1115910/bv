@@ -18,12 +18,12 @@ class FavoriteRepository(
         return when (preferApiType) {
             ApiType.Web -> BiliHttpApi.checkVideoFavoured(
                 avid = aid,
-                sessData = authRepository.sessionData ?: ""
+                sessData = authRepository.sessionData
             )
 
             ApiType.App -> BiliHttpApi.checkVideoFavoured(
                 avid = aid,
-                accessKey = authRepository.accessToken ?: ""
+                accessKey = authRepository.accessToken
             )
         }
     }

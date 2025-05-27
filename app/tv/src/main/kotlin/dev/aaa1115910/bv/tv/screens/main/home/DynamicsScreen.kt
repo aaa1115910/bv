@@ -19,12 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.user.DynamicVideo
 import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
+import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.screens.main.ugc.gridItems
@@ -66,8 +68,10 @@ fun DynamicsScreen(
     }
 
     if (dynamicViewModel.isLogin) {
+        val padding = dimensionResource(R.dimen.grid_padding)
+        val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
         LazyColumn(
-            modifier = modifier,
+            modifier = modifier.fillMaxSize(),
             state = lazyListState
         ) {
             gridItems(
@@ -75,8 +79,8 @@ fun DynamicsScreen(
                 columnCount = 4,
                 modifier = Modifier
                     .width(880.dp)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    .padding(padding),
+                horizontalArrangement = Arrangement.spacedBy(spacedBy),
                 itemContent = { index, item ->
                     SmallVideoCard(
                         data = VideoCardData(
@@ -86,7 +90,8 @@ fun DynamicsScreen(
                             play = item.play,
                             danmaku = item.danmaku,
                             upName = item.author,
-                            time = item.duration * 1000L
+                            time = item.duration * 1000L,
+                            pubTime = item.pubTime
                         ),
                         onClick = { onClickVideo(item) },
                         onFocus = { currentFocusedIndex = index }

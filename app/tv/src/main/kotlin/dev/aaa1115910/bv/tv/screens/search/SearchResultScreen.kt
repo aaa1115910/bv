@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -45,6 +46,7 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.ApiType
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
 import dev.aaa1115910.biliapi.repositories.SearchType
 import dev.aaa1115910.biliapi.repositories.SearchTypeResult
 import dev.aaa1115910.bv.R
@@ -64,6 +66,7 @@ import dev.aaa1115910.bv.util.removeHtmlTags
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.viewmodel.search.SearchResultViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -169,7 +172,7 @@ fun SearchResultScreen(
     }
 
     LaunchedEffect(currentIndex) {
-        if (currentIndex + 24 > searchResult.count) {
+        if (currentIndex + 8 > searchResult.count) {
             searchResultViewModel.loadMore(searchResult.type)
         }
     }
@@ -212,7 +215,9 @@ fun SearchResultScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -229,7 +234,12 @@ fun SearchResultScreen(
                         Tab(
                             modifier = tabModifier,
                             selected = isSelected,
-                            onFocus = { searchResultViewModel.searchType = type },
+                            onFocus = {
+                                scope.launch {
+                                    searchResultViewModel.searchType = type
+                                    searchResultViewModel.init(type)
+                                }
+                            },
                         ) {
                             Text(
                                 text = type.getDisplayName(context),
@@ -309,8 +319,11 @@ private fun SearchResultListItem(
                     avid = searchResult.aid,
                     title = searchResult.title.removeHtmlTags(),
                     cover = searchResult.cover,
+                    play = with(searchResult.play) { if (this == -1) null else this },
+                    danmaku = with(searchResult.danmaku) { if (this == -1) null else this },
                     upName = searchResult.author,
-                    time = searchResult.duration * 1000L
+                    time = searchResult.duration * 1000L,
+                    pubTime = searchResult.pubTime.toLong().toSmartDate()
                 ),
                 onClick = onClick,
                 onLongClick = onLongClick,
