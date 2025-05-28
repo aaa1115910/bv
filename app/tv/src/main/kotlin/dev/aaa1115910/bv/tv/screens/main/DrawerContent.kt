@@ -34,9 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -82,8 +80,6 @@ fun DrawerContent(
     var selectedItem by remember { mutableStateOf(DrawerItem.Home) }
     // 添加一个新的状态用于即时跟踪获得焦点的项目
     var focusedItem by remember { mutableStateOf(DrawerItem.Home) }
-    val centerFocusRequester = remember { FocusRequester() }
-    var centerPartNotFocused by remember { mutableStateOf(false) }
 
     var focusOnContent by remember { mutableStateOf(true) }
 
@@ -113,14 +109,20 @@ fun DrawerContent(
                 }
                 false
             }
-            .onFocusChanged { focusOnContent = !it.hasFocus },
+            .onFocusChanged {
+                if (it.hasFocus) {
+                    drawerItemFocusRequesters[focusedItem]?.requestFocus()
+                }
+            }
+            .onDelayFocusChanged(delayTime = 50) {
+                focusOnContent = !it.hasFocus
+            },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         NavigationRailItem(
             modifier = Modifier
                 .onFocusChanged {
-                    centerPartNotFocused = it.hasFocus
-                    if (it.hasFocus) {
+                    if (it.hasFocus && !focusOnContent) {
                         focusedItem = DrawerItem.User
                     }
                 },
@@ -173,7 +175,6 @@ fun DrawerContent(
             ) }
         )
         LazyColumn(
-            modifier = Modifier.focusRestorer(centerFocusRequester),
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
         ) {
             listOf(
@@ -188,24 +189,22 @@ fun DrawerContent(
                             .focusRequester(drawerItemFocusRequesters[item]!!)
                             // 立即更新focusedItem以反映视觉状态
                             .onFocusChanged {
-                                if (it.hasFocus) {
+                                if (it.hasFocus && !focusOnContent) {
                                     focusedItem = item
                                 }
                             }
                             // 延迟更新selectedItem以延迟右侧内容的切换
                             .onDelayFocusChanged {
-                                if (it.hasFocus) selectedItem = item
-                            }
-                            .ifElse(
-                                item == DrawerItem.Home,
-                                Modifier.focusRequester(centerFocusRequester)
-                            ),
+                                if (it.hasFocus) {
+                                    selectedItem = focusedItem
+                                }
+                            },
                         onClick = {
                             selectedItem = item
                             focusedItem = item
                         },
                         // 使用focusedItem来决定视觉状态
-                        selected = !centerPartNotFocused && focusedItem == item,
+                        selected = focusedItem == item,
                         colors = NavigationRailItemDefaults.colors(
                             indicatorColor = if (focusOnContent) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.inverseSurface
                         ),
@@ -228,10 +227,8 @@ fun DrawerContent(
             }
         }
         NavigationRailItem(
-            modifier = Modifier
-                .onFocusChanged {
-                    centerPartNotFocused = it.hasFocus
-                    if (it.hasFocus) {
+            modifier = Modifier.onFocusChanged {
+                    if (it.hasFocus && !focusOnContent) {
                         focusedItem = DrawerItem.Settings
                     }
                 },

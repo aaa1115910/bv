@@ -27,7 +27,7 @@ class CoinRepository(
         aid: Long,
         preferApiType: ApiType = ApiType.Web
     ) {
-        when (preferApiType) {
+        val (success, message) = when (preferApiType) {
             ApiType.Web -> BiliHttpApi.sendVideoCoin(
                 avid = aid,
                 like = false,
@@ -41,6 +41,9 @@ class CoinRepository(
                 like = false,
                 accessKey = authRepository.accessToken
             )
+        }
+        if (!success) {
+            throw Exception("投币失败: $message")
         }
     }
 }

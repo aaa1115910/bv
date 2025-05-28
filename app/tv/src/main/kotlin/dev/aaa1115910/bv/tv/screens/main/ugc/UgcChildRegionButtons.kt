@@ -33,20 +33,20 @@ fun UgcChildRegionButtons(
     modifier: Modifier = Modifier,
     childUgcTypes: List<UgcTypeV2>
 ) {
-    val context = LocalContext.current
-    val logger = KotlinLogging.logger { }
-
-    val onClickChildRegion: (UgcTypeV2) -> Unit = { ugcType ->
-        logger.fInfo { "onClickChildRegion: $ugcType" }
-        "占位".toast(context)
-    }
-
-    UgcChildRegionButtonsContent(
-        modifier = modifier
-            .padding(vertical = 12.dp),
-        childUgcTypes = childUgcTypes,
-        onClickChildRegion = onClickChildRegion
-    )
+//    val context = LocalContext.current
+//    val logger = KotlinLogging.logger { }
+//
+//    val onClickChildRegion: (UgcTypeV2) -> Unit = { ugcType ->
+//        logger.fInfo { "onClickChildRegion: $ugcType" }
+//        "占位".toast(context)
+//    }
+//
+//    UgcChildRegionButtonsContent(
+//        modifier = modifier
+//            .padding(vertical = 12.dp),
+//        childUgcTypes = childUgcTypes,
+//        onClickChildRegion = onClickChildRegion
+//    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

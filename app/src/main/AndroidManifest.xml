@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- 权限声明 -->
+    <uses-permission android:name="android.permission.READ_LOGS" />
+
     <application tools:targetApi="tiramisu">
         <activity
             android:name="dev.aaa1115910.bv.activities.LauncherActivity"

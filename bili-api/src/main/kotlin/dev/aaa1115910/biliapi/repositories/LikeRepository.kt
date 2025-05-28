@@ -27,7 +27,7 @@ class LikeRepository(
         aid: Long,
         preferApiType: ApiType = ApiType.Web
     ) {
-        when (preferApiType) {
+        val (success, message) = when (preferApiType) {
             ApiType.Web -> BiliHttpApi.sendVideoLike(
                 avid = aid,
                 like = true,
@@ -41,14 +41,16 @@ class LikeRepository(
                 accessKey = authRepository.accessToken
             )
         }
+        if (!success) {
+            throw Exception("点赞失败: $message")
+        }
     }
 
     suspend fun delVideoLike(
         aid: Long,
         preferApiType: ApiType = ApiType.Web
     ) {
-        // 根据preferApiType参数选择不同的API接口，只会执行一个分支，不会发起两次请求
-        when (preferApiType) {
+        val (success, message) = when (preferApiType) {
             ApiType.Web -> BiliHttpApi.sendVideoLike(
                 avid = aid,
                 like = false,
@@ -61,6 +63,9 @@ class LikeRepository(
                 like = false,
                 accessKey = authRepository.accessToken
             )
+        }
+        if (!success) {
+            throw Exception("取消点赞失败: $message")
         }
     }
 }

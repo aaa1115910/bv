@@ -62,7 +62,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -368,8 +367,8 @@ fun VideoInfoScreen(
         liked = videoDetailViewModel.videoDetail?.userActions?.like ?: false
     }
 
-   val addVideoLike: () -> Unit = {  ->
-       scope.launch(Dispatchers.IO) {
+   suspend fun addVideoLike(): Boolean {
+       return withContext(Dispatchers.IO) {
            runCatching {
                require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
                logger.info { "Update video av${videoDetailViewModel.videoDetail?.aid} to liked" }
@@ -381,11 +380,11 @@ fun VideoInfoScreen(
                logger.fInfo { "Update video liked status failed" }
            }.onSuccess {
                logger.fInfo { "Update video liked status success" }
-           }
+           }.isSuccess // 返回成功与否
        }
    }
-   val delVideoLike: () -> Unit = {  ->
-       scope.launch(Dispatchers.IO) {
+   suspend fun delVideoLike(): Boolean {
+       return withContext(Dispatchers.IO) {
            runCatching {
                require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
                logger.info { "Delete video av${videoDetailViewModel.videoDetail?.aid} liked status" }
@@ -397,7 +396,7 @@ fun VideoInfoScreen(
                logger.fInfo { "Delete video liked status failed" }
            }.onSuccess {
                logger.fInfo { "Delete video liked status success" }
-           }
+           }.isSuccess // 返回成功与否
        }
    }
 
@@ -407,8 +406,8 @@ fun VideoInfoScreen(
        isCoin = videoDetailViewModel.videoDetail?.userActions?.coin ?: false
    }
 
-  val addVideoCoin: () -> Unit = {  ->
-      scope.launch(Dispatchers.IO) {
+  suspend fun addVideoCoin(): Boolean {
+      return withContext(Dispatchers.IO) {
           runCatching {
               require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
               logger.info { "Update video av${videoDetailViewModel.videoDetail?.aid} to coin" }
@@ -420,7 +419,7 @@ fun VideoInfoScreen(
               logger.fInfo { "Update video coin status failed" }
           }.onSuccess {
               logger.fInfo { "Update video coin status success" }
-          }
+          }.isSuccess // 返回成功与否
       }
   }
 
@@ -717,25 +716,40 @@ fun VideoInfoScreen(
                             },
                             isLike = liked,
                             onAddLike = {
-                                if (!liked) {
-                                    addVideoLike()
-                                    liked = true
-                                    "点赞成功".toast(context)
+                                scope.launch {
+                                    if (!liked) {
+                                        if (addVideoLike()) {
+                                            liked = true
+                                            "点赞成功".toast(context)
+                                        } else {
+                                            "点赞失败".toast(context)
+                                        }
+                                    }
                                 }
                             },
                             onDelLike = {
-                                if (liked) {
-                                    delVideoLike()
-                                    liked = false
-                                    "已取消点赞".toast(context)
+                                scope.launch {
+                                    if (liked) {
+                                        if (delVideoLike()) {
+                                            liked = false
+                                            "已取消点赞".toast(context)
+                                        } else {
+                                            "取消点赞失败".toast(context)
+                                        }
+                                    }
                                 }
                             },
                             isCoin = isCoin,
                             onAddCoin = {
-                                if (!isCoin) {
-                                    addVideoCoin()
-                                    isCoin = true
-                                    "投币成功".toast(context)
+                                scope.launch {
+                                    if (!isCoin) {
+                                        if (addVideoCoin()) {
+                                            isCoin = true
+                                            "投币成功".toast(context)
+                                        } else {
+                                            "投币失败".toast(context)
+                                        }
+                                    }
                                 }
                             },
                             onShowDescription = {

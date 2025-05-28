@@ -227,9 +227,9 @@ class ExoMediaPlayer(
         // 计算可用内存的10%作为缓冲区大小
         val tenPercentOfAvailableMemory = (availableMemory * 0.15).toLong()
 
-        // 设置最小和最大限制（10MB到200MB）
-        val minBufferSize = 10 * 1024 * 1024
-        val maxBufferSize = 200 * 1024 * 1024
+        // 设置最小和最大限制（5MB到120MB）
+        val minBufferSize = 5 * 1024 * 1024
+        val maxBufferSize = 120 * 1024 * 1024
 
         return when {
             tenPercentOfAvailableMemory < minBufferSize -> minBufferSize
