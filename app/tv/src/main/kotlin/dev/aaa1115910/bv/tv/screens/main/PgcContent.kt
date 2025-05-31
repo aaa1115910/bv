@@ -72,7 +72,7 @@ fun PgcContent(
     var topNavHasFocus by remember { mutableStateOf(false) }
 
     // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
-    val tabSelectionDebouncer = rememberDebouncer<PgcTopNavItem>(250L)
+    val tabSelectionDebouncer = rememberDebouncer<PgcTopNavItem>(280L)
 
     // 使用remember的key参数确保只有在DrawerItem.PGC的tab状态变化时才重新计算
     val initialSelectedTabIndex = currentSelectedTabs[DrawerItem.PGC]

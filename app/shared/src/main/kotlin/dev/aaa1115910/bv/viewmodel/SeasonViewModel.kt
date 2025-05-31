@@ -62,7 +62,9 @@ class SeasonViewModel(
             }
             logger.fInfo { "Get season info success, seasonData: ${seasonData}" }
         }.onFailure {
-            tip = it.localizedMessage ?: "未知错误"
+            withContext(Dispatchers.Main) {
+                tip = it.localizedMessage ?: "未知错误"
+            }
             logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
         }
     }
@@ -89,8 +91,8 @@ class SeasonViewModel(
                 seasonId = seasonData?.seasonId ?: return@runCatching,
                 preferApiType = Prefs.apiType
             )
-            isFollowing = true
             withContext(Dispatchers.Main) {
+                isFollowing = true
                 resultToast.toast(BVApp.context)
             }
         }.onFailure {
@@ -107,8 +109,8 @@ class SeasonViewModel(
                 seasonId = seasonData?.seasonId ?: return@runCatching,
                 preferApiType = Prefs.apiType
             )
-            isFollowing = false
             withContext(Dispatchers.Main) {
+                isFollowing = false
                 resultToast.toast(BVApp.context)
             }
         }.onFailure {

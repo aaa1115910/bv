@@ -63,12 +63,12 @@ fun UgcRegionScaffold(
         derivedStateOf { state.ugcItems.size > 0 && (currentFocusedIndex + 8 > state.ugcItems.size) }
     }
     // 初始化数据
-    LaunchedEffect(Unit) { 
+    LaunchedEffect(Unit) {
         if (!state.dataInitialized || state.ugcItems.isEmpty()) {
-            state.initUgcRegionData() 
+            state.initUgcRegionData()
         }
     }
-    
+
     // 监听滚动位置，加载更多内容
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
@@ -199,11 +199,11 @@ data class UgcScaffoldState(
 ) {
     companion object {
         val logger = KotlinLogging.logger { }
-        
+
         // 保存每个ugcType的数据状态
         private val dataCache = mutableMapOf<UgcTypeV2, List<UgcItem>>()
         private val pageCache = mutableMapOf<UgcTypeV2, UgcFeedPage>()
-        
+
         // 清除缓存，可以在内存不足或需要重新加载所有数据时调用
         fun clearCache() {
             dataCache.clear()
@@ -239,19 +239,19 @@ data class UgcScaffoldState(
             logger.fInfo { "Data already initialized for $ugcType, skip loading" }
             return
         }
-        
+
         updating = true
         logger.fInfo { "load ugc $ugcType region data" }
         runCatching {
-            val data = ugcRepository.getRegionFeedRcmd(ugcType, nextPage)
+            val data = withContext(Dispatchers.IO) { ugcRepository.getRegionFeedRcmd(ugcType, nextPage) }
             ugcItems.clear()
             ugcItems.addAll(data.items)
             nextPage = data.nextPage
-            
+
             updateCache()
             dataInitialized = true
             hasMore = true
-            
+
             // 初始化后加载更多内容
             loadMore()
         }.onFailure {
@@ -264,7 +264,7 @@ data class UgcScaffoldState(
             updating = false
         }
     }
-    
+
     // 将缓存更新逻辑提取为单独的函数
     private fun updateCache() {
         dataCache[ugcType] = ugcItems.toList()
@@ -272,26 +272,30 @@ data class UgcScaffoldState(
     }
     fun reloadAll() {
         logger.fInfo { "reload all $ugcType data" }
-        scope.launch(Dispatchers.IO) {
-            // 清除缓存
-            dataCache.remove(ugcType)
-            pageCache.remove(ugcType)
-            
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                dataCache.remove(ugcType)
+                pageCache.remove(ugcType)
+            }
+
             nextPage = UgcFeedPage()
             hasMore = true
             ugcItems.clear()
             dataInitialized = false
+
+            // 重新初始化数据
             initUgcRegionData()
         }
-    }suspend fun loadMore() {
+    }
+    suspend fun loadMore() {
         if (!hasMore && updating) return
         updating = true
         runCatching {
-            val data = ugcRepository.getRegionFeedRcmd(ugcType, nextPage)
+            val data = withContext(Dispatchers.IO) { ugcRepository.getRegionFeedRcmd(ugcType, nextPage) }
             ugcItems.addAll(data.items)
             nextPage = data.nextPage
             hasMore = data.items.isNotEmpty()
-            
+
             updateCache()
         }.onFailure {
             logger.fInfo { "load more $ugcType data failed: ${it.stackTraceToString()}" }

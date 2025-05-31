@@ -51,7 +51,9 @@ class HistoryViewModel(
     private suspend fun updateHistories(context: Context = BVApp.context) {
         if (updating || noMore) return
         logger.fInfo { "Updating histories with params [cursor=$cursor, apiType=${Prefs.apiType}]" }
-        updating = true
+        withContext(Dispatchers.Main) {
+            updating = true
+        }
         runCatching {
             val data = historyRepository.getHistories(
                 cursor = cursor,
@@ -98,6 +100,8 @@ class HistoryViewModel(
                 else -> {}
             }
         }
-        updating = false
+        withContext(Dispatchers.Main) {
+            updating = false
+        }
     }
 }

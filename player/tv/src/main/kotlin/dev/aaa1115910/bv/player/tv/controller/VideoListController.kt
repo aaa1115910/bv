@@ -38,6 +38,7 @@ import dev.aaa1115910.bv.player.entity.VideoListPgcEpisode
 import dev.aaa1115910.bv.player.entity.VideoListUgcEpisode
 import dev.aaa1115910.bv.player.entity.VideoListUgcEpisodeTitle
 import dev.aaa1115910.bv.util.requestFocus
+import kotlinx.coroutines.delay
 
 @Composable
 fun VideoListController(
@@ -55,26 +56,24 @@ fun VideoListController(
         }
     }
 
-    LaunchedEffect(show) {
-        if (show) {
-            val currentIndex = videoPlayerConfigData.availableVideoList
-                .indexOfFirst {
-                    when (it) {
-                        is VideoListItemData -> it.cid == videoPlayerConfigData.currentVideoCid
-                        else -> false
-                    }
-                }
-            listState.animateScrollToItem(currentIndex)
-            focusRequester.requestFocus(scope)
-        }
-    }
-
     Box {
         AnimatedVisibility(
             visible = show,
             enter = expandHorizontally(),
             exit = shrinkHorizontally()
         ) {
+            // 在动画内容中处理滚动和焦点请求
+            LaunchedEffect(Unit) {
+                val currentIndex = videoPlayerConfigData.availableVideoList
+                    .indexOfFirst {
+                        when (it) {
+                            is VideoListItemData -> it.cid == videoPlayerConfigData.currentVideoCid
+                            else -> false
+                        }
+                    }
+                listState.animateScrollToItem(currentIndex)
+                focusRequester.requestFocus(scope)
+            }
             Surface(
                 modifier = modifier,
                 colors = SurfaceDefaults.colors(

@@ -50,7 +50,9 @@ class ToViewViewModel(
     private suspend fun updateToView(context: Context = BVApp.context) {
         if (updating || noMore) return
         logger.fInfo { "Updating histories with params [cursor=$cursor, apiType=${Prefs.apiType}]" }
-        updating = true
+        withContext(Dispatchers.Main) {
+            updating = true
+        }
         runCatching {
             val data = ToViewRepository.getToView(
                 cursor = cursor,
@@ -96,6 +98,8 @@ class ToViewViewModel(
                 else -> {}
             }
         }
-        updating = false
+        withContext(Dispatchers.Main) {
+            updating = false
+        }
     }
 }

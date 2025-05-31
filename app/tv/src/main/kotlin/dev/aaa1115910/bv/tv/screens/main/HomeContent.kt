@@ -63,7 +63,7 @@ fun HomeContent(
     var topNavHasFocus by remember { mutableStateOf(false) }
 
     // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
-    val tabSelectionDebouncer = rememberDebouncer<HomeTopNavItem>(250L)
+    val tabSelectionDebouncer = rememberDebouncer<HomeTopNavItem>(280L)
 
     // 从全局状态获取上次选择的标签位置，如果没有则默认为Recommend
     // 将这个值提到可组合函数的顶部，避免在重组时重新计算

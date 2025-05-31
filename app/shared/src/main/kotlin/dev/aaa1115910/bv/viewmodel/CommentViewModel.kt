@@ -56,11 +56,17 @@ class CommentViewModel(
 
     suspend fun loadMoreComment() {
         if (updatingComments) return
-        updatingComments = true
+        withContext(Dispatchers.Main) {
+            updatingComments = true
+        }
         if (!hasMoreComments) {
-            updatingComments = false
+            withContext(Dispatchers.Main) {
+                updatingComments = false
+            }
             delay(300)
-            refreshingComments = false
+            withContext(Dispatchers.Main) {
+                refreshingComments = false
+            }
             return
         }
         logger.fInfo { "Load more comments: [commentId=$commentId, commentType=$commentType, page=$nextCommentPage]" }
@@ -81,9 +87,13 @@ class CommentViewModel(
                 "加载评论失败：${it.localizedMessage}".toast(BVApp.context)
             }
         }
-        updatingComments = false
+        withContext(Dispatchers.Main) {
+            updatingComments = false
+        }
         delay(300)
-        refreshingComments = false
+        withContext(Dispatchers.Main) {
+            refreshingComments = false
+        }
     }
 
     suspend fun switchCommentSort(newSort: CommentSort) {
@@ -103,11 +113,17 @@ class CommentViewModel(
 
     suspend fun loadMoreReplies() {
         if (updatingReplies) return
-        updatingReplies = true
+        withContext(Dispatchers.Main) {
+            updatingReplies = true
+        }
         if (!hasMoreReplies) {
-            updatingReplies = false
+            withContext(Dispatchers.Main) {
+                updatingReplies = false
+            }
             delay(300)
-            refreshingReplies = false
+            withContext(Dispatchers.Main) {
+                refreshingReplies = false
+            }
             return
         }
         logger.fInfo { "Load more replies, commentId=$commentId, commentType=$commentType, page=$nextCommentReplyPage" }
@@ -127,9 +143,13 @@ class CommentViewModel(
         }.onFailure {
             logger.fException(it) { "Load more replies failed" }
         }
-        updatingReplies = false
+        withContext(Dispatchers.Main) {
+            updatingReplies = false
+        }
         delay(300)
-        refreshingReplies = false
+        withContext(Dispatchers.Main) {
+            refreshingReplies = false
+        }
     }
 
     suspend fun switchReplySort(newSort: CommentSort) {

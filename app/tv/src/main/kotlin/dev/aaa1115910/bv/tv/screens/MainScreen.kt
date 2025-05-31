@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -185,10 +186,10 @@ fun MainScreen(
                     val coefficient = 20
                     if (targetState.ordinal < initialState.ordinal) {
                         slideInVertically { -it / coefficient } togetherWith
-                                fadeOut() + slideOutVertically { it / coefficient }
+                                fadeOut(animationSpec = tween(200)) + slideOutVertically { it / coefficient }
                     } else {
                         slideInVertically { it / coefficient } togetherWith
-                                fadeOut() + slideOutVertically { -it / coefficient }
+                                fadeOut(animationSpec = tween(200)) + slideOutVertically { -it / coefficient }
                     }
                 }
             ) { screen ->

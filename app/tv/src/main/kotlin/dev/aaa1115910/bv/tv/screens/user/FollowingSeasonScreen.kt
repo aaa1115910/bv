@@ -171,7 +171,7 @@ fun FollowingSeasonScreen(
                     ),
                     onFocus = {
                         currentIndex = index
-                        if (index + 30 > followingSeasons.size) {
+                        if (index + 12 > followingSeasons.size) {
                             println("load more by focus")
                             followingSeasonViewModel.loadMore()
                         }

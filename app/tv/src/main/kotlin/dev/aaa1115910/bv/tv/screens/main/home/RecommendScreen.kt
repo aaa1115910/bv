@@ -42,7 +42,7 @@ fun RecommendScreen(
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { currentFocusedIndex + 24 > recommendViewModel.recommendVideoList.size }
+        derivedStateOf { currentFocusedIndex + 8 > recommendViewModel.recommendVideoList.size }
     }
 
     val onClickVideo: (UgcItem) -> Unit = { ugcItem ->

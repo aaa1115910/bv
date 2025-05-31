@@ -317,6 +317,7 @@ class VideoPlayerV3ViewModel(
             withContext(Dispatchers.Main) {
                 currentVideoCodec = VideoCodec.fromCodecId(videoItem.codecId)
             }
+            logger.fInfo { "App API fixed, Select codec: $currentVideoCodec" }
             return
         }
 

@@ -45,6 +45,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.util.ifElse
+import dev.aaa1115910.bv.util.onDelayFocusChanged
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -139,13 +140,14 @@ fun FavoriteScreen(
                     favoriteViewModel.favoriteFolderMetadataList.forEachIndexed { index, folderMetadata ->
                         Tab(
                             modifier = Modifier
+                                .onDelayFocusChanged {
+                                    if (it.isFocused && favoriteViewModel.currentFavoriteFolderMetadata != folderMetadata) {
+                                        updateCurrentFavoriteFolder(folderMetadata)
+                                    }
+                                }
                                 .ifElse(index == 0, Modifier.focusRequester(focusRequester)),
                             selected = currentTabIndex == index,
-                            onFocus = {
-                                if (favoriteViewModel.currentFavoriteFolderMetadata != folderMetadata) {
-                                    updateCurrentFavoriteFolder(folderMetadata)
-                                }
-                            },
+                            onFocus = {},
                             onClick = { updateCurrentFavoriteFolder(folderMetadata) }
                         ) {
                             Box(
@@ -174,7 +176,7 @@ fun FavoriteScreen(
                         onFocus = {
                             currentIndex = index
                             //预加载
-                            if (index + 20 > favoriteViewModel.favorites.size) {
+                            if (index + 8 > favoriteViewModel.favorites.size) {
                                 favoriteViewModel.updateFolderItems()
                             }
                         }

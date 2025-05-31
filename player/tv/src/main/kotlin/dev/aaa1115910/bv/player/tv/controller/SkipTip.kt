@@ -64,7 +64,8 @@ fun SkipEdTip(
 fun SkipTip(
     modifier: Modifier = Modifier,
     show: Boolean,
-    text: String
+    text: String,
+    align: Alignment = Alignment.BottomStart
 ) {
     AnimatedVisibility(
         visible = show,
@@ -76,14 +77,20 @@ fun SkipTip(
         ) {
             Surface(
                 modifier = modifier
-                    .align(Alignment.BottomStart)
+                    .align(align)
                     .padding(bottom = 32.dp),
                 colors = SurfaceDefaults.colors(
                     containerColor = Color.Black.copy(alpha = 0.6f)
                 ),
-                shape = MaterialTheme.shapes.medium.copy(
-                    topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
-                )
+                shape = if (align == Alignment.BottomStart) {
+                    MaterialTheme.shapes.medium.copy(
+                        topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)
+                    ) 
+                } else {
+                    MaterialTheme.shapes.medium.copy(
+                        topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)
+                    )
+                }
             ) {
                 Text(
                     modifier = Modifier.padding(8.dp),

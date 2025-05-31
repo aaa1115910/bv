@@ -109,7 +109,7 @@ fun HistoryScreen(
                         onFocus = {
                             currentIndex = index
                             //预加载
-                            if (index + 20 > historyViewModel.histories.size) {
+                            if (index + 8 > historyViewModel.histories.size) {
                                 historyViewModel.update()
                             }
                         }

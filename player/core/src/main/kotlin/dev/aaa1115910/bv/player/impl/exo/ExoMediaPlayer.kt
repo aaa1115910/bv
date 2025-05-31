@@ -20,6 +20,16 @@ import dev.aaa1115910.bv.player.OkHttpUtil
 import dev.aaa1115910.bv.player.VideoPlayerOptions
 import dev.aaa1115910.bv.util.formatHourMinSec
 
+/**
+ * 智能缓冲配置
+ */
+private data class BufferConfig(
+    val minBufferMs: Int,
+    val maxBufferMs: Int,
+    val backBufferMs: Int,
+    val targetBufferBytes: Int
+)
+
 @OptIn(UnstableApi::class)
 class ExoMediaPlayer(
     private val context: Context,
@@ -50,20 +60,21 @@ class ExoMediaPlayer(
             )
         }
 
-        // 创建自定义LoadControl来限制缓冲大小
+        // 创建智能缓冲策略，根据设备性能和视频质量动态调整
+        val bufferConfig = calculateSmartBufferConfig()
         val loadControl = DefaultLoadControl.Builder()
-            // 设置缓冲区大小
+            // 动态设置缓冲区大小
             .setBufferDurationsMs(
-                20000, // 最小缓冲时间 (默认50000ms，这里改小一些)
-                35000, // 最大缓冲时间 (默认50000ms，这里改小一些)
+                bufferConfig.minBufferMs, // 最小缓冲时间
+                bufferConfig.maxBufferMs, // 最大缓冲时间
                 DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, // 开始播放前的缓冲时间
                 DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS // 重新缓冲后的播放缓冲
             )
-            // 设置是否在缓冲策略中优先考虑时间阈值而不是大小阈值
-            .setPrioritizeTimeOverSizeThresholds(true)
-            // 根据系统可用内存动态计算缓冲区大小
-            .setTargetBufferBytes(calculateOptimalBufferSize())
-            .setBackBuffer(12000, false) // 保证一次回退即可，减少回退缓冲到12秒，节省更多内存给前向缓冲
+            // 优先考虑缓冲大小
+            .setPrioritizeTimeOverSizeThresholds(false)
+            // 根据系统内存计算缓冲区大小
+            .setTargetBufferBytes(bufferConfig.targetBufferBytes)
+            .setBackBuffer(bufferConfig.backBufferMs, true) // 动态回退缓冲
             .build()
 
         mPlayer = ExoPlayer
@@ -212,29 +223,70 @@ class ExoMediaPlayer(
     }
 
     /**
-     * 根据系统可用内存动态计算最佳缓冲区大小
-     * 使用系统可用内存的10%作为缓冲区大小
-     * 同时设置最小和最大限制，确保在各种设备上都能正常工作
+     * 计算智能缓冲配置
+     * 根据设备性能、可用内存和预期视频质量动态调整缓冲策略
      */
-    private fun calculateOptimalBufferSize(): Int {
+    private fun calculateSmartBufferConfig(): BufferConfig {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
         val memoryInfo = android.app.ActivityManager.MemoryInfo()
         activityManager.getMemoryInfo(memoryInfo)
 
         // 获取当前可用内存（以字节为单位）
         val availableMemory = memoryInfo.availMem
+        val totalMemory = memoryInfo.totalMem
+        val isLowRam = activityManager.isLowRamDevice
 
-        // 计算可用内存的10%作为缓冲区大小
-        val tenPercentOfAvailableMemory = (availableMemory * 0.15).toLong()
+        // 根据设备性能等级调整策略
+        val deviceTier = when {
+            isLowRam || totalMemory < 3L * 1024 * 1024 * 1024 -> DeviceTier.LOW // 低端设备：小于3GB RAM
+            totalMemory < 6L * 1024 * 1024 * 1024 -> DeviceTier.MID // 中端设备：3-6GB RAM
+            else -> DeviceTier.HIGH // 高端设备：6GB+ RAM
+        }
+        return when (deviceTier) {
+            DeviceTier.LOW -> BufferConfig(
+                minBufferMs = 15000,  // 15秒最小缓冲
+                maxBufferMs = 30000,  // 30秒最大缓冲
+                backBufferMs = 11000, // 11秒回退缓冲
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.08, 5, 50) // 8%内存，5-50MB
+            )
+            DeviceTier.MID -> BufferConfig(
+                minBufferMs = 20000,  // 20秒最小缓冲
+                maxBufferMs = 35000,  // 35秒最大缓冲
+                backBufferMs = 11000, // 11秒回退缓冲
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.15, 10, 150) // 15%内存，10-150MB 
+            )
+            DeviceTier.HIGH -> BufferConfig(
+                minBufferMs = 20000,  // 20秒最小缓冲
+                maxBufferMs = 50000,  // 50秒最大缓冲
+                backBufferMs = 20000, // 20秒回退缓冲
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.20, 20, 300) // 20%内存，20-200MB
+            )
+        }
+    }
 
-        // 设置最小和最大限制（5MB到120MB）
-        val minBufferSize = 5 * 1024 * 1024
-        val maxBufferSize = 120 * 1024 * 1024
+    /**
+     * 设备性能等级
+     */
+    private enum class DeviceTier {
+        LOW, MID, HIGH
+    }
+
+    /**
+     * 计算缓冲区大小
+     */
+    private fun calculateBufferSize(
+        availableMemory: Long,
+        memoryRatio: Double,
+        minMB: Int,
+        maxMB: Int
+    ): Int {
+        val calculatedSize = (availableMemory * memoryRatio).toLong()
+        val minSize = minMB * 1024 * 1024L
+        val maxSize = maxMB * 1024 * 1024L
 
         return when {
-            tenPercentOfAvailableMemory < minBufferSize -> minBufferSize
-            tenPercentOfAvailableMemory > maxBufferSize -> maxBufferSize
-            else -> tenPercentOfAvailableMemory.toInt()
-        }
+            calculatedSize < minSize -> minSize.toInt()
+            calculatedSize > maxSize -> maxSize.toInt()
+            else -> calculatedSize.toInt()        }
     }
 }

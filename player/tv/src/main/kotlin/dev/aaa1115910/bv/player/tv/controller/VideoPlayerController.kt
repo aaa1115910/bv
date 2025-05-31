@@ -1,18 +1,19 @@
 package dev.aaa1115910.bv.player.tv.controller
 
-import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,10 +46,13 @@ import dev.aaa1115910.bv.player.entity.VideoListItem
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
 import dev.aaa1115910.bv.player.shared.BuildConfig
 import dev.aaa1115910.bv.player.shared.R
-import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun VideoPlayerController(
@@ -88,6 +92,7 @@ fun VideoPlayerController(
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerDebugInfoData = LocalVideoPlayerDebugInfoData.current
     val logger = KotlinLogging.logger {}
+    val scope = rememberCoroutineScope()
 
     var showListController by remember { mutableStateOf(false) }
     var showMenuController by remember { mutableStateOf(false) }
@@ -103,8 +108,9 @@ fun VideoPlayerController(
     var lastSeekChangeTime by remember { mutableLongStateOf(0L) }
     var moveState by remember { mutableStateOf(SeekMoveState.Idle) }
 
-    var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
-    var autoSeekConfirmTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    // 使用协程Job来替代CountDownTimer以确保线程安全
+    var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var autoSeekConfirmJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     val openSeekController = {
         if (!showSeekController) goTime = videoPlayerSeekData.position
@@ -112,13 +118,16 @@ fun VideoPlayerController(
     }
 
     val resetAutoSeekConfirmTimer = {
-        autoSeekConfirmTimer?.cancel()
+        autoSeekConfirmJob?.cancel()
         if (showSeekController) {
-            autoSeekConfirmTimer = countDownTimer(1000, 1000, "autoSeekConfirmTimer") {
+            autoSeekConfirmJob = scope.launch {
+                delay(1000)
                 if (showSeekController) {
                     onGoTime(goTime)
-                    moveState = SeekMoveState.Idle
-                    showSeekController = false
+                    withContext(Dispatchers.Main) {
+                        moveState = SeekMoveState.Idle
+                        showSeekController = false
+                    }
                 }
             }
         }
@@ -164,9 +173,11 @@ fun VideoPlayerController(
                     if (listOf(Key.Back, Key.Menu).contains(it.key)) {
                         if (it.type == KeyEventType.KeyUp) {
                             logger.fInfo { "[${it.key}] hide all controllers" }
-                            showMenuController = false
-                            showListController = false
-                            showSeekController = false
+                            scope.launch(Dispatchers.Main) {
+                                showMenuController = false
+                                showListController = false
+                                showSeekController = false
+                            }
                         }
                         onRequestFocus()
                         return@onPreviewKeyEvent true
@@ -182,7 +193,11 @@ fun VideoPlayerController(
                             Key.DirectionUp
                         ).contains(it.key)
                     ) {
-                        if (it.type != KeyEventType.KeyDown) showSeekController = false
+                        if (it.type != KeyEventType.KeyDown) {
+                            scope.launch(Dispatchers.Main) {
+                                showSeekController = false
+                            }
+                        }
                         onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
@@ -200,15 +215,18 @@ fun VideoPlayerController(
                         if (showSeekController) {
                             if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                             onGoTime(goTime)
-                            if (!videoPlayer.isPlaying) onPlay()
-                            moveState = SeekMoveState.Idle
-                            showSeekController = false
+                            scope.launch(Dispatchers.Main) {
+                                moveState = SeekMoveState.Idle
+                                showSeekController = false
+                            }
                             return@onPreviewKeyEvent true
                         }
 
                         if (it.nativeKeyEvent.isLongPress) {
                             logger.fInfo { "[${it.key}] long press" }
-                            showMenuController = true
+                            scope.launch(Dispatchers.Main) {
+                                showMenuController = true
+                            }
                             return@onPreviewKeyEvent true
                         }
 
@@ -221,27 +239,37 @@ fun VideoPlayerController(
                     // KEYCODE_CENTER_LONG
                     // 一切设备上长按 DirectionCenter 键会是这个按键事件
                     Key(763) -> {
-                        showMenuController = true
+                        scope.launch(Dispatchers.Main) {
+                            showMenuController = true
+                        }
                         return@onPreviewKeyEvent true
                     }
 
                     Key.DirectionUp -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showListController = true
+                        scope.launch(Dispatchers.Main) {
+                            showListController = true
+                        }
                         return@onPreviewKeyEvent true
                     }
 
                     Key.DirectionDown -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showInfo = !showInfo
-                        if (showInfo) {
-                            hideVideoInfoTimer = countDownTimer(3000, 1000, "hideVideoInfoTimer") {
-                                showInfo = false
+                        scope.launch(Dispatchers.Main) {
+                            showInfo = !showInfo
+                            if (showInfo) {
+                                hideVideoInfoJob?.cancel()
+                                hideVideoInfoJob = scope.launch {
+                                    delay(3000)
+                                    withContext(Dispatchers.Main) {
+                                        showInfo = false
+                                    }
+                                }
+                            } else {
+                                hideVideoInfoJob?.cancel()
                             }
-                        } else {
-                            hideVideoInfoTimer?.cancel()
                         }
                         return@onPreviewKeyEvent true
                     }
@@ -249,7 +277,9 @@ fun VideoPlayerController(
                     Key.Menu -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showMenuController = !showMenuController
+                        scope.launch(Dispatchers.Main) {
+                            showMenuController = !showMenuController
+                        }
                         onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
@@ -261,13 +291,12 @@ fun VideoPlayerController(
                         // 有任何控制器显示中，先隐藏控制器
                         if (showSeekController || showListController || showMenuController || showInfo) {
                             logger.fInfo { "隐藏控制器" }
-                            showSeekController = false
-                            showListController = false
-                            showMenuController = false
-                            showInfo = false
-                            if (hideVideoInfoTimer != null) {
-                                hideVideoInfoTimer?.cancel()
-                                hideVideoInfoTimer = null
+                            scope.launch(Dispatchers.Main) {
+                                showSeekController = false
+                                showListController = false
+                                showMenuController = false
+                                showInfo = false
+                                hideVideoInfoJob?.cancel()
                             }
                             return@onPreviewKeyEvent true
                         }

@@ -102,7 +102,9 @@ class DynamicViewModel(
                 }
             }
         }
-        loadingVideo = false
+        withContext(Dispatchers.Main) {
+            loadingVideo = false
+        }
     }
 
     private suspend fun loadAllData() {
@@ -140,7 +142,9 @@ class DynamicViewModel(
                 }
             }
         }
-        loadingAll = false
+        withContext(Dispatchers.Main) {
+            loadingAll = false
+        }
     }
 
     fun clearVideoData() {

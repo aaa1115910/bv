@@ -80,13 +80,6 @@ fun MenuController(
     val scope = rememberCoroutineScope()
     val defaultFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(show) {
-        if (show) {
-            delay(100)
-            defaultFocusRequester.requestFocus(scope)
-        }
-    }
-
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.CenterEnd
@@ -96,6 +89,10 @@ fun MenuController(
             enter = expandHorizontally(),
             exit = shrinkHorizontally()
         ) {
+            // 在动画内容中处理焦点请求
+            LaunchedEffect(Unit) {
+                defaultFocusRequester.requestFocus(scope)
+            }
             MenuController(
                 defaultFocusRequester = defaultFocusRequester,
                 onResolutionChange = onResolutionChange,

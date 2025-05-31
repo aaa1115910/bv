@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -35,6 +36,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.requestFocus
 
 @Composable
 fun RemoteControlPanelInfo() {
@@ -235,9 +237,11 @@ fun RemoteControlPanelDemo(
 ) {
     val focusRequester = remember { FocusRequester() }
 
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         runCatching {
-            focusRequester.requestFocus()
+            focusRequester.requestFocus(scope)
         }
     }
 

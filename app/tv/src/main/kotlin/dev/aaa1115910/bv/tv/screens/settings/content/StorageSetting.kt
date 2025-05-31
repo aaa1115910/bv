@@ -34,6 +34,7 @@ import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
@@ -57,17 +58,27 @@ fun StorageSetting(
     var size by remember { mutableLongStateOf(0L) }
 
     val calSize = {
-        val imageCacheDir = File(context.cacheDir, "image_cache")
-        val updateCacheDir = File(context.cacheDir, "update_downloader")
-        val crashLogsDir = File(context.filesDir, LogCatcherUtil.LOG_DIR)
-        //val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
-        //val libVLCFileDir = File(context.filesDir, "vlc_libs")
+        scope.launch(Dispatchers.IO) {
+            val imageCacheDir = File(context.cacheDir, "image_cache")
+            val updateCacheDir = File(context.cacheDir, "update_downloader")
+            val crashLogsDir = File(context.filesDir, LogCatcherUtil.LOG_DIR)
+            //val libVLCCacheDir = File(context.cacheDir, "libvlc_downloader")
+            //val libVLCFileDir = File(context.filesDir, "vlc_libs")
 
-        imageCacheSize = getFolderSize(imageCacheDir)
-        updateCacheSize = getFolderSize(updateCacheDir)
-        crashLogsSize = getFolderSize(crashLogsDir)
-        //libVLCCacheSize = getFolderSize(libVLCCacheDir)
-        //libVLCFileSize = getFolderSize(libVLCFileDir)
+            val newImageCacheSize = getFolderSize(imageCacheDir)
+            val newUpdateCacheSize = getFolderSize(updateCacheDir)
+            val newCrashLogsSize = getFolderSize(crashLogsDir)
+            //val newLibVLCCacheSize = getFolderSize(libVLCCacheDir)
+            //val newLibVLCFileSize = getFolderSize(libVLCFileDir)
+
+            withContext(Dispatchers.Main) {
+                imageCacheSize = newImageCacheSize
+                updateCacheSize = newUpdateCacheSize
+                crashLogsSize = newCrashLogsSize
+                //libVLCCacheSize = newLibVLCCacheSize
+                //libVLCFileSize = newLibVLCFileSize
+            }
+        }
     }
 
     val clearImageCaches: () -> Unit = {
@@ -97,11 +108,9 @@ fun StorageSetting(
     //}
 
     LaunchedEffect(Unit) {
-        scope.launch(Dispatchers.IO) {
-            loading = true
-            calSize()
-            loading = false
-        }
+        loading = true
+        calSize()
+        loading = false
     }
 
     Box(modifier = modifier) {

@@ -216,7 +216,9 @@ fun VideoInfoScreen(
             runCatching {
                 videoDetailViewModel.loadDetailOnlyUpdateHistory(videoDetailViewModel.videoDetail!!.aid)
             }
-            setHistory()
+            withContext(Dispatchers.Main) {
+                setHistory()
+            }
         }
     }
 
@@ -303,7 +305,7 @@ fun VideoInfoScreen(
                 }
             }.onSuccess {
                 logger.fInfo { "Update video to favorite folder success" }
-                videoInFavoriteFolderIds.swapList(folderIds)
+                videoInFavoriteFolderIds.swapListWithMainContext(folderIds)
             }
         }
     }
@@ -450,10 +452,12 @@ fun VideoInfoScreen(
 
                 runCatching {
                     videoDetailViewModel.loadDetail(aid, fromSeason)
-                    updateVideoIsFavoured()
-                    updateVideoIsLiked()
-                    updateVideoisCoin()
-                    setHistory()
+                    withContext(Dispatchers.Main) {
+                        updateVideoIsFavoured()
+                        updateVideoIsLiked()
+                        updateVideoisCoin()
+                        setHistory()
+                    }
                     if (Prefs.isLogin) fetchFavoriteData(aid)
 
                     //如果是从剧集跳转过来的，就直接播放 P1
@@ -484,10 +488,14 @@ fun VideoInfoScreen(
 
                     logger.fInfo { "Get video info failed: ${it.stackTraceToString()}" }
                     if (!isVideoNotFound || !Prefs.enableProxy) {
-                        tip = it.localizedMessage ?: "未知错误"
+                        withContext(Dispatchers.Main) {
+                            tip = it.localizedMessage ?: "未知错误"
+                        }
                         return@onFailure
                     }
-                    videoDetailViewModel.state = VideoInfoState.Loading
+                    withContext(Dispatchers.Main) {
+                        videoDetailViewModel.state = VideoInfoState.Loading
+                    }
 
                     logger.fInfo { "Trying get video info through proxy server" }
                     runCatching {
@@ -502,13 +510,17 @@ fun VideoInfoScreen(
                             )
                             context.finish()
                         } ?: let {
-                            tip = "视频不存在"
-                            videoDetailViewModel.state = VideoInfoState.Error
+                            withContext(Dispatchers.Main) {
+                                tip = "视频不存在"
+                                videoDetailViewModel.state = VideoInfoState.Error
+                            }
                         }
                     }.onFailure { e ->
                         logger.fWarn { "Redirect failed: ${e.stackTraceToString()}" }
-                        tip = e.localizedMessage ?: "未知错误"
-                        videoDetailViewModel.state = VideoInfoState.Error
+                        withContext(Dispatchers.Main) {
+                            tip = e.localizedMessage ?: "未知错误"
+                            videoDetailViewModel.state = VideoInfoState.Error
+                        }
                     }
                 }
             }
@@ -1498,7 +1510,7 @@ private fun VideoPartListDialog(
         if (toIndex >= pages.size) {
             toIndex = pages.size
         }
-        selectedVideoPart.swapList(pages.subList(fromIndex, toIndex))
+        selectedVideoPart.swapListWithMainContext(pages.subList(fromIndex, toIndex))
     }
 
     LaunchedEffect(show) {
@@ -1613,7 +1625,7 @@ private fun VideoUgcListDialog(
         if (toIndex >= episodes.size) {
             toIndex = episodes.size
         }
-        selectedVideoPart.swapList(episodes.subList(fromIndex, toIndex))
+        selectedVideoPart.swapListWithMainContext(episodes.subList(fromIndex, toIndex))
     }
 
     LaunchedEffect(show) {

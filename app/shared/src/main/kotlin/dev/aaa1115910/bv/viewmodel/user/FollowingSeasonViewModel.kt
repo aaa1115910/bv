@@ -56,7 +56,9 @@ class FollowingSeasonViewModel(
 
     private suspend fun updateData() {
         if (updating) return
-        updating = true
+        withContext(Dispatchers.Main) {
+            updating = true
+        }
         runCatching {
             logger.fInfo { "Updating following season data" }
             val response = seasonRepository.getFollowingSeasons(
@@ -75,7 +77,9 @@ class FollowingSeasonViewModel(
         }.onFailure {
             logger.fInfo { "Update following seasons failed: ${it.stackTraceToString()}" }
         }
-        updating = false
+        withContext(Dispatchers.Main) {
+            updating = false
+        }
     }
 }
 
