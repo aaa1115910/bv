@@ -172,7 +172,7 @@ fun SearchResultScreen(
     }
 
     LaunchedEffect(currentIndex) {
-        if (currentIndex + 8 > searchResult.count) {
+        if (currentIndex + 12 > searchResult.count) {
             searchResultViewModel.loadMore(searchResult.type)
         }
     }

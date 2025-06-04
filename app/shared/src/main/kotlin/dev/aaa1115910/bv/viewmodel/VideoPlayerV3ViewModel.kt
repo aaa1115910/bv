@@ -39,6 +39,7 @@ import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.fError
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
@@ -65,6 +66,29 @@ class VideoPlayerV3ViewModel(
     var videoPlayer: AbstractVideoPlayer? by mutableStateOf(null)
     var danmakuPlayer: DanmakuPlayer? by mutableStateOf(null)
     var show by mutableStateOf(false)
+    
+    override fun onCleared() {
+        super.onCleared()
+        logger.fInfo { "VideoPlayerV3ViewModel onCleared" }
+        try {
+            videoPlayer?.release()
+            videoPlayer = null
+        } catch (e: Exception) {
+            logger.fError { "Error releasing video player: ${e.message}" }
+        }
+
+        try {
+            danmakuPlayer?.release()
+            danmakuPlayer = null
+            danmakuData.clear()
+            danmakuMasks.clear()
+        } catch (e: Exception) {
+            logger.fError { "Error releasing danmaku player: ${e.message}" }
+        }
+
+        // 清除可能未被GC回收的资源
+        currentSubtitleData.clear()
+    }
 
     var loadState by mutableStateOf(RequestState.Ready)
     var errorMessage by mutableStateOf("")

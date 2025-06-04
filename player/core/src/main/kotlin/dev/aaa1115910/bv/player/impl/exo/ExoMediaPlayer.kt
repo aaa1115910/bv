@@ -142,7 +142,13 @@ class ExoMediaPlayer(
     }
 
     override fun release() {
-        mPlayer?.release()
+        try {
+            mPlayer?.release()
+            mPlayer = null
+            mMediaSource = null
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override val currentPosition: Long
@@ -250,16 +256,16 @@ class ExoMediaPlayer(
                 targetBufferBytes = calculateBufferSize(availableMemory, 0.08, 5, 50) // 8%内存，5-50MB
             )
             DeviceTier.MID -> BufferConfig(
-                minBufferMs = 20000,  // 20秒最小缓冲
+                minBufferMs = 18000,  // 18秒最小缓冲
                 maxBufferMs = 35000,  // 35秒最大缓冲
                 backBufferMs = 11000, // 11秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.15, 10, 150) // 15%内存，10-150MB 
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.12, 5, 150) // 12%内存，5-150MB
             )
             DeviceTier.HIGH -> BufferConfig(
                 minBufferMs = 20000,  // 20秒最小缓冲
                 maxBufferMs = 50000,  // 50秒最大缓冲
                 backBufferMs = 20000, // 20秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.20, 20, 300) // 20%内存，20-200MB
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.16, 5, 300) // 16%内存，5-200MB
             )
         }
     }

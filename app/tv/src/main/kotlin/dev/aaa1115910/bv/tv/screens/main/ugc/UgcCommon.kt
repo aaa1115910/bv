@@ -60,7 +60,7 @@ fun UgcRegionScaffold(
     val context = LocalContext.current
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { state.ugcItems.size > 0 && (currentFocusedIndex + 8 > state.ugcItems.size) }
+        derivedStateOf { state.ugcItems.size > 0 && (currentFocusedIndex + 12 > state.ugcItems.size) }
     }
     // 初始化数据
     LaunchedEffect(Unit) {

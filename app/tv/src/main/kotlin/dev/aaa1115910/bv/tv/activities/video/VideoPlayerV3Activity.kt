@@ -82,6 +82,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if (isFinishing) {
+            playerViewModel.videoPlayer = null
+            playerViewModel.danmakuPlayer = null
+        }
     }
 
     override fun onPause() {

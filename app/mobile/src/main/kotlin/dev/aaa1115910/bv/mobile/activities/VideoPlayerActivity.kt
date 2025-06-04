@@ -149,6 +149,10 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         playerViewModel.videoPlayer?.release()
+        if (isFinishing) {
+            playerViewModel.videoPlayer = null
+            playerViewModel.danmakuPlayer = null
+        }
     }
 
     override fun onPause() {

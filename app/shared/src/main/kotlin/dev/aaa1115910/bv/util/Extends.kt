@@ -26,9 +26,48 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
+/**
+ * 高效更新列表，在主线程上下文执行
+ * 使用差分更新算法，减少内存分配和GC压力
+ * @param newList 新列表内容
+ */
 suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(newList: List<T>) =
-    withContext(Dispatchers.Main) { this@swapListWithMainContext.swapList(newList) }
+    withContext(Dispatchers.Main) {
+        // 使用差分更新算法替代简单的clear+addAll
+        if (this@swapListWithMainContext.isEmpty()) {
+            // 当前列表为空，直接添加所有元素
+            addAll(newList)
+        } else if (newList.isEmpty()) {
+            // 新列表为空，清空当前列表
+            clear()
+        } else {
+            // 复用原有对象，只更新必要的部分
+            val currentSize = size
+            val newSize = newList.size
+            val commonSize = minOf(currentSize, newSize)
 
+            // 1. 更新共同部分，复用已有对象
+            for (i in 0 until commonSize) {
+                this@swapListWithMainContext[i] = newList[i]
+            }
+
+            // 2. 处理大小差异
+            if (newSize > currentSize) {
+                // 添加新元素
+                addAll(newList.subList(currentSize, newSize))
+            } else if (currentSize > newSize) {
+                // 移除多余元素
+                repeat(currentSize - newSize) {
+                    removeAt(newSize)
+                }
+            }
+        }
+    }
+
+/**
+ * 在主线程上下文执行列表更新，并且支持延迟后回调
+ * 使用优化的列表更新算法
+ */
 suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(
     newList: List<T>,
     delay: Long,
@@ -39,14 +78,33 @@ suspend fun <T> SnapshotStateList<T>.swapListWithMainContext(
     afterSwap()
 }
 
+/**
+ * 高效批量添加列表元素，在主线程上下文执行
+ * 使用分批处理减少UI阻塞和GC压力
+ */
 suspend fun <T> SnapshotStateList<T>.addAllWithMainContext(newList: List<T>) =
-    withContext(Dispatchers.Main) { addAll(newList) }
+    withContext(Dispatchers.Main) {
+        if (newList.isEmpty()) return@withContext
 
+        // 如果列表过大，分批添加以减少UI阻塞
+        if (newList.size > 100) {
+            newList.chunked(50).forEach { chunk ->
+                addAll(chunk)
+                delay(10) // 给UI线程呼吸的时间
+            }
+        } else {
+            addAll(newList)
+        }
+    }
+
+/**
+ * 高效批量添加列表元素，接受延迟块参数
+ * 使用已优化的addAllWithMainContext方法实现
+ */
 suspend fun <T> SnapshotStateList<T>.addAllWithMainContext(newListBlock: suspend () -> List<T>) {
     val newList = newListBlock()
-    withContext(Dispatchers.Main) { addAll(newList) }
+    addAllWithMainContext(newList) // 使用优化版本的批量添加
 }
-
 
 suspend fun <T> SnapshotStateList<T>.addWithMainContext(item: T) =
     withContext(Dispatchers.Main) { add(item) }

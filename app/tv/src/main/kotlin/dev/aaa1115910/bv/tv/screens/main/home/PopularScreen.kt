@@ -42,7 +42,7 @@ fun PopularScreen(
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { currentFocusedIndex + 8 > popularViewModel.popularVideoList.size }
+        derivedStateOf { currentFocusedIndex + 12 > popularViewModel.popularVideoList.size }
     }
 
     val onClickVideo: (UgcItem) -> Unit = { ugcItem ->

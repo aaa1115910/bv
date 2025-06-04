@@ -122,7 +122,7 @@ fun UpSpaceScreen(
                         },
                         onFocus = {
                             currentIndex = index
-                            if (index + 8 > userSpaceViewModel.tvSpaceVideos.size) {
+                            if (index + 12 > userSpaceViewModel.tvSpaceVideos.size) {
                                 userSpaceViewModel.update()
                             }
                         }
