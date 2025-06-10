@@ -98,7 +98,8 @@ class VideoDetailViewModel(
                     VideoListPart(
                         aid = aid,
                         cid = videoPage.cid,
-                        title = videoPage.title,
+                        title = videoDetail!!.title,
+                        partTitle = videoPage.title,
                         index = index,
                     )
                 }
@@ -116,7 +117,8 @@ class VideoDetailViewModel(
                         VideoListUgcEpisode(
                             aid = episode.aid,
                             cid = videoPage.cid,
-                            title = videoPage.title,
+                            title = episode.title,
+                            partTitle = "",
                             index = epIndex
                         )
                     )
@@ -133,7 +135,8 @@ class VideoDetailViewModel(
                         VideoListPart(
                             aid = episode.aid,
                             cid = videoPage.cid,
-                            title = videoPage.title,
+                            title = episode.title,
+                            partTitle = videoPage.title,
                             index = pageIndex,
                         )
                     )

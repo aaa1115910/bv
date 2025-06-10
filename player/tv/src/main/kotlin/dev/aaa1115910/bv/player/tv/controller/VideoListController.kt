@@ -108,7 +108,7 @@ fun VideoListController(
                                         modifier = itemModifier,
                                         headlineContent = {
                                             Text(text = (" - ".takeIf { videoListContainsUgcEpisode }
-                                                ?: "") + "P${video.index + 1} ${video.title}")
+                                                ?: "") + "P${video.index + 1} ${if (video.partTitle.isNotEmpty()) video.partTitle else video.title}")
                                         },
                                         onClick = { if (!isSelected) onPlayNewVideo(video) },
                                         selected = isSelected
@@ -127,7 +127,7 @@ fun VideoListController(
                                     }
                                     ListItem(
                                         modifier = itemModifier,
-                                        headlineContent = { Text(text = "EP${video.index + 1} ${video.title}") },
+                                        headlineContent = { Text(text = "EP${video.index + 1} ${if (video.partTitle.isNotEmpty()) video.partTitle else video.title}") },
                                         onClick = { if (!isSelected) onPlayNewVideo(video) },
                                         selected = isSelected
                                     )
@@ -145,7 +145,7 @@ fun VideoListController(
                                     }
                                     ListItem(
                                         modifier = itemModifier,
-                                        headlineContent = { Text(text = video.title) },
+                                        headlineContent = { Text(text = video.partTitle) },
                                         onClick = { if (!isSelected) onPlayNewVideo(video) },
                                         selected = isSelected
                                     )

@@ -172,7 +172,8 @@ fun VideoPlayerV3Screen(
                                 autoActionTipVisible = false
                                 if (autoActionCountdownJob != null) {
                                     autoActionCountdownJob = null
-                                    playerViewModel.partTitle = nextVideo.title
+                                    playerViewModel.title = nextVideo.title
+                                    playerViewModel.partTitle = nextVideo.partTitle
                                     playerViewModel.loadPlayUrl(
                                         avid = nextVideo.aid,
                                         cid = nextVideo.cid,
@@ -216,7 +217,8 @@ fun VideoPlayerV3Screen(
                 onLoadNewVideo = { videoListItem ->
                     when (videoListItem) {
                         is VideoListItemData -> {
-                            playerViewModel.partTitle = videoListItem.title
+                            playerViewModel.title = videoListItem.title
+                            playerViewModel.partTitle = videoListItem.partTitle
                             playerViewModel.loadPlayUrl(
                                 avid = videoListItem.aid,
                                 cid = videoListItem.cid,

@@ -328,6 +328,7 @@ fun VideoInfoScreen(
 
     val updateUgcSeasonSectionVideoList: (Int) -> Unit = { sectionIndex ->
         val partVideoList = mutableListOf<VideoListItem>()
+        val sectionTitle = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[sectionIndex]?.title ?: ""
         videoDetailViewModel.videoDetail!!.ugcSeason!!.sections[sectionIndex].episodes.mapIndexed { epIndex, episode ->
             if (episode.pages.size == 1) {
                 episode.pages.mapIndexed { pageInd, videoPage ->
@@ -335,7 +336,8 @@ fun VideoInfoScreen(
                         VideoListUgcEpisode(
                             aid = episode.aid,
                             cid = videoPage.cid,
-                            title = videoPage.title,
+                            title = if (sectionTitle == "正片") episode.title else sectionTitle,
+                            partTitle = if (sectionTitle == "正片") "" else episode.title,
                             index = epIndex
                         )
                     )
@@ -352,7 +354,8 @@ fun VideoInfoScreen(
                         VideoListPart(
                             aid = episode.aid,
                             cid = videoPage.cid,
-                            title = videoPage.title,
+                            title = episode.title,
+                            partTitle = videoPage.title,
                             index = pageIndex,
                         )
                     )
@@ -636,7 +639,8 @@ fun VideoInfoScreen(
                             favoriteFolderIds = videoInFavoriteFolderIds,
                             onClickCover = {
                                 logger.fInfo { "Click video cover" }
-
+                                var title = ""
+                                var partTitle = ""
                                 //set video list
                                 if (videoDetailViewModel.videoDetail?.ugcSeason != null) {
                                     // 合集
@@ -650,6 +654,9 @@ fun VideoInfoScreen(
                                         val sectionIndex =
                                             videoDetailViewModel.videoDetail!!.ugcSeason!!.sections
                                                 .indexOfFirst { section -> section.episodes.any { it.cid == cid } }
+                                        val section = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections.getOrNull(sectionIndex)
+                                        title = if (section?.title == "正片") section.episodes.find { it.cid == cid }!!.title else section?.title ?: ""
+                                        partTitle = if (section?.title == "正片") "" else section?.episodes?.find { it.cid == cid }!!.title
                                         updateUgcSeasonSectionVideoList(sectionIndex)
                                     }
                                 } else {
@@ -659,7 +666,8 @@ fun VideoInfoScreen(
                                             VideoListPart(
                                                 aid = videoDetailViewModel.videoDetail!!.aid,
                                                 cid = videoPage.cid,
-                                                title = videoPage.title,
+                                                title = videoDetailViewModel.videoDetail!!.title,
+                                                partTitle = if (videoDetailViewModel.videoDetail!!.pages.size == 1) "" else videoPage.title,
                                                 index = index,
                                             )
                                         }
@@ -676,8 +684,8 @@ fun VideoInfoScreen(
                                     context = context,
                                     avid = videoDetailViewModel.videoDetail!!.aid,
                                     cid = playPage.cid,
-                                    title = videoDetailViewModel.videoDetail!!.title,
-                                    partTitle = playPage.title,
+                                    title = if (title.isNotEmpty()) title else videoDetailViewModel.videoDetail!!.title,
+                                    partTitle = if (partTitle.isNotEmpty()) partTitle else if (videoDetailViewModel.videoDetail!!.pages.size == 1) "" else playPage.title,
                                     played = if (playPage.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                     fromSeason = false,
                                     isVerticalVideo = containsVerticalScreenVideo,
@@ -807,12 +815,14 @@ fun VideoInfoScreen(
                                 onClickEp = { aid, cid ->
                                     logger.fInfo { "Click ugc season episode: [av:${videoDetailViewModel.videoDetail?.aid}, bv:${videoDetailViewModel.videoDetail?.bvid}, cid:$cid]" }
                                     updateUgcSeasonSectionVideoList(index)
+                                    val sectionTitle = videoDetailViewModel.videoDetail?.ugcSeason?.sections?.getOrNull(index)?.title
+                                    val episode = section.episodes.find { it.cid == cid }
                                     launchPlayerActivity(
                                         context = context,
                                         avid = aid,
                                         cid = cid,
-                                        title = videoDetailViewModel.videoDetail?.ugcSeason!!.title,
-                                        partTitle = section.episodes.find { it.cid == cid }!!.title,
+                                        title = if (sectionTitle == "正片") episode!!.title else sectionTitle ?: videoDetailViewModel.videoDetail?.ugcSeason?.title ?: "",
+                                        partTitle = if (sectionTitle == "正片") if (episode!!.pages.size>1) episode.pages.first().title else "" else episode!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
                                         isVerticalVideo = containsVerticalScreenVideo,
@@ -824,11 +834,12 @@ fun VideoInfoScreen(
                                 },
                                 onClickEpPart = { episode, cid ->
                                     logger.fInfo { "Click ugc season episode part: [av:${videoDetailViewModel.videoDetail?.aid}, bv:${videoDetailViewModel.videoDetail?.bvid}, cid:$cid]" }
+                                    val sectionTitle = videoDetailViewModel.videoDetail?.ugcSeason?.sections?.getOrNull(index)?.title
                                     launchPlayerActivity(
                                         context = context,
                                         avid = episode.aid,
                                         cid = cid,
-                                        title = videoDetailViewModel.videoDetail!!.title,
+                                        title = if (!sectionTitle.isNullOrEmpty()) episode.title else videoDetailViewModel.videoDetail!!.title,
                                         partTitle = episode.pages.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
@@ -1701,7 +1712,6 @@ private fun VideoUgcListDialog(
                             VideoPartButton(
                                 modifier = buttonModifier,
                                 index = selectedTabIndex * 20 + index + 1,
-                                type = VideoPartType.Episode,
                                 title = episode.title,
                                 played = 0,
                                 duration = episode.duration,

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,15 +85,13 @@ fun ControllerVideoInfo(
         modifier = modifier.fillMaxSize()
     ) {
         AnimatedVisibility(
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier.align(Alignment.TopEnd),
             visible = show,
             enter = expandVertically(),
             exit = shrinkVertically(),
             label = "ControllerTopVideoInfo"
         ) {
             ControllerVideoInfoTop(
-                modifier = Modifier.align(Alignment.TopCenter),
-                title = videoPlayerVideoInfoData.title,
                 clock = Triple(
                     videoPlayerClockData.hour,
                     videoPlayerClockData.minute,
@@ -107,6 +108,7 @@ fun ControllerVideoInfo(
         ) {
             ControllerVideoInfoBottom(
                 seekData = videoPlayerSeekData,
+                title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
                 movingIcon = videoPlayerSeekThumbData.movingIcon
@@ -118,43 +120,21 @@ fun ControllerVideoInfo(
 @Composable
 fun ControllerVideoInfoTop(
     modifier: Modifier = Modifier,
-    title: String,
     clock: Triple<Int, Int, Int>
 ) {
-    Column(
+    Clock(
         modifier = modifier
-            .fillMaxWidth()
-            .clip(
-                MaterialTheme.shapes.large
-                    .copy(topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp))
-            )
-            .background(Color.Black.copy(0.5f))
             .padding(horizontal = 32.dp, vertical = 16.dp),
-    ) {
-        Box {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 120.dp),
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Clock(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                hour = clock.first,
-                minute = clock.second,
-                second = clock.third
-            )
-        }
-    }
+        hour = clock.first,
+        minute = clock.second,
+        second = clock.third
+    )
 }
 
 @Composable
 fun ControllerVideoInfoBottom(
     modifier: Modifier = Modifier,
+    title: String,
     partTitle: String,
     seekData: VideoPlayerSeekData,
     idleIcon: String,
@@ -169,10 +149,24 @@ fun ControllerVideoInfoBottom(
             .background(Color.Black.copy(0.5f)),
         verticalArrangement = Arrangement.Bottom
     ) {
+        Spacer(
+            modifier = Modifier
+                .padding(top = 12.dp)
+        )
+        if (title.isNotEmpty() && partTitle.isNotEmpty()) {
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 28.dp),
+                text = title,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
                 .focusable(false),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
@@ -180,15 +174,15 @@ fun ControllerVideoInfoBottom(
             Text(
                 modifier = Modifier
                     .padding(horizontal = 28.dp)
-                    .fillMaxWidth(0.7f),
-                text = partTitle,
+                    .fillMaxWidth(0.75f),
+                text = partTitle.ifEmpty { title },
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineSmall,
+                style = if (partTitle.isEmpty()) MaterialTheme.typography.titleLarge else MaterialTheme.typography.bodyLarge,
             )
             Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 0.dp, end = 32.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, end = 28.dp),
                 text = "${seekData.position.formatMinSec()} / ${seekData.duration.formatMinSec()}",
                 color = Color.White
             )
@@ -196,7 +190,7 @@ fun ControllerVideoInfoBottom(
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 20.dp),
             duration = seekData.duration,
             position = seekData.position,
             bufferedPercentage = seekData.bufferedPercentage,
@@ -218,6 +212,13 @@ private fun Clock(
         modifier = modifier,
         color = Color.White,
         fontWeight = FontWeight.Bold,
+        letterSpacing = 2.sp,
+        style = androidx.compose.ui.text.TextStyle(
+            shadow = Shadow(
+                color = Color.Black,
+                blurRadius = 4f
+            )
+        ),
         text = buildAnnotatedString {
             withStyle(SpanStyle(fontSize = 32.sp)) {
                 append("$hour".padStart(2, '0'))
@@ -258,7 +259,7 @@ private fun ControllerVideoInfoPreview() {
         ),
         LocalVideoPlayerVideoInfoData provides VideoPlayerVideoInfoData(
             title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
-            partTitle = "2023车队车手介绍分析预测"
+            partTitle = "2023车队车手介绍分析预测 2023车队车手介绍分析预测 2023车队车手介绍分析预测"
         ),
         LocalVideoPlayerClockData provides VideoPlayerClockData(
             hour = 12,
