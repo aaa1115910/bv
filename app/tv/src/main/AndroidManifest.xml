@@ -155,9 +155,6 @@
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.BV.TV.Splash">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
     </application>
 </manifest>

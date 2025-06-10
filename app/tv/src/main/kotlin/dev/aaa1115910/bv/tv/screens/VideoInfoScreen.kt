@@ -67,6 +67,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -145,6 +146,7 @@ import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
+import dev.aaa1115910.bv.util.formatMinSec
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.onBackPressed
@@ -947,6 +949,7 @@ fun VideoInfoData(
     var heightIs by remember { mutableStateOf(0.dp) }
     val isLogin by remember { mutableStateOf(Prefs.isLogin) }
     var coverHasFocus by remember { mutableStateOf(false) }
+    val videoDuration = videoDetail.pages.find{it.cid == videoDetail.cid}?.duration
 
     Row(
         modifier = modifier
@@ -1006,6 +1009,31 @@ fun VideoInfoData(
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
+            if (videoDuration!! > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.8f)
+                                )
+                            )
+                        )
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 12.dp, end = 16.dp),
+                        text = (videoDuration * 1000L).formatMinSec(),
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
         Spacer(modifier = Modifier.width(24.dp))
         Column(

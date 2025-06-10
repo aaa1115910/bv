@@ -141,7 +141,7 @@ fun Date.formatPubTimeString(context: Context = BVApp.context): String {
 
 fun Long.formatHourMinSec(): String {
     return if (this < 0L) {
-        "..."
+        ""
     } else {
         val hours = TimeUnit.MILLISECONDS.toHours(this)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(this) - TimeUnit.HOURS.toMinutes(hours)

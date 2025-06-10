@@ -32,7 +32,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -153,15 +152,15 @@ fun ControllerVideoInfoBottom(
             modifier = Modifier
                 .padding(top = 12.dp)
         )
-        if (title.isNotEmpty() && partTitle.isNotEmpty()) {
+        if (title.isNotEmpty() && partTitle.isNotEmpty() && title != partTitle) {
             Text(
                 modifier = Modifier
-                    .padding(horizontal = 28.dp),
+                    .padding(horizontal = 32.dp),
                 text = title,
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
             )
         }
         Row(
@@ -173,16 +172,16 @@ fun ControllerVideoInfoBottom(
         ) {
             Text(
                 modifier = Modifier
-                    .padding(horizontal = 28.dp)
+                    .padding(horizontal = 32.dp)
                     .fillMaxWidth(0.75f),
-                text = partTitle.ifEmpty { title },
+                text = if (partTitle.isEmpty() || title == partTitle) title else partTitle,
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = if (partTitle.isEmpty()) MaterialTheme.typography.titleLarge else MaterialTheme.typography.bodyLarge,
+                style = if (partTitle.isEmpty() || title == partTitle) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
             )
             Text(
-                modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, end = 28.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, end = 32.dp),
                 text = "${seekData.position.formatMinSec()} / ${seekData.duration.formatMinSec()}",
                 color = Color.White
             )
@@ -190,7 +189,7 @@ fun ControllerVideoInfoBottom(
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 24.dp),
             duration = seekData.duration,
             position = seekData.position,
             bufferedPercentage = seekData.bufferedPercentage,
