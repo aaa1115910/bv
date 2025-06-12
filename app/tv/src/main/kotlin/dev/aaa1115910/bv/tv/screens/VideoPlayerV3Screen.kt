@@ -165,7 +165,7 @@ fun VideoPlayerV3Screen(
                                     // 更新 SkipTip 文本和显示状态
                                     autoActionTipText = "播放结束，${countdown} 秒后播放下一集"
                                     autoActionTipVisible = true
-                                    delay(900) // 等待1秒
+                                    delay(880) // 等待1秒
                                 }
 
                                 // 如果没有被取消，切换到下一个视频
@@ -196,7 +196,7 @@ fun VideoPlayerV3Screen(
                                     // 更新 SkipTip 文本和显示状态
                                     autoActionTipText = "播放结束，${countdown} 秒后退出"
                                     autoActionTipVisible = true
-                                    delay(900) // 等待1秒
+                                    delay(880) // 等待1秒
                                 }
 
                                 // 如果没有被取消，退出播放

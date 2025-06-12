@@ -949,7 +949,7 @@ fun VideoInfoData(
     var heightIs by remember { mutableStateOf(0.dp) }
     val isLogin by remember { mutableStateOf(Prefs.isLogin) }
     var coverHasFocus by remember { mutableStateOf(false) }
-    val videoDuration = videoDetail.pages.find{it.cid == videoDetail.cid}?.duration
+    val videoDuration = videoDetail.pages.sumOf { it.duration }.takeIf { videoDetail.pages.isNotEmpty() } ?: 0
 
     Row(
         modifier = modifier
@@ -1009,7 +1009,7 @@ fun VideoInfoData(
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
-            if (videoDuration!! > 0) {
+            if (videoDuration > 0) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
