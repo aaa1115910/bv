@@ -250,22 +250,22 @@ class ExoMediaPlayer(
         }
         return when (deviceTier) {
             DeviceTier.LOW -> BufferConfig(
-                minBufferMs = 15000,  // 15秒最小缓冲
+                minBufferMs = 12000,  // 12秒最小缓冲
                 maxBufferMs = 22000,  // 22秒最大缓冲
-                backBufferMs = 11000, // 11秒回退缓冲
+                backBufferMs = 0, // 0秒回退缓冲
                 targetBufferBytes = calculateBufferSize(availableMemory, 0.08, 5, 50) // 8%内存，5-50MB
             )
             DeviceTier.MID -> BufferConfig(
-                minBufferMs = 18000,  // 18秒最小缓冲
-                maxBufferMs = 30000,  // 30秒最大缓冲
-                backBufferMs = 11000, // 11秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.12, 5, 150) // 12%内存，5-150MB
+                minBufferMs = 16000,  // 16秒最小缓冲
+                maxBufferMs = 25000,  // 25秒最大缓冲
+                backBufferMs = 12000, // 12秒回退缓冲
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.13, 5, 150) // 12%内存，5-150MB
             )
             DeviceTier.HIGH -> BufferConfig(
                 minBufferMs = 20000,  // 20秒最小缓冲
-                maxBufferMs = 35000,  // 35秒最大缓冲
-                backBufferMs = 20000, // 20秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.16, 5, 300) // 16%内存，5-200MB
+                maxBufferMs = 32000,  // 32秒最大缓冲
+                backBufferMs = 12000, // 12秒回退缓冲
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.18, 5, 300) // 16%内存，5-200MB
             )
         }
     }
