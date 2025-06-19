@@ -184,6 +184,7 @@ fun VideoPlayerController(
                         if (showSeekController) {
                             if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                             onGoTime(goTime)
+                            if (!videoPlayer.isPlaying) onPlay()
                             moveState = SeekMoveState.Idle
                             showSeekController = false
                             return@onPreviewKeyEvent true
