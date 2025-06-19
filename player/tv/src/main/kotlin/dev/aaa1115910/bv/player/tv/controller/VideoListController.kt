@@ -71,7 +71,9 @@ fun VideoListController(
                             else -> false
                         }
                     }
-                listState.animateScrollToItem(currentIndex)
+                if (currentIndex >= 0 && currentIndex < videoPlayerConfigData.availableVideoList.size) {
+                    listState.scrollToItem(currentIndex)
+                }
                 focusRequester.requestFocus(scope)
             }
             Surface(

@@ -149,23 +149,24 @@ fun VideoPlayerV3Screen(
                                 else -> false
                             }
                         }
-                    if (currentIndex + 1 < playerViewModel.availableVideoList.size) {
-                        val nextVideos = playerViewModel.availableVideoList.subList(
-                            currentIndex + 1,
-                            playerViewModel.availableVideoList.size
-                        )
-                        val nextVideo =
-                            nextVideos.firstOrNull { it is VideoListItemData }!! as VideoListItemData
+                    val nextVideo = if (currentIndex >= 0 && currentIndex + 1 < playerViewModel.availableVideoList.size) {
+                        playerViewModel.availableVideoList
+                            .drop(currentIndex + 1)
+                            .firstOrNull { it is VideoListItemData } as? VideoListItemData
+                    } else {
+                        null
+                    }
+                    
+                    if (nextVideo != null) {
                         logger.info { "Play next video: $nextVideo" }
-
                         // 启动倒计时 toast 提示
                         autoActionCountdownJob = scope.launch {
                             try {
                                 for (countdown in 3 downTo 1) {
                                     // 更新 SkipTip 文本和显示状态
-                                    autoActionTipText = "播放结束，${countdown} 秒后播放下一集"
+                                    autoActionTipText = "播放结束，即将播放下一集 ${countdown} "
                                     autoActionTipVisible = true
-                                    delay(880) // 等待1秒
+                                    delay(860)
                                 }
 
                                 // 如果没有被取消，切换到下一个视频
@@ -194,9 +195,9 @@ fun VideoPlayerV3Screen(
                             try {
                                 for (countdown in 3 downTo 1) {
                                     // 更新 SkipTip 文本和显示状态
-                                    autoActionTipText = "播放结束，${countdown} 秒后退出"
+                                    autoActionTipText = "播放结束，即将退出 ${countdown} "
                                     autoActionTipVisible = true
-                                    delay(880) // 等待1秒
+                                    delay(860)
                                 }
 
                                 // 如果没有被取消，退出播放

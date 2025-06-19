@@ -26,6 +26,9 @@ data class DanmakuData(
     companion object {
         fun fromString(p: String, text: String): DanmakuData {
             val data = p.split(",")
+            if (data.size < 9) {
+                throw IllegalArgumentException("Invalid danmaku data format: insufficient parameters")
+            }
             return DanmakuData(
                 time = data[0].toFloat(),
                 type = data[1].toInt(),

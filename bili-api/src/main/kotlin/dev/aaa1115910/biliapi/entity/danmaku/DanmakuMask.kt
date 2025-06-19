@@ -95,7 +95,11 @@ data class DanmakuMask(
                             val time = stream.readLong()
                             val svg = stream.readByteString(svgLength).string(Charsets.UTF_8)
 
-                            val decodedSvg = svg.split(",")[1]
+                            val svgParts = svg.split(",")
+                            if (svgParts.size < 2) {
+                                throw IllegalArgumentException("Invalid SVG format")
+                            }
+                            val decodedSvg = svgParts[1]
                                 .replace("\n", "")
                                 .decodeBase64String()
                             frameList.add(

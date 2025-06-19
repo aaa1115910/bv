@@ -64,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
@@ -1015,6 +1016,15 @@ fun VideoInfoData(
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .height(48.dp)
+                        .padding(bottom = 2.dp, start = 2.dp, end = 2.dp)
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
@@ -1027,7 +1037,7 @@ fun VideoInfoData(
                     Text(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(bottom = 12.dp, end = 16.dp),
+                            .padding(bottom = 10.dp, end = 16.dp),
                         text = (videoDuration * 1000L).formatMinSec(),
                         color = Color.White,
                         style = MaterialTheme.typography.bodySmall

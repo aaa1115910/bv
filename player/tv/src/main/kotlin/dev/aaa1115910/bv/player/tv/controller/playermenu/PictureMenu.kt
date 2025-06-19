@@ -114,7 +114,7 @@ fun PictureMenuList(
                     modifier = menuItemsModifier,
                     value = videoPlayerConfigData.currentVideoSpeed,
                     step = 0.25f,
-                    range = 0.25f..2f,
+                    range = 0.25f..2.5f,
                     text = "${(videoPlayerConfigData.currentVideoSpeed * 100).roundToInt() / 100f}x",
                     onValueChange = onPlaySpeedChange,
                     onFocusBackToParent = { onFocusStateChange(MenuFocusState.Menu) }

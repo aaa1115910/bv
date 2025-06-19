@@ -47,7 +47,7 @@ class LoginRepository {
                         ?: throw IllegalArgumentException("Cookie bili_jct not found"),
                     sessData = cookies.find { it.name == "SESSDATA" }?.value
                         ?: throw IllegalArgumentException("Cookie SESSDATA not found"),
-                    expiredDate = cookies.first().expires?.toJvmDate()
+                    expiredDate = cookies.firstOrNull()?.expires?.toJvmDate()
                         ?: throw IllegalArgumentException("Cookie expires date not found")
                 )
                 QrLoginState.Success
@@ -107,7 +107,8 @@ class LoginRepository {
                         ?: throw IllegalArgumentException("Cookie bili_jct not found"),
                     sessData = response.getResponseData().cookieInfo.cookies.find { it.name == "SESSDATA" }?.value
                         ?: throw IllegalArgumentException("Cookie SESSDATA not found"),
-                    expiredDate = Date(response.getResponseData().cookieInfo.cookies.first().expires * 1000L)
+                    expiredDate = Date(response.getResponseData().cookieInfo.cookies.firstOrNull()?.expires?.times(1000L)
+                        ?: throw IllegalArgumentException("Cookie expires date not found"))
                 )
                 QrLoginState.Success
             }
