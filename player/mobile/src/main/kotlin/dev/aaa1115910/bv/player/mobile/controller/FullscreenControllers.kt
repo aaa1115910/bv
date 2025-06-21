@@ -41,7 +41,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.player.mobile.noRippleClickable
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 @Composable
 fun FullscreenControllers(
@@ -169,7 +169,7 @@ private fun BottomControllers(
                             bottom.linkTo(parent.bottom)
                         }
                         .width(80.dp),
-                    text = currentTime.formatMinSec(),
+                    text = currentTime.formatHourMinSec(),
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
@@ -196,7 +196,7 @@ private fun BottomControllers(
                             bottom.linkTo(parent.bottom)
                         }
                         .width(80.dp),
-                    text = totalTime.formatMinSec(),
+                    text = totalTime.formatHourMinSec(),
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )

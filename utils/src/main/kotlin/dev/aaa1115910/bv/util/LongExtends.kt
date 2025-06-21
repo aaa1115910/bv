@@ -2,7 +2,7 @@ package dev.aaa1115910.bv.util
 
 import java.util.concurrent.TimeUnit
 
-fun Long.formatMinSec(): String {
+fun Long.formatHourMinSec(): String {
     return if (this < 0L) {
         "00:00"
     } else {
@@ -11,7 +11,7 @@ fun Long.formatMinSec(): String {
         val seconds = TimeUnit.MILLISECONDS.toSeconds(this) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(this))
         
         if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            String.format("%d:%02d:%02d", hours, minutes, seconds)
         } else {
             String.format("%02d:%02d", minutes, seconds)
         }

@@ -1,6 +1,6 @@
 package dev.aaa1115910.bv.entity.carddata
 
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 data class VideoCardData(
     val avid: Long,
@@ -25,7 +25,7 @@ data class VideoCardData(
             danmakuString = if (it >= 10000) "${it / 10000}万" else "$it"
         }
         time?.let {
-            timeString = if (it > 0) it.formatMinSec() else ""
+            timeString = if (it > 0) it.formatHourMinSec() else ""
         }
     }
 }

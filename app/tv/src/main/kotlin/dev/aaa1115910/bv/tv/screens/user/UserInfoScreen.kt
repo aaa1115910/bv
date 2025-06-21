@@ -88,7 +88,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -145,8 +145,8 @@ fun UserInfoScreen(
                             timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
                             else context.getString(
                                 R.string.play_time_history,
-                                (historyItem.progress * 1000L).formatMinSec(),
-                                (historyItem.duration * 1000L).formatMinSec()
+                                (historyItem.progress * 1000L).formatHourMinSec(),
+                                (historyItem.duration * 1000L).formatHourMinSec()
                             )
                         )
                     )

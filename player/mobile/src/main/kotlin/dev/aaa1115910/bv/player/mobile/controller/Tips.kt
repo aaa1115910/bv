@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -61,11 +61,11 @@ fun SeekMoveTip(
                     modifier = Modifier.padding(12.dp),
                     text = "${
                         if (startTime + move > totalTime) {
-                            totalTime.formatMinSec()
+                            totalTime.formatHourMinSec()
                         } else {
-                            (startTime + move).formatMinSec()
+                            (startTime + move).formatHourMinSec()
                         }
-                    }/${totalTime.formatMinSec()}",
+                    }/${totalTime.formatHourMinSec()}",
                     color = Color.White
                 )
             }

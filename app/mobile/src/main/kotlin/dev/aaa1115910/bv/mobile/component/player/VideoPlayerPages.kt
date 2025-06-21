@@ -83,7 +83,7 @@ import dev.aaa1115910.biliapi.entity.video.season.Section
 import dev.aaa1115910.biliapi.entity.video.season.UgcSeason
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -595,7 +595,7 @@ private fun PageListItem(
         },
         trailingContent = (@Composable {
             Text(
-                text = (1000 * (duration?.toLong() ?: 0)).formatMinSec(),
+                text = (1000 * (duration?.toLong() ?: 0)).formatHourMinSec(),
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )

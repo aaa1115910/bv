@@ -17,7 +17,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.OkHttpUtil
 import dev.aaa1115910.bv.player.VideoPlayerOptions
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 @OptIn(UnstableApi::class)
 class ExoMediaPlayer(
@@ -163,7 +163,7 @@ class ExoMediaPlayer(
         get() {
             return """
                 player: ${androidx.media3.common.MediaLibraryInfo.VERSION_SLASHY}
-                time: ${currentPosition.formatMinSec()} / ${duration.formatMinSec()}
+                time: ${currentPosition.formatHourMinSec()} / ${duration.formatHourMinSec()}
                 buffered: $bufferedPercentage%
                 resolution: ${mPlayer?.videoSize?.width} x ${mPlayer?.videoSize?.height}
                 audio: ${mPlayer?.audioFormat?.bitrate ?: 0} kbps

@@ -30,7 +30,7 @@ import dev.aaa1115910.biliapi.entity.user.Author
 import dev.aaa1115910.biliapi.entity.video.RelatedVideo
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 @Composable
 fun RelatedVideoItem(
@@ -70,7 +70,7 @@ fun RelatedVideoItem(
                     Text(
                         modifier = Modifier
                             .padding(horizontal = 4.dp),
-                        text = (relatedVideo.duration * 1000L).formatMinSec(),
+                        text = (relatedVideo.duration * 1000L).formatHourMinSec(),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )

@@ -29,7 +29,7 @@ import coil.compose.AsyncImage
 import dev.aaa1115910.biliapi.entity.user.SpaceVideo
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.mobile.theme.BVMobileTheme
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.formatPubTimeString
 import java.util.Date
 
@@ -73,7 +73,7 @@ fun UpSpaceVideoItem(
                     Text(
                         modifier = Modifier
                             .padding(horizontal = 4.dp),
-                        text = (spaceVideo.duration * 1000L).formatMinSec(),
+                        text = (spaceVideo.duration * 1000L).formatHourMinSec(),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White
                     )

@@ -19,7 +19,7 @@ import androidx.tv.material3.darkColorScheme
 import dev.aaa1115910.bv.player.seekbar.SeekBar
 import dev.aaa1115910.bv.player.seekbar.SeekBarThumb
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import kotlin.math.max
 
 @Composable
@@ -96,7 +96,7 @@ private fun VideoSeekBar(
             )
             if (showPosition) {
                 Text(
-                    text = position.formatMinSec(),
+                    text = position.formatHourMinSec(),
                     modifier = Modifier.constrainAs(positionText) {
                         start.linkTo(thumbIcon.start)
                         end.linkTo(thumbIcon.end)

@@ -64,7 +64,7 @@ import dev.aaa1115910.bv.player.tv.controller.VideoPlayerController
 import dev.aaa1115910.bv.player.util.danmakuMask
 import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.timeTask
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -522,7 +522,7 @@ fun BvPlayer(
             },
             onBackToHistory = {
                 val time = videoPlayerHistoryData.lastPlayed.toLong()
-                logger.fInfo { "Back to history: ${time.formatMinSec()}" }
+                logger.fInfo { "Back to history: ${time.formatHourMinSec()}" }
                 videoPlayer.seekTo(time)
                 mDanmakuPlayer?.seekTo(time)
                 // akdanmaku 会在跳转后立即播放，如果需要缓冲则会导致弹幕不同步

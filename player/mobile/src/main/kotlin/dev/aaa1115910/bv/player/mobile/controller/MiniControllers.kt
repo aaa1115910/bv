@@ -26,7 +26,7 @@ import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 @Composable
 fun MiniControllers(
@@ -139,7 +139,7 @@ private fun BottomControllers(
                     bottom.linkTo(parent.bottom)
                     end.linkTo(fullscreenButton.start)
                 },
-                text = "${videoPlayerSeekData.position.formatMinSec()}/${videoPlayerSeekData.duration.formatMinSec()}",
+                text = "${videoPlayerSeekData.position.formatHourMinSec()}/${videoPlayerSeekData.duration.formatHourMinSec()}",
                 color = Color.White
             )
 

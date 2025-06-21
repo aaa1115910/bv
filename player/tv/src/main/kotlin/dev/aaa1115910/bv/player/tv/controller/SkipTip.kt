@@ -18,7 +18,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerHistoryData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 
 // TODO 跳转历史记录
 @Composable
@@ -110,7 +110,7 @@ fun SkipTips(
                 .align(Alignment.BottomStart)
                 .padding(bottom = 32.dp),
             show = videoPlayerStateData.showBackToHistory,
-            time = videoPlayerHistoryData.lastPlayed.toLong().formatMinSec()
+            time = videoPlayerHistoryData.lastPlayed.toLong().formatHourMinSec()
         )
     }
 }

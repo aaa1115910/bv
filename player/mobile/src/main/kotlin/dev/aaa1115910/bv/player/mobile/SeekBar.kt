@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import dev.aaa1115910.bv.player.seekbar.SeekBar
 import dev.aaa1115910.bv.player.seekbar.SeekBarThumb
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import kotlinx.coroutines.delay
 import kotlin.math.max
 
@@ -179,7 +179,7 @@ private fun DraggableSeekPreview() {
                     }
                 )
             }
-            Text("${position.formatMinSec()}/${duration.formatMinSec()}")
+            Text("${position.formatHourMinSec()}/${duration.formatHourMinSec()}")
         }
     }
 }
