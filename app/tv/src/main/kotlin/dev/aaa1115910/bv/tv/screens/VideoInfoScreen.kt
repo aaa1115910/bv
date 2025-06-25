@@ -192,7 +192,7 @@ fun VideoInfoScreen(
     var lastPlayedCid by remember { mutableLongStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
 
-    var tip by remember { mutableStateOf("Loading") }
+    var tip by remember { mutableStateOf("加载中...") }
     var fromSeason by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
     var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }

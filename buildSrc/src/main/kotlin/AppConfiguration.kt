@@ -2,6 +2,7 @@ import java.io.File
 
 object AppConfiguration {
     const val appId = "dev.aaa1115910.bv"
+    const val applicationId = "dev.aaa1115910.bv2"
     const val compileSdk = 36
     const val minSdk = 23
     const val targetSdk = 36
@@ -31,7 +32,7 @@ object AppConfiguration {
         val googleServicesJsonFile = File(googleServicesJsonPath)
         googleServicesAvailable =
             googleServicesJsonFile.exists() && googleServicesJsonFile.readText().let {
-                it.contains(appId) && it.contains("$appId.debug")
+                it.contains(applicationId) && it.contains("$applicationId.r8test") && it.contains("$applicationId.debug")
             }
         println("Google Services available: $googleServicesAvailable")
     }

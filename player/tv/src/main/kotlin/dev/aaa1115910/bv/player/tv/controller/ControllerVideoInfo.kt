@@ -173,7 +173,7 @@ fun ControllerVideoInfoBottom(
             Text(
                 modifier = Modifier
                     .padding(horizontal = 32.dp)
-                    .fillMaxWidth(0.75f),
+                    .fillMaxWidth(0.8f),
                 text = if (partTitle.isEmpty() || title == partTitle) title else partTitle,
                 color = Color.White,
                 maxLines = 1,

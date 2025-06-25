@@ -66,11 +66,9 @@ fun HomeContent(
     val tabSelectionDebouncer = rememberDebouncer<HomeTopNavItem>(280L)
 
     // 从全局状态获取上次选择的标签位置，如果没有则默认为Recommend
-    // 将这个值提到可组合函数的顶部，避免在重组时重新计算
-    val initialSelectedTabIndex = currentSelectedTabs[DrawerItem.Home]
-    var selectedTab by remember(initialSelectedTabIndex) {
+    var selectedTab by remember {
         mutableStateOf(
-            initialSelectedTabIndex
+            currentSelectedTabs[DrawerItem.Home]
                 ?.let { HomeTopNavItem.entries.getOrNull(it) }
                 ?: HomeTopNavItem.Recommend
         )

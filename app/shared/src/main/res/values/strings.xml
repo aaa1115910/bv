@@ -696,8 +696,8 @@
 
     <string name="settings_other_portrait_video_quality_text">设置竖屏视频播放时的最大清晰度为1080P</string>
     <string name="settings_other_portrait_video_quality_title">竖屏视频最大清晰度为1080P</string>
-    <string name="settings_player_show_debug_info_text">在视频播放页面左下角显示视频调试信息</string>
-    <string name="settings_player_show_debug_info_title">播放器显示视频调试信息</string>
+    <string name="settings_player_show_debug_info_text">在视频播放页面左下角显示视频信息</string>
+    <string name="settings_player_show_debug_info_title">播放器显示视频信息</string>
     <string name="settings_player_exit_when_all_is_played_text">都播完后退出播放器回视频详情页</string>
     <string name="settings_player_exit_when_all_is_played_title">都播完后退出播放器</string>
     <string name="about_statement">此项目是个人为了学习安卓开发而fork, 仅用于学习和测试，禁止在中国境内传播、宣传、分发，如有相关使用需求请使用 [哔哩哔哩官方APP](https://app.bilibili.com)，否则后果自负</string>
