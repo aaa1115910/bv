@@ -323,6 +323,14 @@ object Prefs {
     var playerExitWhenAllIsPlayed: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPlayerExitWhenAllIsPlayedRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerExitWhenAllIsPlayedKey, value) }
+        
+    var playerAutoPlayNextVideo: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPlayerAutoPlayNextVideoRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerAutoPlayNextVideoKey, value) }
+    
+    var showUGCVideoInfo: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowUGCVideoInfoRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowUGCVideoInfoKey, value) }
 }
 
 object PrefKeys {
@@ -371,6 +379,8 @@ object PrefKeys {
     val prefportraitVideoQualityLimitMax1080PKey = booleanPreferencesKey("portrait_video_default_use_1080p_quality")
     val prefPlayerShowDebugInfoKey = booleanPreferencesKey("player_show_debug_info")
     val prefPlayerExitWhenAllIsPlayedKey = booleanPreferencesKey("player_exit_when_all_is_played")
+    val prefPlayerAutoPlayNextVideoKey = booleanPreferencesKey("player_auto_play_next_video")
+    val prefShowUGCVideoInfoKey = booleanPreferencesKey("pref_show_ugc_video_info")
 
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
@@ -432,4 +442,6 @@ object PrefKeys {
     val prefportraitVideoQualityLimitMax1080PRequest = PreferenceRequest(prefportraitVideoQualityLimitMax1080PKey, false)
     val prefPlayerShowDebugInfoRequest = PreferenceRequest(prefPlayerShowDebugInfoKey, false)
     val prefPlayerExitWhenAllIsPlayedRequest = PreferenceRequest(prefPlayerExitWhenAllIsPlayedKey, true)
+    val prefPlayerAutoPlayNextVideoRequest = PreferenceRequest(prefPlayerAutoPlayNextVideoKey, true)
+    val prefShowUGCVideoInfoRequest = PreferenceRequest(prefShowUGCVideoInfoKey, true)
 }

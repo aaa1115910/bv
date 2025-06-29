@@ -44,11 +44,17 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ## 修改
 在原bv的基础上做了一些修改，包括：
 - 增加点赞、投币功能
-- 通过 精简动画、增加数据缓存、减少非必要的请求，减少页面重组
+- 支持不显示UGC视频详情页，直接播放
+- 精简动画、增加数据缓存、减少非必要的请求、减少页面重组
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
 
   [修改内容](./CHANGELOG.md)
+
+![image](https://github.com/user-attachments/assets/05fc0887-e74d-423f-9f61-1744dd8ef132)
+![image](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
+![image](https://github.com/user-attachments/assets/914a14f6-be9c-4fcc-a8e9-7867bfecb690)
+
 
 ## 构建
 自己动手丰衣足食

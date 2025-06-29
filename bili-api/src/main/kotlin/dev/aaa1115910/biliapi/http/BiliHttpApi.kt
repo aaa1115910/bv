@@ -2,7 +2,6 @@ package dev.aaa1115910.biliapi.http
 
 import com.tfowl.ktor.client.plugins.JsoupPlugin
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
-import dev.aaa1115910.biliapi.http.BiliHttpApi.getRegionDynamic
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
 import dev.aaa1115910.biliapi.http.entity.BiliResponseWithoutData
 import dev.aaa1115910.biliapi.http.entity.danmaku.DanmakuData
@@ -99,6 +98,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.jsoup.nodes.Document
+import java.util.concurrent.ConcurrentHashMap
 import javax.xml.parsers.DocumentBuilderFactory
 
 @Suppress("SpellCheckingInspection")
@@ -115,6 +115,14 @@ object BiliHttpApi {
     var wbiImgKey: String? = null
     var wbiSubKey: String? = null
     private var wbiLastRefreshDate = 0L
+
+    // 缓存相关变量
+    private data class CacheEntry<T>(
+        val data: T,
+        var expireTime: Long
+    )
+    
+    private val videoMoreInfoCache = ConcurrentHashMap<String, CacheEntry<BiliResponse<VideoMoreInfo>>>()
 
     init {
         createClient()
@@ -648,11 +656,37 @@ object BiliHttpApi {
         cid: Long,
         sessData: String,
         buvid3: String
-    ): BiliResponse<VideoMoreInfo> = client.get("/x/player/wbi/v2") {
-        parameter("aid", avid)
-        parameter("cid", cid)
-        header("Cookie", "buvid3=$buvid3; SESSDATA=$sessData;")
-    }.body()
+    ): BiliResponse<VideoMoreInfo> {
+        val cacheKey = "$avid-$cid-$sessData"
+        val currentTime = System.currentTimeMillis()
+        
+        // 清理所有过期的缓存数据
+        val iterator = videoMoreInfoCache.entries.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (currentTime > entry.value.expireTime) {
+                iterator.remove()
+            }
+        }
+        
+        videoMoreInfoCache[cacheKey]?.let { cacheEntry ->
+            // 缓存存在且有效，重置TTL并返回缓存结果
+            cacheEntry.expireTime = currentTime + 1000L
+            return cacheEntry.data
+        }
+        
+        // 发起请求
+        val response: BiliResponse<VideoMoreInfo> = client.get("/x/player/v2") {
+            parameter("aid", avid)
+            parameter("cid", cid)
+            header("Cookie", "buvid3=$buvid3; SESSDATA=$sessData;")
+        }.body()
+        
+        // 缓存结果
+        videoMoreInfoCache[cacheKey] = CacheEntry(response, currentTime + 1000L)
+        
+        return response
+    }
 
     /**
      * 为视频[avid]或[bvid]点赞或取消赞

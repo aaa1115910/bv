@@ -700,5 +700,9 @@
     <string name="settings_player_show_debug_info_title">播放器显示视频信息</string>
     <string name="settings_player_exit_when_all_is_played_text">都播完后退出播放器回视频详情页</string>
     <string name="settings_player_exit_when_all_is_played_title">都播完后退出播放器</string>
+    <string name="settings_show_ugc_video_info_text">是否显示UGC视频详情页</string>
+    <string name="settings_show_ugc_video_info_title">显示UGC视频详情页</string>
+    <string name="settings_player_auto_play_next_video_text">视频播放完后是否要播放下一个分P视频（或合集视频）</string>
+    <string name="settings_player_auto_play_next_video_title">播放下一个视频</string>
     <string name="about_statement">此项目是个人为了学习安卓开发而fork, 仅用于学习和测试，禁止在中国境内传播、宣传、分发，如有相关使用需求请使用 [哔哩哔哩官方APP](https://app.bilibili.com)，否则后果自负</string>
 </resources>

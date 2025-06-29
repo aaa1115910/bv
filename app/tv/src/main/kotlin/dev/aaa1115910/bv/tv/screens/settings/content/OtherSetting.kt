@@ -41,6 +41,7 @@ fun OtherSetting(
     var updateAlpha by remember { mutableStateOf(Prefs.updateAlpha) }
     var enableFfmpegAudioRenderer by remember { mutableStateOf(Prefs.enableFfmpegAudioRenderer) }
     var portraitVideoQualityLimitMax1080P by remember { mutableStateOf(Prefs.portraitVideoQualityLimitMax1080P) }
+    var playerAutoPlayNextVideo by remember { mutableStateOf(Prefs.playerAutoPlayNextVideo) }
     var playerExitWhenAllIsPlayed by remember { mutableStateOf(Prefs.playerExitWhenAllIsPlayed) }
 
     Column(
@@ -132,6 +133,17 @@ fun OtherSetting(
                     onCheckedChange = {
                         portraitVideoQualityLimitMax1080P = it
                         Prefs.portraitVideoQualityLimitMax1080P = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_player_auto_play_next_video_title),
+                    supportText = stringResource(R.string.settings_player_auto_play_next_video_text),
+                    checked = playerAutoPlayNextVideo,
+                    onCheckedChange = {
+                        playerAutoPlayNextVideo = it
+                        Prefs.playerAutoPlayNextVideo = it
                     }
                 )
             }

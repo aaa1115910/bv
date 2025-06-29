@@ -193,6 +193,7 @@ fun VideoInfoScreen(
     var lastPlayedTime by remember { mutableIntStateOf(0) }
 
     var tip by remember { mutableStateOf("加载中...") }
+    var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
     var fromSeason by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
     var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
@@ -457,7 +458,7 @@ fun VideoInfoScreen(
                 }
 
                 runCatching {
-                    videoDetailViewModel.loadDetail(aid, fromSeason)
+                    videoDetailViewModel.loadDetail(aid, fromSeason, !showUGCVideoInfo)
                     withContext(Dispatchers.Main) {
                         updateVideoIsFavoured()
                         updateVideoIsLiked()
@@ -466,8 +467,8 @@ fun VideoInfoScreen(
                     }
                     if (Prefs.isLogin) fetchFavoriteData(aid)
 
-                    //如果是从剧集跳转过来的，就直接播放 P1
-                    if (fromSeason) {
+                    //如果是从剧集跳转过来的或设置不显示视频详情，就直接播放 P1
+                    if (fromSeason || !showUGCVideoInfo) {
                         val playPart = videoDetailViewModel.videoDetail!!.pages.first()
                         launchPlayerActivity(
                             context = context,
@@ -476,7 +477,7 @@ fun VideoInfoScreen(
                             title = videoDetailViewModel.videoDetail!!.title,
                             partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == playPart.cid }!!.title,
                             played = if (playPart.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
-                            fromSeason = true,
+                            fromSeason = fromSeason,
                             isVerticalVideo = containsVerticalScreenVideo,
                             playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                 ?: "",
@@ -535,7 +536,7 @@ fun VideoInfoScreen(
 
     LaunchedEffect(videoDetailViewModel.videoDetail) {
         //如果是从剧集页跳转回来的，那就不需要再跳转到剧集页了
-        if (fromSeason) return@LaunchedEffect
+        if (fromSeason || !showUGCVideoInfo) return@LaunchedEffect
 
         videoDetailViewModel.videoDetail?.let {
             if (it.redirectToEp) {
@@ -555,7 +556,7 @@ fun VideoInfoScreen(
                 defaultFocusRequester.requestFocus(scope)
             }
 
-            if (!fromSeason) updateFollowingState()
+            if (!fromSeason && showUGCVideoInfo) updateFollowingState()
         }
     }
 
@@ -576,24 +577,17 @@ fun VideoInfoScreen(
         }
     }
 
-    if (videoDetailViewModel.videoDetail == null || videoDetailViewModel.videoDetail?.redirectToEp == true || fromSeason) {
+    if (videoDetailViewModel.videoDetail == null || videoDetailViewModel.videoDetail?.redirectToEp == true || fromSeason || !showUGCVideoInfo) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            if (tip == "Loading") {
-                LoadingIndicator(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.Center),
-                )
-            } else {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = tip
-                )
-            }
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = tip,
+                fontSize = 18.sp
+            )
         }
     } else {
         Scaffold(

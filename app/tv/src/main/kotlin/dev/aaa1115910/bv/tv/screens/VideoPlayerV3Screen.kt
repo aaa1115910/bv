@@ -157,7 +157,7 @@ fun VideoPlayerV3Screen(
                         null
                     }
                     
-                    if (nextVideo != null) {
+                    if (nextVideo != null && Prefs.playerAutoPlayNextVideo) {
                         logger.info { "Play next video: $nextVideo" }
                         // 启动倒计时 toast 提示
                         autoActionCountdownJob = scope.launch {
@@ -166,7 +166,7 @@ fun VideoPlayerV3Screen(
                                     // 更新 SkipTip 文本和显示状态
                                     autoActionTipText = "播放结束，即将播放下一集 ${countdown} "
                                     autoActionTipVisible = true
-                                    delay(850)
+                                    delay(800)
                                 }
 
                                 // 如果没有被取消，切换到下一个视频
@@ -197,7 +197,7 @@ fun VideoPlayerV3Screen(
                                     // 更新 SkipTip 文本和显示状态
                                     autoActionTipText = "播放结束，即将退出 ${countdown} "
                                     autoActionTipVisible = true
-                                    delay(850)
+                                    delay(800)
                                 }
 
                                 // 如果没有被取消，退出播放
