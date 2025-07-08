@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -19,12 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
+import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.util.formatHourMinSec
 
@@ -36,6 +42,8 @@ fun MiniControllers(
     onPause: () -> Unit,
     onEnterFullScreen: () -> Unit,
     onSeekToPosition: (Long) -> Unit,
+    manualSkipTargetSegment: SegmentItem?,
+    onManualSkip: (SegmentItem) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -54,7 +62,9 @@ fun MiniControllers(
             onPlay = onPlay,
             onPause = onPause,
             onEnterFullScreen = onEnterFullScreen,
-            onSeekToPosition = onSeekToPosition
+            onSeekToPosition = onSeekToPosition,
+            manualSkipTargetSegment = manualSkipTargetSegment,
+            onManualSkip = onManualSkip
         )
     }
 }
@@ -94,16 +104,19 @@ private fun BottomControllers(
     onPlay: () -> Unit,
     onPause: () -> Unit,
     onEnterFullScreen: () -> Unit,
-    onSeekToPosition: (Long) -> Unit
+    onSeekToPosition: (Long) -> Unit,
+    manualSkipTargetSegment: SegmentItem?,
+    onManualSkip: (SegmentItem) -> Unit
 ) {
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
     val videoPlayerStateData = LocalVideoPlayerStateData.current
+    val sponsorBlockData = LocalVideoPlayerSponsorBlockData.current
     Box(
         modifier = modifier
             .background(Color.Black.copy(alpha = 0.6f))
     ) {
-        ConstraintLayout {
-            val (playButton, seekSlider, positionText, fullscreenButton) = createRefs()
+        ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+            val (playButton, skipButton, seekSlider, positionText, fullscreenButton) = createRefs()
 
             PlayPauseButton(
                 modifier = Modifier
@@ -117,17 +130,37 @@ private fun BottomControllers(
                 onPause = onPause
             )
 
+            val skipButtonVisible = manualSkipTargetSegment != null
+            if (skipButtonVisible) {
+                TextButton(
+                    onClick = { onManualSkip(manualSkipTargetSegment!!) },
+                    modifier = Modifier.constrainAs(skipButton) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(playButton.end, 4.dp)
+                    }
+                ) {
+                    Text(
+                        "跳过: ${SponsorBlockCategories.getDisplayName(manualSkipTargetSegment!!.category)}",
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
             VideoSeekBar(
                 modifier = Modifier.constrainAs(seekSlider) {
                     top.linkTo(parent.top)
-                    start.linkTo(playButton.end)
+                    start.linkTo(if (skipButtonVisible) skipButton.end else playButton.end, 4.dp)
                     bottom.linkTo(parent.bottom)
                     end.linkTo(positionText.start)
-                    width = Dimension.preferredWrapContent
+                    width = Dimension.fillToConstraints
                 },
                 duration = videoPlayerSeekData.duration,
                 position = videoPlayerSeekData.position,
                 bufferedPercentage = videoPlayerSeekData.bufferedPercentage,
+                sponsorBlockData = sponsorBlockData,
                 onPositionChange = { newPosition, isPressing ->
                     if (!isPressing) onSeekToPosition(newPosition)
                 }
@@ -137,10 +170,11 @@ private fun BottomControllers(
                 modifier = Modifier.constrainAs(positionText) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
-                    end.linkTo(fullscreenButton.start)
+                    end.linkTo(fullscreenButton.start, 4.dp)
                 },
                 text = "${videoPlayerSeekData.position.formatHourMinSec()}/${videoPlayerSeekData.duration.formatHourMinSec()}",
-                color = Color.White
+                color = Color.White,
+                maxLines = 1
             )
 
             IconButton(
@@ -173,7 +207,8 @@ fun MiniControllerPreview() {
             ),
             LocalVideoPlayerStateData provides VideoPlayerStateData(
                 isPlaying = true
-            )
+            ),
+            LocalVideoPlayerSponsorBlockData provides VideoPlayerSponsorBlockData()
         ) {
             MiniControllers(
                 onBack = {},
@@ -181,6 +216,8 @@ fun MiniControllerPreview() {
                 onPause = {},
                 onEnterFullScreen = {},
                 onSeekToPosition = {},
+                manualSkipTargetSegment = null,
+                onManualSkip = {}
             )
         }
     }

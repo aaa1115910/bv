@@ -34,11 +34,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
+import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.player.mobile.noRippleClickable
 import dev.aaa1115910.bv.util.formatHourMinSec
@@ -55,7 +59,9 @@ fun FullscreenControllers(
     onToggleDanmaku: (Boolean) -> Unit,
     onShowDanmakuController: () -> Unit,
     onShowVideoListController: () -> Unit,
-    onOpenMoreMenu: () -> Unit
+    onOpenMoreMenu: () -> Unit,
+    manualSkipTargetSegment: SegmentItem?,
+    onManualSkip: (SegmentItem) -> Unit
 ) {
     val context = LocalContext.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
@@ -92,7 +98,9 @@ fun FullscreenControllers(
             onShowSpeedController = onShowSpeedController,
             onToggleDanmaku = onToggleDanmaku,
             onShowDanmakuController = onShowDanmakuController,
-            onShowVideoListController = onShowVideoListController
+            onShowVideoListController = onShowVideoListController,
+            manualSkipTargetSegment = manualSkipTargetSegment,
+            onManualSkip = onManualSkip
         )
     }
 }
@@ -148,8 +156,11 @@ private fun BottomControllers(
     onShowSpeedController: () -> Unit,
     onToggleDanmaku: (Boolean) -> Unit,
     onShowDanmakuController: () -> Unit,
-    onShowVideoListController: () -> Unit
+    onShowVideoListController: () -> Unit,
+    manualSkipTargetSegment: SegmentItem?,
+    onManualSkip: (SegmentItem) -> Unit
 ) {
+    val sponsorBlockData = LocalVideoPlayerSponsorBlockData.current
     Box(
         modifier = modifier
             .background(Color.Black.copy(alpha = 0.6f))
@@ -184,6 +195,7 @@ private fun BottomControllers(
                     duration = totalTime,
                     position = currentTime,
                     bufferedPercentage = bufferedSeekPosition,
+                    sponsorBlockData = sponsorBlockData,
                     onPositionChange = { newPosition, isPressing ->
                         if (!isPressing) onSeekToPosition(newPosition)
                     }
@@ -206,9 +218,10 @@ private fun BottomControllers(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         PlayPauseButton(
                             isPlaying = isPlaying,
                             onPlay = onPlay,
@@ -220,9 +233,14 @@ private fun BottomControllers(
                         TextButton(onClick = onShowDanmakuController) {
                             Text(text = "弹幕设置")
                         }
+                        manualSkipTargetSegment?.let { segment ->
+                            TextButton(onClick = { onManualSkip(segment) }) {
+                                Text("跳过: ${SponsorBlockCategories.getDisplayName(segment.category)}")
+                            }
+                        }
                     }
 
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { /*TODO*/ }) {
                             Text(text = "字幕")
                         }
@@ -267,7 +285,8 @@ fun FullscreenControllerPreview() {
             LocalVideoPlayerConfigData provides VideoPlayerConfigData(
                 currentResolution = Resolution.R1080P,
                 currentDanmakuEnabled = false
-            )
+            ),
+            LocalVideoPlayerSponsorBlockData provides VideoPlayerSponsorBlockData()
         ) {
             FullscreenControllers(
                 onPlay = {},
@@ -279,7 +298,9 @@ fun FullscreenControllerPreview() {
                 onToggleDanmaku = {},
                 onShowDanmakuController = {},
                 onShowVideoListController = {},
-                onOpenMoreMenu = {}
+                onOpenMoreMenu = {},
+                manualSkipTargetSegment = null,
+                onManualSkip = {}
             )
         }
     }

@@ -25,6 +25,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
 import dev.aaa1115910.bv.player.tv.VideoSeekBar
 
@@ -34,6 +35,7 @@ fun SeekController(
     show: Boolean,
     goTime: Long,
     moveState: SeekMoveState,
+    sponsorBlockData: VideoPlayerSponsorBlockData // Added sponsorBlockData
 ) {
     val videoPlayerVideoShotData = LocalVideoPlayerVideoShotData.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
@@ -55,7 +57,8 @@ fun SeekController(
                 moveState = moveState,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
                 movingIcon = videoPlayerSeekThumbData.movingIcon,
-                videoShot = videoPlayerVideoShotData.videoShot
+                videoShot = videoPlayerVideoShotData.videoShot,
+                sponsorBlockData = sponsorBlockData // Pass to private SeekController
             )
         }
     }
@@ -69,7 +72,8 @@ private fun SeekController(
     moveState: SeekMoveState,
     idleIcon: String,
     movingIcon: String,
-    videoShot: VideoShot? = null
+    videoShot: VideoShot? = null,
+    sponsorBlockData: VideoPlayerSponsorBlockData // Added sponsorBlockData
 ) {
     Column(
         modifier = modifier,
@@ -106,7 +110,8 @@ private fun SeekController(
                 moveState = moveState,
                 idleIcon = idleIcon,
                 movingIcon = movingIcon,
-                showPosition = true
+                showPosition = true,
+                sponsorBlockData = sponsorBlockData // Pass to VideoSeekBar
             )
         }
     }
@@ -129,7 +134,8 @@ private fun VideoProgressSeekPreview(@PreviewParameter(VideoProgressProvider::cl
                 imageWidth = 0,
                 imageHeight = 0,
                 images = emptyList()
-            )
+            ),
+            sponsorBlockData = VideoPlayerSponsorBlockData() // Provide default for preview
         )
     }
 }

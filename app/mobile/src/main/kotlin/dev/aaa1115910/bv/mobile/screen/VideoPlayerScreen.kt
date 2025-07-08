@@ -97,6 +97,7 @@ import dev.aaa1115910.bv.player.entity.LocalVideoPlayerPaymentData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoListPart
 import dev.aaa1115910.bv.player.entity.VideoListPgcEpisode
 import dev.aaa1115910.bv.player.entity.VideoListUgcEpisode
@@ -107,6 +108,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerLoadStateData
 import dev.aaa1115910.bv.player.entity.VideoPlayerLogsData
 import dev.aaa1115910.bv.player.entity.VideoPlayerPaymentData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.mobile.BvPlayer
@@ -280,8 +282,20 @@ fun VideoPlayerScreen(
                         LocalVideoPlayerVideoShotData provides VideoPlayerVideoShotData(
                             videoShot = playerViewModel.videoShot,
                         ),
+                        LocalVideoPlayerSponsorBlockData provides VideoPlayerSponsorBlockData(
+                            segments = playerViewModel.sponsorBlockSegments,
+                            userActions = playerViewModel.sponsorBlockUserActions,
+                            isEnabled = Prefs.enableSponsorBlock,
+                            showSkipToast = playerViewModel.showSkipToast,
+                            skipToastMessage = playerViewModel.skipToastMessage,
+                            skipToastType = playerViewModel.skipToastType,
+                            showResultToast = playerViewModel.showResultToast,
+                            resultToastMessage = playerViewModel.resultToastMessage
+                            // defaultActions is already part of VideoPlayerSponsorBlockData default constructor
+                        )
                     ) {
                         BvPlayer(
+                            sponsorBlockManager = playerViewModel, // Pass ViewModel as SponsorBlockManager
                             modifier = if (isVideoFullscreen) Modifier
                                 .fillMaxSize()
                                 .zIndex(1f)
@@ -384,6 +398,7 @@ fun VideoPlayerScreen(
                                 playerViewModel.loadPlayUrl(
                                     avid = aid,
                                     cid = cid,
+                                    bvid = videoDetailViewModel.videoDetail?.bvid,
                                     epid = epid,
                                     seasonId = seasonId,
                                     continuePlayNext = true
@@ -468,6 +483,7 @@ fun VideoPlayerScreen(
                                                         playerViewModel.loadPlayUrl(
                                                             avid = videoDetailViewModel.videoDetail!!.aid,
                                                             cid = videoPage.cid,
+                                                            bvid = videoDetailViewModel.videoDetail!!.bvid,
                                                             continuePlayNext = true
                                                         )
                                                     },
@@ -478,6 +494,7 @@ fun VideoPlayerScreen(
                                                         playerViewModel.loadPlayUrl(
                                                             avid = episode.aid,
                                                             cid = episode.cid,
+                                                            bvid = videoDetailViewModel.videoDetail?.bvid,
                                                             epid = episode.epid,
                                                             continuePlayNext = true
                                                         )
@@ -574,6 +591,7 @@ fun VideoPlayerScreen(
                                     playerViewModel.loadPlayUrl(
                                         avid = videoDetailViewModel.videoDetail!!.aid,
                                         cid = videoPage.cid,
+                                        bvid = videoDetailViewModel.videoDetail!!.bvid,
                                         continuePlayNext = true
                                     )
                                 },
@@ -584,6 +602,7 @@ fun VideoPlayerScreen(
                                     playerViewModel.loadPlayUrl(
                                         avid = episode.aid,
                                         cid = episode.cid,
+                                        bvid = videoDetailViewModel.videoDetail?.bvid,
                                         epid = episode.epid,
                                         continuePlayNext = true
                                     )

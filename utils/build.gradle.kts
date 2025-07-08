@@ -2,6 +2,7 @@ plugins {
     alias(gradleLibs.plugins.android.library)
     alias(gradleLibs.plugins.compose.compiler)
     alias(gradleLibs.plugins.kotlin.android)
+    alias(gradleLibs.plugins.kotlin.serialization)
 }
 
 android {
@@ -63,4 +64,5 @@ dependencies {
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.logging)
     implementation(libs.material)
+    implementation(libs.kotlinx.serialization)
 }

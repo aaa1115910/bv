@@ -27,6 +27,7 @@ import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.AkDanmakuPlayer
 import dev.aaa1115910.bv.player.BvVideoPlayer
 import dev.aaa1115910.bv.player.VideoPlayerListener
+import dev.aaa1115910.bv.player.entity.SponsorBlockManager
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerClockData
@@ -49,6 +50,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.mobile.controller.BvPlayerController
 import dev.aaa1115910.bv.util.countDownTimer
+import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -75,7 +77,8 @@ fun BvPlayer(
     onLoadNextVideo: () -> Unit,
     onLoadNewVideo: (VideoListItem) -> Unit,
     videoPlayer: AbstractVideoPlayer,
-    danmakuPlayer: DanmakuPlayer?
+    danmakuPlayer: DanmakuPlayer?,
+    sponsorBlockManager: SponsorBlockManager? = null
 ) {
     val logger = KotlinLogging.logger("BvPlayer")
     // 直接调用 danmakuPlayer 会始终为 null
@@ -119,6 +122,8 @@ fun BvPlayer(
         currentPosition = videoPlayer.currentPosition
         duration = videoPlayer.duration
         bufferedPercentage = videoPlayer.bufferedPercentage
+        // Call SponsorBlock manager's check for auto skip
+        sponsorBlockManager?.checkAndTriggerAutoSkip(currentPosition, duration, isPlaying)
     }
 
     val updateEnabledDanmakuTypeFilter: (List<DanmakuType>) -> Unit = { danmakuTypes ->
@@ -219,6 +224,8 @@ fun BvPlayer(
             isPlaying = true
             isBuffering = false
             updateBackToHistory()
+            // Check for skip when play starts/resumes
+            sponsorBlockManager?.checkAndTriggerAutoSkip(currentPosition, duration, true)
         }
 
         override fun onPause() {
@@ -266,6 +273,18 @@ fun BvPlayer(
 
     LaunchedEffect(danmakuPlayer) {
         mDanmakuPlayer = danmakuPlayer
+    }
+
+    // Observe skipToMillis from SponsorBlockManager
+    LaunchedEffect(sponsorBlockManager) {
+        sponsorBlockManager?.skipToMillis?.collect { skipTime ->
+            skipTime?.let {
+                logger.fInfo { "BvPlayer (Mobile): Received skip event to $it" }
+                videoPlayer.seekTo(it)
+                mDanmakuPlayer?.seekTo(it) // Ensure danmaku seeks too
+                sponsorBlockManager.consumeSkipEvent()
+            }
+        }
     }
 
     DisposableEffect(Unit) {
@@ -371,7 +390,8 @@ fun BvPlayer(
             onPlayNewVideo = {
                 //if (!Prefs.incognitoMode) sendHeartbeat()
                 onLoadNewVideo(it)
-            }
+            },
+            sponsorBlockManager = sponsorBlockManager
         ) {
             BvVideoPlayer(
                 modifier = Modifier

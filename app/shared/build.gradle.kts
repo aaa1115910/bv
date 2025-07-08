@@ -42,6 +42,17 @@ android {
                 name = "BLACKLIST_URL",
                 value = "\"${AppConfiguration.blacklistUrl}\""
             )
+            // SponsorBlock Config
+            buildConfigField(
+                type = "String",
+                name = "SPONSOR_BLOCK_API_ORIGIN",
+                value = "\"${AppConfiguration.appId}.sponsorblock\""
+            )
+            buildConfigField(
+                type = "String",
+                name = "SPONSOR_BLOCK_EXT_VERSION",
+                value = "\"0.1.0\"" // Initial version for this integration
+            )
         }
     }
 
@@ -160,12 +171,14 @@ dependencies {
     api(libs.qrcode)
     api(libs.rememberPreference)
     api(libs.slf4j.android.mvysny)
+    api("com.google.code.gson:gson:2.10.1")
     api(project(mapOf("path" to ":bili-api")))
     api(project(mapOf("path" to ":bili-subtitle")))
     api(project(mapOf("path" to ":player")))
     api(project(mapOf("path" to ":utils")))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation(androidx.compose.ui.test.junit4)
     debugApi(androidx.compose.ui.test.manifest)
     debugApi(androidx.compose.ui.tooling)

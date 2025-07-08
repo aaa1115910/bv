@@ -70,5 +70,9 @@ fun SettingsScreen() {
 }
 
 enum class MobileSettings(val displayName: String) {
-    Play("播放设置"), About("关于"), Advance("更多设置"), Debug("调试")
+    Play("播放设置"),
+    SponsorBlock("SponsorBlock"),
+    About("关于"),
+    Advance("更多设置"),
+    Debug("调试")
 }

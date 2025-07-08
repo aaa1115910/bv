@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.seekbar.SeekBar
 import dev.aaa1115910.bv.player.seekbar.SeekBarThumb
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
@@ -54,6 +55,7 @@ fun VideoSeekBar(
     position: Long,
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
+    sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData(),
     thumb: (@Composable (Modifier, SeekMoveState?) -> Unit)? = null,
     onPositionChange: ((position: Long, pressing: Boolean) -> Unit)? = null
 ) {
@@ -119,7 +121,8 @@ fun VideoSeekBar(
             duration = duration,
             position = if (pressing) previewPosition else position,
             bufferedPercentage = bufferedPercentage,
-            colors = colors
+            colors = colors,
+            sponsorBlockData = sponsorBlockData // Pass to shared SeekBar
         )
         Box(modifier = Modifier.fillMaxWidth()) {
             val thumbModifier = Modifier
@@ -155,6 +158,7 @@ private fun DraggableSeekPreview() {
                     duration = duration,
                     position = position,
                     bufferedPercentage = bufferedPercentage,
+                    sponsorBlockData = VideoPlayerSponsorBlockData(), // For preview
                     thumb = { modifier, seekMoveState ->
                         if (!view.isInEditMode) {
                             SeekBarThumb(

@@ -16,6 +16,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import androidx.tv.material3.darkColorScheme
+import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.seekbar.SeekBar
 import dev.aaa1115910.bv.player.seekbar.SeekBarThumb
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
@@ -31,7 +32,8 @@ fun VideoSeekBar(
     idleIcon: String = "",
     movingIcon: String = "",
     moveState: SeekMoveState = SeekMoveState.Idle,
-    showPosition: Boolean = false
+    showPosition: Boolean = false,
+    sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData()
 ) {
     VideoSeekBar(
         modifier = modifier,
@@ -39,6 +41,7 @@ fun VideoSeekBar(
         position = position,
         bufferedPercentage = bufferedPercentage,
         showPosition = showPosition,
+        sponsorBlockData = sponsorBlockData, // Pass to private VideoSeekBar
         thumb = { thumbModifier ->
             SeekBarThumb(
                 modifier = thumbModifier,
@@ -58,6 +61,7 @@ private fun VideoSeekBar(
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
     showPosition: Boolean = false,
+    sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData(), // Added with default
     thumb: (@Composable (Modifier) -> Unit)? = null
 ) {
     BoxWithConstraints(
@@ -81,7 +85,8 @@ private fun VideoSeekBar(
                 duration = duration,
                 position = position,
                 bufferedPercentage = bufferedPercentage,
-                colors = colors
+                colors = colors,
+                sponsorBlockData = sponsorBlockData // Pass to shared SeekBar
             )
             thumb?.invoke(
                 Modifier

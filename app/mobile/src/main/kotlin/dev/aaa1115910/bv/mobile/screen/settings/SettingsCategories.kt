@@ -68,6 +68,7 @@ fun SettingsCategories(
         ) {
             val settings = listOf(
                 MobileSettings.Play,
+                MobileSettings.SponsorBlock, // Added SponsorBlock
                 MobileSettings.Advance,
                 MobileSettings.About,
                 MobileSettings.Debug

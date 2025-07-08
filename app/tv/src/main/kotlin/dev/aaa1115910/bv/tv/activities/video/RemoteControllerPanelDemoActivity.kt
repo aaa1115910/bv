@@ -21,6 +21,7 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             context: Context,
             avid: Long,
             cid: Long,
+            bvid: String? = null,
             title: String,
             partTitle: String,
             played: Int,
@@ -37,6 +38,7 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                 Intent(context, RemoteControllerPanelDemoActivity::class.java).apply {
                     putExtra("avid", avid)
                     putExtra("cid", cid)
+                    putExtra("bvid", bvid)
                     putExtra("title", title)
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
@@ -76,6 +78,7 @@ fun RemoteControllerPanelDemoScreen(
             context = context,
             avid = intent.getLongExtra("avid", 0),
             cid = intent.getLongExtra("cid", 0),
+            bvid = intent.getStringExtra("bvid"),
             title = intent.getStringExtra("title") ?: "",
             partTitle = intent.getStringExtra("partTitle") ?: "",
             played = intent.getIntExtra("played", 0),

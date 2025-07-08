@@ -11,6 +11,8 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.http.util.generateBuvid
@@ -18,6 +20,9 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.ThemeType
+import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockColors
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.Resolution
@@ -311,6 +316,48 @@ object Prefs {
     val themeTypeFlow: Flow<ThemeType>
         get() = dsm.getPreferenceFlow(PrefKeys.prefThemeTypeRequest)
             .transform { ordinal -> emit(ThemeType.entries[ordinal]) }
+
+    var enableSponsorBlock: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefEnableSponsorBlockRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableSponsorBlockKey, value) }
+
+    var sponsorBlockUserActions: Map<String, SponsorBlockActionType>
+        get() = try {
+            val jsonString = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserActionsRequest).first() }
+            if (jsonString.isNotEmpty()) {
+                val type = object : TypeToken<Map<String, Int>>() {}.type
+                val ordinalMap: Map<String, Int> = Gson().fromJson(jsonString, type)
+                    ordinalMap.mapValues { SponsorBlockActionType.entries[it.value] }
+            } else {
+                logger.error { "Failed to parse sponsorBlockUserActions from JSON: $jsonString" }
+                SponsorBlockCategories.DEFAULT_ACTIONS
+            }
+        } catch (e: Exception) {
+            SponsorBlockCategories.DEFAULT_ACTIONS
+        }
+        set(value) = runBlocking {
+            val ordinalMap = value.mapValues { it.value.ordinal }
+            val jsonString = Gson().toJson(ordinalMap)
+            dsm.editPreference(PrefKeys.prefSponsorBlockUserActionsKey, jsonString)
+        }
+
+    var sponsorBlockUserColors: Map<String, String> // Category to HEX Color String
+        get() = try {
+            val jsonString = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserColorsRequest).first() }
+            if (jsonString.isNotEmpty()) {
+                val type = object : TypeToken<Map<String, String>>() {}.type
+                Gson().fromJson(jsonString, type)
+            } else {
+                logger.error { "Failed to parse sponsorBlockUserColors from JSON: $jsonString" }
+                SponsorBlockColors.DefaultCategoryColorsHex
+            }
+        } catch (e: Exception) {
+            SponsorBlockColors.DefaultCategoryColorsHex
+        }
+        set(value) = runBlocking {
+            val jsonString = Gson().toJson(value)
+            dsm.editPreference(PrefKeys.prefSponsorBlockUserColorsKey, jsonString)
+        }
 }
 
 object PrefKeys {
@@ -356,6 +403,9 @@ object PrefKeys {
     val prefEnableFfmpegAudioRenderer = booleanPreferencesKey("enable_ffmpeg_audio_renderer")
     val prefBlacklistUserKey = booleanPreferencesKey("blacklist_user")
     val prefThemeTypeKey = intPreferencesKey("theme_type")
+    val prefEnableSponsorBlockKey = booleanPreferencesKey("enable_sponsor_block")
+    val prefSponsorBlockUserActionsKey = stringPreferencesKey("sb_user_actions")
+    val prefSponsorBlockUserColorsKey = stringPreferencesKey("sb_user_colors")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -409,4 +459,13 @@ object PrefKeys {
     val prefEnableFfmpegEndererRequest = PreferenceRequest(prefEnableFfmpegAudioRenderer, false)
     val prefBlacklistUserRequest = PreferenceRequest(prefBlacklistUserKey, false)
     val prefThemeTypeRequest = PreferenceRequest(prefThemeTypeKey, ThemeType.Auto.ordinal)
+    val prefEnableSponsorBlockRequest = PreferenceRequest(prefEnableSponsorBlockKey, true)
+    val prefSponsorBlockUserActionsRequest = PreferenceRequest(
+        prefSponsorBlockUserActionsKey,
+        Gson().toJson(SponsorBlockCategories.DEFAULT_ACTIONS.mapValues { it.value.ordinal })
+    )
+    val prefSponsorBlockUserColorsRequest = PreferenceRequest(
+        prefSponsorBlockUserColorsKey,
+        Gson().toJson(SponsorBlockColors.DefaultCategoryColorsHex)
+    )
 }

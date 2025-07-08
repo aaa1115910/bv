@@ -27,6 +27,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             context: Context,
             avid: Long,
             cid: Long,
+            bvid: String? = null,
             title: String,
             partTitle: String,
             played: Int,
@@ -46,6 +47,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 ).apply {
                     putExtra("avid", avid)
                     putExtra("cid", cid)
+                    putExtra("bvid", bvid)
                     putExtra("title", title)
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
@@ -118,6 +120,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
         if (intent.hasExtra("avid")) {
             val aid = intent.getLongExtra("avid", 170001)
             val cid = intent.getLongExtra("cid", 170001)
+            val bvid = intent.getStringExtra("bvid")
             val title = intent.getStringExtra("title") ?: "Unknown Title"
             val partTitle = intent.getStringExtra("partTitle") ?: "Unknown Part Title"
             val played = intent.getIntExtra("played", 0)
@@ -129,11 +132,12 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
             val playerIconIdle = intent.getStringExtra("playerIconIdle") ?: ""
             val playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
-            dev.aaa1115910.bv.tv.activities.video.VideoPlayerV3Activity.Companion.logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
+            dev.aaa1115910.bv.tv.activities.video.VideoPlayerV3Activity.Companion.logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid, bvid=$bvid]" }
             playerViewModel.apply {
                 loadPlayUrl(
                     avid = aid,
                     cid = cid,
+                    bvid = bvid,
                     epid = epid.takeIf { it != 0 }
                 )
                 this.title = title

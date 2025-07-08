@@ -16,6 +16,7 @@ import dev.aaa1115910.bv.mobile.screen.settings.details.AboutContent
 import dev.aaa1115910.bv.mobile.screen.settings.details.AdvanceContent
 import dev.aaa1115910.bv.mobile.screen.settings.details.DebugContent
 import dev.aaa1115910.bv.mobile.screen.settings.details.PlayContent
+import dev.aaa1115910.bv.mobile.screen.settings.details.SponsorBlockContent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +50,7 @@ fun SettingsDetails(
         val contentModifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         when (selectedSettings) {
             null, MobileSettings.Play -> PlayContent(modifier = contentModifier)
+            MobileSettings.SponsorBlock -> SponsorBlockContent(modifier = contentModifier)
             MobileSettings.About -> AboutContent(modifier = contentModifier)
             MobileSettings.Debug -> DebugContent(modifier = contentModifier)
             MobileSettings.Advance -> AdvanceContent(modifier = contentModifier)

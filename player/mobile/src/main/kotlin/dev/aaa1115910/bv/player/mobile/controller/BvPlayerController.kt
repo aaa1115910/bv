@@ -62,12 +62,15 @@ import dev.aaa1115910.bv.player.entity.VideoListItem
 import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
+import dev.aaa1115910.bv.player.entity.SponsorBlockManager
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData // Added
 import dev.aaa1115910.bv.player.mobile.MaterialDarkTheme
 import dev.aaa1115910.bv.player.mobile.controller.menu.DanmakuMenu
 import dev.aaa1115910.bv.player.mobile.controller.menu.DashMenu
 import dev.aaa1115910.bv.player.mobile.controller.menu.MoreMenu
 import dev.aaa1115910.bv.player.mobile.controller.menu.SpeedMenu
 import dev.aaa1115910.bv.player.mobile.controller.menu.VideoListMenu
+import dev.aaa1115910.bv.player.entity.SkipToastType // Added
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -91,6 +94,7 @@ fun BvPlayerController(
     onDanmakuScaleChange: (Float) -> Unit,
     onDanmakuAreaChange: (Float) -> Unit,
     onPlayNewVideo: (VideoListItem) -> Unit,
+    sponsorBlockManager: SponsorBlockManager? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -150,7 +154,8 @@ fun BvPlayerController(
                 onOpenResolutionMenu = { openMenu(MenuType.Resolution) },
                 onOpenDanmakuMenu = { openMenu(MenuType.Danmaku) },
                 onOpenListMenu = { openMenu(MenuType.List) },
-                onCloseMenu = { isMenuOpen = false }
+                onCloseMenu = { isMenuOpen = false },
+                sponsorBlockManager = sponsorBlockManager
             ) {
                 Box(
                     modifier = Modifier.clip(RoundedCornerShape(0.dp))
@@ -285,6 +290,7 @@ fun BvPlayerControllerVideoContent(
     onOpenDanmakuMenu: () -> Unit,
     onOpenListMenu: () -> Unit,
     onCloseMenu: () -> Unit,
+    sponsorBlockManager: SponsorBlockManager? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -292,6 +298,8 @@ fun BvPlayerControllerVideoContent(
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerConfigData = LocalVideoPlayerConfigData.current
+    val sponsorBlockData = LocalVideoPlayerSponsorBlockData.current
+
     var showBaseUi by remember { mutableStateOf(false) }
     val isMenuOpen by rememberUpdatedState(isMenuOpen)
 
@@ -435,16 +443,40 @@ fun BvPlayerControllerVideoContent(
                         onDoubleTap = onDoubleTap,
                         onVolumeDrag = onMovingVolume,
                         onBrightnessDrag = onMovingBrightness,
+                        onSeekDragStart = {
+                            sponsorBlockManager?.onUserDragSeekBarStart()
+                        },
                         onSeekDrag = onHorizontalDrag,
-                        onDragEnd = { volumeMove, brightnessMove, seekMove ->
+                        onDragEnd = { volumeMove, brightnessMove, seekMove, isHorizontal ->
                             Log.i(
                                 "BvPlayerController",
                                 "screen drag end: [volume=$volumeMove, brightness=$brightnessMove, seek=$seekMove]"
                             )
-                            if (volumeMove != 0f) {
+                            if (seekMove != 0f && isHorizontal) { // Check if horizontal drag (seek) occurred and was primary
+                                isMovingSeek = false
+                                if (!moveStartInSafetyArea) {
+                                    val seekMoveMs = seekMove.toLong() * 50 // This multiplier might need adjustment
+                                    val finalSeekPos = (moveStartTime + seekMoveMs)
+                                        .coerceIn(0, videoPlayerSeekData.duration)
+                                    onSeekToPosition(finalSeekPos)
+                                    sponsorBlockManager?.onUserDragSeekBarStop(finalSeekPos, videoPlayerSeekData.duration, videoPlayerStateData.isPlaying)
+                                    Log.i("BvPlayerController", "Seek move $seekMoveMs to $finalSeekPos")
+                                } else {
+                                    sponsorBlockManager?.onUserDragSeekBarStop(currentTime, videoPlayerSeekData.duration, videoPlayerStateData.isPlaying)
+                                }
+                                moveStartInSafetyArea = false
+                            } else if (isMovingSeek) {
+                                // If isMovingSeek was true but drag ended without being primarily horizontal
+                                // (e.g. user lifted finger mid-seek intent or it was more vertical)
+                                // We still need to call onUserDragSeekBarStop
+                                sponsorBlockManager?.onUserDragSeekBarStop(currentTime, videoPlayerSeekData.duration, videoPlayerStateData.isPlaying)
+                                isMovingSeek = false
+                            }
+
+                            if (volumeMove != 0f && !isHorizontal) {
                                 isMovingVolume = false
                                 Log.i("BvPlayerController", "Stop move volume")
-                            } else if (brightnessMove != 0f) {
+                            } else if (brightnessMove != 0f && !isHorizontal) {
                                 isMovingBrightness = false
                                 Log.i("BvPlayerController", "Stop move brightness")
                             } else {
@@ -486,7 +518,9 @@ fun BvPlayerControllerVideoContent(
                         showBaseUi = false
                         onOpenListMenu()
                     },
-                    onOpenMoreMenu = onOpenMoreMenu
+                    onOpenMoreMenu = onOpenMoreMenu,
+                    manualSkipTargetSegment = null, // Not used in mobile, using toast instead
+                    onManualSkip = { } // Not used in mobile, using toast instead
                 )
             } else {
                 MiniControllers(
@@ -494,10 +528,27 @@ fun BvPlayerControllerVideoContent(
                     onPlay = onPlay,
                     onPause = onPause,
                     onEnterFullScreen = onEnterFullScreen,
-                    onSeekToPosition = onSeekToPosition
+                    onSeekToPosition = onSeekToPosition,
+                    manualSkipTargetSegment = null, // Not used in mobile, using toast instead
+                    onManualSkip = { } // Not used in mobile, using toast instead
                 )
             }
         }
+        
+        // SponsorBlock Toast - 放在最高层级，确保可以点击
+        SponsorBlockSkipToast(
+            show = sponsorBlockData.showSkipToast,
+            message = sponsorBlockData.skipToastMessage,
+            isManualSkip = sponsorBlockData.skipToastType == SkipToastType.MANUAL_SKIP,
+            onCancel = { sponsorBlockManager?.cancelSkip() },
+            onManualSkip = { sponsorBlockManager?.triggerManualSkip() }
+        )
+        
+        // SponsorBlock Result Toast - 放在最高层级
+        SponsorBlockResultToast(
+            show = sponsorBlockData.showResultToast,
+            message = sponsorBlockData.resultToastMessage
+        )
     }
 }
 
@@ -534,8 +585,9 @@ fun Modifier.detectPlayerGestures(
     onDoubleTap: () -> Unit,
     onVolumeDrag: (move: Float) -> Unit,
     onBrightnessDrag: (move: Float) -> Unit,
+    onSeekDragStart: () -> Unit,
     onSeekDrag: (move: Float) -> Unit,
-    onDragEnd: (volumeMove: Float, brightnessMove: Float, seekMove: Float) -> Unit,
+    onDragEnd: (volumeMove: Float, brightnessMove: Float, seekMove: Float, isHorizontal: Boolean) -> Unit,
 ): Modifier = composed {
     val currentSpeedState = rememberUpdatedState(currentSpeed)
     var oldPlaySpeed by remember { mutableFloatStateOf(1f) }
@@ -592,24 +644,28 @@ fun Modifier.detectPlayerGestures(
                         inHorizontalSafetyArea && inVerticalSafetyArea || !enableSafetyArea
                     if (!inSafetyArea) return@detectDragGestures
 
+                    // Reset states for new drag gesture
+                    horizontalPointMove = 0f
+                    verticalPointMove = 0f
+                    determinedDirection = false
+                    isHorizontal = false // Determine direction first
+
+                    // Initial contact point determines potential vertical drag type
                     if (it.x < componentWidth * 0.5f) {
-                        isMovingBrightness = true
-                    } else if (it.x >= componentWidth * 0.5f) {
-                        isMovingVolume = true
+                        isMovingBrightness = true; isMovingVolume = false
+                    } else {
+                        isMovingVolume = true; isMovingBrightness = false
                     }
                 },
                 onDragEnd = {
                     if (!inSafetyArea) return@detectDragGestures
 
-                    if (isHorizontal) {
-                        onDragEnd(0f, 0f, horizontalPointMove)
-                    } else {
-                        if (isMovingVolume) {
-                            onDragEnd(verticalPointMove, 0f, 0f)
-                        } else if (isMovingBrightness) {
-                            onDragEnd(0f, verticalPointMove, 0f)
-                        }
-                    }
+                    onDragEnd(
+                        if (!isHorizontal && isMovingVolume) verticalPointMove else 0f,
+                        if (!isHorizontal && isMovingBrightness) verticalPointMove else 0f,
+                        if (isHorizontal) horizontalPointMove else 0f,
+                        isHorizontal
+                    )
 
                     horizontalPointMove = 0f
                     verticalPointMove = 0f
@@ -617,23 +673,31 @@ fun Modifier.detectPlayerGestures(
                     isMovingVolume = false
                     isMovingBrightness = false
                 }
-            ) { _, dragAmount ->
-                if (!inSafetyArea) return@detectDragGestures
-                horizontalPointMove += dragAmount.x
-                verticalPointMove += dragAmount.y
+            ) { change, dragAmount ->
+                if (!inSafetyArea) {
+                    change.consume()
+                    return@detectDragGestures
+                }
+
                 if (!determinedDirection) {
-                    if (horizontalPointMove.absoluteValue > 20f) {
+                    // Accumulate small drags until direction is determined
+                    horizontalPointMove += dragAmount.x
+                    verticalPointMove += dragAmount.y
+                    if (horizontalPointMove.absoluteValue > 20f || verticalPointMove.absoluteValue > 20f) {
                         determinedDirection = true
-                        isHorizontal = true
-                    } else if (verticalPointMove.absoluteValue > 20f) {
-                        determinedDirection = true
-                        isHorizontal = false
+                        isHorizontal = horizontalPointMove.absoluteValue > verticalPointMove.absoluteValue
+                        if(isHorizontal) {
+                            onSeekDragStart() // Call when horizontal drag is confirmed
+                        }
                     }
                 }
+
                 if (determinedDirection) {
                     if (isHorizontal) {
-                        onSeekDrag(horizontalPointMove)
+                        horizontalPointMove += dragAmount.x // Accumulate total horizontal drag for onDragEnd
+                        onSeekDrag(horizontalPointMove) // Pass accumulated drag for immediate feedback
                     } else {
+                        verticalPointMove += dragAmount.y // Accumulate total vertical drag
                         if (isMovingVolume) {
                             onVolumeDrag(verticalPointMove)
                         } else if (isMovingBrightness) {
@@ -641,6 +705,7 @@ fun Modifier.detectPlayerGestures(
                         }
                     }
                 }
+                change.consume()
             }
         }
 }
@@ -682,7 +747,8 @@ private fun BvPlayerControllerPreview() {
                 onDanmakuOpacityChange = {},
                 onDanmakuAreaChange = {},
                 onDanmakuScaleChange = {},
-                onPlayNewVideo = {}
+                onPlayNewVideo = {},
+                sponsorBlockManager = null
             ) {
                 Box(
                     modifier = Modifier
