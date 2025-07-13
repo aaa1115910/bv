@@ -33,7 +33,7 @@ abstract class PgcViewModel(
     /**
      * 轮播图
      */
-    // val carouselItems = mutableStateListOf<CarouselData.CarouselItem>()
+    val carouselItems = mutableStateListOf<CarouselData.CarouselItem>()
 
     /**
      * 猜你喜欢
@@ -51,9 +51,9 @@ abstract class PgcViewModel(
 
     init {
         loadMore()
-        // viewModelScope.launch(Dispatchers.IO) {
-        //     updateCarousel()
-        // }
+        viewModelScope.launch(Dispatchers.IO) {
+            updateCarousel()
+        }
     }
 
     /**
@@ -84,7 +84,7 @@ abstract class PgcViewModel(
      */
     fun clearAll() {
         logger.fInfo { "Clear all data" }
-        // carouselItems.clear()
+        carouselItems.clear()
         feedItems.clear()
         restSubItems.clear()
         cursor = 0
@@ -94,33 +94,33 @@ abstract class PgcViewModel(
     /**
      * 更新轮播图
      */
-    // private suspend fun updateCarousel() {
-    //     logger.fInfo { "Updating $pgcType carousel" }
-    //     runCatching {
-    //         // 由于未知原因，注入的 PgcRepository 可能获取到的对象为 null
-    //         var maxRetry = 10
-    //         while (pgcRepository == null && maxRetry > 0) {
-    //             delay(10)
-    //             maxRetry--
-    //         }
-    //         if (BuildConfig.DEBUG && maxRetry != 10) {
-    //             logger.fWarn { "Retry ${10 - maxRetry} times to get pgcRepository" }
-    //             withContext(Dispatchers.Main) {
-    //                 "Retry ${10 - maxRetry} times to get pgcRepository($pgcType)".toast(BVApp.context)
-    //             }
-    //         }
+    private suspend fun updateCarousel() {
+        logger.fInfo { "Updating $pgcType carousel" }
+        runCatching {
+            // 由于未知原因，注入的 PgcRepository 可能获取到的对象为 null
+            var maxRetry = 10
+            while (pgcRepository == null && maxRetry > 0) {
+                delay(10)
+                maxRetry--
+            }
+            if (BuildConfig.DEBUG && maxRetry != 10) {
+                logger.fWarn { "Retry ${10 - maxRetry} times to get pgcRepository" }
+                withContext(Dispatchers.Main) {
+                    "Retry ${10 - maxRetry} times to get pgcRepository($pgcType)".toast(BVApp.context)
+                }
+            }
 
-    //         val carouselData = pgcRepository.getCarousel(pgcType)
-    //         logger.fInfo { "Find $pgcType carousels, size: ${carouselData.items.size}" }
-    //         carouselItems.addAllWithMainContext(carouselData.items)
-    //         logger.debug { "carouselItems: $carouselItems" }
-    //     }.onFailure {
-    //         logger.fInfo { "Update $pgcType carousel failed: ${it.stackTraceToString()}" }
-    //         withContext(Dispatchers.Main) {
-    //             "加载 $pgcType 轮播图失败: ${it.message}".toast(BVApp.context)
-    //         }
-    //     }
-    // }
+            val carouselData = pgcRepository.getCarousel(pgcType)
+            logger.fInfo { "Find $pgcType carousels, size: ${carouselData.items.size}" }
+            carouselItems.addAllWithMainContext(carouselData.items)
+            logger.debug { "carouselItems: $carouselItems" }
+        }.onFailure {
+            logger.fInfo { "Update $pgcType carousel failed: ${it.stackTraceToString()}" }
+            withContext(Dispatchers.Main) {
+                "加载 $pgcType 轮播图失败: ${it.message}".toast(BVApp.context)
+            }
+        }
+    }
 
     /**
      * 获取推荐数据

@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.tv.screens.main.pgc
 
 import android.view.KeyEvent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,10 +77,10 @@ fun PgcScaffold(
     pgcType: PgcType,
     featureButtons: (@Composable () -> Unit)? = null
 ) {
-    // val context = LocalContext.current
-    // val carouselFocusRequester = remember { FocusRequester() }
+    val context = LocalContext.current
+    val carouselFocusRequester = remember { FocusRequester() }
 
-    // val carouselItems = pgcViewModel.carouselItems
+    val carouselItems = pgcViewModel.carouselItems
     val pgcFeeds = pgcViewModel.feedItems
 
     LazyColumn(
@@ -87,30 +88,30 @@ fun PgcScaffold(
                 .fillMaxSize(),
         state = lazyListState
     ) {
-        // item {
-        //     Row(
-        //         modifier = Modifier
-        //             .fillMaxWidth()
-        //             .horizontalScroll(rememberScrollState()),
-        //         horizontalArrangement = Arrangement.Center
-        //     ) {
-        //         PgcCarousel(
-        //             modifier = Modifier
-        //                 .width(880.dp)
-        //                 .padding(32.dp, 0.dp)
-        //                 .focusRequester(carouselFocusRequester),
-        //             data = carouselItems,
-        //             onClick = { item ->
-        //                 SeasonInfoActivity.actionStart(
-        //                     context = context,
-        //                     epId = item.episodeId,
-        //                     seasonId = item.seasonId,
-        //                     proxyArea = ProxyArea.checkProxyArea(item.title)
-        //                 )
-        //             }
-        //         )
-        //     }
-        // }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                PgcCarousel(
+                    modifier = Modifier
+                        .width(880.dp)
+                        .padding(32.dp, 0.dp)
+                        .focusRequester(carouselFocusRequester),
+                    data = carouselItems,
+                    onClick = { item ->
+                        SeasonInfoActivity.actionStart(
+                            context = context,
+                            epId = item.episodeId,
+                            seasonId = item.seasonId,
+                            proxyArea = ProxyArea.checkProxyArea(item.title)
+                        )
+                    }
+                )
+            }
+        }
         if (featureButtons != null) {
             item {
                 featureButtons()
@@ -161,7 +162,7 @@ fun PgcFeedVideoRow(
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
+        horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         data.forEachIndexed { index, feedItem ->
             val cardModifier = if (index == data.lastIndex) {

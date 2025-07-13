@@ -84,29 +84,29 @@ fun UgcRegionScaffold(
             .fillMaxSize(),
         state = state.lazyListState
     ) {
-        // if (state.showCarousel) {
-        //     item {
-        //         Row(
-        //             modifier = Modifier
-        //                 .fillMaxWidth()
-        //                 .horizontalScroll(rememberScrollState()),
-        //             horizontalArrangement = Arrangement.Center
-        //         ) {
-        //             UgcCarousel(
-        //                 modifier = Modifier
-        //                     .width(880.dp)
-        //                     .padding(32.dp, 0.dp),
-        //                 data = state.carouselItems,
-        //                 onClick = { item ->
-        //                     VideoInfoActivity.actionStart(
-        //                         context = context,
-        //                         aid = item.avid!!
-        //                     )
-        //                 }
-        //             )
-        //         }
-        //     }
-        // }
+        if (ugcViewModel.showCarousel && ugcViewModel.carouselItems.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    UgcCarousel(
+                        modifier = Modifier
+                            .width(880.dp)
+                            .padding(12.dp, 0.dp),
+                        data = ugcViewModel.carouselItems,
+                        onClick = { item ->
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = item.avid!!
+                            )
+                        }
+                    )
+                }
+            }
+        }
 
         if (childRegionButtons != null) {
             item {
