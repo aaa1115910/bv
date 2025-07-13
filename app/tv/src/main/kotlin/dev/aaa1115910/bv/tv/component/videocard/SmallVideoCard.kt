@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -95,11 +96,7 @@ fun SmallVideoCardContent(
     onLongClick: () -> Unit = {},
     onFocusChanged: (Boolean) -> Unit = {}
 ) {
-    /*val infoScale by animateFloatAsState(
-        targetValue = if (hasFocus) 1.05f else 1f,
-        animationSpec = spring(),
-        label = "info scale"
-    )*/
+    // 缓存密度计算，避免重复计算
     val finalOffsetY = LocalDensity.current.run { 6.dp.toPx() }
     val infoOffsetY by animateFloatAsState(
         targetValue = if (hasFocus) finalOffsetY else 0f,
@@ -109,8 +106,11 @@ fun SmallVideoCardContent(
 
     Column(
         modifier = modifier
+            .fillMaxWidth()
     ) {
         Card(
+            modifier = Modifier
+                .fillMaxWidth(),
             onClick = onClick,
             onLongClick = onLongClick,
             colors = CardDefaults.colors(
@@ -135,65 +135,16 @@ fun SmallVideoCardContent(
         }
         Spacer(modifier = Modifier.height(8.dp))
         CardInfo(
-            modifier = Modifier.graphicsLayer {
-                translationY = infoOffsetY
-            },
+            modifier = Modifier
+                .graphicsLayer {
+                    translationY = infoOffsetY
+                }
+                .fillMaxWidth()
+                .height(80.dp),
             title = data.title,
             upName = data.upName,
             pubTime = data.pubTime
         )
-    }
-}
-
-@Composable
-private fun PlayText(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    if (text.isNotBlank()) {
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Icon(
-                modifier = Modifier,
-                painter = painterResource(id = R.drawable.ic_play_count),
-                contentDescription = null,
-                tint = Color.White
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White
-            )
-        }
-    }
-}
-
-@Composable
-private fun DanmakuText(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    if (text.isNotBlank()) {
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Icon(
-                modifier = Modifier,
-                painter = painterResource(id = R.drawable.ic_danmaku_count),
-                contentDescription = null,
-                tint = Color.White
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White
-            )
-        }
     }
 }
 
@@ -209,15 +160,37 @@ private fun CoverBottomInfo(
             .fillMaxWidth()
             .padding(12.dp, 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            PlayText(text = play)
-            DanmakuText(text = danmaku)
+        if (play.isNotBlank()) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_play_count),
+                contentDescription = null,
+                tint = Color.White
+            )
+            Spacer(Modifier.width(2.dp))
+            Text(
+                text = play,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White
+            )
         }
+        
+        if (danmaku.isNotBlank()) {
+            if (play.isNotBlank()) Spacer(Modifier.width(8.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.ic_danmaku_count),
+                contentDescription = null,
+                tint = Color.White
+            )
+            Spacer(Modifier.width(2.dp))
+            Text(
+                text = danmaku,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White
+            )
+        }
+        
+        Spacer(Modifier.weight(1f))
         Text(
             text = time,
             style = MaterialTheme.typography.bodySmall,
@@ -235,43 +208,39 @@ fun CardCover(
     danmaku: String,
     time: String
 ) {
-    var width by remember { mutableStateOf(200.dp) }
-    val showInfo by remember { derivedStateOf { width > 160.dp } }
-
     BoxWithConstraints(
-        modifier = modifier.clip(MaterialTheme.shapes.large),
+        modifier = modifier
+            .fillMaxSize()
+            .clip(MaterialTheme.shapes.large),
         contentAlignment = Alignment.BottomCenter
     ) {
-        val boxWithConstraintsScope = this
-        width = boxWithConstraintsScope.maxWidth
-        val shadowAlpha by animateFloatAsState(
-            targetValue = if (showInfo) 0.8f else 0f,
-            label = "shadow alpha"
-        )
+        val showInfo = maxWidth > 160.dp
 
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1.6f)
-                .clip(MaterialTheme.shapes.large),
+                .aspectRatio(1.6f),
             model = cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
             contentDescription = null,
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.Crop
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = shadowAlpha)
+        
+        // 只有需要显示时才创建阴影和信息组件
+        if (showInfo) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.8f)
+                            )
                         )
                     )
-                )
-        )
-        if (showInfo) {
+            )
+            
             CoverBottomInfo(
                 play = play,
                 danmaku = danmaku,
@@ -408,21 +377,5 @@ fun SmallVideoCardsPreview() {
                 }
             }
         }
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun DanmakuTextPreview() {
-    BVTheme {
-        DanmakuText(text = "233")
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PlayTextPreview() {
-    BVTheme {
-        PlayText(text = "233")
     }
 }

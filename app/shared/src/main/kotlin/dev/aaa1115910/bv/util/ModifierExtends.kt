@@ -80,7 +80,7 @@ fun Modifier.focusedScale(
  * @param action 延迟后要执行的操作
  */
 fun Modifier.onDelayFocusChanged(
-    delayTime: Long = 280L,
+    delayTime: Long = 200L,
     action: (FocusState) -> Unit
 ) = composed {
     val scope = rememberCoroutineScope()

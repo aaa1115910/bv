@@ -71,9 +71,6 @@ fun PgcContent(
     var focusOnContent by remember { mutableStateOf(false) }
     var topNavHasFocus by remember { mutableStateOf(false) }
 
-    // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
-    val tabSelectionDebouncer = rememberDebouncer<PgcTopNavItem>(280L)
-
     // 使用remember的key参数确保只有在DrawerItem.PGC的tab状态变化时才重新计算
     var selectedTab by remember {
         mutableStateOf(
@@ -105,9 +102,46 @@ fun PgcContent(
         }
     }
 
-    //启动时刷新数据
-    LaunchedEffect(Unit) {
-
+    //启动时加载当前选中tab的数据
+    LaunchedEffect(selectedTab) {
+        when (selectedTab) {
+            PgcTopNavItem.Anime -> {
+                if (pgcAnimeViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载动画数据" }
+                    pgcAnimeViewModel.init()
+                }
+            }
+            PgcTopNavItem.GuoChuang -> {
+                if (pgcGuoChuangViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载国创数据" }
+                    pgcGuoChuangViewModel.init()
+                }
+            }
+            PgcTopNavItem.Movie -> {
+                if (pgcMovieViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载电影数据" }
+                    pgcMovieViewModel.init()
+                }
+            }
+            PgcTopNavItem.Documentary -> {
+                if (pgcDocumentaryViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载纪录片数据" }
+                    pgcDocumentaryViewModel.init()
+                }
+            }
+            PgcTopNavItem.Tv -> {
+                if (pgcTvViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载电视剧数据" }
+                    pgcTvViewModel.init()
+                }
+            }
+            PgcTopNavItem.Variety -> {
+                if (pgcVarietyViewModel.feedItems.isEmpty()) {
+                    logger.fInfo { "加载综艺数据" }
+                    pgcVarietyViewModel.init()
+                }
+            }
+        }
     }
 
     BackHandler(focusOnContent || topNavHasFocus) {
@@ -143,9 +177,7 @@ fun PgcContent(
                 isLargePadding = !focusOnContent && currentListOnTop,
                 initialSelectedItem = selectedTab,
                 onSelectedChanged = { nav ->
-                    tabSelectionDebouncer.debounce(scope, nav as PgcTopNavItem) { selectedNavItem ->
-                        selectedTab = selectedNavItem
-                    }
+                    selectedTab = nav as PgcTopNavItem
                 },
                 onClick = { nav ->
                     when (nav) {
@@ -174,7 +206,14 @@ fun PgcContent(
                 targetState = selectedTab,
                 label = "pgc animated content",
                 transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
+                    val coefficient = 10
+                    if (targetState.ordinal < initialState.ordinal) {
+                        fadeIn() + slideInHorizontally { -it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { it / coefficient }
+                    } else {
+                        fadeIn() + slideInHorizontally { it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { -it / coefficient }
+                    }
                 }
             ) { screen ->
                 when (screen) {

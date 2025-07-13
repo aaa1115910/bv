@@ -86,6 +86,27 @@ abstract class UgcViewModel(
         }
     }
 
+    /**
+     * 延迟加载数据，如果在延迟期间被取消则不加载
+     */
+    fun loadDataWithDelay(delayMs: Long = 300L) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch(Dispatchers.IO) {
+            delay(delayMs)
+            if (ugcItems.isEmpty()) {
+                initUgcRegionData()
+            }
+        }
+    }
+
+    /**
+     * 取消延迟加载
+     */
+    fun cancelDelayedLoad() {
+        loadJob?.cancel()
+        loadJob = null
+    }
+
     suspend fun loadMore() {
         if (!hasMore && updating) return
         updating = true

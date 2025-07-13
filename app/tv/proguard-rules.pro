@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# 设置优化轮数，可以提升代码优化效果
+-optimizationpasses 5
+# 允许改变访问修饰符，有助于优化
+-allowaccessmodification

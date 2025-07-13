@@ -10,7 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,43 +25,41 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import dev.aaa1115910.bv.tv.component.TopNav
 import dev.aaa1115910.bv.tv.component.UgcTopNavItem
-import dev.aaa1115910.bv.tv.screens.main.ugc.AiContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.AnimalContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.CarContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.CinephileContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.DanceContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.DougaContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.EmotionContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.EntContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.FashionContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.FoodContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.GameContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.GymContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.HandmakeContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.HealthContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.HomeContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.InformationContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.KichikuContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.KnowledgeContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.LifeExperienceContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.LifeJoyContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.MusicContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.MysticismContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.OutdoorsContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.PaintingContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.ParentingContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.RuralContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.ShortPlayContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.SportsContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.TechContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.TravelContent
-import dev.aaa1115910.bv.tv.screens.main.ugc.VlogContent
+import dev.aaa1115910.bv.tv.screens.main.ugc.CreateUgcContent
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
-import dev.aaa1115910.bv.util.rememberDebouncer
+import dev.aaa1115910.bv.viewmodel.ugc.UgcAiViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcAnimalViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcCarViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcCinephileViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcDanceViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcDougaViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcEmotionViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcEntViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcFashionViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcFoodViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcGameViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcGymViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcHandmakeViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcHealthViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcHomeViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcInformationViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcKichikuViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcKnowledgeViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcLifeExperienceViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcLifeJoyViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcMusicViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcMysticismViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcOutdoorsViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcPaintingViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcParentingViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcRuralViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcShortplayViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcSportsViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcTechViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcTravelViewModel
+import dev.aaa1115910.bv.viewmodel.ugc.UgcVlogViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -102,10 +100,11 @@ fun UgcContent(
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("UgcContent")
+
+    // 为当前选中的tab创建LazyGridState
+    val currentLazyGridState = rememberLazyGridState()
     var focusOnContent by remember { mutableStateOf(false) }
     var topNavHasFocus by remember { mutableStateOf(false) }
-    // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
-    val tabSelectionDebouncer = rememberDebouncer<UgcTopNavItem>(280L)
 
     // 使用remember的key参数确保只有在DrawerItem.UGC的tab状态变化时才重新计算
     var selectedTab by remember {
@@ -121,11 +120,6 @@ fun UgcContent(
         currentSelectedTabs[DrawerItem.UGC] = selectedTab.ordinal
     }
 
-    //启动时刷新数据
-    LaunchedEffect(Unit) {
-
-    }
-
     BackHandler(focusOnContent || topNavHasFocus) {
         logger.fInfo { "onFocusBackToNav" }
         if (topNavHasFocus) {
@@ -133,41 +127,9 @@ fun UgcContent(
             return@BackHandler
         }
         navFocusRequester.requestFocus(scope)
-        // // scroll to top
+        // 滚动到顶部（如果需要的话）
         // scope.launch(Dispatchers.Main) {
-        //     when (selectedTab) {
-        //         UgcTopNavItem.Douga -> dougaState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Game -> gameState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Kichiku -> kichikuState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Music -> musicState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Dance -> danceState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Cinephile -> cinephileState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Ent -> entState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Knowledge -> knowledgeState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Tech -> techState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Information -> informationState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Food -> foodState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.ShortPlay -> shortPlayState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Car -> carState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Fashion -> fashionState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Sports -> sportsState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Animal -> animalState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Vlog -> vlogState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Painting -> paintingState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Ai -> aiState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Home -> homeState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Outdoors -> outdoorsState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Gym -> gymState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Handmake -> handmakeState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Travel -> travelState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Rural -> ruralState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Parenting -> parentingState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Health -> healthState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Emotion -> emotionState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.LifeJoy -> lifeJoyState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.LifeExperience -> lifeExperienceState.lazyListState.animateScrollToItem(0)
-        //         UgcTopNavItem.Mysticism -> mysticismState.lazyListState.animateScrollToItem(0)
-        //     }
+        //     currentLazyGridState.animateScrollToItem(0)
         // }
     }
 
@@ -182,9 +144,13 @@ fun UgcContent(
                 isLargePadding = !focusOnContent,
                 initialSelectedItem = selectedTab,
                 onSelectedChanged = { nav ->
-                    tabSelectionDebouncer.debounce(scope, nav as UgcTopNavItem) { selectedNavItem ->
-                        selectedTab = selectedNavItem
-                    }
+                    selectedTab = nav as UgcTopNavItem
+                    // 取消非selectedTab的所有延迟加载
+                    viewModelMap
+                        .filterKeys { it != selectedTab }
+                        .values
+                        .forEach { it.cancelDelayedLoad() }
+
                 },
                 onClick = { nav ->
                     when (nav) {
@@ -238,42 +204,21 @@ fun UgcContent(
                 targetState = selectedTab,
                 label = "ugc animated content",
                 transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
+                    val coefficient = 10
+                    if (targetState.ordinal < initialState.ordinal) {
+                        fadeIn() + slideInHorizontally { -it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { it / coefficient }
+                    } else {
+                        fadeIn() + slideInHorizontally { it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { -it / coefficient }
+                    }
                 }
             ) { screen ->
-                when (screen) {
-                    UgcTopNavItem.Douga -> DougaContent(lazyListState = dougaState)
-                    UgcTopNavItem.Game -> GameContent(lazyListState = gameState)
-                    UgcTopNavItem.Kichiku -> KichikuContent(lazyListState = kichikuState)
-                    UgcTopNavItem.Music -> MusicContent(lazyListState = musicState)
-                    UgcTopNavItem.Dance -> DanceContent(lazyListState = danceState)
-                    UgcTopNavItem.Cinephile -> CinephileContent(lazyListState = cinephileState)
-                    UgcTopNavItem.Ent -> EntContent(lazyListState = entState)
-                    UgcTopNavItem.Knowledge -> KnowledgeContent(lazyListState = knowledgeState)
-                    UgcTopNavItem.Tech -> TechContent(lazyListState = techState)
-                    UgcTopNavItem.Information -> InformationContent(lazyListState = informationState)
-                    UgcTopNavItem.Food -> FoodContent(lazyListState = foodState)
-                    UgcTopNavItem.ShortPlay -> ShortPlayContent(lazyListState = shortPlayState)
-                    UgcTopNavItem.Car -> CarContent(lazyListState = carState)
-                    UgcTopNavItem.Fashion -> FashionContent(lazyListState = fashionState)
-                    UgcTopNavItem.Sports -> SportsContent(lazyListState = sportsState)
-                    UgcTopNavItem.Animal -> AnimalContent(lazyListState = animalState)
-                    UgcTopNavItem.Vlog -> VlogContent(lazyListState = vlogState)
-                    UgcTopNavItem.Painting -> PaintingContent(lazyListState = paintingState)
-                    UgcTopNavItem.Ai -> AiContent(lazyListState = aiState)
-                    UgcTopNavItem.Home -> HomeContent(lazyListState = homeState)
-                    UgcTopNavItem.Outdoors -> OutdoorsContent(lazyListState = outdoorsState)
-                    UgcTopNavItem.Gym -> GymContent(lazyListState = gymState)
-                    UgcTopNavItem.Handmake -> HandmakeContent(lazyListState = handmakeState)
-                    UgcTopNavItem.Travel -> TravelContent(lazyListState = travelState)
-                    UgcTopNavItem.Rural -> RuralContent(lazyListState = ruralState)
-                    UgcTopNavItem.Parenting -> ParentingContent(lazyListState = parentingState)
-                    UgcTopNavItem.Health -> HealthContent(lazyListState = healthState)
-                    UgcTopNavItem.Emotion -> EmotionContent(lazyListState = emotionState)
-                    UgcTopNavItem.LifeJoy -> LifeJoyContent(lazyListState = lifeJoyState)
-                    UgcTopNavItem.LifeExperience -> LifeExperienceContent(lazyListState = lifeExperienceState)
-                    UgcTopNavItem.Mysticism -> MysticismContent(lazyListState = mysticismState)
-                }
+                CreateUgcContent(
+                    navItem = screen,
+                    lazyGridState = currentLazyGridState,
+                    ugcViewModel = viewModelMap[screen]!!
+                )
             }
         }
     }

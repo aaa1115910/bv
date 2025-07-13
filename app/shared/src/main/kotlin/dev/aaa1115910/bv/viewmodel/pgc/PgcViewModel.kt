@@ -49,7 +49,7 @@ abstract class PgcViewModel(
     var hasNext by mutableStateOf(true)
     private var cursor = 0
 
-    init {
+    fun init() {
         loadMore()
         viewModelScope.launch(Dispatchers.IO) {
             updateCarousel()
@@ -74,7 +74,7 @@ abstract class PgcViewModel(
         logger.fInfo { "Reload all $pgcType data" }
         clearAll()
         viewModelScope.launch(Dispatchers.IO) {
-            // updateCarousel()
+            updateCarousel()
             updateFeed()
         }
     }

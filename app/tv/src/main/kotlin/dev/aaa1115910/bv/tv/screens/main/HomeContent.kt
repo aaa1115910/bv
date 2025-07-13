@@ -10,7 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +39,7 @@ import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -55,15 +56,15 @@ fun HomeContent(
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("HomeContent")
 
-    val recommendState = rememberLazyListState()
-    val popularState = rememberLazyListState()
-    val dynamicState = rememberLazyListState()
+    val recommendState = rememberLazyGridState()
+    val popularState = rememberLazyGridState()
+    val dynamicState = rememberLazyGridState()
     
     var focusOnContent by remember { mutableStateOf(false) }
     var topNavHasFocus by remember { mutableStateOf(false) }
-
-    // 用于控制Tab选择后的延迟加载的防抖器（自动管理生命周期）
-    val tabSelectionDebouncer = rememberDebouncer<HomeTopNavItem>(280L)
+    
+    // 用于管理延迟加载的Job
+    var loadJob by remember { mutableStateOf<Job?>(null) }
 
     // 从全局状态获取上次选择的标签位置，如果没有则默认为Recommend
     var selectedTab by remember {
@@ -74,9 +75,38 @@ fun HomeContent(
         )
     }
 
-    // 当选中标签变化时，保存到全局状态
+    // 当选中标签变化时，保存到全局状态并处理延迟加载
     LaunchedEffect(selectedTab) {
         currentSelectedTabs[DrawerItem.Home] = selectedTab.ordinal
+        
+        // 取消之前的延迟加载
+        loadJob?.cancel()
+        
+        // 开始新的延迟加载
+        loadJob = scope.launch(Dispatchers.IO) {
+            delay(300L)
+            
+            when (selectedTab) {
+                HomeTopNavItem.Recommend -> {
+                    if (recommendViewModel.recommendVideoList.isEmpty()) {
+                        logger.fInfo { "延迟加载推荐数据" }
+                        recommendViewModel.loadMore()
+                    }
+                }
+                HomeTopNavItem.Popular -> {
+                    if (popularViewModel.popularVideoList.isEmpty()) {
+                        logger.fInfo { "延迟加载热门数据" }
+                        popularViewModel.loadMore()
+                    }
+                }
+                HomeTopNavItem.Dynamics -> {
+                    if (dynamicViewModel.dynamicVideoList.isEmpty()) {
+                        logger.fInfo { "延迟加载动态数据" }
+                        dynamicViewModel.loadMoreVideo()
+                    }
+                }
+            }
+        }
     }
     val currentListOnTop by remember {
         derivedStateOf {
@@ -90,15 +120,28 @@ fun HomeContent(
                 firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
             }
         }
-    }    // 启动时触发一次屏幕切换，确保tab和内容同步
+    }
+
     LaunchedEffect(Unit) {
-        // 强制触发一次当前选中tab的内容切换，通过重新设置selectedTab来实现
-        val currentTab = selectedTab
-        logger.fInfo { "初始化切换到 $currentTab 屏幕" }
-        // 短暂延迟后重新设置tab，触发AnimatedContent切换
-        scope.launch {
-            delay(50)
-            selectedTab = currentTab
+        when (selectedTab) {
+            HomeTopNavItem.Recommend -> {
+                if (recommendViewModel.recommendVideoList.isEmpty()) {
+                    logger.fInfo { "延迟加载推荐数据" }
+                    recommendViewModel.loadMore()
+                }
+            }
+            HomeTopNavItem.Popular -> {
+                if (popularViewModel.popularVideoList.isEmpty()) {
+                    logger.fInfo { "延迟加载热门数据" }
+                    popularViewModel.loadMore()
+                }
+            }
+            HomeTopNavItem.Dynamics -> {
+                if (dynamicViewModel.dynamicVideoList.isEmpty()) {
+                    logger.fInfo { "延迟加载动态数据" }
+                    dynamicViewModel.loadMoreVideo()
+                }
+            }
         }
     }
 
@@ -141,20 +184,12 @@ fun HomeContent(
                 isLargePadding = !focusOnContent && currentListOnTop,
                 initialSelectedItem = selectedTab,
                 onSelectedChanged = { nav ->
-                    tabSelectionDebouncer.debounce(scope, nav as HomeTopNavItem) { selectedNavItem ->
-                        selectedTab = selectedNavItem
-                        // when (selectedNavItem) {
-                        //     HomeTopNavItem.Recommend -> {}
-                        //     HomeTopNavItem.Popular -> {}
-                        //     HomeTopNavItem.Dynamics -> {
-                        //         // if (!dynamicViewModel.loadingVideo && dynamicViewModel.isLogin && dynamicViewModel.dynamicVideoList.isEmpty()) {
-                        //         //     scope.launch(Dispatchers.IO) { dynamicViewModel.loadMoreVideo() }
-                        //         // }
-                        //     }
-                        // }
-                    }
+                    loadJob?.cancel()
+                    selectedTab = nav as HomeTopNavItem
                 },
                 onClick = { nav ->
+                    loadJob?.cancel()
+                    
                     when (nav) {
                         HomeTopNavItem.Recommend -> {
                             logger.fInfo { "clear recommend data" }
@@ -195,13 +230,20 @@ fun HomeContent(
                 targetState = selectedTab,
                 label = "home animated content",
                 transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
+                    val coefficient = 10
+                    if (targetState.ordinal < initialState.ordinal) {
+                        fadeIn() + slideInHorizontally { -it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { it / coefficient }
+                    } else {
+                        fadeIn() + slideInHorizontally { it / coefficient } togetherWith
+                                fadeOut() + slideOutHorizontally { -it / coefficient }
+                    }
                 }
             ) { screen ->
                 when (screen) {
-                    HomeTopNavItem.Recommend -> RecommendScreen(lazyListState = recommendState)
-                    HomeTopNavItem.Popular -> PopularScreen(lazyListState = popularState)
-                    HomeTopNavItem.Dynamics -> DynamicsScreen(lazyListState = dynamicState)
+                    HomeTopNavItem.Recommend -> RecommendScreen(lazyGridState = recommendState)
+                    HomeTopNavItem.Popular -> PopularScreen(lazyGridState = popularState)
+                    HomeTopNavItem.Dynamics -> DynamicsScreen(lazyGridState = dynamicState)
                 }
             }
         }

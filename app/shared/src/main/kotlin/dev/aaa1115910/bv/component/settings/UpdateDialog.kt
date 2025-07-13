@@ -39,6 +39,7 @@ import dev.aaa1115910.bv.network.entity.Release
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.toMBString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.content.ProgressListener
 import kotlinx.coroutines.Dispatchers
@@ -218,7 +219,7 @@ private fun UpdateDialogContent(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        text("$bytesSentTotal/$contentLength")
+                        text("${bytesSentTotal.toMBString()}/${contentLength.toMBString()}")
                     }
                 }
 

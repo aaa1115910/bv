@@ -44,8 +44,8 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ## 修改
 在原bv的基础上做了一些修改，包括：
 - 增加点赞、投币功能
-- 支持不显示UGC视频详情页，直接播放
-- 精简动画、增加数据缓存、减少非必要的请求、减少页面重组
+- 支持跳过UGC视频详情页，点击视频卡片直接播放
+- 优化列表，精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
 
@@ -111,10 +111,6 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ### Release
 
 - [Github Release](https://github.com/fantasytyx/bv/releases?q=prerelease%3Afalse)
-
-### Alpha
-
-- [Github Release](https://github.com/fantasytyx/bv/releases?q=prerelease%3Atrue)
 
 ## License
 

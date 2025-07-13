@@ -155,6 +155,8 @@ fun Long.formatHourMinSec(): String {
     }
 }
 
+fun Long.toMBString(): String = String.format("%.2f MB", this / 1024f / 1024f)
+
 fun String.removeHtmlTags(): String = HtmlCompat.fromHtml(
     this, HtmlCompat.FROM_HTML_MODE_LEGACY
 ).toString()

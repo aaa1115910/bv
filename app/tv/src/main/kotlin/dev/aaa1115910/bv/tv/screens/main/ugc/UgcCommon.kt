@@ -5,17 +5,21 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +45,8 @@ import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.UgcCarousel
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.ugc.UgcViewModel
@@ -53,7 +59,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun UgcRegionScaffold(
     modifier: Modifier = Modifier,
-    lazyListState: LazyListState,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     ugcViewModel: UgcViewModel,
     childRegionButtons: (@Composable () -> Unit)? = null
 ) {
@@ -72,66 +78,51 @@ fun UgcRegionScaffold(
     // 监听滚动位置，加载更多内容
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
-            state.loadMore()
+            withContext(Dispatchers.IO) {
+                ugcViewModel.loadMore()
+            }
         }
     }
 
     val padding = dimensionResource(R.dimen.grid_padding)
     val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
-        state = state.lazyListState
+    LazyVerticalGrid(
+        modifier = modifier.fillMaxSize(),
+        columns = GridCells.Fixed(4),
+        state = lazyGridState,
+        contentPadding = PaddingValues(padding),
+        verticalArrangement = Arrangement.spacedBy(spacedBy),
+        horizontalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
+        // 轮播图组件
         if (ugcViewModel.showCarousel && ugcViewModel.carouselItems.isNotEmpty()) {
-            item {
-                Row(
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                UgcCarousel(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    UgcCarousel(
-                        modifier = Modifier
-                            .width(880.dp)
-                            .padding(12.dp, 0.dp),
-                        data = ugcViewModel.carouselItems,
-                        onClick = { item ->
-                            VideoInfoActivity.actionStart(
-                                context = context,
-                                aid = item.avid!!
-                            )
-                        }
-                    )
-                }
-            }
-        }
-
-        if (childRegionButtons != null) {
-            item {
-                childRegionButtons()
-            }
-        } else {
-            item {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp)
+                        .fillMaxWidth(),
+                    data = ugcViewModel.carouselItems,
+                    onClick = { item ->
+                        VideoInfoActivity.actionStart(
+                            context = context,
+                            aid = item.avid!!
+                        )
+                    }
                 )
             }
         }
 
-        gridItems(
-            data = ugcViewModel.ugcItems,
-            columnCount = 4,
-            modifier = Modifier
-                .width(880.dp)
-                .padding(padding),
-            horizontalArrangement = Arrangement.spacedBy(spacedBy),
-            itemContent = { index, item ->
-                SmallVideoCard(
-                    data = VideoCardData(
+        // 子区域按钮
+        // if (childRegionButtons != null) {
+        //     item(span = { GridItemSpan(maxLineSpan) }) {
+        //         childRegionButtons()
+        //     }
+        // }
+
+        itemsIndexed(ugcViewModel.ugcItems) { index, item ->
+            SmallVideoCard(
+                data = remember(item.aid) {
+                    VideoCardData(
                         avid = item.aid,
                         title = item.title,
                         cover = item.cover,
@@ -140,51 +131,21 @@ fun UgcRegionScaffold(
                         upName = item.author,
                         time = item.duration * 1000L,
                         pubTime = item.pubTime
-                    ),
-                    onClick = { VideoInfoActivity.actionStart(context, item.aid) },
-                    onFocus = { currentFocusedIndex = index }
-                )
-            }
-        )
-    }
-}
+                    )
+                },
+                onClick = { VideoInfoActivity.actionStart(context, item.aid) },
+                onFocus = { currentFocusedIndex = index }
+            )
+        }
 
-fun <T> LazyListScope.gridItems(
-    data: List<T>,
-    key: ((index: Int) -> Any)? = null,
-    columnCount: Int,
-    modifier: Modifier = Modifier,
-    verticalAlignment: Alignment.Vertical = Alignment.Top,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    itemContent: @Composable BoxScope.(Int, T) -> Unit,
-) {
-    val size = data.count()
-    val rows = if (size == 0) 0 else 1 + (size - 1) / columnCount
-    items(rows, key = key) { rowIndex ->
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            item {
-                Row(
-                    verticalAlignment = verticalAlignment,
-                    horizontalArrangement = horizontalArrangement,
-                    modifier = modifier
-                ) {
-                    for (columnIndex in 0 until columnCount) {
-                        val itemIndex = rowIndex * columnCount + columnIndex
-                        if (itemIndex < size) {
-                            Box(
-                                modifier = Modifier.weight(1F, fill = true),
-                                propagateMinConstraints = true
-                            ) {
-                                itemContent(itemIndex, data[itemIndex])
-                            }
-                        } else {
-                            Spacer(Modifier.weight(1F, fill = true))
-                        }
-                    }
-                }
+        if (ugcViewModel.updating) {
+            item(span = { GridItemSpan(maxLineSpan) }) {    // 网格里占整行
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) { LoadingTip() }
             }
         }
     }
@@ -193,7 +154,7 @@ fun <T> LazyListScope.gridItems(
 data class UgcScaffoldState(
     val context: Context,
     val scope: CoroutineScope,
-    val lazyListState: LazyListState,
+    val lazyGridState: LazyGridState,
     val ugcType: UgcTypeV2,
     private val ugcRepository: UgcRepository
 ) {

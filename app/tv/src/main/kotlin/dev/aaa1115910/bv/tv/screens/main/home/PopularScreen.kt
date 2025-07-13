@@ -2,11 +2,15 @@ package dev.aaa1115910.bv.tv.screens.main.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -26,7 +30,6 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
-import dev.aaa1115910.bv.tv.screens.main.ugc.gridItems
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,14 +38,14 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PopularScreen(
     modifier: Modifier = Modifier,
-    lazyListState: LazyListState,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     popularViewModel: PopularViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { currentFocusedIndex + 12 > popularViewModel.popularVideoList.size }
+        derivedStateOf { popularViewModel.popularVideoList.isNotEmpty() && currentFocusedIndex + 12 > popularViewModel.popularVideoList.size }
     }
 
     val onClickVideo: (UgcItem) -> Unit = { ugcItem ->
@@ -53,28 +56,24 @@ fun PopularScreen(
         if (shouldLoadMore) {
             scope.launch(Dispatchers.IO) {
                 popularViewModel.loadMore()
-                //加载完成后重置shouldLoadMore为false，避免如果加载失败后无法重新加载
-                currentFocusedIndex = -100
             }
         }
     }
 
     val padding = dimensionResource(R.dimen.grid_padding)
     val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
-    LazyColumn(
+    LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
-        state = lazyListState
+        columns = GridCells.Fixed(4),
+        state = lazyGridState,
+        contentPadding = PaddingValues(padding),
+        verticalArrangement = Arrangement.spacedBy(spacedBy),
+        horizontalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
-        gridItems(
-            data = popularViewModel.popularVideoList,
-            columnCount = 4,
-            modifier = Modifier
-                .width(880.dp)
-                .padding(padding),
-            horizontalArrangement = Arrangement.spacedBy(spacedBy),
-            itemContent = { index, item ->
-                SmallVideoCard(
-                    data = VideoCardData(
+        itemsIndexed(popularViewModel.popularVideoList) { index, item ->
+            SmallVideoCard(
+                data = remember(item.aid) {
+                    VideoCardData(
                         avid = item.aid,
                         title = item.title,
                         cover = item.cover,
@@ -83,15 +82,15 @@ fun PopularScreen(
                         upName = item.author,
                         time = item.duration * 1000L,
                         pubTime = item.pubTime
-                    ),
-                    onClick = { onClickVideo(item) },
-                    onFocus = { currentFocusedIndex = index }
-                )
-            }
-        )
+                    )
+                },
+                onClick = { onClickVideo(item) },
+                onFocus = { currentFocusedIndex = index }
+            )
+        }
 
-        if (popularViewModel.loading)
-            item {
+        if (popularViewModel.loading) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -99,5 +98,6 @@ fun PopularScreen(
                     LoadingTip()
                 }
             }
+        }
     }
 }
