@@ -54,9 +54,9 @@ android {
     flavorDimensions.add("channel")
 
     productFlavors {
-        create("lite") {
-            dimension = "channel"
-        }
+        // create("lite") {
+        //     dimension = "channel"
+        // }
         create("default") {
             dimension = "channel"
         }

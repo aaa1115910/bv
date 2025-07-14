@@ -51,9 +51,10 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
   [修改内容](./CHANGELOG.md)
 
-![image](https://github.com/user-attachments/assets/05fc0887-e74d-423f-9f61-1744dd8ef132)
-![image](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
-![image](https://github.com/user-attachments/assets/914a14f6-be9c-4fcc-a8e9-7867bfecb690)
+![首页](https://github.com/user-attachments/assets/05fc0887-e74d-423f-9f61-1744dd8ef132)
+![PGC](https://github.com/user-attachments/assets/59600816-85f7-4f8a-83cc-3b8c27870027)
+![UGC详情](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
+![视频播放](https://github.com/user-attachments/assets/914a14f6-be9c-4fcc-a8e9-7867bfecb690)
 
 
 ## 构建

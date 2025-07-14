@@ -369,14 +369,10 @@ class VideoPlayerV3ViewModel(
         codec: VideoCodec = currentVideoCodec,
         audio: Audio = currentAudio
     ) {
-        if (qn != currentQuality) {
-            // 更新清晰度后需要先设置清晰度再更新编码列表
-            withContext(Dispatchers.Main) { currentQuality = qn }
-            updateAvailableCodec()
-            playQuality(qn.code, currentVideoCodec, audio)
-        } else {
-            playQuality(qn.code, codec, audio)
-        }
+        // 更新清晰度后需要先设置清晰度再更新编码列表
+        withContext(Dispatchers.Main) { currentQuality = qn }
+        updateAvailableCodec()
+        playQuality(qn.code, currentVideoCodec, audio)
     }
 
     private suspend fun playQuality(
