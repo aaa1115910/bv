@@ -328,6 +328,14 @@ object Prefs {
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPlayerAutoPlayNextVideoRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerAutoPlayNextVideoKey, value) }
     
+    var playerSeekStep: Int
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPlayerSeekStepRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerSeekStepKey, value) }
+    
+    var playerShowBottomProgressBar: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefPlayerShowBottomProgressBarRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefPlayerShowBottomProgressBarKey, value) }
+    
     var showUGCVideoInfo: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowUGCVideoInfoRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowUGCVideoInfoKey, value) }
@@ -380,6 +388,8 @@ object PrefKeys {
     val prefPlayerShowDebugInfoKey = booleanPreferencesKey("player_show_debug_info")
     val prefPlayerExitWhenAllIsPlayedKey = booleanPreferencesKey("player_exit_when_all_is_played")
     val prefPlayerAutoPlayNextVideoKey = booleanPreferencesKey("player_auto_play_next_video")
+    val prefPlayerSeekStepKey = intPreferencesKey("player_seek_step")
+    val prefPlayerShowBottomProgressBarKey = booleanPreferencesKey("player_show_bottom_progress_bar")
     val prefShowUGCVideoInfoKey = booleanPreferencesKey("pref_show_ugc_video_info")
 
 
@@ -443,5 +453,7 @@ object PrefKeys {
     val prefPlayerShowDebugInfoRequest = PreferenceRequest(prefPlayerShowDebugInfoKey, false)
     val prefPlayerExitWhenAllIsPlayedRequest = PreferenceRequest(prefPlayerExitWhenAllIsPlayedKey, true)
     val prefPlayerAutoPlayNextVideoRequest = PreferenceRequest(prefPlayerAutoPlayNextVideoKey, true)
+    val prefPlayerSeekStepRequest = PreferenceRequest(prefPlayerSeekStepKey, 10)
+    val prefPlayerShowBottomProgressBarRequest = PreferenceRequest(prefPlayerShowBottomProgressBarKey, false)
     val prefShowUGCVideoInfoRequest = PreferenceRequest(prefShowUGCVideoInfoKey, true)
 }

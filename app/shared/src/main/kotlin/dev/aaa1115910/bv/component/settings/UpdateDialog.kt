@@ -3,18 +3,25 @@ package dev.aaa1115910.bv.component.settings
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -24,6 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -43,6 +57,7 @@ import dev.aaa1115910.bv.util.toMBString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.content.ProgressListener
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
@@ -72,6 +87,15 @@ fun UpdateDialog(
 
     var latestReleaseBuild by remember { mutableStateOf<Release?>(null) }
 
+    var downloadJob by remember { mutableStateOf<Job?>(null) }
+    DisposableEffect(show) {
+        if(!show) {
+            downloadJob?.cancel()
+        }
+        onDispose {
+            downloadJob?.cancel()
+        }
+    }
     val checkUpdate: () -> Unit = {
         updateStatus = UpdateStatus.UpdatingInfo
 
@@ -114,7 +138,7 @@ fun UpdateDialog(
 
     val startUpdate: () -> Unit = {
         updateStatus = UpdateStatus.Downloading
-        scope.launch(Dispatchers.IO) {
+        downloadJob = scope.launch(Dispatchers.IO) {
             val tempFilename = "${UUID.randomUUID()}.apk"
             val tempDir = File(context.cacheDir, "update_downloader")
             if (!tempDir.exists()) tempDir.mkdirs()
@@ -182,9 +206,16 @@ private fun UpdateDialogContent(
     button: @Composable ((enabled: Boolean, onClick: () -> Unit, content: @Composable (RowScope.() -> Unit)) -> Unit),
     outlinedButton: @Composable ((enabled: Boolean, onClick: () -> Unit, content: @Composable (RowScope.() -> Unit)) -> Unit)
 ) {
+    val configuration = LocalConfiguration.current
+    val maxHeight = (configuration.screenHeightDp * 0.8).dp
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    val confirmButtonFocusRequester = remember { FocusRequester() }
+    
     AlertDialog(
         modifier = modifier
-            .width(400.dp),
+            .width(450.dp)
+            .heightIn(max = maxHeight),
         onDismissRequest = { onHideDialog() },
         title = {
             ProvideTextStyle(
@@ -205,29 +236,58 @@ private fun UpdateDialogContent(
             }
         },
         text = {
-            when (updateStatus) {
-                UpdateStatus.UpdatingInfo -> text("检查更新中...")
-                UpdateStatus.Ready -> text(latestReleaseBuild?.body ?: "Empty content")
-                UpdateStatus.Downloading -> Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        text("${bytesSentTotal.toMBString()}/${contentLength.toMBString()}")
+            Column(
+                modifier = Modifier
+                    .verticalScroll(scrollState)
+                    .focusable()
+                    .onKeyEvent { keyEvent ->
+                        when (keyEvent.key) {
+                            Key.DirectionUp -> {
+                                scope.launch {
+                                    scrollState.animateScrollBy(-100f)
+                                }
+                                true
+                            }
+                            Key.DirectionDown -> {
+                                scope.launch {
+                                    val canScrollDown = scrollState.value < scrollState.maxValue
+                                    if (canScrollDown) {
+                                        scrollState.animateScrollBy(100f)
+                                    } else {
+                                        // 已经滚动到底部，将焦点转移到确认按钮
+                                        confirmButtonFocusRequester.requestFocus()
+                                    }
+                                }
+                                true
+                            }
+                            else -> false
+                        }
                     }
-                }
+            ) {
+                when (updateStatus) {
+                    UpdateStatus.UpdatingInfo -> text("检查更新中...")
+                    UpdateStatus.Ready -> text(latestReleaseBuild?.body ?: "Empty content")
+                    UpdateStatus.Downloading -> Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            text("${bytesSentTotal.toMBString()}/${contentLength.toMBString()}")
+                        }
+                    }
 
-                UpdateStatus.Installing -> text("请坐和放宽")
-                UpdateStatus.DownloadError -> text("下载失败")
-                UpdateStatus.InstallError -> text("安装失败")
-                UpdateStatus.CheckError -> text("获取更新信息失败")
-                UpdateStatus.NoAvailableUpdate -> text("真没更新，骗你是小狗！")
+                    UpdateStatus.Installing -> text("请坐和放宽")
+                    UpdateStatus.DownloadError -> text("下载失败")
+                    UpdateStatus.InstallError -> text("安装失败")
+                    UpdateStatus.CheckError -> text("获取更新信息失败")
+                    UpdateStatus.NoAvailableUpdate -> text("真没更新，骗你是小狗！")
+                }
             }
         },
         confirmButton = {
@@ -235,14 +295,18 @@ private fun UpdateDialogContent(
                 UpdateStatus.UpdatingInfo, UpdateStatus.NoAvailableUpdate, UpdateStatus.Downloading, UpdateStatus.Installing -> {}
 
                 UpdateStatus.Ready -> {
-                    button(true, startUpdate) {
-                        text("立即更新")
+                    Box(modifier = Modifier.focusRequester(confirmButtonFocusRequester)) {
+                        button(true, startUpdate) {
+                            text("立即更新")
+                        }
                     }
                 }
 
                 UpdateStatus.InstallError, UpdateStatus.DownloadError, UpdateStatus.CheckError -> {
-                    button(true, checkUpdate) {
-                        text("再试一次")
+                    Box(modifier = Modifier.focusRequester(confirmButtonFocusRequester)) {
+                        button(true, checkUpdate) {
+                            text("再试一次")
+                        }
                     }
                 }
             }

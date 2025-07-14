@@ -139,6 +139,8 @@ fun VideoPlayerV3Screen(
                     .fillMaxSize(),
                 videoPlayer = playerViewModel.videoPlayer!!,
                 danmakuPlayer = playerViewModel.danmakuPlayer,
+                playerSeekStep = Prefs.playerSeekStep,
+                showBottomProgressBar = Prefs.playerShowBottomProgressBar,
                 onSendHeartbeat = playerViewModel::uploadHistory,
                 onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
                 onLoadNextVideo = {
@@ -252,7 +254,7 @@ fun VideoPlayerV3Screen(
                     playerViewModel.currentVideoAspectRatio = aspectRatio
                 },
                 onPlaySpeedChange = { speed ->
-                    Prefs.defaultPlaySpeed = speed
+                    // Prefs.defaultPlaySpeed = speed
                     playerViewModel.currentPlaySpeed = speed
                 },
                 onAudioChange = { audio, afterChange ->

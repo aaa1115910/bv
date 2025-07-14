@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -58,6 +61,8 @@ import kotlinx.coroutines.withContext
 fun VideoPlayerController(
     modifier: Modifier = Modifier,
     videoPlayer: AbstractVideoPlayer,
+    playerSeekStep: Int = 10,
+    showBottomProgressBar: Boolean = false,
 
     //player events
     onPlay: () -> Unit,
@@ -145,7 +150,8 @@ fun VideoPlayerController(
     }
 
     val onTimeForward = {
-        val targetTime = goTime + (10000 + calCoefficient() * 5000)
+        val baseTime = playerSeekStep * 1000L // 转换为毫秒
+        val targetTime = goTime + (baseTime + calCoefficient() * 5000)
         goTime =
             if (targetTime > videoPlayerSeekData.duration) videoPlayerSeekData.duration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
@@ -154,7 +160,8 @@ fun VideoPlayerController(
         logger.info { "onTimeForward: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
     val onTimeBack = {
-        val targetTime = goTime - (10000 + calCoefficient() * 5000)
+        val baseTime = playerSeekStep * 1000L // 转换为毫秒
+        val targetTime = goTime - (baseTime + calCoefficient() * 5000)
         goTime = if (targetTime < 0) 0 else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
         moveState = SeekMoveState.Backward
@@ -419,6 +426,24 @@ fun VideoPlayerController(
             onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
             onSubtitleBottomPadding = onSubtitleBottomPadding
         )
+        // 底部常驻进度条组件
+        if (showBottomProgressBar) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(2.dp),
+                progress = { 
+                    if (videoPlayerSeekData.duration > 0) {
+                        videoPlayerSeekData.position.toFloat() / videoPlayerSeekData.duration.toFloat()
+                    } else {
+                        0f
+                    }
+                },
+                color = Color.White.copy(alpha = 0.85f),
+                trackColor = Color.Black.copy(alpha = 0.5f)
+            )
+        }
     }
 }
 

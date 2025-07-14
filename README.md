@@ -43,8 +43,17 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ## 修改
 在原bv的基础上做了一些修改，包括：
-- 增加点赞、投币功能
-- 支持跳过UGC视频详情页，点击视频卡片直接播放
+- UGC视频详情页增加点赞、投币功能
+- 增加是否“显示UGC视频详情页” （设置-界面设置，默认开启）
+  - 关闭后会跳过UGC视频详情页，点击视频卡片直接开始播放
+- 增加设置“设置竖屏视频播放时的最大清晰度为1080P”（设置-更多设置，默认禁用）
+  - 开启可解决部分设备竖屏视频变形/花屏的问题
+- 增加是否自动“播放下一个视频”（设置-更多设置，默认开启）
+- 增加是否“都播完后退出播放器”（设置-更多设置，默认开启）
+- 增加默认播放速度配置（设置-更多设置，默认1倍）
+- 增加快进/快退时间间隔配置（设置-更多设置，默认10秒）
+- 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
+- 增加设置“播放器显示视频调试信息”（设置-界面设置，默认不显示）
 - 优化列表，精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
@@ -54,7 +63,8 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ![首页](https://github.com/user-attachments/assets/05fc0887-e74d-423f-9f61-1744dd8ef132)
 ![PGC](https://github.com/user-attachments/assets/59600816-85f7-4f8a-83cc-3b8c27870027)
 ![UGC详情](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
-![视频播放](https://github.com/user-attachments/assets/914a14f6-be9c-4fcc-a8e9-7867bfecb690)
+![视频播放](https://github.com/user-attachments/assets/1e8939ba-f973-4847-9ae5-7cb9ae64f98e)
+![设置](https://github.com/user-attachments/assets/9171ab80-cc19-4e06-898c-66b6bc309e1f)
 
 
 ## 构建
