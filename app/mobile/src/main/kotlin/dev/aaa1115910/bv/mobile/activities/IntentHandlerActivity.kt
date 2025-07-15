@@ -12,6 +12,10 @@ class IntentHandlerActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.decorView.systemUiVisibility =
+            android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         val uri = intent.data
         when (uri?.host) {
             BvScheme.QrToken.HOST -> QrTokenResultActivity.launch(this, uri)
