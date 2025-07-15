@@ -34,6 +34,11 @@ class MainActivity : ComponentActivity() {
         }
         super.onCreate(savedInstanceState)
 
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.decorView.systemUiVisibility =
+            android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
         setContent {
             val scope = rememberCoroutineScope()
             var isCheckingNetwork by remember { mutableStateOf(true) }
@@ -81,4 +86,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
