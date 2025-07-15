@@ -35,10 +35,10 @@ class FollowingSeasonViewModel(
     var noMore by mutableStateOf(false)
     var updating by mutableStateOf(false)
 
-    init {
-        followingSeasonType = FollowingSeasonType.Bangumi
-        followingSeasonStatus = FollowingSeasonStatus.All
-    }
+//    init {
+//        followingSeasonType = FollowingSeasonType.Bangumi
+//        followingSeasonStatus = FollowingSeasonStatus.All
+//    }
 
     fun clearData() {
         pageNumber = 1

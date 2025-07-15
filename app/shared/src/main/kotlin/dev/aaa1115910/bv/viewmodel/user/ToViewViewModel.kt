@@ -102,4 +102,11 @@ class ToViewViewModel(
             updating = false
         }
     }
+
+    fun clearData() {
+        histories.clear()
+        cursor = 0L
+        noMore = false
+        logger.fInfo { "ToView data cleared" }
+    }
 }

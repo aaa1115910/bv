@@ -49,7 +49,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun FollowingSeasonScreen(
     modifier: Modifier = Modifier,
-    followingSeasonViewModel: FollowingSeasonViewModel = koinViewModel()
+    followingSeasonViewModel: FollowingSeasonViewModel = koinViewModel(),
+    showPageTitle: Boolean = true
 ) {
     val context = LocalContext.current
     val logger = KotlinLogging.logger { }
@@ -87,67 +88,71 @@ fun FollowingSeasonScreen(
     }
 
     LaunchedEffect(followingSeasonType, followingSeasonStatus) {
-        logger.fInfo { "Start update search result because filter updated" }
-        followingSeasonViewModel.clearData()
-        followingSeasonViewModel.loadMore()
+        if (followingSeasons.isEmpty()) {
+            logger.fInfo { "Start update search result because filter updated" }
+            followingSeasonViewModel.clearData()
+            followingSeasonViewModel.loadMore()
+        }
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            Box(
-                modifier = Modifier.padding(
-                    start = 48.dp,
-                    top = 24.dp,
-                    bottom = 8.dp,
-                    end = 48.dp
-                )
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
+            if (showPageTitle) {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 48.dp,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                        end = 48.dp
+                    )
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.Bottom
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = stringResource(R.string.title_activity_following_season),
-                            fontSize = titleFontSize.sp
-                        )
-                        Text(
-                            text = followingSeasonType.getDisplayName(context),
-                            fontSize = subtitleFontSize.sp
-                        )
-                        Text(
-                            text = "(${followingSeasonStatus.getDisplayName(context)})",
-                            fontSize = subtitleFontSize.sp
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.filter_dialog_open_tip),
-                            color = Color.White.copy(alpha = 0.6f)
-                        )
-                        if (noMore) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.Bottom
+                        ) {
                             Text(
-                                text = stringResource(
-                                    R.string.load_data_count_no_more,
-                                    followingSeasonViewModel.followingSeasons.size
-                                ),
+                                text = stringResource(R.string.title_activity_following_season),
+                                fontSize = titleFontSize.sp
+                            )
+                            Text(
+                                text = followingSeasonType.getDisplayName(context),
+                                fontSize = subtitleFontSize.sp
+                            )
+                            Text(
+                                text = "(${followingSeasonStatus.getDisplayName(context)})",
+                                fontSize = subtitleFontSize.sp
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.filter_dialog_open_tip),
                                 color = Color.White.copy(alpha = 0.6f)
                             )
-                        } else {
-                            Text(
-                                text = stringResource(
-                                    R.string.load_data_count,
-                                    followingSeasonViewModel.followingSeasons.size
-                                ),
-                                color = Color.White.copy(alpha = 0.6f)
-                            )
+                            if (noMore) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.load_data_count_no_more,
+                                        followingSeasonViewModel.followingSeasons.size
+                                    ),
+                                    color = Color.White.copy(alpha = 0.6f)
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(
+                                        R.string.load_data_count,
+                                        followingSeasonViewModel.followingSeasons.size
+                                    ),
+                                    color = Color.White.copy(alpha = 0.6f)
+                                )
+                            }
                         }
                     }
                 }

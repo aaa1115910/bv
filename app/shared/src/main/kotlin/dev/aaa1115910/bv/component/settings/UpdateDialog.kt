@@ -312,19 +312,21 @@ private fun UpdateDialogContent(
             }
         },
         dismissButton = {
-            outlinedButton(
-                !(updateStatus == UpdateStatus.Downloading || updateStatus == UpdateStatus.Installing),
-                onHideDialog
-            ) {
-                text(
-                    when (updateStatus) {
-                        UpdateStatus.UpdatingInfo -> "我点错了"
-                        UpdateStatus.Ready -> "打死不更"
-                        UpdateStatus.NoAvailableUpdate -> "走了走了"
-                        UpdateStatus.CheckError, UpdateStatus.DownloadError, UpdateStatus.InstallError -> "算了算了"
-                        UpdateStatus.Downloading, UpdateStatus.Installing -> "你已经无路可逃！"
-                    }
-                )
+            Box(modifier = Modifier.focusRequester(confirmButtonFocusRequester)) {
+                outlinedButton(
+                    !(updateStatus == UpdateStatus.Downloading || updateStatus == UpdateStatus.Installing),
+                    onHideDialog
+                ) {
+                    text(
+                        when (updateStatus) {
+                            UpdateStatus.UpdatingInfo -> "我点错了"
+                            UpdateStatus.Ready -> "打死不更"
+                            UpdateStatus.NoAvailableUpdate -> "走了走了"
+                            UpdateStatus.CheckError, UpdateStatus.DownloadError, UpdateStatus.InstallError -> "算了算了"
+                            UpdateStatus.Downloading, UpdateStatus.Installing -> "你已经无路可逃！"
+                        }
+                    )
+                }
             }
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)

@@ -20,23 +20,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Text
 import dev.aaa1115910.bv.tv.component.HomeTopNavItem
 import dev.aaa1115910.bv.tv.component.TopNav
 import dev.aaa1115910.bv.tv.screens.main.home.DynamicsScreen
 import dev.aaa1115910.bv.tv.screens.main.home.PopularScreen
 import dev.aaa1115910.bv.tv.screens.main.home.RecommendScreen
+import dev.aaa1115910.bv.tv.screens.user.FavoriteScreen
+import dev.aaa1115910.bv.tv.screens.user.FollowingSeasonScreen
+import dev.aaa1115910.bv.tv.screens.user.HistoryScreen
+import dev.aaa1115910.bv.tv.screens.user.ToViewScreen
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.requestFocus
-import dev.aaa1115910.bv.util.rememberDebouncer
 import dev.aaa1115910.bv.viewmodel.UserViewModel
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
+import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
+import dev.aaa1115910.bv.viewmodel.user.FollowingSeasonViewModel
+import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
+import dev.aaa1115910.bv.viewmodel.user.ToViewViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,6 +61,10 @@ fun HomeContent(
     recommendViewModel: RecommendViewModel = koinViewModel(),
     popularViewModel: PopularViewModel = koinViewModel(),
     dynamicViewModel: DynamicViewModel = koinViewModel(),
+    favouriteViewModel: FavoriteViewModel = koinViewModel(),
+    followingSeasonViewModel: FollowingSeasonViewModel = koinViewModel(),
+    historyViewModel: HistoryViewModel = koinViewModel(),
+    toViewViewModel: ToViewViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
@@ -59,6 +73,10 @@ fun HomeContent(
     val recommendState = rememberLazyGridState()
     val popularState = rememberLazyGridState()
     val dynamicState = rememberLazyGridState()
+    val favoriteState = rememberLazyGridState()
+    val followingSeasonState = rememberLazyGridState()
+    val historyState = rememberLazyGridState()
+    val toViewState = rememberLazyGridState()
     
     var focusOnContent by remember { mutableStateOf(false) }
     var topNavHasFocus by remember { mutableStateOf(false) }
@@ -71,8 +89,56 @@ fun HomeContent(
         mutableStateOf(
             currentSelectedTabs[DrawerItem.Home]
                 ?.let { HomeTopNavItem.entries.getOrNull(it) }
-                ?: HomeTopNavItem.Recommend
+                ?: HomeTopNavItem.entries.getOrElse(Prefs.defaultHomeTab) { HomeTopNavItem.Recommend }
         )
+    }
+
+    fun initData () {
+        scope.launch {
+            when (selectedTab) {
+                HomeTopNavItem.Recommend -> {
+                    if (recommendViewModel.recommendVideoList.isEmpty()) {
+                        recommendViewModel.loadMore()
+                    }
+                }
+
+                HomeTopNavItem.Popular -> {
+                    if (popularViewModel.popularVideoList.isEmpty()) {
+                        popularViewModel.loadMore()
+                    }
+                }
+
+                HomeTopNavItem.Dynamics -> {
+                    if (dynamicViewModel.dynamicVideoList.isEmpty()) {
+                        dynamicViewModel.loadMoreVideo()
+                    }
+                }
+
+                HomeTopNavItem.Favorite -> {
+//                    if (favouriteViewModel.favorites.isEmpty() && userViewModel.isLogin) {
+//                        favouriteViewModel.updateFoldersInfo()
+//                    }
+                }
+
+                HomeTopNavItem.FollowingSeason -> {
+//                    if (followingSeasonViewModel.followingSeasons.isEmpty() && userViewModel.isLogin) {
+//                        followingSeasonViewModel.loadMore()
+//                    }
+                }
+
+                HomeTopNavItem.History -> {
+//                    if (historyViewModel.histories.isEmpty() && userViewModel.isLogin) {
+//                        historyViewModel.update()
+//                    }
+                }
+
+                HomeTopNavItem.ToView -> {
+//                    if (toViewViewModel.histories.isEmpty() && userViewModel.isLogin) {
+//                        toViewViewModel.update()
+//                    }
+                }
+            }
+        }
     }
 
     // 当选中标签变化时，保存到全局状态并处理延迟加载
@@ -85,27 +151,7 @@ fun HomeContent(
         // 开始新的延迟加载
         loadJob = scope.launch(Dispatchers.IO) {
             delay(300L)
-            
-            when (selectedTab) {
-                HomeTopNavItem.Recommend -> {
-                    if (recommendViewModel.recommendVideoList.isEmpty()) {
-                        logger.fInfo { "延迟加载推荐数据" }
-                        recommendViewModel.loadMore()
-                    }
-                }
-                HomeTopNavItem.Popular -> {
-                    if (popularViewModel.popularVideoList.isEmpty()) {
-                        logger.fInfo { "延迟加载热门数据" }
-                        popularViewModel.loadMore()
-                    }
-                }
-                HomeTopNavItem.Dynamics -> {
-                    if (dynamicViewModel.dynamicVideoList.isEmpty()) {
-                        logger.fInfo { "延迟加载动态数据" }
-                        dynamicViewModel.loadMoreVideo()
-                    }
-                }
-            }
+            initData()
         }
     }
     val currentListOnTop by remember {
@@ -115,6 +161,10 @@ fun HomeContent(
                     HomeTopNavItem.Recommend -> recommendState
                     HomeTopNavItem.Popular -> popularState
                     HomeTopNavItem.Dynamics -> dynamicState
+                    HomeTopNavItem.Favorite -> favoriteState
+                    HomeTopNavItem.FollowingSeason -> followingSeasonState
+                    HomeTopNavItem.History -> historyState
+                    HomeTopNavItem.ToView -> toViewState
                 }
             ) {
                 firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
@@ -123,26 +173,7 @@ fun HomeContent(
     }
 
     LaunchedEffect(Unit) {
-        when (selectedTab) {
-            HomeTopNavItem.Recommend -> {
-                if (recommendViewModel.recommendVideoList.isEmpty()) {
-                    logger.fInfo { "延迟加载推荐数据" }
-                    recommendViewModel.loadMore()
-                }
-            }
-            HomeTopNavItem.Popular -> {
-                if (popularViewModel.popularVideoList.isEmpty()) {
-                    logger.fInfo { "延迟加载热门数据" }
-                    popularViewModel.loadMore()
-                }
-            }
-            HomeTopNavItem.Dynamics -> {
-                if (dynamicViewModel.dynamicVideoList.isEmpty()) {
-                    logger.fInfo { "延迟加载动态数据" }
-                    dynamicViewModel.loadMoreVideo()
-                }
-            }
-        }
+        initData()
     }
 
     //监听登录变化
@@ -162,14 +193,6 @@ fun HomeContent(
             return@BackHandler
         }
         navFocusRequester.requestFocus(scope)
-        // // scroll to top
-        // scope.launch(Dispatchers.Main) {
-        //     when (selectedTab) {
-        //         HomeTopNavItem.Recommend -> recommendState.animateScrollToItem(0)
-        //         HomeTopNavItem.Popular -> popularState.animateScrollToItem(0)
-        //         HomeTopNavItem.Dynamics -> dynamicState.animateScrollToItem(0)
-        //     }
-        // }
     }
 
     Scaffold(
@@ -211,6 +234,34 @@ fun HomeContent(
                             logger.fInfo { "reload dynamic data" }
                             scope.launch(Dispatchers.IO) { dynamicViewModel.loadMoreVideo() }
                         }
+
+                        HomeTopNavItem.Favorite -> {
+                            if (userViewModel.isLogin) {
+                                favouriteViewModel.clearData()
+                                favouriteViewModel.updateFoldersInfo()
+                            }
+                        }
+
+                        HomeTopNavItem.FollowingSeason -> {
+                            if (userViewModel.isLogin) {
+                                followingSeasonViewModel.clearData()
+                                followingSeasonViewModel.loadMore()
+                            }
+                        }
+
+                        HomeTopNavItem.History -> {
+                            if (userViewModel.isLogin) {
+                                historyViewModel.clearData()
+                                historyViewModel.update()
+                            }
+                        }
+
+                        HomeTopNavItem.ToView -> {
+                            if (userViewModel.isLogin) {
+                                toViewViewModel.clearData()
+                                toViewViewModel.update()
+                            }
+                        }
                     }
                 },
                 onLeftKeyEvent = {
@@ -243,9 +294,53 @@ fun HomeContent(
                 when (screen) {
                     HomeTopNavItem.Recommend -> RecommendScreen(lazyGridState = recommendState)
                     HomeTopNavItem.Popular -> PopularScreen(lazyGridState = popularState)
-                    HomeTopNavItem.Dynamics -> DynamicsScreen(lazyGridState = dynamicState)
+                    HomeTopNavItem.Dynamics -> {
+                        if (userViewModel.isLogin) {
+                            DynamicsScreen(lazyGridState = dynamicState)
+                        } else {
+                            LoginRequiredScreen()
+                        }
+                    }
+                    HomeTopNavItem.Favorite -> {
+                        if (userViewModel.isLogin) {
+                            FavoriteScreen(showPageTitle = false)
+                        } else {
+                            LoginRequiredScreen()
+                        }
+                    }
+                    HomeTopNavItem.FollowingSeason -> {
+                        if (userViewModel.isLogin) {
+                            FollowingSeasonScreen(showPageTitle = false)
+                        } else {
+                            LoginRequiredScreen()
+                        }
+                    }
+                    HomeTopNavItem.History -> {
+                        if (userViewModel.isLogin) {
+                            HistoryScreen(showPageTitle = false)
+                        } else {
+                            LoginRequiredScreen()
+                        }
+                    }
+                    HomeTopNavItem.ToView -> {
+                        if (userViewModel.isLogin) {
+                            ToViewScreen(showPageTitle = false)
+                        } else {
+                            LoginRequiredScreen()
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LoginRequiredScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "请先登录")
     }
 }

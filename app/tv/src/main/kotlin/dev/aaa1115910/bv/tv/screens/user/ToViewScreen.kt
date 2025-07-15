@@ -36,7 +36,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ToViewScreen(
     modifier: Modifier = Modifier,
-    ToViewViewModel: ToViewViewModel = koinViewModel()
+    ToViewViewModel: ToViewViewModel = koinViewModel(),
+    showPageTitle: Boolean = true
 ) {
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -47,40 +48,50 @@ fun ToViewScreen(
     )
 
     LaunchedEffect(Unit) {
-        ToViewViewModel.update()
+        if (ToViewViewModel.histories.isEmpty()) {
+            ToViewViewModel.clearData()
+            ToViewViewModel.update()
+        }
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            Box(
-                modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.title_activity_toview),
-                        fontSize = titleFontSize.sp
+            if (showPageTitle) {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 48.dp,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                        end = 48.dp
                     )
-                    if (ToViewViewModel.noMore) {
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = stringResource(
-                                R.string.load_data_count_no_more,
-                                ToViewViewModel.histories.size
-                            ),
-                            color = Color.White.copy(alpha = 0.6f)
+                            text = stringResource(R.string.title_activity_toview),
+                            fontSize = titleFontSize.sp
                         )
-                    } else {
-                        Text(
-                            text = stringResource(
-                                R.string.load_data_count,
-                                ToViewViewModel.histories.size
-                            ),
-                            color = Color.White.copy(alpha = 0.6f)
-                        )
+                        if (ToViewViewModel.noMore) {
+                            Text(
+                                text = stringResource(
+                                    R.string.load_data_count_no_more,
+                                    ToViewViewModel.histories.size
+                                ),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(
+                                    R.string.load_data_count,
+                                    ToViewViewModel.histories.size
+                                ),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
                     }
                 }
             }

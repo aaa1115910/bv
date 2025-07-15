@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -54,7 +55,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun FavoriteScreen(
     modifier: Modifier = Modifier,
-    favoriteViewModel: FavoriteViewModel = koinViewModel()
+    favoriteViewModel: FavoriteViewModel = koinViewModel(),
+    showPageTitle: Boolean = true
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -67,11 +69,12 @@ fun FavoriteScreen(
     val focusRequester = remember { FocusRequester() }
     val defaultFocusRequester = remember { FocusRequester() }
     var focusOnTabs by remember { mutableStateOf(true) }
+    var focusOnGrid by remember { mutableStateOf(false) }
     val lazyGridState = rememberLazyGridState()
 
     val currentTabIndex by remember {
         derivedStateOf {
-            favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata)
+            if (favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata) >= 0) favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata) else 0
         }
     }
 
@@ -84,7 +87,7 @@ fun FavoriteScreen(
         }
 
     BackHandler(
-        enabled = !focusOnTabs
+        enabled = focusOnGrid
     ) {
         scope.launch(Dispatchers.Main) {
             lazyGridState.animateScrollToItem(0)
@@ -92,28 +95,42 @@ fun FavoriteScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        if (favoriteViewModel.favoriteFolderMetadataList.isEmpty()) {
+            favoriteViewModel.clearData()
+            favoriteViewModel.updateFoldersInfo()
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            Box(
-                modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
+            if (showPageTitle) {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 48.dp,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                        end = 48.dp
+                    )
                 ) {
-                    Text(
-                        text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolderMetadata?.title}",
-                        fontSize = titleFontSize.sp
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            favoriteViewModel.favorites.size
-                        ),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${stringResource(R.string.user_homepage_favorite)} - ${favoriteViewModel.currentFavoriteFolderMetadata?.title}",
+                            fontSize = titleFontSize.sp
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.load_data_count,
+                                favoriteViewModel.favorites.size
+                            ),
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
         }
@@ -171,6 +188,7 @@ fun FavoriteScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     SmallVideoCard(
+                        modifier = Modifier.onFocusChanged { focusOnGrid = it.isFocused },
                         data = history,
                         onClick = { VideoInfoActivity.actionStart(context, history.avid) },
                         onFocus = {

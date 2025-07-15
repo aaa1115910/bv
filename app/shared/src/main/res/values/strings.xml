@@ -236,6 +236,8 @@
     <string name="settings_storage_others_cache">其他缓存</string>
     <string name="settings_ui_density_text">更改整个应用的大小缩放</string>
     <string name="settings_ui_density_title">界面缩放</string>
+    <string name="settings_ui_default_home_tab_text">设置打开应用时首页默认选中的标签</string>
+    <string name="settings_ui_default_home_tab_title">首页默认标签</string>
     <string name="settings_ui_theme_type_text">更改主题样式</string>
     <string name="settings_ui_theme_type_title">主题</string>
     <string name="settings_version_check_update_button">爷要更新</string>

@@ -49,6 +49,8 @@ import dev.aaa1115910.bv.component.settings.SettingSwitchListItem
 import dev.aaa1115910.bv.entity.ThemeType
 import dev.aaa1115910.bv.tv.component.TvAlertDialog
 import dev.aaa1115910.bv.tv.component.settings.SettingListItem
+import dev.aaa1115910.bv.tv.component.settings.SettingSwitchListItem
+import dev.aaa1115910.bv.tv.component.HomeTopNavItem
 import dev.aaa1115910.bv.tv.screens.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
@@ -63,10 +65,10 @@ fun UISetting(
 
     var showDensityDialog by remember { mutableStateOf(false) }
     var showThemeTypeDialog by remember { mutableStateOf(false) }
+    var showDefaultHomeTabDialog by remember { mutableStateOf(false) }
     val density by Prefs.densityFlow.collectAsState(context.resources.displayMetrics.widthPixels / 960f)
     val themeType by Prefs.themeTypeFlow.collectAsState(Prefs.themeType)
-    var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
-    var playerShowDebugInfo by remember { mutableStateOf(Prefs.playerShowDebugInfo) }
+    var defaultHomeTab by remember { mutableStateOf(HomeTopNavItem.entries.getOrElse(Prefs.defaultHomeTab) { HomeTopNavItem.Recommend }) }
 
     Box(modifier = modifier) {
         Column(
@@ -99,25 +101,10 @@ fun UISetting(
                     )
                 }
                 item {
-                    SettingSwitchListItem(
-                        title = stringResource(R.string.settings_show_ugc_video_info_title),
-                        supportText = stringResource(R.string.settings_show_ugc_video_info_text),
-                        checked = showUGCVideoInfo,
-                        onCheckedChange = {
-                            showUGCVideoInfo = it
-                            Prefs.showUGCVideoInfo = it
-                        }
-                    )
-                }
-                item {
-                    SettingSwitchListItem(
-                        title = stringResource(R.string.settings_player_show_debug_info_title),
-                        supportText = stringResource(R.string.settings_player_show_debug_info_text),
-                        checked = playerShowDebugInfo,
-                        onCheckedChange = {
-                            playerShowDebugInfo = it
-                            Prefs.playerShowDebugInfo = it
-                        }
+                    SettingListItem(
+                        title = stringResource(R.string.settings_ui_default_home_tab_title),
+                        supportText = stringResource(R.string.settings_ui_default_home_tab_text),
+                        onClick = { showDefaultHomeTabDialog = true }
                     )
                 }
             }
@@ -136,6 +123,16 @@ fun UISetting(
         onHideDialog = { showThemeTypeDialog = false },
         themeType = themeType,
         onThemeTypeChange = { Prefs.themeType = it }
+    )
+
+    DefaultHomeTabDialog(
+        show = showDefaultHomeTabDialog,
+        onHideDialog = { showDefaultHomeTabDialog = false },
+        defaultHomeTab = defaultHomeTab,
+        onDefaultHomeTabChange = { 
+            defaultHomeTab = it
+            Prefs.defaultHomeTab = it.ordinal 
+        }
     )
 }
 
@@ -265,6 +262,43 @@ private fun ThemeTypeDialogPreview() {
             onHideDialog = {},
             themeType = themeType,
             onThemeTypeChange = {}
+        )
+    }
+}
+
+@Composable
+fun DefaultHomeTabDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onHideDialog: () -> Unit,
+    defaultHomeTab: HomeTopNavItem,
+    onDefaultHomeTabChange: (HomeTopNavItem) -> Unit
+) {
+    if (show) {
+        TvAlertDialog(
+            modifier = modifier,
+            onDismissRequest = { onHideDialog() },
+            title = { Text(text = stringResource(R.string.settings_ui_default_home_tab_title)) },
+            text = {
+                Column {
+                    HomeTopNavItem.entries.forEach {
+                        ListItem(
+                            selected = defaultHomeTab == it,
+                            onClick = { onDefaultHomeTabChange(it) },
+                            headlineContent = {
+                                Text(text = it.getDisplayName(LocalContext.current))
+                            },
+                            trailingContent = {
+                                RadioButton(
+                                    selected = defaultHomeTab == it,
+                                    onClick = null
+                                )
+                            }
+                        )
+                    }
+                }
+            },
+            confirmButton = {}
         )
     }
 }

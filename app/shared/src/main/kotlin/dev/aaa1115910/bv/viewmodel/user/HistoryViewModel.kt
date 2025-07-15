@@ -104,4 +104,11 @@ class HistoryViewModel(
             updating = false
         }
     }
+
+    fun clearData() {
+        histories.clear()
+        cursor = 0L
+        noMore = false
+        logger.fInfo { "History data cleared" }
+    }
 }

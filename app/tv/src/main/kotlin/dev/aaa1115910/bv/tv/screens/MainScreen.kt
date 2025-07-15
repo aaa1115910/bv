@@ -57,6 +57,7 @@ import dev.aaa1115910.bv.tv.screens.main.UgcContent
 import dev.aaa1115910.bv.tv.screens.main.currentSelectedTabs
 import dev.aaa1115910.bv.tv.screens.main.drawerItemFocusRequesters
 import dev.aaa1115910.bv.tv.screens.search.SearchInputScreen
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.rememberDebouncer
@@ -97,6 +98,7 @@ fun MainScreen(
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastPressBack < 1500) {
             logger.fInfo { "Exiting bug video" }
+            currentSelectedTabs[DrawerItem.Home] = Prefs.defaultHomeTab
             (context as Activity).finish()
         } else {
             lastPressBack = currentTime
@@ -166,7 +168,8 @@ fun MainScreen(
                         context.startActivity(Intent(context, SettingsActivity::class.java))
                     },
                     onShowUserPanel = {
-                        showUserPanel = true
+                        // showUserPanel = true
+                        context.startActivity(Intent(context, UserInfoActivity::class.java))
                     },
                     onFocusToContent = onFocusToContent,
                     onLogin = {

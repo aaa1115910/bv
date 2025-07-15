@@ -45,11 +45,11 @@ class FavoriteViewModel(
     var updatingFolders by mutableStateOf(false)
     var updatingFolderItems by mutableStateOf(false)
 
-    init {
-        updateFoldersInfo()
-    }
+//    init {
+//        updateFoldersInfo()
+//    }
 
-    private fun updateFoldersInfo() {
+    fun updateFoldersInfo() {
         if (updatingFolders) return
         updatingFolders = true
         logger.fInfo { "Updating favorite folders" }
@@ -122,5 +122,11 @@ class FavoriteViewModel(
     fun resetPageNumber() {
         pageNumber = 1
         hasMore = true
+    }
+
+    fun clearData() {
+        favorites.clear()
+        resetPageNumber()
+        logger.fInfo { "Favorite data cleared" }
     }
 }

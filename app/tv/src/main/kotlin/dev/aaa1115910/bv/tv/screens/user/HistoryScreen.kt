@@ -36,7 +36,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
-    historyViewModel: HistoryViewModel = koinViewModel()
+    historyViewModel: HistoryViewModel = koinViewModel(),
+    showPageTitle: Boolean = true
 ) {
     val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -47,40 +48,50 @@ fun HistoryScreen(
     )
 
     LaunchedEffect(Unit) {
-        historyViewModel.update()
+        if (historyViewModel.histories.isEmpty()) {
+            historyViewModel.clearData()
+            historyViewModel.update()
+        }
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            Box(
-                modifier = Modifier.padding(start = 48.dp, top = 24.dp, bottom = 8.dp, end = 48.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.user_homepage_recent),
-                        fontSize = titleFontSize.sp
+            if (showPageTitle) {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 48.dp,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                        end = 48.dp
                     )
-                    if (historyViewModel.noMore) {
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = stringResource(
-                                R.string.load_data_count_no_more,
-                                historyViewModel.histories.size
-                            ),
-                            color = Color.White.copy(alpha = 0.6f)
+                            text = stringResource(R.string.user_homepage_recent),
+                            fontSize = titleFontSize.sp
                         )
-                    } else {
-                        Text(
-                            text = stringResource(
-                                R.string.load_data_count,
-                                historyViewModel.histories.size
-                            ),
-                            color = Color.White.copy(alpha = 0.6f)
-                        )
+                        if (historyViewModel.noMore) {
+                            Text(
+                                text = stringResource(
+                                    R.string.load_data_count_no_more,
+                                    historyViewModel.histories.size
+                                ),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(
+                                    R.string.load_data_count,
+                                    historyViewModel.histories.size
+                                ),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
                     }
                 }
             }

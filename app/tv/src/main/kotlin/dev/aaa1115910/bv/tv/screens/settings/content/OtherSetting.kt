@@ -45,6 +45,8 @@ fun OtherSetting(
     var playerShowBottomProgressBar by remember { mutableStateOf(Prefs.playerShowBottomProgressBar) }
     var defaultPlaybackSpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed.toDouble()) }
     var playerSeekStep by remember { mutableStateOf(Prefs.playerSeekStep.toDouble()) }
+    var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
+    var playerShowDebugInfo by remember { mutableStateOf(Prefs.playerShowDebugInfo) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -124,6 +126,28 @@ fun OtherSetting(
                     onCheckedChange = {
                         enableFfmpegAudioRenderer = it
                         Prefs.enableFfmpegAudioRenderer = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_show_ugc_video_info_title),
+                    supportText = stringResource(R.string.settings_show_ugc_video_info_text),
+                    checked = showUGCVideoInfo,
+                    onCheckedChange = {
+                        showUGCVideoInfo = it
+                        Prefs.showUGCVideoInfo = it
+                    }
+                )
+            }
+            item {
+                SettingSwitchListItem(
+                    title = stringResource(R.string.settings_player_show_debug_info_title),
+                    supportText = stringResource(R.string.settings_player_show_debug_info_text),
+                    checked = playerShowDebugInfo,
+                    onCheckedChange = {
+                        playerShowDebugInfo = it
+                        Prefs.playerShowDebugInfo = it
                     }
                 )
             }
