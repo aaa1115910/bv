@@ -24,6 +24,7 @@ import androidx.tv.material3.MaterialTheme
 import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
@@ -34,12 +35,12 @@ fun SeekController(
     modifier: Modifier = Modifier,
     show: Boolean,
     goTime: Long,
-    moveState: SeekMoveState,
-    sponsorBlockData: VideoPlayerSponsorBlockData // Added sponsorBlockData
+    moveState: SeekMoveState
 ) {
     val videoPlayerVideoShotData = LocalVideoPlayerVideoShotData.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
     val videoPlayerSeekThumbData = LocalVideoPlayerSeekThumbData.current
+    val sponsorBlockData = LocalVideoPlayerSponsorBlockData.current
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -58,7 +59,7 @@ fun SeekController(
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
                 movingIcon = videoPlayerSeekThumbData.movingIcon,
                 videoShot = videoPlayerVideoShotData.videoShot,
-                sponsorBlockData = sponsorBlockData // Pass to private SeekController
+                sponsorBlockData = sponsorBlockData
             )
         }
     }
@@ -73,7 +74,7 @@ private fun SeekController(
     idleIcon: String,
     movingIcon: String,
     videoShot: VideoShot? = null,
-    sponsorBlockData: VideoPlayerSponsorBlockData // Added sponsorBlockData
+    sponsorBlockData: VideoPlayerSponsorBlockData
 ) {
     Column(
         modifier = modifier,
@@ -111,7 +112,7 @@ private fun SeekController(
                 idleIcon = idleIcon,
                 movingIcon = movingIcon,
                 showPosition = true,
-                sponsorBlockData = sponsorBlockData // Pass to VideoSeekBar
+                sponsorBlockData = sponsorBlockData
             )
         }
     }
@@ -135,7 +136,7 @@ private fun VideoProgressSeekPreview(@PreviewParameter(VideoProgressProvider::cl
                 imageHeight = 0,
                 images = emptyList()
             ),
-            sponsorBlockData = VideoPlayerSponsorBlockData() // Provide default for preview
+            sponsorBlockData = VideoPlayerSponsorBlockData()
         )
     }
 }

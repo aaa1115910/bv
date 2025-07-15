@@ -26,13 +26,11 @@ import dev.aaa1115910.biliapi.entity.video.SubtitleType
 import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
+import dev.aaa1115910.biliapi.util.toBv
 import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
-import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.network.api.SponsorBlockHttpApi
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
@@ -43,6 +41,9 @@ import dev.aaa1115910.bv.player.entity.SkipToastType
 import dev.aaa1115910.bv.player.entity.SponsorBlockManager
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
+import dev.aaa1115910.bv.player.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
@@ -103,6 +104,7 @@ class VideoPlayerV3ViewModel(
         private set
     var skipToastType by mutableStateOf(SkipToastType.AUTO_SKIP)
         private set
+    var skipToastConfirmProgress by mutableFloatStateOf(0f)
 
     // Result toast related properties
     var showResultToast by mutableStateOf(false)
@@ -117,8 +119,10 @@ class VideoPlayerV3ViewModel(
     private var isCurrentlyAutoSeeking = false
     private var skipToastJob: kotlinx.coroutines.Job? = null
     private var resultToastJob: kotlinx.coroutines.Job? = null
-    private var currentSkipJobSegmentUuid: String? = null // Track which segment the current job is for
-    private val userCancelledSegmentUuids = mutableSetOf<String>() // Track segments that user manually cancelled
+    private var currentSkipJobSegmentUuid: String? =
+        null // Track which segment the current job is for
+    private val userCancelledSegmentUuids =
+        mutableSetOf<String>() // Track segments that user manually cancelled
     override var isUserDraggingSeekBar by mutableStateOf(false) // New state for user drag
         private set
 
@@ -174,7 +178,11 @@ class VideoPlayerV3ViewModel(
      * @param durationMillis Total video duration in milliseconds.
      * @param isPlaying Current playback state.
      */
-    override fun checkAndTriggerAutoSkip(currentPositionMillis: Long, durationMillis: Long, isPlaying: Boolean) {
+    override fun checkAndTriggerAutoSkip(
+        currentPositionMillis: Long,
+        durationMillis: Long,
+        isPlaying: Boolean
+    ) {
         if (!isPlaying || !Prefs.enableSponsorBlock || isCurrentlyAutoSeeking || isUserDraggingSeekBar || sponsorBlockSegments.isEmpty() || durationMillis <= 0) {
             // logger.fInfo { "SponsorBlock: AutoSkip check skipped (isPlaying=$isPlaying, enabled=${Prefs.enableSponsorBlock}, isAutoSeeking=$isCurrentlyAutoSeeking, isUserDragging=$isUserDraggingSeekBar, segments=${sponsorBlockSegments.size}, duration=$durationMillis)" }
             return
@@ -216,12 +224,12 @@ class VideoPlayerV3ViewModel(
                 if ((isApproachingSegment || isInSegment) && lastSkippedSegmentUuidForAutoSkip != segment.uuid) {
                     // Check if user has cancelled this segment (no time limit - respect user's decision)
                     if (userCancelledSegmentUuids.contains(segment.uuid)) {
-                         logger.fInfo { "checkAndTriggerAutoSkip: User has cancelled segment ${segment.uuid}, skipping auto-skip" }
+                        logger.fInfo { "checkAndTriggerAutoSkip: User has cancelled segment ${segment.uuid}, skipping auto-skip" }
                         continue // Skip this segment, user doesn't want it to be auto-skipped
                     }
 
-                     logger.fInfo { "checkAndTriggerAutoSkip: Triggering auto-skip for segment ${segment.category} (${segment.uuid}) to ${segment.endTimeMillis}ms" }
-                     logger.fInfo { "checkAndTriggerAutoSkip: Current skipToastJob active: ${skipToastJob?.isActive}, showSkipToast: $showSkipToast" }
+                    logger.fInfo { "checkAndTriggerAutoSkip: Triggering auto-skip for segment ${segment.category} (${segment.uuid}) to ${segment.endTimeMillis}ms" }
+                    logger.fInfo { "checkAndTriggerAutoSkip: Current skipToastJob active: ${skipToastJob?.isActive}, showSkipToast: $showSkipToast" }
 
                     lastSkippedSegmentUuidForAutoSkip = segment.uuid
                     isCurrentlyAutoSeeking = true
@@ -280,57 +288,63 @@ class VideoPlayerV3ViewModel(
     private fun showManualSkipToast(segment: SegmentItem) {
         // Cancel any existing skip toast job
         val oldJob = skipToastJob
-         val oldJobId = oldJob?.toString()
+        val oldJobId = oldJob?.toString()
         oldJob?.cancel()
-         logger.fInfo { "showManualSkipToast: Cancelled old job: $oldJobId" }
+        logger.fInfo { "showManualSkipToast: Cancelled old job: $oldJobId" }
 
         // Show manual skip toast
         showSkipToast = true
         skipToastMessage = SponsorBlockCategories.getDisplayName(segment.category) // 只传递类别名称
         skipToastSegment = segment
         skipToastType = SkipToastType.MANUAL_SKIP
+        skipToastConfirmProgress = 0f
 
         // Manual skip toast doesn't auto-hide, it stays until user leaves the segment
         skipToastJob = viewModelScope.launch {
-             val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
-             logger.fInfo { "showManualSkipToast: Created new manual skip job: $jobId for segment ${segment.category}" }
+            val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
+            logger.fInfo { "showManualSkipToast: Created new manual skip job: $jobId for segment ${segment.category}" }
 
             // Check periodically if user is still in the segment
             while (showSkipToast && skipToastType == SkipToastType.MANUAL_SKIP) {
                 delay(1000)
                 val currentPos = videoPlayer?.currentPosition ?: 0
-                val isStillInSegment = currentPos > segment.startTimeMillis && currentPos < segment.endTimeMillis
+                val isStillInSegment =
+                    currentPos > segment.startTimeMillis && currentPos < segment.endTimeMillis
                 val isStillApproaching = (segment.startTimeMillis - currentPos) in 0..5000
 
                 if (!isStillInSegment && !isStillApproaching) {
-                     logger.fInfo { "showManualSkipToast: Job $jobId completing - user left segment" }
+                    logger.fInfo { "showManualSkipToast: Job $jobId completing - user left segment" }
                     hideSkipToast()
                     break
                 }
             }
-             logger.fInfo { "showManualSkipToast: Job $jobId completed" }
+            logger.fInfo { "showManualSkipToast: Job $jobId completed" }
         }
 
-         val newJobId = skipToastJob?.toString()
-         logger.fInfo { "showManualSkipToast: Final job ID: $newJobId" }
+        val newJobId = skipToastJob?.toString()
+        logger.fInfo { "showManualSkipToast: Final job ID: $newJobId" }
     }
 
     /**
      * Shows skip toast and triggers delayed skip for auto-skip
      */
-    private fun showSkipToastAndDelayedSkip(segment: SegmentItem, delayMs: Long, toastType: SkipToastType) {
+    private fun showSkipToastAndDelayedSkip(
+        segment: SegmentItem,
+        delayMs: Long,
+        toastType: SkipToastType
+    ) {
         // Check if we already have a job running for this segment
         if (currentSkipJobSegmentUuid == segment.uuid && skipToastJob?.isActive == true) {
-             val existingJobId = skipToastJob?.toString()
-             logger.fInfo { "showSkipToastAndDelayedSkip: Job $existingJobId already running for segment ${segment.uuid}, skipping creation" }
+            val existingJobId = skipToastJob?.toString()
+            logger.fInfo { "showSkipToastAndDelayedSkip: Job $existingJobId already running for segment ${segment.uuid}, skipping creation" }
             return
         }
 
         // Cancel any existing skip toast job
         val oldJob = skipToastJob
-         val oldJobId = oldJob?.toString()
+        val oldJobId = oldJob?.toString()
         oldJob?.cancel()
-         logger.fInfo { "showSkipToastAndDelayedSkip: Cancelled old job: $oldJobId, creating new job for ${segment.category} with delay ${delayMs}ms" }
+        logger.fInfo { "showSkipToastAndDelayedSkip: Cancelled old job: $oldJobId, creating new job for ${segment.category} with delay ${delayMs}ms" }
 
         // Show skip toast
         showSkipToast = true
@@ -342,12 +356,12 @@ class VideoPlayerV3ViewModel(
             // Schedule delayed skip for auto-skip
             currentSkipJobSegmentUuid = segment.uuid // Track which segment this job is for
             skipToastJob = viewModelScope.launch {
-                 val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
-                 logger.fInfo { "skipToastJob: Created job $jobId - Starting delay of ${delayMs}ms for segment ${segment.category} (${segment.uuid})" }
+                val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
+                logger.fInfo { "skipToastJob: Created job $jobId - Starting delay of ${delayMs}ms for segment ${segment.category} (${segment.uuid})" }
 
                 try {
                     delay(delayMs)
-                     logger.fInfo { "skipToastJob: Job $jobId - Delay completed, executing skip for ${segment.category}" }
+                    logger.fInfo { "skipToastJob: Job $jobId - Delay completed, executing skip for ${segment.category}" }
 
                     // Hide toast and perform skip
                     hideSkipToast()
@@ -360,10 +374,10 @@ class VideoPlayerV3ViewModel(
 
                     // Clear the segment UUID since job is complete
                     currentSkipJobSegmentUuid = null
-                     logger.fInfo { "skipToastJob: Job $jobId completed successfully" }
+                    logger.fInfo { "skipToastJob: Job $jobId completed successfully" }
 
                 } catch (e: kotlinx.coroutines.CancellationException) {
-                     logger.fInfo { "skipToastJob: Job $jobId was cancelled" }
+                    logger.fInfo { "skipToastJob: Job $jobId was cancelled" }
                     throw e
                 } catch (e: Exception) {
                     logger.fException(e) { "skipToastJob: Job failed with exception: ${e.message}" }
@@ -371,8 +385,8 @@ class VideoPlayerV3ViewModel(
                 }
             }
 
-             val newJobId = skipToastJob?.toString()
-             logger.fInfo { "showSkipToastAndDelayedSkip: Created new skipToastJob: $newJobId (active: ${skipToastJob?.isActive})" }
+            val newJobId = skipToastJob?.toString()
+            logger.fInfo { "showSkipToastAndDelayedSkip: Created new skipToastJob: $newJobId (active: ${skipToastJob?.isActive})" }
         }
     }
 
@@ -383,37 +397,40 @@ class VideoPlayerV3ViewModel(
         skipToastSegment?.let { segment ->
             if (skipToastType == SkipToastType.MANUAL_SKIP) {
                 val currentPosition = videoPlayer?.currentPosition ?: 0
-                val isInSegment = currentPosition > segment.startTimeMillis && currentPosition < segment.endTimeMillis
+                val isInSegment =
+                    currentPosition > segment.startTimeMillis && currentPosition < segment.endTimeMillis
                 val isApproachingSegment = (segment.startTimeMillis - currentPosition) in 0..5000
 
                 if (isInSegment) {
                     // User is already in the segment, skip immediately
-                     logger.fInfo { "triggerManualSkip: User in segment, skipping immediately to ${segment.endTimeMillis}ms" }
+                    logger.fInfo { "triggerManualSkip: User in segment, skipping immediately to ${segment.endTimeMillis}ms" }
                     hideSkipToast()
                     _skipToMillis.value = segment.endTimeMillis
                     showResultToast("已跳过${SponsorBlockCategories.getDisplayName(segment.category)}")
                 } else if (isApproachingSegment) {
                     // User is approaching the segment, schedule delayed skip
-                    val delayMs = segment.startTimeMillis - currentPosition + 500 // Wait until segment start + 0.5s
-                     logger.fInfo { "triggerManualSkip: User approaching segment, scheduling skip in ${delayMs}ms" }
+                    val delayMs =
+                        segment.startTimeMillis - currentPosition + 500 // Wait until segment start + 0.5s
+                    logger.fInfo { "triggerManualSkip: User approaching segment, scheduling skip in ${delayMs}ms" }
 
                     // Cancel any existing skip toast job and create a new one for manual skip
                     skipToastJob?.cancel()
                     currentSkipJobSegmentUuid = segment.uuid
 
                     // Update toast message to show it's scheduled and keep toast visible
-                    skipToastMessage = SponsorBlockCategories.getDisplayName(segment.category) // 延迟跳过时传递类别名称
+                    skipToastMessage =
+                        SponsorBlockCategories.getDisplayName(segment.category) // 延迟跳过时传递类别名称
                     showSkipToast = true // Ensure toast remains visible
                     skipToastSegment = segment
                     skipToastType = SkipToastType.MANUAL_SKIP
 
                     skipToastJob = viewModelScope.launch {
-                         val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
-                         logger.fInfo { "triggerManualSkip: Created job $jobId - Starting delay of ${delayMs}ms for manual skip" }
+                        val jobId = coroutineContext[kotlinx.coroutines.Job]?.toString()
+                        logger.fInfo { "triggerManualSkip: Created job $jobId - Starting delay of ${delayMs}ms for manual skip" }
 
                         try {
                             delay(delayMs)
-                             logger.fInfo { "triggerManualSkip: Job $jobId - Delay completed, executing manual skip" }
+                            logger.fInfo { "triggerManualSkip: Job $jobId - Delay completed, executing manual skip" }
 
                             // Hide toast and perform skip
                             hideSkipToast()
@@ -421,10 +438,10 @@ class VideoPlayerV3ViewModel(
                             showResultToast("已跳过${SponsorBlockCategories.getDisplayName(segment.category)}")
 
                             currentSkipJobSegmentUuid = null
-                             logger.fInfo { "triggerManualSkip: Job $jobId completed successfully" }
+                            logger.fInfo { "triggerManualSkip: Job $jobId completed successfully" }
 
                         } catch (e: kotlinx.coroutines.CancellationException) {
-                             logger.fInfo { "triggerManualSkip: Job $jobId was cancelled" }
+                            logger.fInfo { "triggerManualSkip: Job $jobId was cancelled" }
                             throw e
                         } catch (e: Exception) {
                             logger.fException(e) { "triggerManualSkip: Job failed with exception: ${e.message}" }
@@ -433,7 +450,7 @@ class VideoPlayerV3ViewModel(
                     }
                 } else {
                     // User is not in the right position, just hide the toast
-                     logger.fInfo { "triggerManualSkip: User not in correct position for segment, hiding toast" }
+                    logger.fInfo { "triggerManualSkip: User not in correct position for segment, hiding toast" }
                     hideSkipToast()
                 }
             }
@@ -461,8 +478,8 @@ class VideoPlayerV3ViewModel(
      */
     override fun cancelSkip() {
         val jobToCancel = skipToastJob
-         val jobId = jobToCancel?.toString()
-         logger.fInfo { "cancelSkip: Starting - skipToastJob: $jobId (active: ${jobToCancel?.isActive}), type: $skipToastType" }
+        val jobId = jobToCancel?.toString()
+        logger.fInfo { "cancelSkip: Starting - skipToastJob: $jobId (active: ${jobToCancel?.isActive}), type: $skipToastType" }
 
         // val cancelResult = jobToCancel?.cancel()
         // logger.fInfo { "cancelSkip: Job $jobId cancel result: $cancelResult, job was active: ${jobToCancel?.isActive}" }
@@ -472,7 +489,7 @@ class VideoPlayerV3ViewModel(
         // Record which segment user cancelled
         skipToastSegment?.let { segment ->
             userCancelledSegmentUuids.add(segment.uuid)
-             logger.fInfo { "cancelSkip: Recorded user cancellation for segment ${segment.uuid}. Total cancelled segments: ${userCancelledSegmentUuids.size}" }
+            logger.fInfo { "cancelSkip: Recorded user cancellation for segment ${segment.uuid}. Total cancelled segments: ${userCancelledSegmentUuids.size}" }
         }
 
         hideSkipToast()
@@ -486,10 +503,10 @@ class VideoPlayerV3ViewModel(
 
         if (wasAutoSkip) {
             showResultToast("已取消跳过")
-             logger.fInfo { "cancelSkip: Showed '已取消跳过' result toast" }
+            logger.fInfo { "cancelSkip: Showed '已取消跳过' result toast" }
         }
 
-         logger.fInfo { "cancelSkip: Completed successfully for job $jobId" }
+        logger.fInfo { "cancelSkip: Completed successfully for job $jobId" }
     }
 
     /**
@@ -497,17 +514,18 @@ class VideoPlayerV3ViewModel(
      */
     override fun hideSkipToast() {
         val jobToCancel = skipToastJob
-         val jobId = jobToCancel?.toString()
-         logger.fInfo { "hideSkipToast: Cancelling job $jobId (active: ${jobToCancel?.isActive})" }
+        val jobId = jobToCancel?.toString()
+        logger.fInfo { "hideSkipToast: Cancelling job $jobId (active: ${jobToCancel?.isActive})" }
 
         jobToCancel?.cancel()
         showSkipToast = false
         skipToastMessage = ""
         skipToastSegment = null
         skipToastType = SkipToastType.AUTO_SKIP
+        skipToastConfirmProgress = 0f
         currentSkipJobSegmentUuid = null // Clear the segment UUID
 
-         logger.fInfo { "hideSkipToast: Completed, cancelled job $jobId" }
+        logger.fInfo { "hideSkipToast: Completed, cancelled job $jobId" }
     }
 
     override fun onUserDragSeekBarStart() {
@@ -516,7 +534,11 @@ class VideoPlayerV3ViewModel(
         // Optionally, could cancel any pending auto-skip intent here, though checkAndTriggerAutoSkip already checks isUserDraggingSeekBar
     }
 
-    override fun onUserDragSeekBarStop(finalSeekPosition: Long, durationMillis: Long, isPlaying: Boolean) {
+    override fun onUserDragSeekBarStop(
+        finalSeekPosition: Long,
+        durationMillis: Long,
+        isPlaying: Boolean
+    ) {
         // logger.fInfo { "SponsorBlock: User stopped dragging seekbar at $finalSeekPosition" }
         isUserDraggingSeekBar = false
         // After user finishes seeking, immediately check if the new position falls into a skippable segment
@@ -574,7 +596,6 @@ class VideoPlayerV3ViewModel(
     private var currentAid = 0L
     var currentCid by mutableLongStateOf(0L)
     private var currentEpid = 0
-    private var currentBvid: String? = null
 
     private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
@@ -587,7 +608,6 @@ class VideoPlayerV3ViewModel(
     fun loadPlayUrl(
         avid: Long,
         cid: Long,
-        bvid: String? = null,
         epid: Int? = null,
         seasonId: Int? = null,
         continuePlayNext: Boolean = false
@@ -595,7 +615,6 @@ class VideoPlayerV3ViewModel(
         currentAid = avid
         currentCid = cid
         currentEpid = epid ?: 0
-        currentBvid = bvid
         epid?.let { this.epid = it }
         seasonId?.let { this.seasonId = it }
         viewModelScope.launch(Dispatchers.Default) {
@@ -1098,12 +1117,7 @@ class VideoPlayerV3ViewModel(
             return
         }
 
-        val bvid = currentBvid
-        if (bvid == null) {
-            addLogs("SponsorBlock: 获取 BVID 失败，无法获取片段数据")
-            logger.fWarn { "SponsorBlock: BVID is null, cannot fetch segments." }
-            return
-        }
+        val bvid = currentAid.toBv()
 
         addLogs("SponsorBlock: 获取片段数据 (BVID: $bvid, CID: $cid)...")
         // logger.fInfo { "SponsorBlock: Fetching segments for BVID: $bvid, CID: $cid" }

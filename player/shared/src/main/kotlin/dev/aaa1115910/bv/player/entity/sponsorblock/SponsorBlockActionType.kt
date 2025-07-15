@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.entity.sponsorblock
+package dev.aaa1115910.bv.player.entity.sponsorblock
 
 enum class SponsorBlockActionType {
     AUTO_SKIP,      // 自动跳过

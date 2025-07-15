@@ -47,7 +47,6 @@ import dev.aaa1115910.bv.tv.screens.settings.content.NetworkSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.OtherSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.PlayerTypeSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.ResolutionSetting
-import dev.aaa1115910.bv.tv.screens.settings.content.SponsorBlockSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.StorageSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.UISetting
 import dev.aaa1115910.bv.tv.screens.settings.content.VideoCodecSetting
@@ -166,7 +165,6 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     VideoCodec(R.string.settings_item_codec),
     Audio(R.string.settings_item_audio),
     PlayerType(R.string.settings_item_player_type),
-    SponsorBlock(R.string.settings_item_sponsor_block),
     UI(R.string.settings_item_ui),
     Api(R.string.settings_item_api),
     Other(R.string.settings_item_other),
@@ -175,10 +173,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     Info(R.string.settings_item_info),
     About(R.string.settings_item_about);
 
-    fun getDisplayName(context: Context) = when (this) {
-        SponsorBlock -> "SponsorBlock" // Use hardcoded string for now
-        else -> context.getString(strRes)
-    }
+    fun getDisplayName(context: Context) = context.getString(strRes)
 }
 
 @Composable
@@ -206,7 +201,6 @@ fun SettingContent(
                 SettingsMenuNavItem.Other -> OtherSetting()
                 SettingsMenuNavItem.Network -> NetworkSetting()
                 SettingsMenuNavItem.PlayerType -> PlayerTypeSetting()
-                SettingsMenuNavItem.SponsorBlock -> SponsorBlockSetting()
                 SettingsMenuNavItem.UI -> UISetting()
                 SettingsMenuNavItem.Storage -> StorageSetting()
                 SettingsMenuNavItem.Api -> ApiSetting()

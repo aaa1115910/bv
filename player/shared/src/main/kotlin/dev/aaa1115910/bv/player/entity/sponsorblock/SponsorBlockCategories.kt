@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.entity.sponsorblock
+package dev.aaa1115910.bv.player.entity.sponsorblock
 
 object SponsorBlockCategories {
     // Based on https://github.com/hanydd/BilibiliSponsorBlock/wiki/API and common SponsorBlock types

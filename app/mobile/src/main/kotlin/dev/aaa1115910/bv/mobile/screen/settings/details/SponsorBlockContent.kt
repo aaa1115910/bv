@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockColors
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockColors
 import dev.aaa1115910.bv.viewmodel.settings.SponsorBlockSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -83,7 +83,7 @@ fun SponsorBlockContent(
                     }
                     Switch(
                         checked = viewModel.enabled,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             viewModel.setEnableSponsorBlock(it)
                             viewModel.saveSettings()
                         }
@@ -91,17 +91,17 @@ fun SponsorBlockContent(
                 }
             }
         }
-        
+
         // Category settings
         items(SponsorBlockCategories.ALL_CATEGORIES_ORDERED) { category ->
             SponsorBlockCategoryCard(
                 category = category,
                 displayName = SponsorBlockCategories.getDisplayName(category),
-                currentAction = viewModel.categoryActions[category] 
-                    ?: SponsorBlockCategories.DEFAULT_ACTIONS[category] 
+                currentAction = viewModel.categoryActions[category]
+                    ?: SponsorBlockCategories.DEFAULT_ACTIONS[category]
                     ?: SponsorBlockActionType.DO_NOTHING,
                 currentColor = SponsorBlockColors.hexToColor(
-                    viewModel.categoryColors[category] 
+                    viewModel.categoryColors[category]
                         ?: SponsorBlockColors.DefaultCategoryColorsHex[category]
                 ),
                 onActionChange = { action ->
@@ -123,7 +123,7 @@ private fun SponsorBlockCategoryCard(
     onActionChange: (SponsorBlockActionType) -> Unit
 ) {
     var showActionSelector by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -148,7 +148,7 @@ private fun SponsorBlockCategoryCard(
                         .clip(CircleShape)
                         .background(currentColor)
                 )
-                
+
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -164,7 +164,7 @@ private fun SponsorBlockCategoryCard(
                     )
                 }
             }
-            
+
             if (showActionSelector) {
                 Row(
                     modifier = Modifier

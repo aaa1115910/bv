@@ -41,8 +41,8 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
-import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.player.mobile.VideoSeekBar
 import dev.aaa1115910.bv.player.mobile.noRippleClickable
 import dev.aaa1115910.bv.util.formatHourMinSec

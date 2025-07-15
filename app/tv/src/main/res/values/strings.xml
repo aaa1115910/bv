@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
     <string name="title_activity_anime_timeline">番剧放送时间表</string>
     <string name="title_activity_favorite">个人收藏</string>
@@ -15,6 +15,7 @@
     <string name="title_activity_season_info">剧集信息</string>
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_speed_test">网络测速</string>
+    <string name="title_activity_sponsor_block">SponsorBlock</string>
     <string name="title_activity_tag">视频标签</string>
     <string name="title_activity_toview">现在不看</string>
     <string name="title_activity_up_info">UP 投稿</string>

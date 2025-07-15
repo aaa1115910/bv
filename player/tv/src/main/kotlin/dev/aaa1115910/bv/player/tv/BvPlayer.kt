@@ -101,6 +101,7 @@ fun BvPlayer(
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
+    onSponsorBlockToastConfirm: (Float) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("BvPlayer")
@@ -483,7 +484,9 @@ fun BvPlayer(
             skipTime?.let {
                 logger.fInfo { "BvPlayer (TV): Received skip event to $it" }
                 videoPlayer.seekTo(it)
-                mDanmakuPlayer?.seekTo(it) // Ensure danmaku seeks too
+                mDanmakuPlayer?.seekTo(it)
+                mDanmakuPlayer?.pause()
+                videoPlayer.start()
                 sponsorBlockManager.consumeSkipEvent()
             }
         }
@@ -647,6 +650,7 @@ fun BvPlayer(
                 logger.info { "On subtitle bottom padding change: $padding" }
                 onSubtitleBottomPadding(padding)
             },
+            onSponsorBlockToastConfirm = onSponsorBlockToastConfirm,
             onRequestFocus = { focusRequester.requestFocus() },
         ) {
             LaunchedEffect(Unit) {

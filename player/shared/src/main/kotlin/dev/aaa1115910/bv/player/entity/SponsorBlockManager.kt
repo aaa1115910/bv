@@ -5,8 +5,13 @@ import kotlinx.coroutines.flow.StateFlow
 interface SponsorBlockManager {
     val skipToMillis: StateFlow<Long?>
     val isUserDraggingSeekBar: Boolean
-    
-    fun checkAndTriggerAutoSkip(currentPositionMillis: Long, durationMillis: Long, isPlaying: Boolean)
+
+    fun checkAndTriggerAutoSkip(
+        currentPositionMillis: Long,
+        durationMillis: Long,
+        isPlaying: Boolean
+    )
+
     fun onUserDragSeekBarStart()
     fun onUserDragSeekBarStop(finalSeekPosition: Long, durationMillis: Long, isPlaying: Boolean)
     fun consumeSkipEvent()

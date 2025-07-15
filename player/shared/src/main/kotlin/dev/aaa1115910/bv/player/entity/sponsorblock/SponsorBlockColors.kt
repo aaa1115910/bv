@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.entity.sponsorblock
+package dev.aaa1115910.bv.player.entity.sponsorblock
 
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toColorInt
@@ -21,7 +21,10 @@ object SponsorBlockColors {
     const val FALLBACK_COLOR_HEX = "#78909C" // Blue Grey 400
 
     // Utility to convert HEX string to Compose Color, with error handling
-    fun hexToColor(hex: String?, defaultColor: Color = Color(FALLBACK_COLOR_HEX.toColorInt())): Color {
+    fun hexToColor(
+        hex: String?,
+        defaultColor: Color = Color(FALLBACK_COLOR_HEX.toColorInt())
+    ): Color {
         if (hex == null) return defaultColor
         return try {
             Color(hex.toColorInt())

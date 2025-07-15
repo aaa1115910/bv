@@ -202,7 +202,6 @@
     <string name="settings_item_other">更多设置</string>
     <string name="settings_item_player_type">播放器内核</string>
     <string name="settings_item_resolution">默认分辨率</string>
-    <string name="settings_item_sponsor_block">SponsorBlock</string>
     <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
     <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
@@ -222,6 +221,8 @@
     <string name="settings_other_firebase_title">发送错误日志</string>
     <string name="settings_other_fps_text">在屏幕左上角显示 FPS，这需要重启 App</string>
     <string name="settings_other_fps_title">FPS 显示</string>
+    <string name="settings_settings_other_sponsor_block_text">自动跳过视频中的赞助商内容</string>
+    <string name="settings_settings_other_sponsor_block_title">SponsorBlock</string>
     <string name="settings_storage_calculating">计算中</string>
     <string name="settings_storage_crash_logs">崩溃日志</string>
     <string name="settings_storage_image_cache">图片缓存</string>
@@ -240,6 +241,11 @@
     <string name="sms_login_code">验证码</string>
     <string name="sms_login_phone_number">手机号</string>
     <string name="sms_login_toast_send_sms_first">请先发送验证码</string>
+
+    <string name="sponsor_block_action_type_auto_skip">自动跳过</string>
+    <string name="sponsor_block_action_type_manual_skip">手动跳过</string>
+    <string name="sponsor_block_action_type_nothing">不处理</string>
+    <string name="sponsor_block_action_type_show_mark_only">仅显示标记</string>
 
     <string name="theme_type_auto">跟随系统</string>
     <string name="theme_type_dark">深色</string>

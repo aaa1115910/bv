@@ -14,9 +14,9 @@ import dev.aaa1115910.bv.player.entity.LocalVideoPlayerLoadStateData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerLogsData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerPaymentData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSponsorBlockData
 import dev.aaa1115910.bv.player.entity.VideoListItemData
 import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerDanmakuMasksData
@@ -110,16 +110,16 @@ fun VideoPlayerV3Screen(
             showSkipToast = playerViewModel.showSkipToast,
             skipToastMessage = playerViewModel.skipToastMessage,
             skipToastType = playerViewModel.skipToastType,
+            skipToastConfirmProgress = playerViewModel.skipToastConfirmProgress,
             showResultToast = playerViewModel.showResultToast,
             resultToastMessage = playerViewModel.resultToastMessage
-            // defaultActions is already part of VideoPlayerSponsorBlockData default constructor
         )
     ) {
         BvPlayer(
             modifier = modifier.fillMaxSize(),
             videoPlayer = playerViewModel.videoPlayer!!,
             danmakuPlayer = playerViewModel.danmakuPlayer,
-            sponsorBlockManager = playerViewModel, // Use sponsorBlockManager instead of playerViewModel
+            sponsorBlockManager = playerViewModel,
             onSendHeartbeat = playerViewModel::uploadHistory,
             onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
             onLoadNextVideo = {
@@ -142,7 +142,6 @@ fun VideoPlayerV3Screen(
                     playerViewModel.loadPlayUrl(
                         avid = nextVideo.aid,
                         cid = nextVideo.cid,
-                        bvid = null, // TV version may not have bvid
                         epid = nextVideo.epid,
                         seasonId = nextVideo.seasonId,
                         continuePlayNext = true
@@ -157,7 +156,6 @@ fun VideoPlayerV3Screen(
                         playerViewModel.loadPlayUrl(
                             avid = videoListItem.aid,
                             cid = videoListItem.cid,
-                            bvid = null, // TV version may not have bvid
                             epid = videoListItem.epid,
                             seasonId = videoListItem.seasonId,
                             continuePlayNext = true
@@ -231,6 +229,9 @@ fun VideoPlayerV3Screen(
                 Prefs.defaultSubtitleBottomPadding = padding
                 playerViewModel.currentSubtitleBottomPadding = padding
             },
+            onSponsorBlockToastConfirm = { confirmProgress ->
+                playerViewModel.skipToastConfirmProgress = confirmProgress
+            }
         )
     }
 }

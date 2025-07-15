@@ -41,7 +41,7 @@ fun VideoSeekBar(
         position = position,
         bufferedPercentage = bufferedPercentage,
         showPosition = showPosition,
-        sponsorBlockData = sponsorBlockData, // Pass to private VideoSeekBar
+        sponsorBlockData = sponsorBlockData,
         thumb = { thumbModifier ->
             SeekBarThumb(
                 modifier = thumbModifier,
@@ -61,7 +61,7 @@ private fun VideoSeekBar(
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
     showPosition: Boolean = false,
-    sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData(), // Added with default
+    sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData(),
     thumb: (@Composable (Modifier) -> Unit)? = null
 ) {
     BoxWithConstraints(
@@ -86,7 +86,7 @@ private fun VideoSeekBar(
                 position = position,
                 bufferedPercentage = bufferedPercentage,
                 colors = colors,
-                sponsorBlockData = sponsorBlockData // Pass to shared SeekBar
+                sponsorBlockData = sponsorBlockData
             )
             thumb?.invoke(
                 Modifier

@@ -2,9 +2,9 @@ package dev.aaa1115910.bv.player.entity
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
-import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
 
 /**
  * Enum for skip toast types
@@ -36,6 +36,7 @@ data class VideoPlayerSponsorBlockData(
     val showSkipToast: Boolean = false,
     val skipToastMessage: String = "",
     val skipToastType: SkipToastType = SkipToastType.AUTO_SKIP,
+    val skipToastConfirmProgress: Float = 0f,
     val showResultToast: Boolean = false,
     val resultToastMessage: String = ""
 ) {

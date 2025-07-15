@@ -2,6 +2,7 @@ plugins {
     alias(gradleLibs.plugins.android.library)
     alias(gradleLibs.plugins.compose.compiler)
     alias(gradleLibs.plugins.kotlin.android)
+    alias(gradleLibs.plugins.kotlin.serialization)
 }
 
 android {
@@ -71,6 +72,7 @@ dependencies {
     implementation(androidx.compose.ui.tooling.preview)
     implementation(androidx.compose.ui.util)
     implementation(libs.androidSvg)
+    implementation(libs.kotlinx.serialization)
     implementation(libs.logging)
     implementation(libs.lottie)
     implementation(libs.material)

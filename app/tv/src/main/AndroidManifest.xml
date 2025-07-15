@@ -160,5 +160,11 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.settings.SponsorBlockActivity"
+            android:enableOnBackInvokedCallback="false"
+            android:exported="false"
+            android:label="@string/title_activity_sponsor_block"
+            android:theme="@style/Theme.BV.TV" />
     </application>
 </manifest>

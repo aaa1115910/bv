@@ -22,9 +22,10 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.tv.activities.settings.LogsActivity
+import dev.aaa1115910.bv.tv.activities.settings.SponsorBlockActivity
 import dev.aaa1115910.bv.tv.component.settings.SettingListItem
 import dev.aaa1115910.bv.tv.component.settings.SettingSwitchListItem
-import dev.aaa1115910.bv.tv.activities.settings.LogsActivity
 import dev.aaa1115910.bv.tv.screens.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.util.FirebaseUtil
 import dev.aaa1115910.bv.util.Prefs
@@ -117,6 +118,15 @@ fun OtherSetting(
                     onCheckedChange = {
                         enableFfmpegAudioRenderer = it
                         Prefs.enableFfmpegAudioRenderer = it
+                    }
+                )
+            }
+            item {
+                SettingListItem(
+                    title = stringResource(R.string.settings_settings_other_sponsor_block_title),
+                    supportText = stringResource(R.string.settings_settings_other_sponsor_block_text),
+                    onClick = {
+                        context.startActivity(Intent(context, SponsorBlockActivity::class.java))
                     }
                 )
             }

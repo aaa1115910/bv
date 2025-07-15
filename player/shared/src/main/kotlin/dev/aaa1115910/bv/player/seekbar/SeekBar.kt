@@ -13,10 +13,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockColors
 import dev.aaa1115910.bv.player.entity.VideoPlayerSponsorBlockData
+import dev.aaa1115910.bv.player.entity.sponsorblock.SegmentItem
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockColors
 
 @Composable
 fun SeekBar(
@@ -28,7 +29,8 @@ fun SeekBar(
     sponsorBlockData: VideoPlayerSponsorBlockData = VideoPlayerSponsorBlockData() // Added
 ) {
     val trackWidth = 32f
-    val segmentTrackHeight = trackWidth * 0.8f // Make segment markers slightly thinner or adjust as needed
+    val segmentTrackHeight =
+        trackWidth * 0.8f // Make segment markers slightly thinner or adjust as needed
 
     Canvas(
         modifier = modifier
@@ -106,15 +108,15 @@ private fun SeekPreview() {
             sponsorBlockData = VideoPlayerSponsorBlockData(
                 isEnabled = true,
                 segments = listOf(
-                    dev.aaa1115910.bv.entity.sponsorblock.SegmentItem(
+                    SegmentItem(
                         segmentTimeSeconds = listOf(10f, 20f), // 10s to 20s
                         uuid = "1", category = SponsorBlockCategories.SPONSOR, actionType = "skip"
                     ),
-                    dev.aaa1115910.bv.entity.sponsorblock.SegmentItem(
+                    SegmentItem(
                         segmentTimeSeconds = listOf(40f, 55f), // 40s to 55s
                         uuid = "2", category = SponsorBlockCategories.INTRO, actionType = "skip"
                     ),
-                    dev.aaa1115910.bv.entity.sponsorblock.SegmentItem(
+                    SegmentItem(
                         segmentTimeSeconds = listOf(70f, 75f), // 70s to 75s
                         uuid = "3", category = "non_existent_category", actionType = "skip"
                     )

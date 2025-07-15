@@ -1,23 +1,26 @@
 package dev.aaa1115910.bv.network.api
 
-import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import dev.aaa1115910.bv.BuildConfig
+import dev.aaa1115910.bv.player.entity.sponsorblock.SegmentItem
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import java.security.MessageDigest
-import dev.aaa1115910.bv.BuildConfig // Import BuildConfig
 
 object SponsorBlockHttpApi {
     private const val BASE_URL = "https://bsbsb.top/api/"
-    private val EXT_VERSION = BuildConfig.SPONSOR_BLOCK_EXT_VERSION
-    private val ORIGIN = BuildConfig.SPONSOR_BLOCK_API_ORIGIN
+    private const val EXT_VERSION = BuildConfig.VERSION_NAME
+    private const val ORIGIN = BuildConfig.APPLICATION_ID
 
     private val client = HttpClient(OkHttp) {
         expectSuccess = false // Handle API errors manually by checking status code if needed
@@ -52,27 +55,30 @@ object SponsorBlockHttpApi {
                 HttpStatusCode.OK -> Result.success(response.body())
                 HttpStatusCode.NotFound -> Result.success(emptyList()) // 404 is a valid "no data" response
                 else -> {
-                    val errorMsg = "SponsorBlock API Error: ${response.status} - ${response.bodyAsText()}"
+                    val errorMsg =
+                        "SponsorBlock API Error: ${response.status} - ${response.bodyAsText()}"
                     println(errorMsg)
                     Result.failure(Exception(errorMsg))
                 }
             }
         } catch (e: ClientRequestException) {
             // Handle specific Ktor client exceptions, e.g. 4xx/5xx that cause exceptions before body is read
-            val errorMsg = "SponsorBlock API ClientRequestException: ${e.response.status} - ${e.message}"
+            val errorMsg =
+                "SponsorBlock API ClientRequestException: ${e.response.status} - ${e.message}"
             println(errorMsg)
             Result.failure(Exception(errorMsg, e))
         } catch (e: ServerResponseException) {
-            val errorMsg = "SponsorBlock API ServerResponseException: ${e.response.status} - ${e.message}"
+            val errorMsg =
+                "SponsorBlock API ServerResponseException: ${e.response.status} - ${e.message}"
             println(errorMsg)
             Result.failure(Exception(errorMsg, e))
         } catch (e: kotlinx.serialization.SerializationException) {
             val errorMsg = "SponsorBlock API SerializationException: ${e.message}"
             println(errorMsg)
             Result.failure(Exception(errorMsg, e))
-        }
-        catch (e: Exception) { // Catch-all for other exceptions like network issues
-            val errorMsg = "Error fetching skip segments: ${e.javaClass.simpleName} - ${e.localizedMessage}"
+        } catch (e: Exception) { // Catch-all for other exceptions like network issues
+            val errorMsg =
+                "Error fetching skip segments: ${e.javaClass.simpleName} - ${e.localizedMessage}"
             println(errorMsg)
             Result.failure(Exception(errorMsg, e))
         }

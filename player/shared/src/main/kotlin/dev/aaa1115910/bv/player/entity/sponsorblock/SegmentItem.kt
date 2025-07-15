@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.entity.sponsorblock
+package dev.aaa1115910.bv.player.entity.sponsorblock
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -21,11 +21,13 @@ data class SegmentItem(
 ) {
     @Transient
     val startTimeSeconds: Float = segmentTimeSeconds.getOrNull(0) ?: 0f
+
     @Transient
     val endTimeSeconds: Float = segmentTimeSeconds.getOrNull(1) ?: 0f
 
     @Transient
     val startTimeMillis: Long = (startTimeSeconds * 1000).toLong()
+
     @Transient
     val endTimeMillis: Long = (endTimeSeconds * 1000).toLong()
 }

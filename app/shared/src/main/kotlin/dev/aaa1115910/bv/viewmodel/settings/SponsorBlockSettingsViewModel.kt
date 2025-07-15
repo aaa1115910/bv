@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockColors
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockColors
 import dev.aaa1115910.bv.util.Prefs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.android.annotation.KoinViewModel

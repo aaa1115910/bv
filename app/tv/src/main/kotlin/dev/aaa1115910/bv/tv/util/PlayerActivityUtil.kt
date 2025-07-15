@@ -10,7 +10,6 @@ fun launchPlayerActivity(
     context: Context,
     avid: Long,
     cid: Long,
-    bvid: String? = null,
     title: String,
     partTitle: String,
     played: Int,
@@ -25,39 +24,13 @@ fun launchPlayerActivity(
 ) {
     if (Prefs.showedRemoteControllerPanelDemo) {
         VideoPlayerV3Activity.actionStart(
-            context = context,
-            avid = avid,
-            cid = cid,
-            bvid = bvid,
-            title = title,
-            partTitle = partTitle,
-            played = played,
-            fromSeason = fromSeason,
-            subType = subType,
-            epid = epid,
-            seasonId = seasonId,
-            isVerticalVideo = isVerticalVideo,
-            proxyArea = proxyArea,
-            playerIconIdle = playerIconIdle,
-            playerIconMoving = playerIconMoving
+            context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
+            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving
         )
     } else {
         RemoteControllerPanelDemoActivity.actionStart(
-            context = context,
-            avid = avid,
-            cid = cid,
-            bvid = bvid,
-            title = title,
-            partTitle = partTitle,
-            played = played,
-            fromSeason = fromSeason,
-            subType = subType,
-            epid = epid,
-            seasonId = seasonId,
-            isVerticalVideo = isVerticalVideo,
-            proxyArea = proxyArea,
-            playerIconIdle = playerIconIdle,
-            playerIconMoving = playerIconMoving
+            context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
+            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving
         )
     }
 }

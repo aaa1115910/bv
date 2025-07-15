@@ -11,8 +11,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import de.schnettler.datastore.manager.PreferenceRequest
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.http.util.generateBuvid
@@ -20,18 +18,19 @@ import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.entity.PlayerType
 import dev.aaa1115910.bv.entity.ThemeType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockColors
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoCodec
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockActionType
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockCategories
+import dev.aaa1115910.bv.player.entity.sponsorblock.SponsorBlockColors
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import java.util.Date
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -318,44 +317,43 @@ object Prefs {
             .transform { ordinal -> emit(ThemeType.entries[ordinal]) }
 
     var enableSponsorBlock: Boolean
-        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefEnableSponsorBlockRequest).first() }
+        get() = runBlocking {
+            dsm.getPreferenceFlow(PrefKeys.prefEnableSponsorBlockRequest).first()
+        }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableSponsorBlockKey, value) }
 
     var sponsorBlockUserActions: Map<String, SponsorBlockActionType>
-        get() = try {
-            val jsonString = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserActionsRequest).first() }
+        get() = runCatching {
+            val jsonString = runBlocking {
+                dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserActionsRequest).first()
+            }
             if (jsonString.isNotEmpty()) {
-                val type = object : TypeToken<Map<String, Int>>() {}.type
-                val ordinalMap: Map<String, Int> = Gson().fromJson(jsonString, type)
-                    ordinalMap.mapValues { SponsorBlockActionType.entries[it.value] }
+                Json.decodeFromString<Map<String, SponsorBlockActionType>>(jsonString)
             } else {
                 logger.error { "Failed to parse sponsorBlockUserActions from JSON: $jsonString" }
                 SponsorBlockCategories.DEFAULT_ACTIONS
             }
-        } catch (e: Exception) {
-            SponsorBlockCategories.DEFAULT_ACTIONS
-        }
+        }.getOrDefault(SponsorBlockCategories.DEFAULT_ACTIONS)
         set(value) = runBlocking {
-            val ordinalMap = value.mapValues { it.value.ordinal }
-            val jsonString = Gson().toJson(ordinalMap)
+            val jsonString = Json.encodeToString(value)
             dsm.editPreference(PrefKeys.prefSponsorBlockUserActionsKey, jsonString)
         }
 
     var sponsorBlockUserColors: Map<String, String> // Category to HEX Color String
-        get() = try {
-            val jsonString = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserColorsRequest).first() }
-            if (jsonString.isNotEmpty()) {
-                val type = object : TypeToken<Map<String, String>>() {}.type
-                Gson().fromJson(jsonString, type)
-            } else {
-                logger.error { "Failed to parse sponsorBlockUserColors from JSON: $jsonString" }
-                SponsorBlockColors.DefaultCategoryColorsHex
-            }
-        } catch (e: Exception) {
-            SponsorBlockColors.DefaultCategoryColorsHex
-        }
+        get() =
+            runCatching {
+                val jsonString = runBlocking {
+                    dsm.getPreferenceFlow(PrefKeys.prefSponsorBlockUserColorsRequest).first()
+                }
+                if (jsonString.isNotEmpty()) {
+                    Json.decodeFromString<Map<String, String>>(jsonString)
+                } else {
+                    logger.error { "Failed to parse sponsorBlockUserColors from JSON: $jsonString" }
+                    SponsorBlockColors.DefaultCategoryColorsHex
+                }
+            }.getOrDefault(SponsorBlockColors.DefaultCategoryColorsHex)
         set(value) = runBlocking {
-            val jsonString = Gson().toJson(value)
+            val jsonString = Json.encodeToString(value)
             dsm.editPreference(PrefKeys.prefSponsorBlockUserColorsKey, jsonString)
         }
 }
@@ -459,13 +457,12 @@ object PrefKeys {
     val prefEnableFfmpegEndererRequest = PreferenceRequest(prefEnableFfmpegAudioRenderer, false)
     val prefBlacklistUserRequest = PreferenceRequest(prefBlacklistUserKey, false)
     val prefThemeTypeRequest = PreferenceRequest(prefThemeTypeKey, ThemeType.Auto.ordinal)
-    val prefEnableSponsorBlockRequest = PreferenceRequest(prefEnableSponsorBlockKey, true)
+    val prefEnableSponsorBlockRequest = PreferenceRequest(prefEnableSponsorBlockKey, false)
     val prefSponsorBlockUserActionsRequest = PreferenceRequest(
-        prefSponsorBlockUserActionsKey,
-        Gson().toJson(SponsorBlockCategories.DEFAULT_ACTIONS.mapValues { it.value.ordinal })
+        prefSponsorBlockUserActionsKey, Json.encodeToString(SponsorBlockCategories.DEFAULT_ACTIONS)
     )
     val prefSponsorBlockUserColorsRequest = PreferenceRequest(
         prefSponsorBlockUserColorsKey,
-        Gson().toJson(SponsorBlockColors.DefaultCategoryColorsHex)
+        Json.encodeToString(SponsorBlockColors.DefaultCategoryColorsHex)
     )
 }

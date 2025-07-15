@@ -135,7 +135,6 @@ class VideoPlayerActivity : ComponentActivity() {
                 playerViewModel.loadPlayUrl(
                     avid = videoDetailViewModel.videoDetail?.aid ?: 0,
                     cid = videoDetailViewModel.videoDetail?.cid ?: 0,
-                    bvid = videoDetailViewModel.videoDetail?.bvid,
                     epid = epid.takeIf { it != 0 },
                     seasonId = seasonId.takeIf { it != 0 }
                 )

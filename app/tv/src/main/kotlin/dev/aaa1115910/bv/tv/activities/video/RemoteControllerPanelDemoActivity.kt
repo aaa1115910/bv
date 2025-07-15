@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import dev.aaa1115910.bv.tv.component.RemoteControlPanelDemo
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
+import dev.aaa1115910.bv.tv.component.RemoteControlPanelDemo
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 
@@ -21,7 +21,6 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             context: Context,
             avid: Long,
             cid: Long,
-            bvid: String? = null,
             title: String,
             partTitle: String,
             played: Int,
@@ -38,7 +37,6 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                 Intent(context, RemoteControllerPanelDemoActivity::class.java).apply {
                     putExtra("avid", avid)
                     putExtra("cid", cid)
-                    putExtra("bvid", bvid)
                     putExtra("title", title)
                     putExtra("partTitle", partTitle)
                     putExtra("played", played)
@@ -78,7 +76,6 @@ fun RemoteControllerPanelDemoScreen(
             context = context,
             avid = intent.getLongExtra("avid", 0),
             cid = intent.getLongExtra("cid", 0),
-            bvid = intent.getStringExtra("bvid"),
             title = intent.getStringExtra("title") ?: "",
             partTitle = intent.getStringExtra("partTitle") ?: "",
             played = intent.getIntExtra("played", 0),

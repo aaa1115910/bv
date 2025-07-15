@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,9 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
-import dev.aaa1115910.bv.entity.sponsorblock.SegmentItem
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockActionType
-import dev.aaa1115910.bv.entity.sponsorblock.SponsorBlockCategories
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
@@ -87,6 +84,8 @@ fun VideoPlayerController(
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
 
+    onSponsorBlockToastConfirm: (Float) -> Unit,
+
     onRequestFocus: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -114,38 +113,35 @@ fun VideoPlayerController(
 
     var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
-    // State for manual skip button
-    var manualSkipTargetSegment by remember { mutableStateOf<SegmentItem?>(null) }
+    var directionDownLongPressHandled by remember { mutableStateOf(false) }
+    var sponsorBlockConfirmProgress by remember { mutableFloatStateOf(0f) }
 
-    // Double-click detection for DirectionDown
-    var lastDownKeyPressTime by remember { mutableLongStateOf(0L) }
-    var downKeyClickCount by remember { mutableIntStateOf(0) }
-    var singleClickTimer: CountDownTimer? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(
-        videoPlayerSeekData.position,
-        sponsorBlockData.segments,
-        videoPlayerStateData.isPlaying,
-        sponsorBlockManager?.isUserDraggingSeekBar
-    ) {
-        if (!videoPlayerStateData.isPlaying || !sponsorBlockData.isEnabled || (sponsorBlockManager?.isUserDraggingSeekBar == true)) {
-            manualSkipTargetSegment = null
-            return@LaunchedEffect
-        }
-
-        val currentPos = videoPlayerSeekData.position
-        var foundSegment: SegmentItem? = null
-        for (segment in sponsorBlockData.segments) {
-            if (currentPos > segment.startTimeMillis && currentPos < segment.endTimeMillis) {
-                val action = sponsorBlockData.getActionFor(segment)
-                if (action == SponsorBlockActionType.MANUAL_SKIP && segment.actionType == "skip") {
-                    foundSegment = segment
-                    break
-                }
-            }
-        }
-        manualSkipTargetSegment = foundSegment
-    }
+    //LaunchedEffect(
+    //    videoPlayerSeekData.position,
+    //    sponsorBlockData.segments,
+    //    videoPlayerStateData.isPlaying,
+    //    sponsorBlockManager?.isUserDraggingSeekBar
+    //) {
+    //    if (!videoPlayerStateData.isPlaying || !sponsorBlockData.isEnabled || (sponsorBlockManager?.isUserDraggingSeekBar == true)) {
+    //        println("Skipping sponsor block check due to player state or user interaction")
+    //        return@LaunchedEffect
+    //    }
+//
+    //    //println("Checking for sponsor block segments at position: ${videoPlayerSeekData.position}")
+//
+    //    val currentPos = videoPlayerSeekData.position
+    //    var foundSegment: SegmentItem? = null
+    //    for (segment in sponsorBlockData.segments) {
+    //        //println("Checking segment: ${segment.category} from ${segment.startTimeMillis} to ${segment.endTimeMillis}")
+    //        if (currentPos > segment.startTimeMillis && currentPos < segment.endTimeMillis) {
+    //            val action = sponsorBlockData.getActionFor(segment)
+    //            if (action == SponsorBlockActionType.MANUAL_SKIP && segment.actionType == "skip") {
+    //                foundSegment = segment
+    //                break
+    //            }
+    //        }
+    //    }
+    //}
 
     val openSeekController = {
         if (!showSeekController) {
@@ -283,54 +279,53 @@ fun VideoPlayerController(
                     }
 
                     Key.DirectionDown -> {
+                        if (it.nativeKeyEvent.isLongPress || it.nativeKeyEvent.repeatCount > 0) {
+                            logger.info { "[${it.key} long press], repeat: ${it.nativeKeyEvent.repeatCount}" }
+                            val requiredRepeatCount = 16
+                            val newProgress =
+                                it.nativeKeyEvent.repeatCount.toFloat() / requiredRepeatCount
+                            sponsorBlockConfirmProgress = newProgress.coerceIn(0f..1f)
+                            onSponsorBlockToastConfirm(sponsorBlockConfirmProgress)
+                            if (newProgress == 1f) {
+                                if (sponsorBlockData.showSkipToast) {
+                                    when (sponsorBlockData.skipToastType) {
+                                        SkipToastType.AUTO_SKIP -> {
+                                            sponsorBlockManager?.cancelSkip()
+                                            sponsorBlockManager?.hideSkipToast()
+                                        }
+
+                                        SkipToastType.MANUAL_SKIP -> {
+                                            sponsorBlockManager?.triggerManualSkip()
+                                            // Don't call hideSkipToast() here for MANUAL_SKIP
+                                            // triggerManualSkip() will handle toast visibility appropriately
+                                        }
+                                    }
+                                }
+                            }
+
+                            directionDownLongPressHandled = true
+                            return@onPreviewKeyEvent true
+                        }
+
+                        if (it.type == KeyEventType.KeyUp && directionDownLongPressHandled) {
+                            if (sponsorBlockConfirmProgress < 1f) {
+                                onSponsorBlockToastConfirm(0f)
+                            }
+                            directionDownLongPressHandled = false
+                            return@onPreviewKeyEvent true
+                        }
+
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
 
-                        val currentTime = System.currentTimeMillis()
-                        val timeSinceLastClick = currentTime - lastDownKeyPressTime
-
-                        if (timeSinceLastClick < 500) {
-                            // Double click detected
-                            downKeyClickCount = 2
-                            singleClickTimer?.cancel()
-                            logger.info { "Double click detected on DirectionDown" }
-
-                            // Check if there's a skip toast showing and trigger the appropriate action
-                            if (sponsorBlockData.showSkipToast) {
-                                when (sponsorBlockData.skipToastType) {
-                                    SkipToastType.AUTO_SKIP -> {
-                                        sponsorBlockManager?.cancelSkip()
-                                        sponsorBlockManager?.hideSkipToast()
-                                    }
-
-                                    SkipToastType.MANUAL_SKIP -> {
-                                        sponsorBlockManager?.triggerManualSkip()
-                                        // Don't call hideSkipToast() here for MANUAL_SKIP
-                                        // triggerManualSkip() will handle toast visibility appropriately
-                                    }
-                                }
+                        showInfo = !showInfo
+                        if (showInfo) {
+                            hideVideoInfoTimer = countDownTimer(3000, 1000, "hideVideoInfoTimer") {
+                                showInfo = false
                             }
                         } else {
-                            // First click, start timer for single click action
-                            downKeyClickCount = 1
-                            singleClickTimer?.cancel()
-                            singleClickTimer = countDownTimer(500, 500, "singleClickTimer") {
-                                if (downKeyClickCount == 1) {
-                                    // Single click action - show/hide video info
-                                    showInfo = !showInfo
-                                    if (showInfo) {
-                                        hideVideoInfoTimer = countDownTimer(3000, 1000, "hideVideoInfoTimer") {
-                                            showInfo = false
-                                        }
-                                    } else {
-                                        hideVideoInfoTimer?.cancel()
-                                    }
-                                }
-                                downKeyClickCount = 0
-                            }
+                            hideVideoInfoTimer?.cancel()
                         }
-
-                        lastDownKeyPressTime = currentTime
                         return@onPreviewKeyEvent true
                     }
 
@@ -441,31 +436,8 @@ fun VideoPlayerController(
         SeekController(
             show = showSeekController,
             goTime = goTime,
-            moveState = moveState,
-            sponsorBlockData = sponsorBlockData
+            moveState = moveState
         )
-
-        // Manual Skip Button
-        manualSkipTargetSegment?.let { segmentToSkip ->
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 80.dp, end = 24.dp) // Adjust padding as needed
-            ) {
-                androidx.tv.material3.Button(
-                    onClick = {
-                        onGoTime(segmentToSkip.endTimeMillis)
-                        manualSkipTargetSegment = null // Hide button after click
-                        // Hide skip toast if showing
-                        if (sponsorBlockData.showSkipToast) {
-                            sponsorBlockManager?.hideSkipToast()
-                        }
-                    }
-                ) {
-                    Text("跳过 ${SponsorBlockCategories.getDisplayName(segmentToSkip.category)}")
-                }
-            }
-        }
 
         VideoListController(
             show = showListController,
@@ -489,24 +461,8 @@ fun VideoPlayerController(
             onSubtitleBottomPadding = onSubtitleBottomPadding
         )
 
-        // SponsorBlock skip toast
-        SponsorBlockSkipToast(
-            show = sponsorBlockData.showSkipToast,
-            message = sponsorBlockData.skipToastMessage,
-            isManualSkip = sponsorBlockData.skipToastType == SkipToastType.MANUAL_SKIP,
-            onCancel = if (sponsorBlockData.showSkipToast && sponsorBlockData.skipToastType == SkipToastType.AUTO_SKIP) {
-                { sponsorBlockManager?.cancelSkip() }
-            } else null,
-            onManualSkip = if (sponsorBlockData.showSkipToast && sponsorBlockData.skipToastType == SkipToastType.MANUAL_SKIP) {
-                { sponsorBlockManager?.triggerManualSkip() }
-            } else null
-        )
-
-        // SponsorBlock result toast
-        SponsorBlockResultToast(
-            show = sponsorBlockData.showResultToast,
-            message = sponsorBlockData.resultToastMessage
-        )
+        SponsorBlockSkipToast()
+        SponsorBlockResultToast()
     }
 }
 
