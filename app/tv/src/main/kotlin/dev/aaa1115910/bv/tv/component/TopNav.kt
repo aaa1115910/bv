@@ -149,9 +149,9 @@ enum class HomeTopNavItem(private val displayName: String) : TopNavItem {
     Recommend("推荐"),
     Popular("热门"),
     Dynamics("动态"),
+    History("历史"),
     Favorite("收藏"),
     FollowingSeason("追番"),
-    History("历史"),
     ToView("稍后看");
 
     override fun getDisplayName(context: Context): String {

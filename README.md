@@ -63,7 +63,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
   [修改内容](./CHANGELOG.md)
 
-![首页](https://github.com/user-attachments/assets/b659f9ef-7412-4bee-b6e3-76b758d28f66)
+![首页](https://github.com/user-attachments/assets/ad7ca9a5-fec5-4e60-9c2c-cc6c102be09d)
 ![PGC](https://github.com/user-attachments/assets/59600816-85f7-4f8a-83cc-3b8c27870027)
 ![UGC详情](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
 ![视频播放](https://github.com/user-attachments/assets/1e8939ba-f973-4847-9ae5-7cb9ae64f98e)
@@ -89,10 +89,9 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
   - -keysize 2048: 密钥长度为 2048 位
   - -validity 10000: 密钥的有效期为 10000 天（约 27 年）
     执行此命令后，会提示你输入：
-
-  - 密钥库密码（keystore.pwd）
-  - 密钥密码（keystore.alias_pwd），可以与密钥库密码相同
-  - 姓名、组织单位、城市等信息，可空
+    - 密钥库密码（keystore.pwd）
+    - 密钥密码（keystore.alias_pwd），可以与密钥库密码相同
+    - 姓名、组织单位、城市等信息，可空
 
   - 在项目根目录增加 signing.properties 文件。文件内容如下
     ```properties

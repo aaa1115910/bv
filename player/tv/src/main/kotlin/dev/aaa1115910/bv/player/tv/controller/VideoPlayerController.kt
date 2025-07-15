@@ -432,7 +432,7 @@ fun VideoPlayerController(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(2.dp),
+                    .height(3.dp),
                 progress = { 
                     if (videoPlayerSeekData.duration > 0) {
                         videoPlayerSeekData.position.toFloat() / videoPlayerSeekData.duration.toFloat()
@@ -441,11 +441,10 @@ fun VideoPlayerController(
                     }
                 },
                 color = Color.White.copy(alpha = 0.85f),
-                trackColor = Color.Black.copy(alpha = 0.5f)
+                trackColor = Color.Black.copy(alpha = 0.55f),
+                gapSize = 0.dp,
+                drawStopIndicator = {}
             )
         }
     }
 }
-
-
-
