@@ -49,6 +49,7 @@ import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.onDelayFocusChanged
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -90,7 +91,8 @@ fun FavoriteScreen(
         enabled = focusOnGrid
     ) {
         scope.launch(Dispatchers.Main) {
-            lazyGridState.animateScrollToItem(0)
+            lazyGridState.scrollToItem(0)
+            delay(50)
             defaultFocusRequester.requestFocus()
         }
     }
@@ -99,6 +101,10 @@ fun FavoriteScreen(
         if (favoriteViewModel.favoriteFolderMetadataList.isEmpty()) {
             favoriteViewModel.clearData()
             favoriteViewModel.updateFoldersInfo()
+            if (showPageTitle) {
+                delay(100)
+                defaultFocusRequester.requestFocus()
+            }
         }
     }
 
@@ -150,7 +156,11 @@ fun FavoriteScreen(
                     modifier = Modifier
                         .focusRequester(defaultFocusRequester)
                         .onFocusChanged { focusOnTabs = it.hasFocus }
-                        .focusRequester(focusRequester),
+                        .onDelayFocusChanged(50) {
+                            if (focusOnTabs) {
+                                focusRequester.requestFocus()
+                            }
+                        },
                     selectedTabIndex = currentTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
                 ) {
@@ -162,7 +172,7 @@ fun FavoriteScreen(
                                         updateCurrentFavoriteFolder(folderMetadata)
                                     }
                                 }
-                                .ifElse(index == 0, Modifier.focusRequester(focusRequester)),
+                                .ifElse(index == currentTabIndex, Modifier.focusRequester(focusRequester)),
                             selected = currentTabIndex == index,
                             onFocus = {},
                             onClick = { updateCurrentFavoriteFolder(folderMetadata) }

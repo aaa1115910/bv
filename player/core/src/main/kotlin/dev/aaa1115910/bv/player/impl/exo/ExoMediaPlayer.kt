@@ -69,7 +69,7 @@ class ExoMediaPlayer(
                 bufferConfig.minBufferMs, // 最小缓冲时间
                 bufferConfig.maxBufferMs, // 最大缓冲时间
                 DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, // 开始播放前的缓冲时间
-                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS // 重新缓冲后的播放缓冲
+                3000 // 重新缓冲后的播放缓冲
             )
             // 优先考虑时间阈值还是缓冲大小。true：优先考虑时间阈值
             .setPrioritizeTimeOverSizeThresholds(bufferConfig.prioritizeTime)
@@ -258,8 +258,8 @@ class ExoMediaPlayer(
                 prioritizeTime = false // 改为优先大小限制，严格控制内存使用
             )
             DeviceTier.MID -> BufferConfig(
-                minBufferMs = 10000,  // 10秒最小缓冲
-                maxBufferMs = 18000,  // 18秒最大缓冲
+                minBufferMs = 11000,  // 11秒最小缓冲
+                maxBufferMs = 16000,  // 16秒最大缓冲
                 backBufferMs = 0, // 0秒回退缓冲
                 targetBufferBytes = calculateBufferSize(availableMemory, 0.13, 5, 150), // 13%内存，5-150MB
                 prioritizeTime = false

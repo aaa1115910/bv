@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -427,12 +428,12 @@ fun VideoPlayerController(
             onSubtitleBottomPadding = onSubtitleBottomPadding
         )
         // 底部常驻进度条组件
-        if (showBottomProgressBar) {
+        if (showBottomProgressBar && !showInfo && !showSeekController) {
             LinearProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(3.dp),
+                    .height(2.dp),
                 progress = { 
                     if (videoPlayerSeekData.duration > 0) {
                         videoPlayerSeekData.position.toFloat() / videoPlayerSeekData.duration.toFloat()
@@ -440,8 +441,8 @@ fun VideoPlayerController(
                         0f
                     }
                 },
-                color = Color.White.copy(alpha = 0.85f),
-                trackColor = Color.Black.copy(alpha = 0.55f),
+                color = SliderDefaults.colors().activeTrackColor,
+                trackColor = Color.Black.copy(alpha = 0.25f),
                 gapSize = 0.dp,
                 drawStopIndicator = {}
             )

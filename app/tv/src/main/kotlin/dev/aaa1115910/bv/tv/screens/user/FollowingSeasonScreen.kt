@@ -74,20 +74,28 @@ fun FollowingSeasonScreen(
     val noMore = followingSeasonViewModel.noMore
 
     val updateType: (FollowingSeasonType) -> Unit = {
-        followingSeasonType = it
-        followingSeasonViewModel.followingSeasonType = it
+        if (followingSeasonType != it) {
+            followingSeasonType = it
+            followingSeasonViewModel.followingSeasonType = it
+            followingSeasonViewModel.clearData()
+            followingSeasonViewModel.loadMore()
+        }
     }
 
     val updateStatus: (FollowingSeasonStatus) -> Unit = {
-        followingSeasonStatus = it
-        followingSeasonViewModel.followingSeasonStatus = it
+        if (followingSeasonStatus != it) {
+            followingSeasonStatus = it
+            followingSeasonViewModel.followingSeasonStatus = it
+            followingSeasonViewModel.clearData()
+            followingSeasonViewModel.loadMore()
+        }
     }
 
     val onLongClickSeason = {
         showFilter = true
     }
 
-    LaunchedEffect(followingSeasonType, followingSeasonStatus) {
+    LaunchedEffect(Unit) {
         if (followingSeasons.isEmpty()) {
             logger.fInfo { "Start update search result because filter updated" }
             followingSeasonViewModel.clearData()

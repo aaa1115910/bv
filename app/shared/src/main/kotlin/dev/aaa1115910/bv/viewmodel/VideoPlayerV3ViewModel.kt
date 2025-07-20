@@ -604,6 +604,10 @@ class VideoPlayerV3ViewModel(
                     currentSubtitleData.swapList(subtitleData)
                 }
             }.onFailure {
+                withContext(Dispatchers.Main) {
+                    currentSubtitleData.clear()
+                    currentSubtitleId = -1
+                }
                 logger.fInfo { "Load subtitle failed: ${it.stackTraceToString()}" }
                 addLogs("加载字幕 $subtitleName 失败: ${it.localizedMessage}")
             }.onSuccess {
