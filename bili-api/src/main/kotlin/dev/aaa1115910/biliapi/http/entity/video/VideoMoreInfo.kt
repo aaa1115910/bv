@@ -91,7 +91,7 @@ data class VideoMoreInfo(
     val onlineCount: Int,
     @SerialName("dm_mask")
     val dmMask: DmMask? = null,
-    val subtitle: Subtitle,
+    val subtitle: Subtitle? = null,
     @SerialName("player_icon")
     val playerIcon: PlayerIcon? = null,
     @SerialName("view_points")
