@@ -28,7 +28,7 @@ fun CoinButton(
     Button(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp), // 减小内边距
-        shape = ButtonDefaults.shape(shape = RoundedCornerShape(4.dp)), // 设置为小圆角4.dp
+        shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)), // 设置为小圆角
         onClick = {onAddCoin()}
     ) {
         Row(

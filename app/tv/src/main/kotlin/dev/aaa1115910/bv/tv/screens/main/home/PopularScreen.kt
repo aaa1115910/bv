@@ -77,8 +77,8 @@ fun PopularScreen(
                         avid = item.aid,
                         title = item.title,
                         cover = item.cover,
-                        play = with(item.play) { if (this == -1) null else this },
-                        danmaku = with(item.danmaku) { if (this == -1) null else this },
+                        play = item.play,
+                        danmaku = item.danmaku,
                         upName = item.author,
                         time = item.duration * 1000L,
                         pubTime = item.pubTime

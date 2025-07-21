@@ -433,7 +433,7 @@ fun VideoPlayerController(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(2.dp),
+                    .height(2.2.dp),
                 progress = { 
                     if (videoPlayerSeekData.duration > 0) {
                         videoPlayerSeekData.position.toFloat() / videoPlayerSeekData.duration.toFloat()
@@ -442,7 +442,7 @@ fun VideoPlayerController(
                     }
                 },
                 color = SliderDefaults.colors().activeTrackColor,
-                trackColor = Color.Black.copy(alpha = 0.25f),
+                trackColor = Color.Black.copy(alpha = 0.3f),
                 gapSize = 0.dp,
                 drawStopIndicator = {}
             )

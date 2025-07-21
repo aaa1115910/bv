@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
 import dev.aaa1115910.biliapi.http.entity.AuthFailureException
 import dev.aaa1115910.biliapi.repositories.ToViewRepository
 import dev.aaa1115910.bv.BVApp
@@ -65,6 +66,9 @@ class ToViewViewModel(
                         avid = ToViewItem.oid,
                         title = ToViewItem.title,
                         cover = ToViewItem.cover,
+                        play = ToViewItem.play,
+                        // danmaku = ToViewItem.danmaku, // 视频时长>1小时时 显示不全，所以不显示弹幕数
+                        pubTime = ToViewItem.pubdate.toSmartDate(),
                         upName = ToViewItem.author,
                         timeString = if (ToViewItem.progress == -1) context.getString(R.string.play_time_finish)
                         else context.getString(

@@ -62,6 +62,8 @@ class UserSpaceViewModel(
                         title = spaceVideoItem.title,
                         //TODO 这里在改造 app 端接口时，没找到在空间内显示为合集样式封面的UP,没法进一步测试接口
                         cover = spaceVideoItem.cover,
+                        play = spaceVideoItem.play,
+                        danmaku = spaceVideoItem.danmaku,
                         upName = spaceVideoItem.author,
                         time = spaceVideoItem.duration * 1000L,
                         pubTime = spaceVideoItem.publishDate.getTime().toSmartDate()

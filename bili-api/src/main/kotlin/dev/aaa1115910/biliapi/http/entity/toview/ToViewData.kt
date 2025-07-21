@@ -77,6 +77,8 @@ data class ToViewItem(
     // @SerialName("is_fav")
     // val isFav: Int,
     // val kid: Int,
+    val pubdate: Long,
+    val stat: Stat
 ) {
     @Serializable
     data class Owner(
@@ -93,4 +95,15 @@ data class ToViewItem(
     //     val business: String,
     //     val dt: Int
     // )
+
+    @Serializable
+    data class Stat(
+        val view: Int,
+        val danmaku: Int,
+        val reply: Int,
+        val favorite: Int,
+        val coin: Int,
+        val share: Int,
+        val like: Int
+    )
 }

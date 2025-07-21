@@ -38,7 +38,10 @@ data class ToViewItem(
     val author: String,
     val duration: Int,
     val progress: Int,
-    val type: ToViewItemType
+    val type: ToViewItemType,
+    val pubdate: Long,
+    val play: Int,
+    val danmaku: Int
 ) {
     companion object {
         fun fromToViewItem(item: dev.aaa1115910.biliapi.http.entity.toview.ToViewItem) =
@@ -54,7 +57,10 @@ data class ToViewItem(
                 author = item.owner.name,
                 duration = item.duration,
                 progress = item.progress,
-                type = ToViewItemType.Archive
+                type = ToViewItemType.Archive,
+                pubdate = item.pubdate,
+                play = item.stat.view,
+                danmaku = item.stat.danmaku
                 // type = when (item.history.business) {
                 //     "archive" -> HistoryItemType.Archive
                 //     "pgc" -> HistoryItemType.Pgc
@@ -106,7 +112,10 @@ data class ToViewItem(
                 CursorItem.CardItemCase.CARD_UGC -> ToViewItemType.Archive
                 CursorItem.CardItemCase.CARD_OGV -> ToViewItemType.Pgc
                 else -> ToViewItemType.Unknown
-            }
+            },
+            pubdate = -1,
+            play = -1,
+            danmaku = -1
         )
     }
 }

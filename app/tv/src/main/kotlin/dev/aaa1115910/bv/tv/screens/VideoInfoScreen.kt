@@ -80,6 +80,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -1004,35 +1005,61 @@ fun VideoInfoData(
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
-            if (videoDuration > 0) {
-                Box(
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 16.dp,
+                            bottomEnd = 16.dp
+                        )
+                    )
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.8f)
+                            )
+                        )
+                    )
+            ) {
+                Row(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(bottom = 2.dp, start = 2.dp, end = 2.dp)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 0.dp,
-                                topEnd = 0.dp,
-                                bottomStart = 16.dp,
-                                bottomEnd = 16.dp
-                            )
-                        )
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.8f)
-                                )
-                            )
-                        )
-                ) {
+                        .fillMaxSize()
+                        .padding(start=16.dp, end=16.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ){
+                    Icon(
+                        modifier = Modifier,
+                        painter = painterResource(id = R.drawable.ic_play_count),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                     Text(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(bottom = 10.dp, end = 16.dp),
-                        text = (videoDuration * 1000L).formatMinSec(),
+                        text = with(videoDetail.stat.view){if (this >= 10000) "${this / 10000}万" else "$this"},
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        modifier = Modifier,
+                        painter = painterResource(id = R.drawable.ic_danmaku_count),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Text(
+                        text = with(videoDetail.stat.danmaku){if (this >= 10000) "${this / 10000}万" else "$this"},
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = (videoDuration * 1000L).formatHourMinSec(),
                         color = Color.White,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -1817,5 +1844,81 @@ private fun UpButtonPreview() {
             onAddFollow = {},
             onDelFollow = {}
         )
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CoverPreview() {
+    Box{
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxSize(),
+            // model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
+            model = "http://i2.hdslb.com/bfs/archive/af17fc07b8f735e822563cc45b7b5607a491dfff.jpg",
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = 0.dp,
+                        bottomStart = 16.dp,
+                        bottomEnd = 16.dp
+                    )
+                )
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.8f)
+                        )
+                    )
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start=16.dp, end=16.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ){
+                Icon(
+                    modifier = Modifier,
+                    painter = painterResource(id = R.drawable.ic_play_count),
+                    contentDescription = null,
+                    tint = Color.White
+                )
+                Text(
+                    text = "3009",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    modifier = Modifier,
+                    painter = painterResource(id = R.drawable.ic_danmaku_count),
+                    contentDescription = null,
+                    tint = Color.White
+                )
+                Text(
+                    text = "1099",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
+
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = "12:34",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
     }
 }
