@@ -1,9 +1,8 @@
 package dev.aaa1115910.bv.player.tv
 
 import android.os.CountDownTimer
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -137,9 +136,7 @@ fun BvPlayer(
     var aspectRatioValue by remember { mutableFloatStateOf(16f / 9f) }
     val aspectRatio by animateFloatAsState(
         targetValue = aspectRatioValue,
-        animationSpec = spring(
-            stiffness = Spring.StiffnessMediumLow
-        ),
+        animationSpec = tween(),
         label = "aspectRatio",
     )
     var lastPlayed by remember { mutableLongStateOf(0L) }

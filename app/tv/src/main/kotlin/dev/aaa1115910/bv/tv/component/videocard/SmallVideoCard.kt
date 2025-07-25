@@ -2,7 +2,7 @@ package dev.aaa1115910.bv.tv.component.videocard
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,13 +18,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -97,10 +96,12 @@ fun SmallVideoCardContent(
     onFocusChanged: (Boolean) -> Unit = {}
 ) {
     // 缓存密度计算，避免重复计算
-    val finalOffsetY = LocalDensity.current.run { 6.dp.toPx() }
+    val finalOffsetY = LocalDensity.current.run { 7.dp.toPx() }
     val infoOffsetY by animateFloatAsState(
         targetValue = if (hasFocus) finalOffsetY else 0f,
-        animationSpec = spring(),
+        animationSpec = tween(
+            durationMillis = 250
+        ),
         label = "info offset y"
     )
 
@@ -261,7 +262,7 @@ private fun ColumnScope.CardInfo(
         Text(
             modifier = Modifier,
             text = title,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp),
             maxLines = 2,
             minLines = 2,
             overflow = TextOverflow.Ellipsis,

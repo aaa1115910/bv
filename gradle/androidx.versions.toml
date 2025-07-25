@@ -11,11 +11,11 @@ compose-tv-foundation = "1.0.0-alpha12"
 core = "1.16.0"
 core-splashscreen = "1.0.1"
 dataStore = "1.1.7"
-lifecycle = "2.9.2"
+lifecycle = "2.9.0"
 media3 = "1.8.0-rc01"
-navigation = "2.9.2"
-room = "2.7.2"
-webkit = "1.14.0"
+navigation = "2.9.0"
+room = "2.7.1"
+webkit = "1.13.0"
 
 [libraries]
 # https://developer.android.com/jetpack/androidx/releases/activity

@@ -32,13 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.component.HomeTopNavItem
 import dev.aaa1115910.bv.component.UserPanel
@@ -60,21 +56,14 @@ import dev.aaa1115910.bv.tv.screens.search.SearchInputScreen
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fException
 import dev.aaa1115910.bv.util.fInfo
-import dev.aaa1115910.bv.util.rememberDebouncer
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.UserViewModel
-import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
-import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
-import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    recommendViewModel: RecommendViewModel = koinViewModel(),
-    popularViewModel: PopularViewModel = koinViewModel(),
-    dynamicViewModel: DynamicViewModel = koinViewModel(),
     userViewModel: UserViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -89,10 +78,6 @@ fun MainScreen(
     val ugcFocusRequester = remember { FocusRequester() }
     val pgcFocusRequester = remember { FocusRequester() }
     val searchFocusRequester = remember { FocusRequester() }
-
-//    val navController = rememberNavController()
-//    val startDestination = DrawerItem.Home
-//    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
     val handleBack = {
         val currentTime = System.currentTimeMillis()

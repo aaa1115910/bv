@@ -49,6 +49,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // 启用硬件加速
+        manifestPlaceholders["hardwareAccelerated"] = "true"
+        // 启用大堆内存模式
+        manifestPlaceholders["largeHeap"] = "true"
     }
 
     flavorDimensions.add("channel")

@@ -55,7 +55,7 @@ class ExoMediaPlayer(
         val renderersFactory = DefaultRenderersFactory(context).apply {
             setExtensionRendererMode(
                 when (options.enableFfmpegAudioRenderer) {
-                    true -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                    true -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
                     false -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
                 }
             )
@@ -69,7 +69,7 @@ class ExoMediaPlayer(
                 bufferConfig.minBufferMs, // 最小缓冲时间
                 bufferConfig.maxBufferMs, // 最大缓冲时间
                 DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, // 开始播放前的缓冲时间
-                3000 // 重新缓冲后的播放缓冲
+                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS // 重新缓冲后的播放缓冲
             )
             // 优先考虑时间阈值还是缓冲大小。true：优先考虑时间阈值
             .setPrioritizeTimeOverSizeThresholds(bufferConfig.prioritizeTime)

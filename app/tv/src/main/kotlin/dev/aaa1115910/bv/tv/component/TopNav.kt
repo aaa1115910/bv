@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.tv.component
 
 import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,7 +65,8 @@ fun TopNav(
 
     val verticalPadding by animateDpAsState(
         targetValue = if (isLargePadding) 24.dp else 12.dp,
-        label = "top nav vertical padding"
+        label = "top nav vertical padding",
+        animationSpec = tween()
     )
     var tabMoved by remember { mutableStateOf(true) }
 

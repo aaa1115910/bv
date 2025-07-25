@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.tv.component.videocard
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -51,7 +52,10 @@ fun VideosRow(
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
         targetValue = if (hasFocus) 30f else 14f,
-        label = "title font size"
+        label = "title font size",
+        animationSpec = tween(
+            durationMillis = 250
+        )
     )
     var rowHeight by remember { mutableStateOf(0.dp) }
 
