@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.tv.component.videocard
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -43,15 +45,17 @@ fun VideosRow(
     videos: List<VideoCardData>,
     showMore: () -> Unit,
     onOpenSeasonInfo: (VideoCardData) -> Unit = {},
-    onOpenVideoInfo: (VideoCardData) -> Unit = {}
+    onOpenVideoInfo: (VideoCardData) -> Unit = {},
+    focusRequester: FocusRequester? = null // 渲染为 播放器-推荐视频 时有值
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val focusRequester = remember { FocusRequester() }
+    val internalFocusRequester = remember { FocusRequester() }
+    val activeFocusRequester = focusRequester ?: internalFocusRequester
     var hasFocus by remember { mutableStateOf(false) }
     val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
-        targetValue = if (hasFocus) 30f else 14f,
+        targetValue = if (focusRequester != null) 24f else if (hasFocus) 30f else 14f,
         label = "title font size",
         animationSpec = tween(
             durationMillis = 250
@@ -71,12 +75,21 @@ fun VideosRow(
         LazyRow(
             modifier = Modifier
                 .padding(top = 15.dp)
-                .focusRestorer(focusRequester)
+                .focusRestorer(activeFocusRequester)
                 .onGloballyPositioned {
                     rowHeight = with(density) {
                         it.size.height.toDp()
                     }
-                },
+                }
+                .ifElse(focusRequester != null, Modifier.background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.7f)
+                        ),
+                        endY = Float.POSITIVE_INFINITY * 0.7f
+                    )
+                )),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
             contentPadding = PaddingValues(horizontal = 62.dp)
@@ -85,7 +98,7 @@ fun VideosRow(
                 SmallVideoCard(
                     modifier = Modifier
                         .width(200.dp)
-                        .ifElse(index == 0, Modifier.focusRequester(focusRequester)),
+                        .ifElse(index == 0, Modifier.focusRequester(activeFocusRequester)),
                     data = videoData,
                     onClick = {
                         if (videoData.jumpToSeason) {

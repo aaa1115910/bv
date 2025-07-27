@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,6 +63,9 @@ fun VideoPlayerController(
     videoPlayer: AbstractVideoPlayer,
     playerSeekStep: Int = 10,
     showBottomProgressBar: Boolean = false,
+    
+    showRelatedVideos: Boolean = false,
+    onToggleRelatedVideos: (Boolean) -> Unit,
 
     //player events
     onPlay: () -> Unit,
@@ -107,6 +109,7 @@ fun VideoPlayerController(
     val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
 
     var lastPressBack by remember { mutableLongStateOf(0L) }
+    var lastPressDown by remember { mutableLongStateOf(0L) }
     var hasFocus by remember { mutableStateOf(false) }
 
     var goTime by remember { mutableLongStateOf(0L) }
@@ -117,6 +120,7 @@ fun VideoPlayerController(
     // 使用协程Job来替代CountDownTimer以确保线程安全
     var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     var autoSeekConfirmJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var doublePressDownJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     val openSeekController = {
         if (!showSeekController) goTime = videoPlayerSeekData.position
@@ -178,7 +182,7 @@ fun VideoPlayerController(
             //.ifElse(hasFocus, Modifier.border(2.dp, Color.Yellow))
             .onPreviewKeyEvent {
 
-                if (showClickableControllers) {
+                if (showClickableControllers || showRelatedVideos) {
                     if (listOf(Key.Back, Key.Menu).contains(it.key)) {
                         if (it.type == KeyEventType.KeyUp) {
                             logger.fInfo { "[${it.key}] hide all controllers" }
@@ -186,6 +190,7 @@ fun VideoPlayerController(
                                 showMenuController = false
                                 showListController = false
                                 showSeekController = false
+                                onToggleRelatedVideos(false)
                             }
                         }
                         onRequestFocus()
@@ -267,9 +272,21 @@ fun VideoPlayerController(
                     Key.DirectionDown -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        scope.launch(Dispatchers.Main) {
-                            showInfo = !showInfo
-                            if (showInfo) {
+                        
+                        // 检查是否为连按两次（间隔小于300ms且上次按键时间不为0）
+                        val currentTime = System.currentTimeMillis()
+                        val isDoublePress = lastPressDown != 0L && currentTime - lastPressDown < 300
+                        lastPressDown = currentTime
+
+                        doublePressDownJob?.cancel()
+                        doublePressDownJob = scope.launch(Dispatchers.Main) {
+                            delay(300)
+                            lastPressDown = 0L // 重置时间，避免第三次按下时误判
+                            if ((isDoublePress || showInfo) && !showRelatedVideos) {
+                                showInfo = false
+                                onToggleRelatedVideos(true)
+                            } else {
+                                showInfo = true
                                 hideVideoInfoJob?.cancel()
                                 hideVideoInfoJob = scope.launch {
                                     delay(3000)
@@ -277,8 +294,6 @@ fun VideoPlayerController(
                                         showInfo = false
                                     }
                                 }
-                            } else {
-                                hideVideoInfoJob?.cancel()
                             }
                         }
                         return@onPreviewKeyEvent true
@@ -297,13 +312,14 @@ fun VideoPlayerController(
                         logger.info { "[${it.key} press]" }
 
                         // 有任何控制器显示中，先隐藏控制器
-                        if (showSeekController || showListController || showMenuController || showInfo) {
+                        if (showSeekController || showListController || showMenuController || showInfo || showRelatedVideos) {
                             logger.fInfo { "隐藏控制器" }
                             scope.launch(Dispatchers.Main) {
                                 showSeekController = false
                                 showListController = false
                                 showMenuController = false
                                 showInfo = false
+                                onToggleRelatedVideos(false)
                                 hideVideoInfoJob?.cancel()
                             }
                             return@onPreviewKeyEvent true
@@ -427,8 +443,9 @@ fun VideoPlayerController(
             onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
             onSubtitleBottomPadding = onSubtitleBottomPadding
         )
+        // 推荐视频组件（在连按两次下键时显示）, UI没写在这，在VideoPlayerV3Screen.kt中
         // 底部常驻进度条组件
-        if (showBottomProgressBar && !showInfo && !showSeekController) {
+        if (showBottomProgressBar && !showInfo && !showSeekController && !showRelatedVideos) {
             LinearProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

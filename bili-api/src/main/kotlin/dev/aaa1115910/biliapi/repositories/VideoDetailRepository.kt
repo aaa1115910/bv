@@ -19,9 +19,7 @@ import dev.aaa1115910.biliapi.grpc.utils.handleGrpcException
 import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.garb.EquipPart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
@@ -45,7 +43,7 @@ class VideoDetailRepository(
     suspend fun getVideoDetail(
         aid: Long,
         preferApiType: ApiType = ApiType.Web,
-        withoutUserActions: Boolean = false
+        withUserActions: Boolean = true
     ): VideoDetail {
         return when (preferApiType) {
             ApiType.Web -> {
@@ -64,7 +62,7 @@ class VideoDetailRepository(
                     var isFavoured = false
                     var isCoined = false
 
-                    if (!withoutUserActions) {
+                    if (withUserActions) {
                         // 串行执行：检查点赞状态
                         isLiked = runCatching {
                             likeRepository.checkVideoLike(

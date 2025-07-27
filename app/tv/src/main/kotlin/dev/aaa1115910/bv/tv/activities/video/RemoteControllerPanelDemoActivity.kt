@@ -31,7 +31,11 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             isVerticalVideo: Boolean = false,
             proxyArea: ProxyArea = ProxyArea.MainLand,
             playerIconIdle: String = "",
-            playerIconMoving: String = ""
+            playerIconMoving: String = "",
+            play: Int = 0,
+            danmaku: Int = 0,
+            upName: String = "",
+            pubTime: String = ""
         ) {
             context.startActivity(
                 Intent(context, RemoteControllerPanelDemoActivity::class.java).apply {
@@ -48,6 +52,10 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                     putExtra("proxy_area", proxyArea.ordinal)
                     putExtra("playerIconIdle", playerIconIdle)
                     putExtra("playerIconMoving", playerIconMoving)
+                    putExtra("play", play)
+                    putExtra("danmaku", danmaku)
+                    putExtra("upName", upName)
+                    putExtra("pubTime", pubTime)
                 }
             )
         }

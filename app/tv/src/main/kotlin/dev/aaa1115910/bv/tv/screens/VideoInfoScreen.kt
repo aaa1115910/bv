@@ -161,6 +161,7 @@ import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
@@ -198,6 +199,7 @@ fun VideoInfoScreen(
     var tip by remember { mutableStateOf("加载中...") }
     var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
     var fromSeason by remember { mutableStateOf(false) }
+    var fromPlayer by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(false) }
     var proxyArea by remember { mutableStateOf(ProxyArea.MainLand) }
 
@@ -439,6 +441,7 @@ fun VideoInfoScreen(
         if (intent.hasExtra("aid")) {
             val aid = intent.getLongExtra("aid", 170001)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
+            fromPlayer = intent.getBooleanExtra("fromPlayer", false)
             proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
             //获取视频信息
             scope.launch(Dispatchers.IO) {
@@ -461,7 +464,7 @@ fun VideoInfoScreen(
                 }
 
                 runCatching {
-                    videoDetailViewModel.loadDetail(aid, fromSeason, !showUGCVideoInfo)
+                    videoDetailViewModel.loadDetail(aid, fromSeason, withUserActions = showUGCVideoInfo)
                     withContext(Dispatchers.Main) {
                         updateVideoIsFavoured()
                         updateVideoIsLiked()
@@ -470,8 +473,13 @@ fun VideoInfoScreen(
                     }
                     if (Prefs.isLogin) fetchFavoriteData(aid)
 
+                    videoInfoRepository.relatedVideos.clear()
+                    if (!fromSeason) {
+                        videoInfoRepository.relatedVideos.addAll(videoDetailViewModel.relatedVideos)
+                    }
+                    // 从播放器推荐视频打开时 fromPlayer=true 并显示loading。300m后 fromPlayer改成false，此后从播放器返回详情页，正常显示详情内容
                     //如果是从剧集跳转过来的或设置不显示视频详情，就直接播放 P1
-                    if (fromSeason || !showUGCVideoInfo) {
+                    if (fromSeason || !showUGCVideoInfo || fromPlayer) {
                         val playPart = videoDetailViewModel.videoDetail!!.pages.first()
                         launchPlayerActivity(
                             context = context,
@@ -485,9 +493,23 @@ fun VideoInfoScreen(
                             playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                 ?: "",
                             playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                ?: ""
+                                ?: "",
+                            play = videoDetailViewModel.videoDetail!!.stat.view,
+                            danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                            upName = videoDetailViewModel.videoDetail!!.author.name,
+                            pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
                         )
-                        context.finish()
+                        if(fromPlayer) {
+                            // 清除标记, 以便从播放器返回过来的可以进入详情页
+                            scope.launch {
+                                delay(300)
+                                fromPlayer = false
+                                intent.removeExtra("fromPlayer")
+                            }
+                        }
+                        if (!fromPlayer) {
+                            context.finish()
+                        }
                     }
                 }.onFailure {
                     val errorMessage = it.localizedMessage
@@ -563,6 +585,19 @@ fun VideoInfoScreen(
         }
     }
 
+    // 确保页面显示时封面获得焦点
+    LaunchedEffect(videoDetailViewModel.videoDetail, fromSeason, showUGCVideoInfo, fromPlayer) {
+        if (videoDetailViewModel.videoDetail != null && 
+            !videoDetailViewModel.videoDetail!!.redirectToEp && 
+            !fromSeason && 
+            showUGCVideoInfo && 
+            !fromPlayer) {
+            // 延迟一小段时间确保UI完全渲染
+            delay(100)
+            defaultFocusRequester.requestFocus(scope)
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_PAUSE) {
@@ -580,7 +615,7 @@ fun VideoInfoScreen(
         }
     }
 
-    if (videoDetailViewModel.videoDetail == null || videoDetailViewModel.videoDetail?.redirectToEp == true || fromSeason || !showUGCVideoInfo) {
+    if (videoDetailViewModel.videoDetail == null || videoDetailViewModel.videoDetail?.redirectToEp == true || fromSeason || !showUGCVideoInfo || fromPlayer) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -615,21 +650,21 @@ fun VideoInfoScreen(
                     modifier = Modifier
                         .focusable()
                         .onKeyEvent { event ->
-                            if (event.type == KeyEventType.KeyDown) {
-                                when (event.key) {
-                                    Key.DirectionUp -> {
-                                        scope.launch {
-                                            lazyListState.animateScrollBy(-200f)
-                                        }
-                                    }
-                                    Key.DirectionDown -> {
-                                        scope.launch {
-                                            lazyListState.animateScrollBy(200f)
-                                        }
-                                    }
-                                }
-                            }
-                            return@onKeyEvent false
+                             if (event.type == KeyEventType.KeyDown) {
+                                 when (event.key) {
+                                     Key.DirectionUp -> {
+                                         scope.launch {
+                                             lazyListState.animateScrollBy(-200f)
+                                         }
+                                     }
+                                     Key.DirectionDown -> {
+                                         scope.launch {
+                                             lazyListState.animateScrollBy(200f)
+                                         }
+                                     }
+                                 }
+                             }
+                             return@onKeyEvent false
                         },
                     state = lazyListState,
                     contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
@@ -712,7 +747,11 @@ fun VideoInfoScreen(
                                     playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                         ?: "",
                                     playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                        ?: ""
+                                        ?: "",
+                                    play = videoDetailViewModel.videoDetail!!.stat.view,
+                                    danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                                    upName = videoDetailViewModel.videoDetail!!.author.name,
+                                    pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
                                 )
                             },
                             onClickUp = {
@@ -819,7 +858,11 @@ fun VideoInfoScreen(
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                            ?: ""
+                                            ?: "",
+                                        play = videoDetailViewModel.videoDetail!!.stat.view,
+                                        danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                                        upName = videoDetailViewModel.videoDetail!!.author.name,
+                                        pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
                                     )
                                 }
                             )
@@ -849,7 +892,11 @@ fun VideoInfoScreen(
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                            ?: ""
+                                            ?: "",
+                                        play = videoDetailViewModel.videoDetail!!.stat.view,
+                                        danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                                        upName = videoDetailViewModel.videoDetail!!.author.name,
+                                        pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
                                     )
                                 },
                                 onClickEpPart = { episode, cid ->
@@ -867,7 +914,11 @@ fun VideoInfoScreen(
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                            ?: ""
+                                            ?: "",
+                                        play = videoDetailViewModel.videoDetail!!.stat.view,
+                                        danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                                        upName = videoDetailViewModel.videoDetail!!.author.name,
+                                        pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
                                     )
                                 }
                             )

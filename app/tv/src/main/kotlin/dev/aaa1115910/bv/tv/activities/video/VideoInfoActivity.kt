@@ -20,12 +20,14 @@ class VideoInfoActivity : ComponentActivity() {
         fun actionStart(
             context: Context, aid: Long,
             fromSeason: Boolean = false,
+            fromPlayer: Boolean = false,
             proxyArea: ProxyArea = ProxyArea.MainLand
         ) {
             context.startActivity(
                 Intent(context, VideoInfoActivity::class.java).apply {
                     putExtra("aid", aid)
                     putExtra("fromSeason", fromSeason)
+                    putExtra("fromPlayer", fromPlayer)
                     putExtra("proxy_area", proxyArea.ordinal)
                 }
             )

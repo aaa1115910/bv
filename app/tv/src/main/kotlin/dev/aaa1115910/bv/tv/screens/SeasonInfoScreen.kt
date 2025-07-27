@@ -38,7 +38,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -201,6 +200,8 @@ fun SeasonInfoScreen(
     }
 
     LaunchedEffect(Unit) {
+        videoInfoRepository.relatedVideos.clear()
+        
         val epId = intent.getIntExtra("epid", 0)
         val seasonId = intent.getIntExtra("seasonid", 0)
         val proxyAreaIndex = intent.getIntExtra("proxy_area", 0)

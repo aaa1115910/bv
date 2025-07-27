@@ -110,7 +110,11 @@ fun ControllerVideoInfo(
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
-                movingIcon = videoPlayerSeekThumbData.movingIcon
+                movingIcon = videoPlayerSeekThumbData.movingIcon,
+                play = videoPlayerVideoInfoData.play,
+                danmaku = videoPlayerVideoInfoData.danmaku,
+                upName = videoPlayerVideoInfoData.upName,
+                pubTime = videoPlayerVideoInfoData.pubTime
             )
         }
     }
@@ -137,7 +141,11 @@ fun ControllerVideoInfoBottom(
     partTitle: String,
     seekData: VideoPlayerSeekData,
     idleIcon: String,
-    movingIcon: String
+    movingIcon: String,
+    play: Int,
+    danmaku: Int,
+    upName: String,
+    pubTime: String
 ) {
     Column(
         modifier = modifier
@@ -184,6 +192,22 @@ fun ControllerVideoInfoBottom(
                 modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, end = 32.dp),
                 text = "${seekData.position.formatMinSec()} / ${seekData.duration.formatMinSec()}",
                 color = Color.White
+            )
+        }
+        if(upName.isNotEmpty()) {
+            Text(
+                modifier = Modifier
+                    .padding(start = 32.dp, end = 32.dp, top = 8.dp, bottom = 0.dp)
+                    .fillMaxWidth(),
+                text = "$upName · ${
+                    if (play >= 10000) "${play / 10000}万" else "$play"
+                }次播放 · ${
+                    if (danmaku >= 10000) "${danmaku / 10000}万" else "$danmaku"
+                }弹幕 · 发布于 $pubTime",
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
         VideoSeekBar(

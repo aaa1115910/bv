@@ -103,6 +103,7 @@ class VideoPlayerV3ViewModel(
     var availableSubtitle = mutableStateListOf<Subtitle>()
     var availableAudio = mutableStateListOf<Audio>()
     val availableVideoList get() = videoInfoRepository.videoList
+    val relatedVideos get() =  videoInfoRepository.relatedVideos
 
     var currentVideoHeight by mutableIntStateOf(0)
     var currentVideoWidth by mutableIntStateOf(0)
@@ -135,6 +136,10 @@ class VideoPlayerV3ViewModel(
     var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
     var proxyArea by mutableStateOf(ProxyArea.MainLand)
+    var play by mutableStateOf(0)
+    var danmaku by mutableStateOf(0)
+    var upName by mutableStateOf("")
+    var pubTime by mutableStateOf("")
 
     var needPay by mutableStateOf(false)
 

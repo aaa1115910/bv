@@ -101,6 +101,8 @@ fun BvPlayer(
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
+    showRelatedVideos: Boolean = false,
+    onToggleRelatedVideos: (Boolean) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("BvPlayer")
@@ -523,6 +525,8 @@ fun BvPlayer(
             videoPlayer = videoPlayer,
             playerSeekStep = playerSeekStep,
             showBottomProgressBar = showBottomProgressBar,
+            showRelatedVideos = showRelatedVideos,
+            onToggleRelatedVideos = onToggleRelatedVideos,
 
             onPlay = { videoPlayer.start() },
             onPause = {

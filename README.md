@@ -43,6 +43,8 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ## 修改
 在原bv的基础上做了一些修改，包括：
+- 播放器页面增加“推荐视频”
+  - 操作方式：双击下键，或者按下键显示视频信息后再按下键
 - UGC视频详情页增加点赞、投币功能
 - 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
 - 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
@@ -66,7 +68,8 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ![首页](https://github.com/user-attachments/assets/ad7ca9a5-fec5-4e60-9c2c-cc6c102be09d)
 ![PGC](https://github.com/user-attachments/assets/59600816-85f7-4f8a-83cc-3b8c27870027)
 ![UGC详情](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
-![视频播放](https://github.com/user-attachments/assets/1e8939ba-f973-4847-9ae5-7cb9ae64f98e)
+![视频播放](https://github.com/user-attachments/assets/86a70871-c5e2-40e9-ac03-3762f0f89977)
+![视频播放-推荐视频](https://github.com/user-attachments/assets/07b4bfab-0636-4ea9-8e31-9f8caf1b1e62)
 ![设置](https://github.com/user-attachments/assets/9171ab80-cc19-4e06-898c-66b6bc309e1f)
 
 

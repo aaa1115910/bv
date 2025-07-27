@@ -27,6 +27,10 @@ data class VideoPlayerVideoInfoData(
     val codec: String = "",
     val title: String = "Title",
     val partTitle: String = "PartTitle",
+    val play: Int = 0,
+    val danmaku: Int = 0,
+    val upName: String = "",
+    val pubTime: String = "",
 )
 
 data class VideoPlayerClockData(

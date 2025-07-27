@@ -32,14 +32,14 @@ class VideoDetailViewModel(
 
     var relatedVideos = mutableStateListOf<VideoCardData>()
 
-    suspend fun loadDetail(aid: Long, fromPgcSeason: Boolean = false, withoutUserActions: Boolean = false) {
+    suspend fun loadDetail(aid: Long, fromPgcSeason: Boolean = false, withUserActions: Boolean = true) {
         logger.fInfo { "Load detail: [avid=$aid, preferApiType=${Prefs.apiType.name}]" }
         state = VideoInfoState.Loading
         runCatching {
             val videoDetailData = videoDetailRepository.getVideoDetail(
                 aid = aid,
                 preferApiType = Prefs.apiType,
-                withoutUserActions = withoutUserActions
+                withUserActions = withUserActions
             )
             withContext(Dispatchers.Main) { videoDetail = videoDetailData }
             if (!fromPgcSeason) updateVideoList(aid)
@@ -60,7 +60,7 @@ class VideoDetailViewModel(
             val historyData = videoDetailRepository.getVideoDetail(
                 aid = aid,
                 preferApiType = Prefs.apiType,
-                withoutUserActions = true
+                withUserActions = false
             ).history
             withContext(Dispatchers.Main) { videoDetail?.history = historyData }
         }.onFailure {

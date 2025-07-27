@@ -1,10 +1,12 @@
 package dev.aaa1115910.bv.tv.screens
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,11 +14,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
+import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerDanmakuMasksData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerHistoryData
@@ -38,6 +46,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.tv.BvPlayer
 import dev.aaa1115910.bv.player.tv.controller.SkipTip
+import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -61,6 +70,22 @@ fun VideoPlayerV3Screen(
     var autoActionCountdownJob by remember { mutableStateOf<Job?>(null) }
     var autoActionTipVisible by remember { mutableStateOf(false) }
     var autoActionTipText by remember { mutableStateOf("") }
+    var showRelatedVideos by remember { mutableStateOf(false) }
+    
+    // 焦点管理
+    val relatedVideosFocusRequester = remember { FocusRequester() }
+    
+    // 当显示相关视频时，自动将焦点转移到VideosRow的第一个卡片
+    LaunchedEffect(showRelatedVideos) {
+        if (showRelatedVideos) {
+            relatedVideosFocusRequester.requestFocus()
+        }
+    }
+    
+    // 处理back键，当推荐视频有焦点时隐藏推荐视频并将焦点返回到播放器
+    BackHandler(enabled = showRelatedVideos) {
+        showRelatedVideos = false
+    }
 
     CompositionLocalProvider(
         LocalVideoPlayerSeekThumbData provides VideoPlayerSeekThumbData(
@@ -73,6 +98,10 @@ fun VideoPlayerV3Screen(
             codec = playerViewModel.currentVideoCodec.name,
             title = playerViewModel.title,
             partTitle = playerViewModel.partTitle,
+            play = playerViewModel.play,
+            danmaku = playerViewModel.danmaku,
+            upName = playerViewModel.upName,
+            pubTime = playerViewModel.pubTime,
         ),
         LocalVideoPlayerLogsData provides VideoPlayerLogsData(
             logs = playerViewModel.logs
@@ -141,6 +170,10 @@ fun VideoPlayerV3Screen(
                 danmakuPlayer = playerViewModel.danmakuPlayer,
                 playerSeekStep = Prefs.playerSeekStep,
                 showBottomProgressBar = Prefs.playerShowBottomProgressBar,
+                showRelatedVideos = showRelatedVideos,
+                onToggleRelatedVideos = { state ->
+                    showRelatedVideos = if (playerViewModel.relatedVideos.isNotEmpty()) state else false
+                },
                 onSendHeartbeat = playerViewModel::uploadHistory,
                 onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
                 onLoadNextVideo = {
@@ -164,12 +197,10 @@ fun VideoPlayerV3Screen(
                         // 启动倒计时 toast 提示
                         autoActionCountdownJob = scope.launch {
                             try {
-                                for (countdown in 3 downTo 1) {
-                                    // 更新 SkipTip 文本和显示状态
-                                    autoActionTipText = "播放结束，即将播放下一集 ${countdown} "
-                                    autoActionTipVisible = true
-                                    delay(500)
-                                }
+                                // 更新 SkipTip 文本和显示状态
+                                autoActionTipText = "播放结束，即将播放下一集"
+                                autoActionTipVisible = true
+                                delay(1500)
 
                                 // 如果没有被取消，切换到下一个视频
                                 autoActionTipVisible = false
@@ -177,13 +208,21 @@ fun VideoPlayerV3Screen(
                                     autoActionCountdownJob = null
                                     playerViewModel.title = nextVideo.title
                                     playerViewModel.partTitle = nextVideo.partTitle
-                                    playerViewModel.loadPlayUrl(
-                                        avid = nextVideo.aid,
-                                        cid = nextVideo.cid,
-                                        epid = nextVideo.epid,
-                                        seasonId = nextVideo.seasonId,
-                                        continuePlayNext = true
-                                    )
+                                    if(nextVideo.seasonId == null) {
+                                        VideoInfoActivity.actionStart(
+                                            context = context,
+                                            aid = nextVideo.aid,
+                                            fromPlayer = true
+                                        )
+                                    } else {
+                                        playerViewModel.loadPlayUrl(
+                                            avid = nextVideo.aid,
+                                            cid = nextVideo.cid,
+                                            epid = nextVideo.epid,
+                                            seasonId = nextVideo.seasonId,
+                                            continuePlayNext = true
+                                        )
+                                    }
                                 }
                             } catch (e: Exception) {
                                 // 倒计时被取消
@@ -195,12 +234,10 @@ fun VideoPlayerV3Screen(
                         // 启动倒计时提示
                         autoActionCountdownJob = scope.launch {
                             try {
-                                for (countdown in 3 downTo 1) {
-                                    // 更新 SkipTip 文本和显示状态
-                                    autoActionTipText = "播放结束，即将退出 ${countdown} "
-                                    autoActionTipVisible = true
-                                    delay(500)
-                                }
+                                // 更新 SkipTip 文本和显示状态
+                                autoActionTipText = "播放结束，即将退出"
+                                autoActionTipVisible = true
+                                delay(1500)
 
                                 // 如果没有被取消，退出播放
                                 autoActionTipVisible = false
@@ -222,13 +259,21 @@ fun VideoPlayerV3Screen(
                         is VideoListItemData -> {
                             playerViewModel.title = videoListItem.title
                             playerViewModel.partTitle = videoListItem.partTitle
-                            playerViewModel.loadPlayUrl(
-                                avid = videoListItem.aid,
-                                cid = videoListItem.cid,
-                                epid = videoListItem.epid,
-                                seasonId = videoListItem.seasonId,
-                                continuePlayNext = true
-                            )
+                            if(videoListItem.seasonId == null) {
+                                VideoInfoActivity.actionStart(
+                                    context = context,
+                                    aid = videoListItem.aid,
+                                    fromPlayer = true
+                                )
+                            } else {
+                                playerViewModel.loadPlayUrl(
+                                    avid = videoListItem.aid,
+                                    cid = videoListItem.cid,
+                                    epid = videoListItem.epid,
+                                    seasonId = videoListItem.seasonId,
+                                    continuePlayNext = true
+                                )
+                            }
                         }
                     }
                 },
@@ -307,6 +352,30 @@ fun VideoPlayerV3Screen(
                     show = true,
                     text = autoActionTipText,
                     align = Alignment.BottomEnd
+                )
+            }
+            if (showRelatedVideos) {
+                VideosRow(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter),
+                    header = stringResource(R.string.video_info_related_video_title),
+                    videos = playerViewModel.relatedVideos,
+                    showMore = {},
+                    focusRequester = relatedVideosFocusRequester,
+                    onOpenSeasonInfo = { videoData ->
+                        SeasonInfoActivity.actionStart(
+                            context = context,
+                            epId = videoData.epId!!,
+                            proxyArea = ProxyArea.checkProxyArea(videoData.title)
+                        )
+                    },
+                    onOpenVideoInfo = { videoData ->
+                        VideoInfoActivity.actionStart(
+                            context = context,
+                            aid = videoData.avid,
+                            fromPlayer = true
+                        )
+                    }
                 )
             }
         }

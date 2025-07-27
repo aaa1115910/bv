@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import java.lang.ref.WeakReference
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.PlayerType
@@ -23,6 +24,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class VideoPlayerV3Activity : ComponentActivity() {
     companion object {
         private val logger = KotlinLogging.logger { }
+        private var currentInstance: WeakReference<VideoPlayerV3Activity>? = null
+        
         fun actionStart(
             context: Context,
             avid: Long,
@@ -37,8 +40,19 @@ class VideoPlayerV3Activity : ComponentActivity() {
             isVerticalVideo: Boolean = false,
             proxyArea: ProxyArea = ProxyArea.MainLand,
             playerIconIdle: String = "",
-            playerIconMoving: String = ""
+            playerIconMoving: String = "",
+            play: Int = 0,
+            danmaku: Int = 0,
+            upName: String = "",
+            pubTime: String = ""
         ) {
+            // 先关闭旧的播放页面
+            currentInstance?.get()?.let { instance ->
+                logger.info { "Closing previous video player instance" }
+                instance.finish()
+            }
+            currentInstance = null
+            
             context.startActivity(
                 Intent(
                     context,
@@ -57,6 +71,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("proxy_area", proxyArea.ordinal)
                     putExtra("playerIconIdle", playerIconIdle)
                     putExtra("playerIconMoving", playerIconMoving)
+                    putExtra("play", play)
+                    putExtra("danmaku", danmaku)
+                    putExtra("upName", upName)
+                    putExtra("pubTime", pubTime)
                 }
             )
         }
@@ -66,6 +84,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 设置当前实例为弱引用
+        currentInstance = WeakReference(this)
+        
         initVideoPlayer()
         //initDanmakuPlayer()
         getParamsFromIntent()
@@ -82,6 +104,12 @@ class VideoPlayerV3Activity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        
+        // 清除当前实例引用
+        if (currentInstance?.get() == this) {
+            currentInstance = null
+        }
+        
         if (isFinishing) {
             playerViewModel.videoPlayer = null
             playerViewModel.danmakuPlayer = null
@@ -133,6 +161,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
             val playerIconIdle = intent.getStringExtra("playerIconIdle") ?: ""
             val playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
+            val play = intent.getIntExtra("play", 0)
+            val danmaku = intent.getIntExtra("danmaku", 0)
+            val upName = intent.getStringExtra("upName") ?: ""
+            val pubTime = intent.getStringExtra("pubTime") ?: ""
             dev.aaa1115910.bv.tv.activities.video.VideoPlayerV3Activity.Companion.logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
                 loadPlayUrl(
@@ -151,6 +183,10 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.proxyArea = proxyArea
                 this.playerIconIdle = playerIconIdle
                 this.playerIconMoving = playerIconMoving
+                this.play = play
+                this.danmaku = danmaku
+                this.upName = upName
+                this.pubTime = pubTime
             }
         } else {
             dev.aaa1115910.bv.tv.activities.video.VideoPlayerV3Activity.Companion.logger.fInfo { "Null launch parameter" }

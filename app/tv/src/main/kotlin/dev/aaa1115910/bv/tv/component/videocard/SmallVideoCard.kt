@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -211,7 +210,6 @@ fun CardCover(
 ) {
     BoxWithConstraints(
         modifier = modifier
-            .fillMaxSize()
             .clip(MaterialTheme.shapes.large),
         contentAlignment = Alignment.BottomCenter
     ) {
@@ -314,6 +312,7 @@ fun SmallVideoCardWithoutFocusPreview() {
             modifier = Modifier.width(300.dp)
         ) {
             SmallVideoCardContent(
+                modifier = Modifier.padding(20.dp),
                 data = data,
                 hasFocus = false
             )

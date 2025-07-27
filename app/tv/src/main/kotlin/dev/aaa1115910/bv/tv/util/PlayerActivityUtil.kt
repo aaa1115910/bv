@@ -20,17 +20,23 @@ fun launchPlayerActivity(
     isVerticalVideo: Boolean = false,
     proxyArea: ProxyArea = ProxyArea.MainLand,
     playerIconIdle: String = "",
-    playerIconMoving: String = ""
+    playerIconMoving: String = "",
+    play: Int = 0,
+    danmaku: Int = 0,
+    upName: String = "",
+    pubTime: String = ""
 ) {
     if (Prefs.showedRemoteControllerPanelDemo) {
         VideoPlayerV3Activity.actionStart(
             context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
-            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving
+            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving,
+            play, danmaku, upName, pubTime
         )
     } else {
         RemoteControllerPanelDemoActivity.actionStart(
             context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
-            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving
+            isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving,
+            play, danmaku, upName, pubTime
         )
     }
 }
