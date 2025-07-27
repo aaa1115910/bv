@@ -25,7 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -149,16 +149,20 @@ fun ControllerVideoInfoBottom(
 ) {
     Column(
         modifier = modifier
-            .clip(
-                MaterialTheme.shapes.large
-                    .copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
-            )
-            .background(Color.Black.copy(0.5f)),
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.5f)
+                    ),
+                    endY = 136f
+                )
+            ),
         verticalArrangement = Arrangement.Bottom
     ) {
         Spacer(
             modifier = Modifier
-                .padding(top = 12.dp)
+                .padding(top = 32.dp)
         )
         if (title.isNotEmpty() && partTitle.isNotEmpty() && title != partTitle) {
             Text(

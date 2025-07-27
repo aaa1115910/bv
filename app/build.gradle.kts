@@ -54,6 +54,8 @@ android {
         manifestPlaceholders["hardwareAccelerated"] = "true"
         // 启用大堆内存模式
         manifestPlaceholders["largeHeap"] = "true"
+        // 禁用备份以减少权限和内存占用
+        manifestPlaceholders["allowBackup"] = "false"
     }
 
     flavorDimensions.add("channel")
@@ -70,6 +72,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true // 移除未使用的资源
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -127,6 +130,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "**/*.proto"
+            excludes += "**/*.kotlin_metadata"
+            excludes += "**/kotlin/**"
+            excludes += "**/*.txt"
+            excludes += "**/*.version"
         }
 
         if (gradle.startParameter.taskNames.find { it.startsWith("assembleLite") } != null) {

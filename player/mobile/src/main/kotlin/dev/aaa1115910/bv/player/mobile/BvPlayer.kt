@@ -82,11 +82,11 @@ fun BvPlayer(
     var mDanmakuPlayer: DanmakuPlayer? by remember { mutableStateOf(null) }
 
     val videoPlayerConfigData = LocalVideoPlayerConfigData.current
-    val videoPlayerDanmakuMaskData = LocalVideoPlayerDanmakuMasksData.current
+    // val videoPlayerDanmakuMaskData = LocalVideoPlayerDanmakuMasksData.current
     val videoPlayerHistoryData = LocalVideoPlayerHistoryData.current
-    val videoPlayerLoadStateData = LocalVideoPlayerLoadStateData.current
-    val videoPlayerLogsData = LocalVideoPlayerLogsData.current
-    val videoPlayerVideoInfoData = LocalVideoPlayerVideoInfoData.current
+    // val videoPlayerLoadStateData = LocalVideoPlayerLoadStateData.current
+    // val videoPlayerLogsData = LocalVideoPlayerLogsData.current
+    // val videoPlayerVideoInfoData = LocalVideoPlayerVideoInfoData.current
 
     var showLogs by remember { mutableStateOf(false) }
     var showBackToHistory by remember { mutableStateOf(false) }
@@ -100,7 +100,7 @@ fun BvPlayer(
 
     var duration by remember { mutableLongStateOf(0L) }
     var bufferedPercentage by remember { mutableStateOf(0) }
-    var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    // var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
     var currentPosition by remember { mutableLongStateOf(0L) }
     //var currentPlaySpeed by remember { mutableFloatStateOf(Prefs.defaultPlaySpeed) }
     var aspectRatio by remember { mutableFloatStateOf(16f / 9f) }
@@ -108,11 +108,11 @@ fun BvPlayer(
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
-    var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    // var hideLogsTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var clockRefreshTimer: CountDownTimer? by remember { mutableStateOf(null) }
     var hideBackToHistoryTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
-    var currentDanmakuMaskFrame: DanmakuMaskFrame? by remember { mutableStateOf(null) }
+    // var currentDanmakuMaskFrame: DanmakuMaskFrame? by remember { mutableStateOf(null) }
 
 
     val updatePosition = {

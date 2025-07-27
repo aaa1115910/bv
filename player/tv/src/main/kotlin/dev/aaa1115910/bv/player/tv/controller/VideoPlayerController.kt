@@ -125,6 +125,7 @@ fun VideoPlayerController(
     val openSeekController = {
         if (!showSeekController) goTime = videoPlayerSeekData.position
         showSeekController = true
+        showInfo = false
     }
 
     val resetAutoSeekConfirmTimer = {
@@ -289,7 +290,7 @@ fun VideoPlayerController(
                                 showInfo = true
                                 hideVideoInfoJob?.cancel()
                                 hideVideoInfoJob = scope.launch {
-                                    delay(3000)
+                                    delay(6000)
                                     withContext(Dispatchers.Main) {
                                         showInfo = false
                                     }

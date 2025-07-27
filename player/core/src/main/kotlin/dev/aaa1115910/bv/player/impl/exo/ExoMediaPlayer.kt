@@ -254,7 +254,7 @@ class ExoMediaPlayer(
                 minBufferMs = 7000,   // 7秒最小缓冲
                 maxBufferMs = 11000,  // 11秒最大缓冲
                 backBufferMs = 0, // 0秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.08, 5, 45), // 8%内存，5-45MB
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.08, 5, 50), // 8%内存，5-50MB
                 prioritizeTime = false // 改为优先大小限制，严格控制内存使用
             )
             DeviceTier.MID -> BufferConfig(
@@ -268,7 +268,7 @@ class ExoMediaPlayer(
                 minBufferMs = 12000,  // 12秒最小缓冲
                 maxBufferMs = 22000,  // 22秒最大缓冲
                 backBufferMs = 11000, // 11秒回退缓冲
-                targetBufferBytes = calculateBufferSize(availableMemory, 0.18, 10, 350), // 18%内存，10-350MB
+                targetBufferBytes = calculateBufferSize(availableMemory, 0.18, 10, 300), // 18%内存，10-300MB
                 prioritizeTime = false
             )
         }

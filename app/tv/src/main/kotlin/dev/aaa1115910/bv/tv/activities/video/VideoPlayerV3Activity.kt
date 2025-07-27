@@ -19,6 +19,7 @@ import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class VideoPlayerV3Activity : ComponentActivity() {
@@ -46,9 +47,16 @@ class VideoPlayerV3Activity : ComponentActivity() {
             upName: String = "",
             pubTime: String = ""
         ) {
+            // 获取当前内存信息并打印到控制台
+            val runtime = Runtime.getRuntime()
+            val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+            val maxMemory = runtime.maxMemory()
+            logger.info { "Current memory usage VideoPlayerV3Activity.actionStart: ${usedMemory / 1024 / 1024} MB / ${maxMemory / 1024 / 1024} MB" }
+
             // 先关闭旧的播放页面
             currentInstance?.get()?.let { instance ->
                 logger.info { "Closing previous video player instance" }
+                instance.clear()
                 instance.finish()
             }
             currentInstance = null
@@ -88,7 +96,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
         // 设置当前实例为弱引用
         currentInstance = WeakReference(this)
         
-        initVideoPlayer()
+        runBlocking {
+            initVideoPlayer()
+        }
         //initDanmakuPlayer()
         getParamsFromIntent()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -104,22 +114,39 @@ class VideoPlayerV3Activity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        
+
+        if (isFinishing) {
+            clear()
+        }
+
         // 清除当前实例引用
         if (currentInstance?.get() == this) {
             currentInstance = null
         }
-        
-        if (isFinishing) {
-            playerViewModel.videoPlayer = null
-            playerViewModel.danmakuPlayer = null
-        }
+
+        // 获取当前内存信息并打印到控制台
+        val runtime = Runtime.getRuntime()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val maxMemory = runtime.maxMemory()
+        logger.info { "Current memory usage VideoPlayerV3Activity.onDestroy: ${usedMemory / 1024 / 1024} MB / ${maxMemory / 1024 / 1024} MB" }
     }
 
     override fun onPause() {
         super.onPause()
         playerViewModel.videoPlayer?.pause()
         playerViewModel.danmakuPlayer?.pause()
+    }
+
+    private fun clear() {
+        runCatching {
+            playerViewModel.videoPlayer?.release()
+            playerViewModel.danmakuPlayer?.release()
+            playerViewModel.danmakuData.clear()
+            playerViewModel.danmakuMasks.clear()
+            playerViewModel.currentSubtitleData.clear()
+            playerViewModel.videoPlayer = null
+            playerViewModel.danmakuPlayer = null
+        }
     }
 
     private fun initVideoPlayer() {

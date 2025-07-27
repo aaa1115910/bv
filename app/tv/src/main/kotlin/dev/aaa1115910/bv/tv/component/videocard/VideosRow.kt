@@ -67,14 +67,13 @@ fun VideosRow(
         modifier = modifier.onFocusChanged { hasFocus = it.hasFocus }
     ) {
         Text(
-            modifier = Modifier.padding(start = 50.dp),
+            modifier = Modifier.padding(start = 32.dp, top = 3.dp, bottom = 3.dp),
             text = header,
             fontSize = titleFontSize.sp,
             color = titleColor
         )
         LazyRow(
             modifier = Modifier
-                .padding(top = 15.dp)
                 .focusRestorer(activeFocusRequester)
                 .onGloballyPositioned {
                     rowHeight = with(density) {
@@ -86,13 +85,12 @@ fun VideosRow(
                         colors = listOf(
                             Color.Transparent,
                             Color.Black.copy(alpha = 0.7f)
-                        ),
-                        endY = Float.POSITIVE_INFINITY * 0.7f
+                        )
                     )
                 )),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(horizontal = 62.dp)
+            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 15.dp)
         ) {
             itemsIndexed(items = videos) { index, videoData ->
                 SmallVideoCard(

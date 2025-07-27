@@ -27,4 +27,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
           close-reason: 'not_planned'
-          body: 请先尝试使用当前最新 alpha 版本，如果问题依然存在再提交 issue
+          body: 请先尝试使用当前最新 alpha（或release） 版本，如果问题依然存在再提交 issue

@@ -505,6 +505,9 @@ fun VideoInfoScreen(
                                 delay(300)
                                 fromPlayer = false
                                 intent.removeExtra("fromPlayer")
+                                if (!showUGCVideoInfo) {
+                                    context.finish()
+                                }
                             }
                         }
                         if (!fromPlayer) {
@@ -593,7 +596,7 @@ fun VideoInfoScreen(
             showUGCVideoInfo && 
             !fromPlayer) {
             // 延迟一小段时间确保UI完全渲染
-            delay(100)
+            delay(300)
             defaultFocusRequester.requestFocus(scope)
         }
     }
@@ -648,7 +651,6 @@ fun VideoInfoScreen(
                 )
                 LazyColumn(
                     modifier = Modifier
-                        .focusable()
                         .onKeyEvent { event ->
                              if (event.type == KeyEventType.KeyDown) {
                                  when (event.key) {
@@ -667,7 +669,7 @@ fun VideoInfoScreen(
                              return@onKeyEvent false
                         },
                     state = lazyListState,
-                    contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
+                    contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
@@ -963,7 +965,7 @@ fun ArgueTip(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 50.dp),
+            .padding(horizontal = 32.dp),
         colors = SurfaceDefaults.colors(
             containerColor = Color.Yellow.copy(alpha = 0.2f),
             contentColor = Color.Yellow
@@ -1022,7 +1024,7 @@ fun VideoInfoData(
 
     Row(
         modifier = modifier
-            .padding(horizontal = 50.dp, vertical = 16.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
     ) {
         Surface(
             modifier = Modifier
@@ -1495,11 +1497,13 @@ fun VideoPartRow(
 
     Column(
         modifier = modifier
-            .ifElse(!nested, Modifier.padding(start = 50.dp))
+            .ifElse(!nested, Modifier.padding(start = 20.dp))
             .onFocusChanged { hasFocus = it.hasFocus },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
+            modifier = Modifier
+                .padding(start = 12.dp),
             text = stringResource(R.string.video_info_part_row_title)
                     + (" - $subtitle".takeIf { subtitle.isNotBlank() } ?: ""),
             fontSize = titleFontSize.sp,
@@ -1510,7 +1514,7 @@ fun VideoPartRow(
 
         LazyRow(
             modifier = Modifier
-                .padding(top = 15.dp)
+                .padding(top = 10.dp)
                 .focusRestorer(focusRequester),
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -1571,11 +1575,13 @@ fun VideoUgcSeasonRow(
 
     Column(
         modifier = modifier
-            .padding(start = 50.dp)
+            .padding(start = 20.dp)
             .onFocusChanged { hasFocus = it.hasFocus },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
+            modifier = Modifier
+                .padding(start = 12.dp),
             text = title,
             fontSize = titleFontSize.sp,
             color = titleColor
@@ -1583,7 +1589,7 @@ fun VideoUgcSeasonRow(
 
         LazyRow(
             modifier = Modifier
-                .padding(top = 15.dp)
+                .padding(top = 10.dp)
                 .focusRestorer(focusRequester),
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)

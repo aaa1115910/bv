@@ -587,7 +587,7 @@ fun SeasonInfoPart(
 ) {
     Row(
         modifier = modifier
-            .padding(horizontal = 50.dp, vertical = 16.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -863,7 +863,7 @@ fun SeasonEpisodeRow(
             modifier = Modifier
                 .padding(top = 15.dp)
                 .focusRestorer(focusRequester),
-            contentPadding = PaddingValues(horizontal = 50.dp),
+            contentPadding = PaddingValues(horizontal = 32.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             item {
