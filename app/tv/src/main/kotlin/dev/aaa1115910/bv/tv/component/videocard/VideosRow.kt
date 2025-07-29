@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,7 +52,6 @@ fun VideosRow(
     val internalFocusRequester = remember { FocusRequester() }
     val activeFocusRequester = focusRequester ?: internalFocusRequester
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
         targetValue = if (focusRequester != null) 24f else if (hasFocus) 30f else 14f,
         label = "title font size",
@@ -64,33 +62,33 @@ fun VideosRow(
     var rowHeight by remember { mutableStateOf(0.dp) }
 
     Column(
-        modifier = modifier.onFocusChanged { hasFocus = it.hasFocus }
+        modifier = modifier
+            .onFocusChanged { hasFocus = it.hasFocus }
+            .ifElse(focusRequester != null, Modifier.background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.7f)
+                    )
+                )
+            ))
     ) {
         Text(
             modifier = Modifier.padding(start = 32.dp, top = 3.dp, bottom = 3.dp),
             text = header,
-            fontSize = titleFontSize.sp,
-            color = titleColor
+            fontSize = titleFontSize.sp
         )
         LazyRow(
             modifier = Modifier
-                .focusRestorer(activeFocusRequester)
+                .padding(vertical = 15.dp)
                 .onGloballyPositioned {
                     rowHeight = with(density) {
                         it.size.height.toDp()
                     }
-                }
-                .ifElse(focusRequester != null, Modifier.background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.7f)
-                        )
-                    )
-                )),
+                },
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 15.dp)
+            contentPadding = PaddingValues(horizontal = 36.dp)
         ) {
             itemsIndexed(items = videos) { index, videoData ->
                 SmallVideoCard(

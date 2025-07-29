@@ -446,7 +446,7 @@ fun VideoPlayerController(
         )
         // 推荐视频组件（在连按两次下键时显示）, UI没写在这，在VideoPlayerV3Screen.kt中
         // 底部常驻进度条组件
-        if (showBottomProgressBar && !showInfo && !showSeekController && !showRelatedVideos) {
+        if (showBottomProgressBar && !showInfo && !showSeekController) {
             LinearProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

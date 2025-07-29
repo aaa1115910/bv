@@ -45,7 +45,7 @@ data class SearchResultData(
     val inBlackKey: Int,
     @SerialName("in_white_key")
     val inWhiteKey: Int,
-    val result: List<JsonElement>,
+    val result: List<JsonElement>? = mutableListOf(),
     @Transient
     val searchAllResults: MutableList<SearchResult<SearchResultItem>> = mutableListOf(),
     @Transient
@@ -54,7 +54,7 @@ data class SearchResultData(
     val isSearchPageGrayed: Int? = null
 ) {
     init {
-        result.forEach { searchResultJsonElement ->
+        result?.forEach { searchResultJsonElement ->
             val searchResultJsonObject = searchResultJsonElement.jsonObject
             var resultType = searchResultJsonObject["result_type"]?.jsonPrimitive?.content
             val json = Json {

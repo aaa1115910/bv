@@ -703,7 +703,6 @@ private fun FollowingAnimeVideosRow(
     val context = LocalContext.current
     val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
-    val titleColor = if (hasFocus) Color.White else Color.White.copy(alpha = 0.6f)
     val titleFontSize by animateFloatAsState(
         targetValue = if (hasFocus) 30f else 14f,
         label = "title font size"
@@ -718,8 +717,7 @@ private fun FollowingAnimeVideosRow(
         Text(
             modifier = Modifier.padding(start = 50.dp),
             text = stringResource(R.string.user_homepage_anime),
-            fontSize = titleFontSize.sp,
-            color = titleColor
+            fontSize = titleFontSize.sp
         )
         LazyRow(
             modifier = Modifier
