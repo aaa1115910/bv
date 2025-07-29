@@ -110,7 +110,7 @@ class VideoPlayerV3ViewModel(
 
     var currentQuality by mutableStateOf(Prefs.defaultQuality)
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
-    var currentPlaySpeed by mutableFloatStateOf(Prefs.defaultPlaySpeed)
+    var currentPlaySpeed by mutableFloatStateOf(Prefs.currentPlaySpeed)
     var currentVideoAspectRatio by mutableStateOf(VideoAspectRatio.Default)
     var currentAudio by mutableStateOf(Prefs.defaultAudio)
     var currentDanmakuScale by mutableFloatStateOf(Prefs.defaultDanmakuScale)

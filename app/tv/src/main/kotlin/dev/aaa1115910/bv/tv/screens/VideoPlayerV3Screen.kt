@@ -243,6 +243,7 @@ fun VideoPlayerV3Screen(
                                 autoActionTipVisible = false
                                 if (autoActionCountdownJob != null) {
                                     autoActionCountdownJob = null
+                                    Prefs.currentPlaySpeed = Prefs.defaultPlaySpeed
                                     (context as Activity).finish()
                                 }
                             } catch (e: Exception) {
@@ -253,7 +254,10 @@ fun VideoPlayerV3Screen(
                         }
                     }
                 },
-                onExit = { (context as Activity).finish() },
+                onExit = {
+                    Prefs.currentPlaySpeed = Prefs.defaultPlaySpeed
+                    (context as Activity).finish()
+                },
                 onLoadNewVideo = { videoListItem ->
                     when (videoListItem) {
                         is VideoListItemData -> {
@@ -298,7 +302,7 @@ fun VideoPlayerV3Screen(
                     playerViewModel.currentVideoAspectRatio = aspectRatio
                 },
                 onPlaySpeedChange = { speed ->
-                    // Prefs.defaultPlaySpeed = speed
+                    Prefs.currentPlaySpeed = speed
                     playerViewModel.currentPlaySpeed = speed
                 },
                 onAudioChange = { audio, afterChange ->
