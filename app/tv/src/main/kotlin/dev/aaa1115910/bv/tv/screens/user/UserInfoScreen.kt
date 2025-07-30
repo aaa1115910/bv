@@ -350,7 +350,8 @@ fun UserInfoScreen(
                     },
                     onOpenUserSwitch = {
                         context.startActivity(Intent(context, UserSwitchActivity::class.java))
-                    }
+                    },
+                    coins = userViewModel.responseData?.coins ?: 0f
                 )
             }
             item {
@@ -392,7 +393,8 @@ private fun UserInfo(
     nextLevelExp: Int,
     showLabel: Boolean,
     labelUrl: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    coins: Float? = 0f
 ) {
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
@@ -454,7 +456,7 @@ private fun UserInfo(
                                 //大会员 Tag 给定指定大小范围，避免加载时大小会突然变得非常大导致画面闪烁
                                 modifier = Modifier
                                     .height(22.dp)
-                                    .widthIn(max = 80.dp),
+                                    .widthIn(max = 72.dp),
                                 model = labelUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.FillHeight
@@ -470,9 +472,11 @@ private fun UserInfo(
 
                 Row(
                     modifier = Modifier.padding(start = startPaddingValue),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(text = stringResource(R.string.user_info_level, level))
+                    Text(text = stringResource(R.string.user_info_coins, coins!!))
                     Text(text = stringResource(R.string.user_info_uid, uid))
                 }
 
@@ -496,6 +500,7 @@ private fun UserInfo(
                         .fillMaxWidth()
                         .padding(8.dp),
                     progress = { levelSlider },
+                    gapSize = 1.dp,
                 )
             }
         }
@@ -624,7 +629,8 @@ private fun UserRow(
     labelUrl: String,
     followingUpCount: Int,
     onOpenFollowingUser: () -> Unit,
-    onOpenUserSwitch: () -> Unit
+    onOpenUserSwitch: () -> Unit,
+    coins: Float? = 0f
 ) {
     val animateFollowingNumber by animateIntAsState(
         targetValue = followingUpCount,
@@ -647,7 +653,8 @@ private fun UserRow(
                 nextLevelExp = nextLevelExp,
                 showLabel = showLabel,
                 labelUrl = labelUrl,
-                onClick = { }
+                onClick = { },
+                coins = coins
             )
         }
         item {

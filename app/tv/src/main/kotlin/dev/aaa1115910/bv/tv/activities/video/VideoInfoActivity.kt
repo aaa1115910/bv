@@ -18,7 +18,9 @@ class VideoInfoActivity : ComponentActivity() {
         private val activityQueue = LinkedList<WeakReference<VideoInfoActivity>>()
 
         fun actionStart(
-            context: Context, aid: Long,
+            context: Context,
+            aid: Long,
+            cid: Long? = null,
             fromSeason: Boolean = false,
             fromPlayer: Boolean = false,
             proxyArea: ProxyArea = ProxyArea.MainLand
@@ -26,6 +28,7 @@ class VideoInfoActivity : ComponentActivity() {
             context.startActivity(
                 Intent(context, VideoInfoActivity::class.java).apply {
                     putExtra("aid", aid)
+                    putExtra("cid", cid)
                     putExtra("fromSeason", fromSeason)
                     putExtra("fromPlayer", fromPlayer)
                     putExtra("proxy_area", proxyArea.ordinal)

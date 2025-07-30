@@ -44,7 +44,8 @@ fun OtherSetting(
     var playerExitWhenAllIsPlayed by remember { mutableStateOf(Prefs.playerExitWhenAllIsPlayed) }
     var playerShowBottomProgressBar by remember { mutableStateOf(Prefs.playerShowBottomProgressBar) }
     var defaultPlaybackSpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed.toDouble()) }
-    var playerSeekStep by remember { mutableStateOf(Prefs.playerSeekStep.toDouble()) }
+    var playerSeekForwardStep by remember { mutableStateOf(Prefs.playerSeekForwardStep.toDouble()) }
+    var playerSeekBackwardStep by remember { mutableStateOf(Prefs.playerSeekBackwardStep.toDouble()) }
     var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
     var playerShowDebugInfo by remember { mutableStateOf(Prefs.playerShowDebugInfo) }
 
@@ -201,16 +202,31 @@ fun OtherSetting(
             }
             item {
                 SettingNumberListItem(
-                    title = stringResource(R.string.settings_player_seek_step_title),
-                    supportText = stringResource(R.string.settings_player_seek_step_text),
-                    value = playerSeekStep,
+                    title = stringResource(R.string.settings_player_seek_forward_step_title),
+                    supportText = stringResource(R.string.settings_player_seek_forward_step_text),
+                    value = playerSeekForwardStep,
                     minValue = 5.0,
                     maxValue = 30.0,
                     isInteger = true,
-                    step = 5.0,
+                    step = 1.0,
                     onValueChange = {
-                        playerSeekStep = it
-                        Prefs.playerSeekStep = it.toInt()
+                        playerSeekForwardStep = it
+                        Prefs.playerSeekForwardStep = it.toInt()
+                    }
+                )
+            }
+            item {
+                SettingNumberListItem(
+                    title = stringResource(R.string.settings_player_seek_backward_step_title),
+                    supportText = stringResource(R.string.settings_player_seek_backward_step_text),
+                    value = playerSeekBackwardStep,
+                    minValue = 5.0,
+                    maxValue = 30.0,
+                    isInteger = true,
+                    step = 1.0,
+                    onValueChange = {
+                        playerSeekBackwardStep = it
+                        Prefs.playerSeekBackwardStep = it.toInt()
                     }
                 )
             }

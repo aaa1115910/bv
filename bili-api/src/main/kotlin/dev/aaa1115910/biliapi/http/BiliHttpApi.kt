@@ -1685,7 +1685,16 @@ object BiliHttpApi {
     )
 
     suspend fun download(url: String): ByteArray {
-        return client.get(url).readRawBytes()
+        val origin = runCatching {
+            val uri = java.net.URI(url)
+            "${uri.scheme?:"https"}://${uri.host}"
+        }.getOrNull()
+
+        return client.get(url) {
+            if (origin != null) {
+                header("referer", origin)
+            }
+        }.readRawBytes()
     }
 
     suspend fun getWebVideoShot(

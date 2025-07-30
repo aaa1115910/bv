@@ -1,5 +1,6 @@
 package dev.aaa1115910.biliapi.http.entity
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,6 +14,19 @@ data class BiliResponse<T>(
     val data: T? = null,
     val result: T? = null
 ) {
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+    
+    init {
+        when (code) {
+            0 -> {}
+            -101 -> logger.error { "请求失败，账号未登录: $message (code: $code)" }
+            -352 -> logger.error { "请求失败，风控异常: $message (code: $code)" }
+            else -> logger.error { "请求失败: $message (code: $code)" }
+        }
+    }
+
     @Throws()
     fun getResponseData(): T {
         when (code) {
@@ -33,7 +47,20 @@ data class BiliResponseWithoutData(
     val code: Int,
     val message: String,
     val ttl: Int
-)
+) {
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+    
+    init {
+        when (code) {
+            0 -> {}
+            -101 -> logger.error { "请求失败，账号未登录: $message (code: $code)" }
+            -352 -> logger.error { "请求失败，风控异常: $message (code: $code)" }
+            else -> logger.error { "请求失败: $message (code: $code)" }
+        }
+    }
+}
 
 @Suppress("unused")
 class AuthFailureException : RuntimeException {

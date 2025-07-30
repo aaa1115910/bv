@@ -441,6 +441,7 @@ fun VideoInfoScreen(
     LaunchedEffect(Unit) {
         if (intent.hasExtra("aid")) {
             val aid = intent.getLongExtra("aid", 170001)
+            var cid = intent.getLongExtra("cid", 0)
             fromSeason = intent.getBooleanExtra("fromSeason", false)
             fromPlayer = intent.getBooleanExtra("fromPlayer", false)
             proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
@@ -482,13 +483,14 @@ fun VideoInfoScreen(
                     //如果是从剧集跳转过来的或设置不显示视频详情，就直接播放 P1
                     if (fromSeason || !showUGCVideoInfo || fromPlayer) {
                         val playPart = videoDetailViewModel.videoDetail!!.pages.first()
+                        cid = cid.takeIf { it > 0L } ?: playPart.cid
                         launchPlayerActivity(
                             context = context,
                             avid = videoDetailViewModel.videoDetail!!.aid,
-                            cid = playPart.cid,
+                            cid = cid,
                             title = videoDetailViewModel.videoDetail!!.title,
-                            partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == playPart.cid }!!.title,
-                            played = if (playPart.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
+                            partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
+                            played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                             fromSeason = fromSeason,
                             isVerticalVideo = containsVerticalScreenVideo,
                             playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
@@ -1025,7 +1027,7 @@ fun VideoInfoData(
 
     Row(
         modifier = modifier
-            .padding(start = 36.dp, end = 36.dp, top = 12.dp, bottom = 15.dp),
+            .padding(start = 36.dp, end = 36.dp, top = 15.dp, bottom = 18.dp),
     ) {
         Surface(
             modifier = Modifier
@@ -1177,87 +1179,97 @@ fun VideoInfoData(
                         Text(text = videoDetail.publishDate.formatPubTimeString())
                     }
                 }
-                Row(
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(x=(-3).dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
                     if (isLogin) {
-                        LikeButton(
-                            modifier = Modifier
-                                .height(32.dp), // 设置高度
-                            isLike = isLike,
-                            onToggleLike = {
-                                if (isLike) {
-                                    onDelLike()
-                                } else {
-                                    onAddLike()
+                        item {
+                            LikeButton(
+                                modifier = Modifier
+                                    .height(32.dp), // 设置高度
+                                isLike = isLike,
+                                onToggleLike = {
+                                    if (isLike) {
+                                        onDelLike()
+                                    } else {
+                                        onAddLike()
+                                    }
                                 }
-                            }
-                        )
-                        FavoriteButton(
-                            modifier = Modifier
-                                .height(32.dp), // 设置高度
-                            isFavorite = isFavorite,
-                            userFavoriteFolders = userFavoriteFolders,
-                            favoriteFolderIds = favoriteFolderIds,
-                            onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
-                            onUpdateFavoriteFolders = onUpdateFavoriteFolders
-                        )
-                       CoinButton(
-                           modifier = Modifier
-                               .height(32.dp), // 设置高度
-                           isCoin = isCoin,
-                           onAddCoin = {
-                                onAddCoin()
-                           }
-                       )
+                            )
+                        }
+                        item {
+                            FavoriteButton(
+                                modifier = Modifier
+                                    .height(32.dp), // 设置高度
+                                isFavorite = isFavorite,
+                                userFavoriteFolders = userFavoriteFolders,
+                                favoriteFolderIds = favoriteFolderIds,
+                                onAddToDefaultFavoriteFolder = onAddToDefaultFavoriteFolder,
+                                onUpdateFavoriteFolders = onUpdateFavoriteFolders
+                            )
+                        }
+                        item {
+                            CoinButton(
+                                modifier = Modifier
+                                    .height(32.dp), // 设置高度
+                                isCoin = isCoin,
+                                onAddCoin = {
+                                     onAddCoin()
+                                }
+                            )
+                        }
                     }
-                    UpButton(
-                        name = videoDetail.author.name,
-                        followed = isFollowing,
-                        showFollowButton = showFollowButton,
-                        onClickUp = onClickUp,
-                        onAddFollow = onAddFollow,
-                        onDelFollow = onDelFollow
-                    )
+                    item {
+                        UpButton(
+                            name = videoDetail.author.name,
+                            followed = isFollowing,
+                            showFollowButton = showFollowButton,
+                            onClickUp = onClickUp,
+                            onAddFollow = onAddFollow,
+                            onDelFollow = onDelFollow
+                        )
+                    }
 
                     // 简介按钮
                     if (videoDetail.description.isNotBlank()) {
-                        Row(
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.small)
-                                .background(Color.White.copy(alpha = 0.2f))
-                                .focusedBorder(MaterialTheme.shapes.small)
-                                .padding(horizontal = 4.dp, vertical = 3.dp)
-                                .clickable { onShowDescription() },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "简介>>",
-                                color = Color.White
-                            )
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(Color.White.copy(alpha = 0.2f))
+                                    .focusedBorder(MaterialTheme.shapes.small)
+                                    .padding(horizontal = 4.dp)
+                                    .clickable { onShowDescription() }
+                                    .height(30.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = "简介>>",
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
             }
             // 标签列表
-            Row(
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = (-2).dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .offset(x=(-2).dp, y = (-2).dp),
+                contentPadding = PaddingValues(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    items(items = tags) { tag ->
-                        SuggestionChip(onClick = {
-                            onClickTip(tag)
-                        }) {
-                            Text(text = tag.name)
-                        }
+                items(items = tags) { tag ->
+                    SuggestionChip(onClick = {
+                        onClickTip(tag)
+                    }) {
+                        Text(text = tag.name)
                     }
                 }
             }
@@ -1498,13 +1510,13 @@ fun VideoPartRow(
 
     Column(
         modifier = modifier
-            .ifElse(!nested, Modifier.padding(start = 20.dp))
+            .ifElse(!nested, Modifier.padding(start = 26.dp))
             .onFocusChanged { hasFocus = it.hasFocus },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             modifier = Modifier
-                .padding(start = 12.dp),
+                .padding(start = 10.dp),
             text = stringResource(R.string.video_info_part_row_title)
                     + (" - $subtitle".takeIf { subtitle.isNotBlank() } ?: ""),
             fontSize = titleFontSize.sp,
@@ -1574,13 +1586,13 @@ fun VideoUgcSeasonRow(
 
     Column(
         modifier = modifier
-            .padding(start = 20.dp)
+            .padding(start = 26.dp)
             .onFocusChanged { hasFocus = it.hasFocus },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             modifier = Modifier
-                .padding(start = 12.dp),
+                .padding(start = 10.dp),
             text = title,
             fontSize = titleFontSize.sp
         )

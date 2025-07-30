@@ -665,6 +665,7 @@
     <string name="user_info_Incognito_mode_on">已开启</string>
     <string name="user_info_Incognito_mode_title">隐身模式</string>
     <string name="user_info_level">Lv%1$s</string>
+    <string name="user_info_coins">硬币: %1$s</string>
     <string name="user_info_uid">UID: %1$s</string>
     <string name="user_lock_input_tip">方向键输入密码 / Center 键确认输入 / 返回键退格</string>
     <string name="user_lock_title_choose_user">选择账户</string>
@@ -708,8 +709,10 @@
     <string name="settings_player_auto_play_next_video_title">自动播放下一个视频</string>
     <string name="settings_player_default_playback_speed_text">设置视频播放的默认速度</string>
     <string name="settings_player_default_playback_speed_title">默认播放速度</string>
-    <string name="settings_player_seek_step_text">设置视频快进/快退时间间隔（秒）</string>
-    <string name="settings_player_seek_step_title">视频快进/快退时间间隔（秒）</string>
+    <string name="settings_player_seek_forward_step_text">设置视频快进时间间隔（秒）</string>
+    <string name="settings_player_seek_forward_step_title">视频快进时间间隔（秒）</string>
+    <string name="settings_player_seek_backward_step_text">设置视频快退时间间隔（秒）</string>
+    <string name="settings_player_seek_backward_step_title">视频快退时间间隔（秒）</string>
     <string name="settings_player_show_bottom_progress_bar_text">在播放器底部显示常驻进度条</string>
     <string name="settings_player_show_bottom_progress_bar_title">显示常驻进度条</string>
     <string name="about_statement">此项目是个人为了学习安卓开发而fork, 仅用于学习和测试，禁止在中国境内传播、宣传、分发，如有相关使用需求请使用 [哔哩哔哩官方APP](https://app.bilibili.com)，否则后果自负</string>
