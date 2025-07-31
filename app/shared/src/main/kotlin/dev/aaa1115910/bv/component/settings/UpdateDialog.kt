@@ -273,7 +273,7 @@ private fun UpdateDialogContent(
                         LinearProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.fillMaxWidth(),
-                            gapSize = 1.dp,
+                            gapSize = 0.dp,
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),

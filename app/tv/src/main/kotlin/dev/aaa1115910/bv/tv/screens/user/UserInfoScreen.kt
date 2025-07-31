@@ -394,7 +394,7 @@ private fun UserInfo(
     showLabel: Boolean,
     labelUrl: String,
     onClick: () -> Unit,
-    coins: Float? = 0f
+    coins: Float = 0f
 ) {
     var hasFocus by remember { mutableStateOf(false) }
     val levelSlider by animateFloatAsState(
@@ -456,7 +456,7 @@ private fun UserInfo(
                                 //大会员 Tag 给定指定大小范围，避免加载时大小会突然变得非常大导致画面闪烁
                                 modifier = Modifier
                                     .height(22.dp)
-                                    .widthIn(max = 72.dp),
+                                    .widthIn(max = 96.dp),
                                 model = labelUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.FillHeight
@@ -473,10 +473,10 @@ private fun UserInfo(
                 Row(
                     modifier = Modifier.padding(start = startPaddingValue),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Bottom
                 ) {
                     Text(text = stringResource(R.string.user_info_level, level))
-                    Text(text = stringResource(R.string.user_info_coins, coins!!))
+                    Text(text = stringResource(R.string.user_info_coins, coins))
                     Text(text = stringResource(R.string.user_info_uid, uid))
                 }
 
@@ -500,7 +500,7 @@ private fun UserInfo(
                         .fillMaxWidth()
                         .padding(8.dp),
                     progress = { levelSlider },
-                    gapSize = 1.dp,
+                    gapSize = 0.dp,
                 )
             }
         }
@@ -630,7 +630,7 @@ private fun UserRow(
     followingUpCount: Int,
     onOpenFollowingUser: () -> Unit,
     onOpenUserSwitch: () -> Unit,
-    coins: Float? = 0f
+    coins: Float = 0f
 ) {
     val animateFollowingNumber by animateIntAsState(
         targetValue = followingUpCount,
@@ -712,7 +712,10 @@ private fun FollowingAnimeVideosRow(
     var hasFocus by remember { mutableStateOf(false) }
     val titleFontSize by animateFloatAsState(
         targetValue = if (hasFocus) 30f else 14f,
-        label = "title font size"
+        label = "title font size",
+        animationSpec = tween(
+            durationMillis = 120
+        )
     )
     var rowHeight by remember { mutableStateOf(0.dp) }
 

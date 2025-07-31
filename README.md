@@ -46,11 +46,11 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 播放器页面增加“推荐视频”
   - 操作方式：双击下键，或者按下键显示视频信息后再按下键
 
-  ![视频播放-推荐视频](https://github.com/user-attachments/assets/07b4bfab-0636-4ea9-8e31-9f8caf1b1e62)
+  ![视频播放-推荐视频](https://github.com/user-attachments/assets/2ea057f2-7e78-4b68-9bd4-5d4b2bb31d9e)
 - UGC视频详情页增加点赞、投币功能
-  ![UGC详情](https://github.com/user-attachments/assets/bef98470-1005-44ed-b823-58daf3392c3c)
+  ![UGC详情](https://github.com/user-attachments/assets/77c8c7e7-4bc0-4d4f-bdfd-df6ecbac079e)
 - 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
-  ![首页](https://github.com/user-attachments/assets/ad7ca9a5-fec5-4e60-9c2c-cc6c102be09d)
+  ![首页](https://github.com/user-attachments/assets/2c38b5ed-6844-4cff-91ce-57f5e1cf6a74)
 - 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
   - 可以修改打开应用时首页默认选中的标签
 - 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
@@ -61,15 +61,14 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 增加是否“自动播放下一个视频”（设置-更多设置，默认开启）
 - 增加是否“都播完后退出播放器”（设置-更多设置，默认开启）
 - 增加默认播放速度配置（设置-更多设置，默认1倍）
-- 增加快进/快退时间间隔配置（设置-更多设置，默认10秒）
+- 增加快进时间间隔配置（设置-更多设置，默认10秒）
+- 增加快退时间间隔配置（设置-更多设置，默认5秒）
 - 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
   ![设置](https://github.com/user-attachments/assets/9171ab80-cc19-4e06-898c-66b6bc309e1f)
 - 优化列表、优化视频卡片、精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
-
-  ![视频播放](https://github.com/user-attachments/assets/86a70871-c5e2-40e9-ac03-3762f0f89977)
-  ![PGC](https://github.com/user-attachments/assets/59600816-85f7-4f8a-83cc-3b8c27870027)
+  ![视频播放](https://github.com/user-attachments/assets/aa0d48c7-6ad9-4829-adb8-1d768b96f966)
 
 [更多修改内容](./CHANGELOG.md)
 

@@ -56,7 +56,7 @@ fun VideosRow(
         targetValue = if (focusRequester != null) 24f else if (hasFocus) 30f else 14f,
         label = "title font size",
         animationSpec = tween(
-            durationMillis = 250
+            durationMillis = 120
         )
     )
     var rowHeight by remember { mutableStateOf(0.dp) }

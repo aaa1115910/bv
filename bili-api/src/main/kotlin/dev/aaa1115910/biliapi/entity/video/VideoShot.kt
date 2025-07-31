@@ -31,7 +31,7 @@ data class VideoShot(
                 val images = videoShot.image.map { imageUrl ->
                     async {
                         runCatching {
-                            BiliHttpApi.download("$imageUrl@${width}w_${height}h_50q.webp")
+                            BiliHttpApi.download("$imageUrl@${width}w_${height}h_50q.webp", true)
                         }.getOrNull()
                     }
                 }.awaitAll()
