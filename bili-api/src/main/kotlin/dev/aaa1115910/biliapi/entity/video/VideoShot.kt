@@ -19,19 +19,10 @@ data class VideoShot(
     companion object {
         suspend fun fromVideoShot(videoShot: dev.aaa1115910.biliapi.http.entity.video.VideoShot): VideoShot? =
             withContext(Dispatchers.IO) {
-                // 计算缩略图尺寸，如果宽度过大则按比例缩放
-                val originalWidth = videoShot.imgXLen * videoShot.imgXSize
-                val originalHeight = videoShot.imgYLen * videoShot.imgYSize
-                val (width, height) = if (originalWidth * 0.75 > 3200) {
-                    3200 to (originalHeight * 3200 / originalWidth)
-                } else {
-                    originalWidth to originalHeight
-                }
-                
                 val images = videoShot.image.map { imageUrl ->
                     async {
                         runCatching {
-                            BiliHttpApi.download("$imageUrl@${width}w_${height}h_50q.webp", true)
+                            BiliHttpApi.download(imageUrl)
                         }.getOrNull()
                     }
                 }.awaitAll()

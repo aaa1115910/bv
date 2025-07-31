@@ -16,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import dev.aaa1115910.biliapi.entity.video.VideoShot
 import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
-fun VideoShot.getImage(time: Int): Bitmap {
+suspend fun VideoShot.getImage(time: Int): Bitmap {
     val index = findClosestValueIndex(times, time.toUShort())
     val singleImgCount = imageCountX * imageCountY
     val imagesIndex = index / singleImgCount
@@ -27,14 +30,8 @@ fun VideoShot.getImage(time: Int): Bitmap {
 
     //println("get $time at $imagesIndex $x $y")
 
-    val bitmap = if (images[imagesIndex].hashCode() == VideoShotImageCache.hash) {
-        VideoShotImageCache.image!!
-    } else {
-        BitmapFactory.decodeByteArray(images[imagesIndex], 0, images[imagesIndex]!!.size).also {
-            VideoShotImageCache.hash = images[imagesIndex].hashCode()
-            VideoShotImageCache.image = it
-        }
-    }
+    // 新的支持调用去重（保留第一次解码）的缓存机制
+    val bitmap = VideoShotImageCache.getOrDecodeImage(imagesIndex, images[imagesIndex]!!)
 
     val realImageWidth = bitmap.width / imageCountX
     val realImageHeight = bitmap.height / imageCountY
@@ -61,6 +58,45 @@ private fun findClosestValueIndex(array: List<UShort>, target: UShort): Int {
 private object VideoShotImageCache {
     var hash: Int = 0
     var image: Bitmap? = null
+
+    // 保存正在解码的任务，避免重复解码
+    private val decodingTasks = mutableMapOf<Int, Deferred<Bitmap>>()
+
+    // BitmapFactory 配置，使用 RGB_565 以减少内存占用
+    val bitmapOptions = BitmapFactory.Options().apply {
+        inPreferredConfig = Bitmap.Config.RGB_565 // 比 ARGB_8888 节省一半内存
+        inScaled = false
+    }
+
+    suspend fun getOrDecodeImage(imagesIndex: Int, imageData: ByteArray): Bitmap = coroutineScope {
+        val imageHash = imageData.hashCode()
+
+        // 如果已经缓存了这张图片，直接返回
+        if (imageHash == hash && image != null) {
+            return@coroutineScope image!!
+        }
+
+        // 如果正在解码这张图片，等待解码完成
+        decodingTasks[imagesIndex]?.let { existingTask ->
+            return@coroutineScope existingTask.await()
+        }
+
+        val decodingTask = async {
+            BitmapFactory.decodeByteArray(imageData, 0, imageData.size, bitmapOptions)
+        }
+
+        decodingTasks[imagesIndex] = decodingTask
+
+        try {
+            val result = decodingTask.await()
+            hash = imageHash
+            image = result
+            return@coroutineScope result
+        } finally {
+            // 解码完成后移除任务
+            decodingTasks.remove(imagesIndex)
+        }
+    }
 }
 
 @Composable
@@ -81,11 +117,18 @@ fun VideoShotTest(
             columns = GridCells.Fixed(10),
         ) {
             items(videoShot!!.times) { time ->
-                val bitmap = videoShot!!.getImage(time.toInt())
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = null
-                )
+                var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+                
+                LaunchedEffect(time) {
+                    bitmap = videoShot!!.getImage(time.toInt())
+                }
+                
+                bitmap?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null
+                    )
+                }
             }
         }
     }

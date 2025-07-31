@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="app/shared/src/main/res/drawable/ic_banner.webp" style="border-radius: 24px; margin-top: 32px;"/>
+<img src="app/shared/src/main/res/drawable/ic_banner_md.webp" style="border-radius: 24px; margin-top: 32px;"/>
 
 # BV
 
@@ -64,7 +64,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 增加快进时间间隔配置（设置-更多设置，默认10秒）
 - 增加快退时间间隔配置（设置-更多设置，默认5秒）
 - 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
-  ![设置](https://github.com/user-attachments/assets/9171ab80-cc19-4e06-898c-66b6bc309e1f)
+  ![设置](https://github.com/user-attachments/assets/16030082-af17-4f33-9ece-ce49041bda6e)
 - 优化列表、优化视频卡片、精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等

@@ -35,6 +35,7 @@ import dev.aaa1115910.bv.player.tv.VideoSeekBar
 import dev.aaa1115910.bv.player.util.getImage
 import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.delay
 
 @Composable
 fun VideoShot(
@@ -54,14 +55,20 @@ fun VideoShot(
     var imageWidth by remember { mutableStateOf(0.dp) }
 
     LaunchedEffect(position, imageWidth) {
-        logger.fInfo { "update progress preview image at $position" }
-        if (!view.isInEditMode) {
-            bitmap = videoShot.getImage(position.toInt() / 1000).asImageBitmap()
-        }
+        delay(25)
+        // logger.fInfo { "update progress preview image offset at $position $imageWidth" }
         val baseOffset = -imageWidth / 2
         val imageOffset = baseOffset + screenWidth * (position.toFloat() / duration.toFloat())
         coercedImageOffset =
             imageOffset.coerceIn(0.dp + coercedOffset, screenWidth - imageWidth - coercedOffset)
+    }
+
+    LaunchedEffect(position) {
+        delay(25)
+        logger.fInfo { "update progress preview image at $position" }
+        if (!view.isInEditMode) {
+            bitmap = videoShot.getImage(position.toInt() / 1000).asImageBitmap()
+        }
     }
 
 //    if (view.isInEditMode) {
