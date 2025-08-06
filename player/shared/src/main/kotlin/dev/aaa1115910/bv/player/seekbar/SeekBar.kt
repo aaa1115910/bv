@@ -22,7 +22,7 @@ fun SeekBar(
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
 ) {
-    val trackWidth = 24f
+    val trackWidth = 20f
     Canvas(
         modifier = modifier
             .fillMaxWidth()

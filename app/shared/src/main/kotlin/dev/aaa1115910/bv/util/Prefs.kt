@@ -351,6 +351,14 @@ object Prefs {
     var showUGCVideoInfo: Boolean
         get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowUGCVideoInfoRequest).first() }
         set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowUGCVideoInfoKey, value) }
+
+    var isLoop: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefIsLoopRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefIsLoopKey, value) }
+    
+    var showDanmaku: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefShowDanmakuRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefShowDanmakuKey, value) }
 }
 
 object PrefKeys {
@@ -406,6 +414,8 @@ object PrefKeys {
     val prefPlayerSeekBackwardStepKey = intPreferencesKey("player_seek_backward_step")
     val prefPlayerShowBottomProgressBarKey = booleanPreferencesKey("player_show_bottom_progress_bar")
     val prefShowUGCVideoInfoKey = booleanPreferencesKey("pref_show_ugc_video_info")
+    val prefIsLoopKey = booleanPreferencesKey("player_is_loop")
+    val prefShowDanmakuKey = booleanPreferencesKey("player_show_danmaku")
 
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
@@ -474,4 +484,6 @@ object PrefKeys {
     val prefPlayerSeekBackwardStepRequest = PreferenceRequest(prefPlayerSeekBackwardStepKey, 5)
     val prefPlayerShowBottomProgressBarRequest = PreferenceRequest(prefPlayerShowBottomProgressBarKey, false)
     val prefShowUGCVideoInfoRequest = PreferenceRequest(prefShowUGCVideoInfoKey, true)
+    val prefIsLoopRequest = PreferenceRequest(prefIsLoopKey, false)
+    val prefShowDanmakuRequest = PreferenceRequest(prefShowDanmakuKey, true)
 }

@@ -31,6 +31,7 @@ data class VideoPlayerVideoInfoData(
     val danmaku: Int = 0,
     val upName: String = "",
     val pubTime: String = "",
+    val fromSeason: Boolean = false,
 )
 
 data class VideoPlayerClockData(
@@ -92,6 +93,9 @@ data class VideoPlayerConfigData(
     val currentSubtitleBackgroundOpacity: Float = 0.4f,
     val currentSubtitleBottomPadding: Dp = 12.dp,
     val incognitoMode: Boolean = false,
+    var isLoop: Boolean = false,
+    var showDanmaku: Boolean = true,
+    var showRelatedVideos: Boolean = false,
 )
 
 data class VideoPlayerDanmakuMasksData(

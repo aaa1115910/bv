@@ -13,7 +13,7 @@
 
     <application
         android:name=".BVApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:enableOnBackInvokedCallback="true"
         android:banner="@drawable/ic_banner"
         android:icon="@drawable/ic_launcher"

@@ -140,6 +140,10 @@ class VideoPlayerV3ViewModel(
     var danmaku by mutableStateOf(0)
     var upName by mutableStateOf("")
     var pubTime by mutableStateOf("")
+    var upId by mutableLongStateOf(0L)
+    var isLoop by mutableStateOf(Prefs.isLoop)
+    var showDanmaku by mutableStateOf(Prefs.showDanmaku)
+    var showRelatedVideos by mutableStateOf(false)
 
     var needPay by mutableStateOf(false)
 
@@ -390,10 +394,6 @@ class VideoPlayerV3ViewModel(
         audio: Audio = currentAudio
     ) {
         logger.fInfo { "Select resolution: $qn, codec: $codec, audio: $audio" }
-        addLogs(
-            "播放清晰度：${availableQuality.firstOrNull { it.code == qn }}, " +
-                    "视频编码：${codec.getDisplayName(BVApp.context)}"
-        )
 
         val videoItem = playData!!.dashVideos.find {
             when (Prefs.apiType) {
@@ -443,11 +443,15 @@ class VideoPlayerV3ViewModel(
             audioUrl = selectOfficialCdnUrl(audioUrls.filterNotNull())
         }
 
+        addLogs(
+            "播放清晰度：${availableQuality.firstOrNull { it.code == qn }}, " +
+                    "视频编码：${codec.getDisplayName(BVApp.context)}, " +
+                    "音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}"
+        )
         addLogs("video host: ${with(URI(videoUrl)) { "$scheme://$authority" }}")
         addLogs("audio host: ${with(URI(audioUrl)) { "$scheme://$authority" }}")
 
         logger.fInfo { "Select audio: $audioItem" }
-        addLogs("音频编码：${(Audio.fromCode(audioItem?.codecId ?: 0))?.getDisplayName(BVApp.context) ?: "未知"}")
 
         withContext(Dispatchers.Main) {
             currentVideoHeight = videoItem?.height ?: 0

@@ -47,6 +47,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.tv.BvPlayer
 import dev.aaa1115910.bv.player.tv.controller.SkipTip
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.swapList
@@ -71,21 +72,23 @@ fun VideoPlayerV3Screen(
     var autoActionCountdownJob by remember { mutableStateOf<Job?>(null) }
     var autoActionTipVisible by remember { mutableStateOf(false) }
     var autoActionTipText by remember { mutableStateOf("") }
-    var showRelatedVideos by remember { mutableStateOf(false) }
     
     // 焦点管理
     val relatedVideosFocusRequester = remember { FocusRequester() }
     
     // 当显示相关视频时，自动将焦点转移到VideosRow的第一个卡片
-    LaunchedEffect(showRelatedVideos) {
-        if (showRelatedVideos) {
-            relatedVideosFocusRequester.requestFocus()
+    LaunchedEffect(playerViewModel.showRelatedVideos) {
+        if (playerViewModel.showRelatedVideos) {
+            delay(300)
+            kotlin.runCatching {
+                relatedVideosFocusRequester.requestFocus()
+            }
         }
     }
     
     // 处理back键，当推荐视频有焦点时隐藏推荐视频并将焦点返回到播放器
-    BackHandler(enabled = showRelatedVideos) {
-        showRelatedVideos = false
+    BackHandler(enabled = playerViewModel.showRelatedVideos) {
+        playerViewModel.showRelatedVideos = false
     }
 
     CompositionLocalProvider(
@@ -103,6 +106,7 @@ fun VideoPlayerV3Screen(
             danmaku = playerViewModel.danmaku,
             upName = playerViewModel.upName,
             pubTime = playerViewModel.pubTime,
+            fromSeason = playerViewModel.fromSeason
         ),
         LocalVideoPlayerLogsData provides VideoPlayerLogsData(
             logs = playerViewModel.logs
@@ -142,6 +146,9 @@ fun VideoPlayerV3Screen(
             currentSubtitleBackgroundOpacity = playerViewModel.currentSubtitleBackgroundOpacity,
             currentSubtitleBottomPadding = playerViewModel.currentSubtitleBottomPadding,
             incognitoMode = Prefs.incognitoMode,
+            isLoop = playerViewModel.isLoop,
+            showDanmaku = playerViewModel.showDanmaku,
+            showRelatedVideos = playerViewModel.showRelatedVideos
         ),
         LocalVideoPlayerDanmakuMasksData provides VideoPlayerDanmakuMasksData(
             danmakuMasks = playerViewModel.danmakuMasks,
@@ -172,9 +179,8 @@ fun VideoPlayerV3Screen(
                 playerSeekForwardStep = Prefs.playerSeekForwardStep,
                 playerSeekBackwardStep = Prefs.playerSeekBackwardStep,
                 showBottomProgressBar = Prefs.playerShowBottomProgressBar,
-                showRelatedVideos = showRelatedVideos,
                 onToggleRelatedVideos = { state ->
-                    showRelatedVideos = if (playerViewModel.relatedVideos.isNotEmpty()) state else false
+                    playerViewModel.showRelatedVideos = if (playerViewModel.relatedVideos.isNotEmpty()) state else false
                 },
                 onSendHeartbeat = playerViewModel::uploadHistory,
                 onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
@@ -193,7 +199,7 @@ fun VideoPlayerV3Screen(
                     } else {
                         null
                     }
-                    
+
                     if (nextVideo != null && Prefs.playerAutoPlayNextVideo) {
                         logger.info { "Play next video: $nextVideo" }
                         // 启动倒计时 toast 提示
@@ -352,6 +358,21 @@ fun VideoPlayerV3Screen(
                     Prefs.defaultSubtitleBottomPadding = padding
                     playerViewModel.currentSubtitleBottomPadding = padding
                 },
+                onOpenUpSpace = {
+                    UpInfoActivity.actionStart(
+                        context,
+                        mid = playerViewModel.upId,
+                        name = playerViewModel.upName
+                    )
+                },
+                onShowDanmakuChange = {
+                    Prefs.showDanmaku = it
+                    playerViewModel.showDanmaku = it
+                },
+                onLoopPlayModeChange = {
+                    Prefs.isLoop = it
+                    playerViewModel.isLoop = it
+                }
             )
 
             // 显示跳过提示
@@ -362,7 +383,7 @@ fun VideoPlayerV3Screen(
                     align = Alignment.BottomEnd
                 )
             }
-            if (showRelatedVideos) {
+            if (playerViewModel.showRelatedVideos) {
                 VideosRow(
                     modifier = Modifier
                         .align(Alignment.BottomStart)

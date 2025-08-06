@@ -75,7 +75,7 @@ private fun VideoSeekBar(
                     .constrainAs(seek) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom, 16.dp)
+                        bottom.linkTo(parent.bottom, 8.dp)
                     }
                     .padding(horizontal = 16.dp),
                 duration = duration,

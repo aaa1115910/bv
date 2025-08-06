@@ -24,19 +24,20 @@ fun launchPlayerActivity(
     play: Int = 0,
     danmaku: Int = 0,
     upName: String = "",
+    upId: Long = 0L,
     pubTime: String = ""
 ) {
     if (Prefs.showedRemoteControllerPanelDemo) {
         VideoPlayerV3Activity.actionStart(
             context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
             isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving,
-            play, danmaku, upName, pubTime
+            play, danmaku, upName, upId, pubTime
         )
     } else {
         RemoteControllerPanelDemoActivity.actionStart(
             context, avid, cid, title, partTitle, played, fromSeason, subType, epid, seasonId,
             isVerticalVideo, proxyArea, playerIconIdle, playerIconMoving,
-            play, danmaku, upName, pubTime
+            play, danmaku, upName, upId, pubTime
         )
     }
 }

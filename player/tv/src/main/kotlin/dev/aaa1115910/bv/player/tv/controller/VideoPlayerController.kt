@@ -64,7 +64,7 @@ fun VideoPlayerController(
     playerSeekForwardStep: Int = 10,
     playerSeekBackwardStep: Int = 5,
     showBottomProgressBar: Boolean = false,
-    
+
     showRelatedVideos: Boolean = false,
     onToggleRelatedVideos: (Boolean) -> Unit,
 
@@ -75,6 +75,12 @@ fun VideoPlayerController(
     onGoTime: (time: Long) -> Unit,
     onBackToHistory: () -> Unit,
     onPlayNewVideo: (VideoListItem) -> Unit,
+
+    onOpenUpSpace: () -> Unit,
+    onRefreshVideo: () -> Unit,
+    onOpenDanmaku: () -> Unit,
+    onHideDanmaku: () -> Unit,
+    onLoopPlayModeChange: (Boolean) -> Unit,
 
     //menu events
     onResolutionChange: (Resolution) -> Unit,
@@ -107,7 +113,7 @@ fun VideoPlayerController(
     var showMenuController by remember { mutableStateOf(false) }
     var showSeekController by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
-    val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
+    val showClickableControllers by remember { derivedStateOf { showInfo || showListController || showMenuController } }
 
     var lastPressBack by remember { mutableLongStateOf(0L) }
     var lastPressDown by remember { mutableLongStateOf(0L) }
@@ -189,6 +195,7 @@ fun VideoPlayerController(
                         if (it.type == KeyEventType.KeyUp) {
                             logger.fInfo { "[${it.key}] hide all controllers" }
                             scope.launch(Dispatchers.Main) {
+                                showInfo = false
                                 showMenuController = false
                                 showListController = false
                                 showSeekController = false
@@ -287,15 +294,8 @@ fun VideoPlayerController(
                             if ((isDoublePress || showInfo) && !showRelatedVideos) {
                                 showInfo = false
                                 onToggleRelatedVideos(true)
-                            } else {
+                            } else if(!showInfo && !showRelatedVideos) {
                                 showInfo = true
-                                hideVideoInfoJob?.cancel()
-                                hideVideoInfoJob = scope.launch {
-                                    delay(6000)
-                                    withContext(Dispatchers.Main) {
-                                        showInfo = false
-                                    }
-                                }
                             }
                         }
                         return@onPreviewKeyEvent true
@@ -414,10 +414,35 @@ fun VideoPlayerController(
         }
         BottomSubtitle()
         SkipTips()
-        PlayStateTips()
+        if (!showInfo && !showSeekController) {
+            PlayStateTips()
+        }
         ControllerVideoInfo(
             show = showInfo,
-            onHideInfo = { showInfo = false }
+            onHideInfo = { showInfo = false },
+            onPlay = onPlay,
+            onPause = onPause,
+            onOpenUpSpace = onOpenUpSpace,
+            onRefreshVideo = onRefreshVideo,
+            onOpenDanmaku = onOpenDanmaku,
+            onHideDanmaku = onHideDanmaku,
+            onOpenPlayList = {
+                showInfo = false
+                showListController = true
+            },
+            onOpenRelatedVideo = {
+                onToggleRelatedVideos(true)
+
+                scope.launch(Dispatchers.Main) {
+                    delay(50)
+                    showInfo = false
+                }
+            },
+            onOpenSetting = {
+                showInfo = false
+                showMenuController = true
+            },
+            onLoopPlayModeChange = onLoopPlayModeChange
         )
         SeekController(
             show = showSeekController,

@@ -49,13 +49,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        
-        // 启用硬件加速
-        manifestPlaceholders["hardwareAccelerated"] = "true"
-        // 启用大堆内存模式
-        manifestPlaceholders["largeHeap"] = "true"
-        // 禁用备份以减少权限和内存占用
-        manifestPlaceholders["allowBackup"] = "false"
     }
 
     flavorDimensions.add("channel")

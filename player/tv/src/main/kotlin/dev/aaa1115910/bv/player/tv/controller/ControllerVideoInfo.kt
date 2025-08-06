@@ -14,17 +14,35 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.RepeatOne
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -33,52 +51,80 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerClockData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.VideoPlayerClockData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
+import dev.aaa1115910.bv.player.shared.R
 import dev.aaa1115910.bv.player.tv.VideoSeekBar
 import dev.aaa1115910.bv.util.formatHourMinSec
+import kotlinx.coroutines.delay
 
 @Composable
 fun ControllerVideoInfo(
     modifier: Modifier = Modifier,
     show: Boolean,
-    onHideInfo: () -> Unit
+    onHideInfo: () -> Unit,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
+    onOpenUpSpace: () -> Unit,
+    onRefreshVideo: () -> Unit,
+    onOpenDanmaku: () -> Unit,
+    onHideDanmaku: () -> Unit,
+    onOpenPlayList: () -> Unit,
+    onOpenRelatedVideo: () -> Unit,
+    onOpenSetting: () -> Unit,
+    onLoopPlayModeChange: (Boolean) -> Unit
 ) {
     val videoPlayerClockData = LocalVideoPlayerClockData.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
     val videoPlayerSeekThumbData = LocalVideoPlayerSeekThumbData.current
     val videoPlayerVideoInfoData = LocalVideoPlayerVideoInfoData.current
+    val videoPlayerStateData = LocalVideoPlayerStateData.current
+    val videoPlayerConfigData = LocalVideoPlayerConfigData.current
 
     var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
-    val setCloseInfoTimer: () -> Unit = {
-        if (show) {
-            seekHideTimer?.cancel()
-            seekHideTimer = object : CountDownTimer(5000, 1000) {
-                override fun onTick(millisUntilFinished: Long) {}
-                override fun onFinish() = onHideInfo()
-            }
-            seekHideTimer?.start()
-        } else {
-            seekHideTimer?.cancel()
-            seekHideTimer = null
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        setCloseInfoTimer()
-    }
+//    val setCloseInfoTimer: () -> Unit = {
+//        if (show) {
+//            seekHideTimer?.cancel()
+//            seekHideTimer = object : CountDownTimer(5000, 1000) {
+//                override fun onTick(millisUntilFinished: Long) {}
+//                override fun onFinish() = onHideInfo()
+//            }
+//            seekHideTimer?.start()
+//        } else {
+//            seekHideTimer?.cancel()
+//            seekHideTimer = null
+//        }
+//    }
+//
+//    LaunchedEffect(Unit) {
+//        setCloseInfoTimer()
+//    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -106,6 +152,7 @@ fun ControllerVideoInfo(
             label = "ControllerBottomVideoInfo"
         ) {
             ControllerVideoInfoBottom(
+                show = show,
                 seekData = videoPlayerSeekData,
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
@@ -114,7 +161,21 @@ fun ControllerVideoInfo(
                 play = videoPlayerVideoInfoData.play,
                 danmaku = videoPlayerVideoInfoData.danmaku,
                 upName = videoPlayerVideoInfoData.upName,
-                pubTime = videoPlayerVideoInfoData.pubTime
+                pubTime = videoPlayerVideoInfoData.pubTime,
+                isPlaying = videoPlayerStateData.isPlaying || videoPlayerStateData.isBuffering,
+                isLoop = videoPlayerConfigData.isLoop,
+                showDanmaku = videoPlayerConfigData.showDanmaku,
+                onPlay = onPlay,
+                onPause = onPause,
+                onOpenUpSpace = onOpenUpSpace,
+                onRefreshVideo = onRefreshVideo,
+                onOpenDanmaku = onOpenDanmaku,
+                onHideDanmaku = onHideDanmaku,
+                onOpenPlayList = onOpenPlayList,
+                onOpenRelatedVideo = onOpenRelatedVideo,
+                onOpenSetting = onOpenSetting,
+                onLoopPlayModeChange = onLoopPlayModeChange,
+                fromSeason = videoPlayerVideoInfoData.fromSeason
             )
         }
     }
@@ -134,8 +195,19 @@ fun ControllerVideoInfoTop(
     )
 }
 
+data class ControlButton(
+    val id: String,
+    val icon: ImageVector? = null,
+    val onClick: () -> Unit,
+    val visible: Boolean = true,
+    val scale: Float = 1f,
+    val painterId: Int? = null,
+    val tint: Color = Color.White.copy(alpha = 0.8f)
+)
+
 @Composable
 fun ControllerVideoInfoBottom(
+    show: Boolean,
     modifier: Modifier = Modifier,
     title: String,
     partTitle: String,
@@ -145,8 +217,89 @@ fun ControllerVideoInfoBottom(
     play: Int,
     danmaku: Int,
     upName: String,
-    pubTime: String
+    pubTime: String,
+    isPlaying: Boolean,
+    isLoop: Boolean,
+    showDanmaku: Boolean,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
+    onOpenUpSpace: () -> Unit,
+    onRefreshVideo: () -> Unit,
+    onOpenDanmaku: () -> Unit,
+    onHideDanmaku: () -> Unit,
+    onOpenPlayList: () -> Unit,
+    onOpenRelatedVideo: () -> Unit,
+    onOpenSetting: () -> Unit,
+    onLoopPlayModeChange: (Boolean) -> Unit,
+    fromSeason: Boolean = false
 ) {
+    val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
+    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop) {
+        listOf(
+            ControlButton(
+                id = "play",
+                icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                onClick = { if (isPlaying) onPause() else onPlay() }
+            ),
+            ControlButton(
+                id = "upSpace",
+                icon = Icons.Rounded.Person,
+                onClick = onOpenUpSpace,
+                visible = !fromSeason
+            ),
+            ControlButton(
+                id = "refresh",
+                icon = Icons.Rounded.Refresh,
+                onClick = onRefreshVideo
+            ),
+            ControlButton(
+                id = "danmaku",
+                painterId = danmakuIconId,
+                onClick = { if (showDanmaku) onHideDanmaku() else onOpenDanmaku() }
+            ),
+            ControlButton(
+                id = "playlist",
+                icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
+                onClick = onOpenPlayList,
+                scale = 1.2f
+            ),
+            ControlButton(
+                id = "related",
+                icon = Icons.Rounded.KeyboardDoubleArrowDown,
+                onClick = onOpenRelatedVideo,
+                visible = !fromSeason
+            ),
+            ControlButton(
+                id = "settings",
+                icon = Icons.Outlined.Settings,
+                onClick = onOpenSetting
+            ),
+            ControlButton(
+                id = "loop",
+                icon = if (isLoop) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
+                onClick = { onLoopPlayModeChange(!isLoop) }
+            )
+        ).filter { it.visible }
+    }
+
+    var focusedButtonId by remember { mutableStateOf(buttons.firstOrNull()?.id ?: "") }
+    val focusRequesters = remember(buttons) {
+        buttons.associate { button ->
+            button.id to FocusRequester()
+        }.toMutableMap()
+    }
+
+    LaunchedEffect( Unit) {
+        delay(300) // 有动画，确保在界面渲染后执行
+        // 初始聚焦第一个按钮
+        runCatching {
+            buttons.firstOrNull()?.let {
+                focusRequesters[it.id]?.requestFocus()
+                focusedButtonId = it.id
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .background(
@@ -175,29 +328,16 @@ fun ControllerVideoInfoBottom(
                 style = MaterialTheme.typography.headlineSmall,
             )
         }
-        Row(
+        Text(
             modifier = Modifier
-                .fillMaxWidth()
-                .focusable(false),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .fillMaxWidth(0.8f),
-                text = if (partTitle.isEmpty() || title == partTitle) title else partTitle,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = if (partTitle.isEmpty() || title == partTitle) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
-            )
-            Text(
-                modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, end = 32.dp),
-                text = "${seekData.position.formatMinSec()} / ${seekData.duration.formatMinSec()}",
-                color = Color.White
-            )
-        }
+                .padding(horizontal = 32.dp)
+                .fillMaxWidth(),
+            text = if (partTitle.isEmpty() || title == partTitle) title else partTitle,
+            color = Color.White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = if (partTitle.isEmpty() || title == partTitle) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
+        )
         if(upName.isNotEmpty()) {
             Text(
                 modifier = Modifier
@@ -225,6 +365,86 @@ fun ControllerVideoInfoBottom(
             idleIcon = idleIcon,
             movingIcon = movingIcon
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 32.dp, end = 32.dp, top = 0.dp, bottom = 12.dp)
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        val currentIndex = buttons.indexOfFirst { it.id == focusedButtonId }
+                        when (event.key) {
+                            Key.DirectionRight -> {
+                                if (currentIndex < buttons.size - 1) {
+                                    val nextButton = buttons[currentIndex + 1]
+                                    focusRequesters[nextButton.id]?.requestFocus()
+                                    focusedButtonId = nextButton.id
+                                    return@onPreviewKeyEvent true
+                                }
+                            }
+                            Key.DirectionLeft -> {
+                                if (currentIndex > 0) {
+                                    val prevButton = buttons[currentIndex - 1]
+                                    focusRequesters[prevButton.id]?.requestFocus()
+                                    focusedButtonId = prevButton.id
+                                    return@onPreviewKeyEvent true
+                                }
+                            }
+                            Key.DirectionDown -> {
+                                onOpenRelatedVideo()
+                                return@onPreviewKeyEvent true
+                            }
+                        }
+                    }
+                    false
+                },
+            verticalAlignment = Alignment.Top
+        ) {
+            buttons.forEachIndexed { index, button ->
+                Button(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .focusRequester(focusRequesters[button.id] ?: FocusRequester())
+                        .focusable()
+                        .onFocusChanged { if (it.isFocused) focusedButtonId = button.id }
+                        .background(
+                            color = Color.White.copy(alpha = if (focusedButtonId == button.id) 0.25f else 0f),
+                            shape = MaterialTheme.shapes.small
+                        ),
+                    onClick = button.onClick,
+                    contentPadding = PaddingValues(2.dp),
+                    shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
+                    colors = ButtonDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    if (button.painterId != null) {
+                        Icon(
+                            painter = painterResource(id = button.painterId),
+                            contentDescription = null,
+                            tint = button.tint
+                        )
+                    } else {
+                        button.icon?.let {
+                            Icon(
+                                modifier = if (button.scale != 1f) Modifier.scale(button.scale) else Modifier,
+                                imageVector = it,
+                                contentDescription = null,
+                                tint = button.tint
+                            )
+                        }
+                    }
+                }
+                if (index < buttons.size - 1) {
+                    Spacer(Modifier.width(12.dp))
+                }
+            }
+            
+            Spacer(Modifier.weight(1f))
+            Text(
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 0.dp),
+                text = "${seekData.position.formatHourMinSec()} / ${seekData.duration.formatHourMinSec()}",
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -240,7 +460,7 @@ private fun Clock(
         color = Color.White,
         fontWeight = FontWeight.Bold,
         letterSpacing = 2.sp,
-        style = androidx.compose.ui.text.TextStyle(
+        style = TextStyle(
             shadow = Shadow(
                 color = Color.Black,
                 blurRadius = 4f
@@ -286,7 +506,11 @@ private fun ControllerVideoInfoPreview() {
         ),
         LocalVideoPlayerVideoInfoData provides VideoPlayerVideoInfoData(
             title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
-            partTitle = "2023车队车手介绍分析预测 2023车队车手介绍分析预测 2023车队车手介绍分析预测"
+            partTitle = "2023车队车手介绍分析预测 2023车队车手介绍分析预测 2023车队车手介绍分析预测",
+            upName = "upName",
+            play = 1,
+            danmaku = 1,
+            pubTime = "2025-08-05"
         ),
         LocalVideoPlayerClockData provides VideoPlayerClockData(
             hour = 12,
@@ -313,6 +537,16 @@ private fun ControllerVideoInfoPreview() {
                 modifier = Modifier.fillMaxSize(),
                 show = show,
                 onHideInfo = {},
+                onPlay = {},
+                onPause = {},
+                onOpenUpSpace = {},
+                onRefreshVideo = {},
+                onOpenDanmaku = {},
+                onHideDanmaku = {},
+                onOpenPlayList = {},
+                onOpenRelatedVideo = {},
+                onOpenSetting = {},
+                onLoopPlayModeChange = {}
             )
         }
     }

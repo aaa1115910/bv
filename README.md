@@ -43,14 +43,16 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 ## 修改
 在原bv的基础上做了一些修改，包括：
+- 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
+  ![首页](https://github.com/user-attachments/assets/2c38b5ed-6844-4cff-91ce-57f5e1cf6a74)
+- UGC视频详情页增加点赞、投币功能
+  ![UGC详情](https://github.com/user-attachments/assets/09f76c5c-f494-44a7-9aa9-672da489a156)
 - 播放器页面增加“推荐视频”
   - 操作方式：双击下键，或者按下键显示视频信息后再按下键
 
   ![视频播放-推荐视频](https://github.com/user-attachments/assets/2ea057f2-7e78-4b68-9bd4-5d4b2bb31d9e)
-- UGC视频详情页增加点赞、投币功能
-  ![UGC详情](https://github.com/user-attachments/assets/77c8c7e7-4bc0-4d4f-bdfd-df6ecbac079e)
-- 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
-  ![首页](https://github.com/user-attachments/assets/2c38b5ed-6844-4cff-91ce-57f5e1cf6a74)
+- 播放器控制条增加功能按钮（播放/暂停、up空间、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
+  ![视频播放](https://github.com/user-attachments/assets/8d9e5c2c-66d1-4c63-aeb3-5ad0338cf71e)
 - 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
   - 可以修改打开应用时首页默认选中的标签
 - 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
@@ -68,7 +70,6 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 优化列表、优化视频卡片、精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
-  ![视频播放](https://github.com/user-attachments/assets/aa0d48c7-6ad9-4829-adb8-1d768b96f966)
 
 [更多修改内容](./CHANGELOG.md)
 
