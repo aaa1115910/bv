@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
@@ -36,9 +35,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -82,7 +80,11 @@ import dev.aaa1115910.bv.player.seekbar.SeekMoveState
 import dev.aaa1115910.bv.player.shared.R
 import dev.aaa1115910.bv.player.tv.VideoSeekBar
 import dev.aaa1115910.bv.util.formatHourMinSec
+import dev.aaa1115910.bv.util.ifElse
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ControllerVideoInfo(
@@ -107,7 +109,7 @@ fun ControllerVideoInfo(
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerConfigData = LocalVideoPlayerConfigData.current
 
-    var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
+//    var seekHideTimer: CountDownTimer? by remember { mutableStateOf(null) }
 //    val setCloseInfoTimer: () -> Unit = {
 //        if (show) {
 //            seekHideTimer?.cancel()
@@ -153,6 +155,7 @@ fun ControllerVideoInfo(
         ) {
             ControllerVideoInfoBottom(
                 show = show,
+                onHideInfo = onHideInfo,
                 seekData = videoPlayerSeekData,
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
@@ -208,6 +211,7 @@ data class ControlButton(
 @Composable
 fun ControllerVideoInfoBottom(
     show: Boolean,
+    onHideInfo: () -> Unit,
     modifier: Modifier = Modifier,
     title: String,
     partTitle: String,
@@ -233,6 +237,8 @@ fun ControllerVideoInfoBottom(
     onLoopPlayModeChange: (Boolean) -> Unit,
     fromSeason: Boolean = false
 ) {
+    val scope = rememberCoroutineScope()
+    var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
     val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop) {
         listOf(
@@ -290,13 +296,34 @@ fun ControllerVideoInfoBottom(
     }
 
     LaunchedEffect( Unit) {
-        delay(300) // 有动画，确保在界面渲染后执行
         // 初始聚焦第一个按钮
         runCatching {
             buttons.firstOrNull()?.let {
                 focusRequesters[it.id]?.requestFocus()
                 focusedButtonId = it.id
             }
+        }
+        delay(300) // 有动画，确保在界面渲染后执行
+        runCatching {
+            buttons.firstOrNull()?.let {
+                focusRequesters[it.id]?.requestFocus()
+                focusedButtonId = it.id
+            }
+        }
+    }
+
+    LaunchedEffect(show, focusedButtonId) {
+        if (show) {
+            hideVideoInfoJob?.cancel()
+            hideVideoInfoJob = scope.launch {
+                delay(5000)
+                withContext(Dispatchers.Main) {
+                    onHideInfo()
+                }
+            }
+        }else{
+            hideVideoInfoJob?.cancel()
+            hideVideoInfoJob = null
         }
     }
 
@@ -390,8 +417,10 @@ fun ControllerVideoInfoBottom(
                                 }
                             }
                             Key.DirectionDown -> {
-                                onOpenRelatedVideo()
-                                return@onPreviewKeyEvent true
+                                if (!fromSeason) {
+                                    onOpenRelatedVideo()
+                                    return@onPreviewKeyEvent true
+                                }
                             }
                         }
                     }
@@ -412,7 +441,6 @@ fun ControllerVideoInfoBottom(
                         ),
                     onClick = button.onClick,
                     contentPadding = PaddingValues(2.dp),
-                    shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                     colors = ButtonDefaults.colors(containerColor = Color.Transparent)
                 ) {
                     if (button.painterId != null) {
@@ -424,7 +452,9 @@ fun ControllerVideoInfoBottom(
                     } else {
                         button.icon?.let {
                             Icon(
-                                modifier = if (button.scale != 1f) Modifier.scale(button.scale) else Modifier,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .ifElse(button.scale != 1f, Modifier.scale(button.scale)),
                                 imageVector = it,
                                 contentDescription = null,
                                 tint = button.tint

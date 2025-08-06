@@ -375,12 +375,12 @@ data class WebSeasonData(
  */
 @Serializable
 data class OtherSeason(
-    val badge: String,
+    val badge: String = "",
     @SerialName("badge_info")
-    val badgeInfo: Episode.BadgeInfo,
+    val badgeInfo: Episode.BadgeInfo? = null,
     @SerialName("badge_type")
     val badgeType: Int,
-    val cover: String,
+    val cover: String = "",
     @SerialName("horizontal_cover")
     val horizontalCover: String? = null,
     val link: String? = null,

@@ -44,7 +44,8 @@ import java.io.ByteArrayOutputStream
 
 @Composable
 fun PlayStateTips(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    canShowPause: Boolean = true
 ) {
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerPaymentData = LocalVideoPlayerPaymentData.current
@@ -52,7 +53,7 @@ fun PlayStateTips(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        if (!videoPlayerStateData.isPlaying && !videoPlayerStateData.isBuffering && !videoPlayerStateData.isError) {
+        if (!videoPlayerStateData.isPlaying && !videoPlayerStateData.isBuffering && !videoPlayerStateData.isError && canShowPause) {
             PauseIcon(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

@@ -31,7 +31,7 @@ data class SeasonDetail(
     val seasonId: Int,
     val userStatus: UserStatus,
     val publish: Publish,
-    val newEpDesc: String,
+    val newEpDesc: String = "",
     val seasons: List<PgcSeason> = emptyList(),
     val episodes: List<Episode> = emptyList(),
     val sections: List<Section> = emptyList(),

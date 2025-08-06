@@ -414,9 +414,9 @@ fun VideoPlayerController(
         }
         BottomSubtitle()
         SkipTips()
-        if (!showInfo && !showSeekController) {
-            PlayStateTips()
-        }
+        PlayStateTips(
+            canShowPause = !showInfo && !showSeekController
+        )
         ControllerVideoInfo(
             show = showInfo,
             onHideInfo = { showInfo = false },

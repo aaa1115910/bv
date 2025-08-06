@@ -112,6 +112,7 @@ import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.SeasonViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -226,6 +227,7 @@ fun SeasonInfoScreen(
             logger.fInfo { "season data change: ${seasonViewModel.seasonData}" }
             seasonViewModel.lastPlayProgress = it.userStatus.progress
             //请求默认焦点到剧集封面上
+            delay(300)
             defaultFocusRequester.requestFocus(scope)
         }
     }
@@ -271,6 +273,7 @@ fun SeasonInfoScreen(
             }
         }
     } else {
+        val seasonData = seasonViewModel.seasonData!!
         Scaffold(
             modifier = modifier
         ) { innerPadding ->
@@ -284,16 +287,16 @@ fun SeasonInfoScreen(
                 item {
                     SeasonInfoPart(
                         modifier = Modifier.focusRequester(defaultFocusRequester),
-                        title = seasonViewModel.seasonData!!.title,
-                        cover = seasonViewModel.seasonData!!.cover,
-                        newEpDesc = seasonViewModel.seasonData!!.newEpDesc,
-                        description = seasonViewModel.seasonData!!.description,
+                        title = seasonData.title,
+                        cover = seasonData.cover,
+                        newEpDesc = seasonData.newEpDesc,
+                        description = seasonData.description,
                         lastPlayedIndex = seasonViewModel.lastPlayProgress?.lastEpId ?: -1,
-                        lastPlayedTitle = generateEpisodeTitle(seasonViewModel.seasonData?.episodes?.find { it.id == seasonViewModel.lastPlayProgress?.lastEpId }, seasonViewModel.seasonData!!.title),
+                        lastPlayedTitle = generateEpisodeTitle(seasonData.episodes.find { it.id == seasonViewModel.lastPlayProgress?.lastEpId }, seasonData.title),
                         following = seasonViewModel.isFollowing,
-                        isPublished = seasonViewModel.seasonData!!.publish.isPublished,
-                        publishDate = seasonViewModel.seasonData!!.publish.publishDate,
-                        seasonCount = seasonViewModel.seasonData!!.seasons.size,
+                        isPublished = seasonData.publish.isPublished,
+                        publishDate = seasonData.publish.publishDate,
+                        seasonCount = seasonData.seasons.size,
                         onPlay = {
                             logger.fInfo { "Click play button" }
                             var playAid = -1L
@@ -1009,6 +1012,7 @@ private fun SeasonSelectorContent(
     LaunchedEffect(rowState.firstVisibleItemScrollOffset) {
         if (scrolling && isCurrentSeasonInScreen) {
             scrolling = false
+            delay(300)
             currentSeasonFocusRequester.requestFocus()
         }
     }

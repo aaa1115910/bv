@@ -54,17 +54,13 @@ class SeasonViewModel(
                 epid = epId,
                 preferApiType = if (proxyArea != ProxyArea.MainLand) ApiType.App else Prefs.apiType
             )
-            withContext(Dispatchers.Main) {
-                seasonData = data.copy()
-                seasons.swapList(data.seasons)
-                isFollowing = data.userStatus.follow
-                lastPlayProgress = data.userStatus.progress
-            }
+            seasonData = data.copy()
+            seasons.swapList(data.seasons)
+            isFollowing = data.userStatus.follow
+            lastPlayProgress = data.userStatus.progress
             logger.fInfo { "Get season info success, seasonData: ${seasonData}" }
         }.onFailure {
-            withContext(Dispatchers.Main) {
-                tip = it.localizedMessage ?: "未知错误"
-            }
+            tip = it.localizedMessage ?: "未知错误"
             logger.fInfo { "Get season info failed: ${it.stackTraceToString()}" }
         }
     }

@@ -514,7 +514,7 @@ fun VideoInfoScreen(
                         if(fromPlayer) {
                             // 清除标记, 以便从播放器返回过来的可以进入详情页
                             scope.launch {
-                                delay(300)
+                                delay(1200)
                                 fromPlayer = false
                                 intent.removeExtra("fromPlayer")
                                 if (!showUGCVideoInfo) {
