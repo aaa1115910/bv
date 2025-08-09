@@ -13,7 +13,7 @@ class UpInfoActivity : ComponentActivity() {
     companion object {
         private var currentInstance: WeakReference<UpInfoActivity>? = null
 
-        fun actionStart(context: Context, mid: Long, name: String) {
+        fun actionStart(context: Context, mid: Long, name: String, face: String) {
             // 先关闭旧的播放页面
             currentInstance?.get()?.finish()
 
@@ -21,6 +21,7 @@ class UpInfoActivity : ComponentActivity() {
                 Intent(context, UpInfoActivity::class.java).apply {
                     putExtra("mid", mid)
                     putExtra("name", name)
+                    putExtra("face", face)
                 }
             )
         }

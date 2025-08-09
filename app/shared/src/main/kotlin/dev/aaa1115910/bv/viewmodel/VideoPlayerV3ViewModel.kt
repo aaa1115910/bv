@@ -139,6 +139,7 @@ class VideoPlayerV3ViewModel(
     var play by mutableStateOf(0)
     var danmaku by mutableStateOf(0)
     var upName by mutableStateOf("")
+    var upFace by mutableStateOf("")
     var pubTime by mutableStateOf("")
     var upId by mutableLongStateOf(0L)
     var isLoop by mutableStateOf(Prefs.isLoop)
@@ -642,7 +643,11 @@ class VideoPlayerV3ViewModel(
 
     private fun selectOfficialCdnUrl(urls: List<String>): String {
         if (!Prefs.preferOfficialCdn) {
-            logger.fInfo { "doesn't need to filter official cdn url, select the first url" }
+            logger.fInfo { "doesn't need to filter official cdn url, select a random url" }
+            return urls.random()
+        }
+        if (urls.isEmpty()) {
+            logger.fInfo { "doesn't find any url, select a random url" }
             return urls.first()
         }
         val filteredUrls = urls
@@ -653,11 +658,11 @@ class VideoPlayerV3ViewModel(
                     .matches(it)
             }
         if (filteredUrls.isEmpty()) {
-            logger.fInfo { "doesn't find any official cdn url, select the first url" }
-            return urls.first()
+            logger.fInfo { "doesn't find any official cdn url, select a random url" }
+            return urls.random()
         } else {
             logger.fInfo { "filtered official cdn urls: $filteredUrls" }
-            return filteredUrls.first()
+            return filteredUrls.random()
         }
     }
 

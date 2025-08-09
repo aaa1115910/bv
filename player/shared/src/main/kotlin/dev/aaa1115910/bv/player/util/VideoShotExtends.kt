@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.player.util
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -64,8 +65,30 @@ private object VideoShotImageCache {
 
     // BitmapFactory 配置，使用 RGB_565 以减少内存占用
     val bitmapOptions = BitmapFactory.Options().apply {
+        // 内存优化
         inPreferredConfig = Bitmap.Config.RGB_565 // 比 ARGB_8888 节省一半内存
-        inScaled = false
+        inMutable = false // 不可变，节省内存
+        
+        // 解码优化
+        inScaled = false // 禁用缩放，避免额外计算
+        
+        // 内存管理
+        inTempStorage = ByteArray(16 * 1024) // 16KB临时缓冲区，减少内存分配
+        inSampleSize = 1 // 采样率，1表示原始大小
+        
+        // 其他性能优化
+        inJustDecodeBounds = false // 实际解码像素数据
+        inPremultiplied = false // 不进行预乘处理，节省计算
+        
+        // 现代化优化参数
+        inBitmap = null // 不复用现有Bitmap，避免尺寸不匹配问题
+        inDensity = 0 // 忽略密度设置，使用原始尺寸
+        inTargetDensity = 0 // 忽略目标密度
+        inScreenDensity = 0 // 忽略屏幕密度
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            inPreferredColorSpace = null // API 26+ 可使用默认色彩空间，避免转换开销
+        }
     }
 
     suspend fun getOrDecodeImage(imagesIndex: Int, imageData: ByteArray): Bitmap = coroutineScope {

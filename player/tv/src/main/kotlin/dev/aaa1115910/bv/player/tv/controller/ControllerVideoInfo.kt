@@ -264,6 +264,11 @@ fun ControllerVideoInfoBottom(
                 onClick = { if (showDanmaku) onHideDanmaku() else onOpenDanmaku() }
             ),
             ControlButton(
+                id = "loop",
+                icon = if (isLoop) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
+                onClick = { onLoopPlayModeChange(!isLoop) }
+            ),
+            ControlButton(
                 id = "playlist",
                 icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
                 onClick = onOpenPlayList,
@@ -279,11 +284,6 @@ fun ControllerVideoInfoBottom(
                 id = "settings",
                 icon = Icons.Outlined.Settings,
                 onClick = onOpenSetting
-            ),
-            ControlButton(
-                id = "loop",
-                icon = if (isLoop) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
-                onClick = { onLoopPlayModeChange(!isLoop) }
             )
         ).filter { it.visible }
     }
@@ -384,7 +384,7 @@ fun ControllerVideoInfoBottom(
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(start = 24.dp, end = 24.dp, bottom = 2.dp),
             duration = seekData.duration,
             position = seekData.position,
             bufferedPercentage = seekData.bufferedPercentage,

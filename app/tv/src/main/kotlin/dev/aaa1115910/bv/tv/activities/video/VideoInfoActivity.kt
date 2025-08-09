@@ -13,7 +13,7 @@ import java.util.LinkedList
 
 class VideoInfoActivity : ComponentActivity() {
     companion object {
-        private const val MAX_VIDEO_INFO_SCREENS = 3
+        private const val MAX_VIDEO_INFO_SCREENS = 2
         // 使用WeakReference防止内存泄漏，避免持有已销毁Activity的强引用
         private val activityQueue = LinkedList<WeakReference<VideoInfoActivity>>()
 

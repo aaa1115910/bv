@@ -46,6 +46,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             danmaku: Int = 0,
             upName: String = "",
             upId: Long = 0L,
+            upFace: String = "",
             pubTime: String = ""
         ) {
             // 获取当前内存信息并打印到控制台
@@ -84,6 +85,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("danmaku", danmaku)
                     putExtra("upName", upName)
                     putExtra("upId", upId)
+                    putExtra("upFace", upFace)
                     putExtra("pubTime", pubTime)
                 }
             )
@@ -194,6 +196,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val danmaku = intent.getIntExtra("danmaku", 0)
             val upName = intent.getStringExtra("upName") ?: ""
             val upId = intent.getLongExtra("upId", 0)
+            val upFace = intent.getStringExtra("upFace") ?: ""
             val pubTime = intent.getStringExtra("pubTime") ?: ""
             dev.aaa1115910.bv.tv.activities.video.VideoPlayerV3Activity.Companion.logger.fInfo { "Launch parameter: [aid=$aid, cid=$cid]" }
             playerViewModel.apply {
@@ -217,6 +220,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.danmaku = danmaku
                 this.upName = upName
                 this.upId = upId
+                this.upFace = upFace
                 this.pubTime = pubTime
             }
         } else {

@@ -101,7 +101,7 @@ private fun SeekController(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
-                    .padding(top = 8.dp),
+                    .padding(top = 8.dp, bottom = 2.dp),
                 duration = duration,
                 position = position,
                 bufferedPercentage = 1,

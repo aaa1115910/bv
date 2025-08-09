@@ -50,6 +50,7 @@ import dev.aaa1115910.bv.player.tv.controller.SkipTip
 import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -291,6 +292,18 @@ fun VideoPlayerV3Screen(
                         }
                     }
                 },
+                onRefreshVideo= {
+                    val time = playerViewModel.videoPlayer?.currentPosition ?:0
+                    logger.info { "Reload video and back to time: ${time.formatHourMinSec()}" }
+                    scope.launch {
+                        playerViewModel.playQuality()
+                        delay(300)
+                        playerViewModel.videoPlayer?.seekTo(time)
+                        playerViewModel.danmakuPlayer?.seekTo(time)
+                        playerViewModel.danmakuPlayer?.pause()
+                        playerViewModel.videoPlayer?.start()
+                    }
+                },
                 onResolutionChange = { resolutionCode, afterChange ->
                     scope.launch(Dispatchers.Default) {
                         playerViewModel.playQuality(resolutionCode)
@@ -362,7 +375,8 @@ fun VideoPlayerV3Screen(
                     UpInfoActivity.actionStart(
                         context,
                         mid = playerViewModel.upId,
-                        name = playerViewModel.upName
+                        name = playerViewModel.upName,
+                        face = playerViewModel.upFace
                     )
                 },
                 onShowDanmakuChange = {

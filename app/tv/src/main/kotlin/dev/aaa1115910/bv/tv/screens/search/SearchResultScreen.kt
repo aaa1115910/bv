@@ -126,7 +126,8 @@ fun SearchResultScreen(
                 UpInfoActivity.actionStart(
                     context = context,
                     mid = resultItem.mid,
-                    name = resultItem.name
+                    name = resultItem.name,
+                    face = resultItem.avatar
                 )
             }
 

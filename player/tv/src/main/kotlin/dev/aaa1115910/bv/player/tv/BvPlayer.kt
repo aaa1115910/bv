@@ -106,6 +106,7 @@ fun BvPlayer(
     onOpenUpSpace: () -> Unit = {},
     onShowDanmakuChange: (Boolean) -> Unit = {},
     onLoopPlayModeChange: (Boolean) -> Unit = {},
+    onRefreshVideo: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger("BvPlayer")
@@ -674,16 +675,7 @@ fun BvPlayer(
             },
             onRequestFocus = { focusRequester.requestFocus(scope) },
             onOpenUpSpace = onOpenUpSpace,
-            onRefreshVideo = {
-                val time = videoPlayer.currentPosition
-                logger.fInfo { "Reload video and back to time: ${time.formatHourMinSec()}" }
-
-                videoPlayer.seekTo(time)
-                mDanmakuPlayer?.seekTo(time)
-                mDanmakuPlayer?.pause()
-
-                videoPlayer.start()
-            },
+            onRefreshVideo = onRefreshVideo,
             onOpenDanmaku = {
                 onShowDanmakuChange(true)
                 videoPlayerConfigData.showDanmaku = true

@@ -29,6 +29,7 @@ class UserSpaceViewModel(
         private val logger = KotlinLogging.logger { }
     }
 
+    var upFace by mutableStateOf("")
     var upName by mutableStateOf("")
     var upMid by mutableLongStateOf(0L)
     var tvSpaceVideos = mutableStateListOf<VideoCardData>()

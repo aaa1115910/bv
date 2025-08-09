@@ -129,7 +129,8 @@ fun FollowScreen(
                             UpInfoActivity.actionStart(
                                 context = context,
                                 mid = up.mid,
-                                name = up.name
+                                name = up.name,
+                                face = up.avatar
                             )
                         }
                     )

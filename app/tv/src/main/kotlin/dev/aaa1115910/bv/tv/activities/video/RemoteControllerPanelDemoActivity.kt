@@ -36,6 +36,7 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             danmaku: Int = 0,
             upName: String = "",
             upId: Long = 0L,
+            upFace: String = "",
             pubTime: String = ""
         ) {
             context.startActivity(
@@ -57,6 +58,7 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                     putExtra("danmaku", danmaku)
                     putExtra("upName", upName)
                     putExtra("upId", upId)
+                    putExtra("upFace", upFace)
                     putExtra("pubTime", pubTime)
                 }
             )
