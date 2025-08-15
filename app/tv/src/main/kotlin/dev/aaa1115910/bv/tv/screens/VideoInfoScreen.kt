@@ -819,19 +819,23 @@ fun VideoInfoScreen(
                             },
                             onAddFollow = {
                                 addFollow { success ->
-                                    if (success) {
-                                        "关注成功".toast(context)
-                                    } else {
-                                        "关注失败".toast(context)
+                                    scope.launch(Dispatchers.Main) {
+                                        if (success) {
+                                            "关注成功".toast(context)
+                                        } else {
+                                            "关注失败".toast(context)
+                                        }
                                     }
                                 }
                             },
                             onDelFollow = {
                                 delFollow { success ->
-                                    if (success) {
-                                        "已取消关注".toast(context)
-                                    } else {
-                                        "取消关注失败".toast(context)
+                                    scope.launch(Dispatchers.Main) {
+                                        if (success) {
+                                            "已取消关注".toast(context)
+                                        } else {
+                                            "取消关注失败".toast(context)
+                                        }
                                     }
                                 }
                             },

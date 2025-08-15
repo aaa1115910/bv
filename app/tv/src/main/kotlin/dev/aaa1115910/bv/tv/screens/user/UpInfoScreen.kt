@@ -148,9 +148,7 @@ fun UpSpaceScreen(
             if (success) {
                 FollowStateManager.updateFollowState(userMid, true)
             }
-            withContext(Dispatchers.Main) {
-                afterModify(success)
-            }
+            afterModify(success)
         }
     }
 
@@ -167,9 +165,7 @@ fun UpSpaceScreen(
             if (success) {
                 FollowStateManager.updateFollowState(userMid, false)
             }
-            withContext(Dispatchers.Main) {
-                afterModify(success)
-            }
+            afterModify(success)
         }
     }
 
@@ -222,33 +218,37 @@ fun UpSpaceScreen(
                         text = userSpaceViewModel.upName,
                         fontSize = titleFontSize.sp
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(20.dp))
                     // 关注按钮
                     if (showFollowButton) {
                         Surface(
                             onClick = {
                                 if (isFollowing) {
                                     delFollow { success ->
-                                        if (success) {
-                                            "已取消关注".toast(context)
-                                        } else {
-                                            "取消关注失败".toast(context)
+                                        scope.launch(Dispatchers.Main) {
+                                            if (success) {
+                                                "已取消关注".toast(context)
+                                            } else {
+                                                "取消关注失败".toast(context)
+                                            }
                                         }
                                     }
                                 } else {
                                     addFollow { success ->
-                                        if (success) {
-                                            "关注成功".toast(context)
-                                        } else {
-                                            "关注失败".toast(context)
+                                        scope.launch(Dispatchers.Main) {
+                                            if (success) {
+                                                "关注成功".toast(context)
+                                            } else {
+                                                "关注失败".toast(context)
+                                            }
                                         }
                                     }
                                 }
                             },
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                pressedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                pressedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                             ),
                             shape = ClickableSurfaceDefaults.shape(
                                 shape = MaterialTheme.shapes.small
@@ -257,14 +257,14 @@ fun UpSpaceScreen(
                                 focusedBorder = Border(
                                     border = BorderStroke(
                                         width = 2.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
                                     ),
                                     shape = MaterialTheme.shapes.small
                                 )
                             )
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
@@ -272,25 +272,25 @@ fun UpSpaceScreen(
                                     Icon(
                                         imageVector = Icons.Rounded.Done,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.surface,
-                                        modifier = Modifier.size(16.dp)
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                     Text(
                                         text = stringResource(R.string.video_info_followed),
-                                        color = MaterialTheme.colorScheme.surface,
-                                        fontSize = 14.sp
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontSize = 15.sp
                                     )
                                 } else {
                                     Icon(
                                         imageVector = Icons.Rounded.Add,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.surface,
-                                        modifier = Modifier.size(16.dp)
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                     Text(
                                         text = stringResource(R.string.video_info_follow),
-                                        color = MaterialTheme.colorScheme.surface,
-                                        fontSize = 14.sp
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontSize = 15.sp
                                     )
                                 }
                             }
