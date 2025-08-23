@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.Person
@@ -61,6 +59,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropUp
+import androidx.compose.material3.Surface
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
@@ -85,14 +89,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import dev.aaa1115910.bv.util.requestFocus
+import kotlin.math.roundToInt
+
+private fun formatSpeed(speed: Float): String {
+    return "${(speed * 100).roundToInt() / 100f}x"
+}
 
 @Composable
 fun ControllerVideoInfo(
     modifier: Modifier = Modifier,
     show: Boolean,
+    playSpeed: Float = 1f,
     onHideInfo: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onOpenUpSpace: () -> Unit,
     onRefreshVideo: () -> Unit,
     onOpenDanmaku: () -> Unit,
@@ -159,6 +171,7 @@ fun ControllerVideoInfo(
                 seekData = videoPlayerSeekData,
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
+                playSpeed = playSpeed,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
                 movingIcon = videoPlayerSeekThumbData.movingIcon,
                 play = videoPlayerVideoInfoData.play,
@@ -170,6 +183,7 @@ fun ControllerVideoInfo(
                 showDanmaku = videoPlayerConfigData.showDanmaku,
                 onPlay = onPlay,
                 onPause = onPause,
+                onPlaySpeedChange = onPlaySpeedChange,
                 onOpenUpSpace = onOpenUpSpace,
                 onRefreshVideo = onRefreshVideo,
                 onOpenDanmaku = onOpenDanmaku,
@@ -201,11 +215,13 @@ fun ControllerVideoInfoTop(
 data class ControlButton(
     val id: String,
     val icon: ImageVector? = null,
+    val text: String? = null,
     val onClick: () -> Unit,
     val visible: Boolean = true,
     val scale: Float = 1f,
     val painterId: Int? = null,
-    val tint: Color = Color.White.copy(alpha = 0.8f)
+    val tint: Color = Color.White.copy(alpha = 0.8f),
+    val width: Int? = null
 )
 
 @Composable
@@ -213,6 +229,7 @@ fun ControllerVideoInfoBottom(
     show: Boolean,
     onHideInfo: () -> Unit,
     modifier: Modifier = Modifier,
+    playSpeed: Float = 1f,
     title: String,
     partTitle: String,
     seekData: VideoPlayerSeekData,
@@ -227,6 +244,7 @@ fun ControllerVideoInfoBottom(
     showDanmaku: Boolean,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onPlaySpeedChange: (Float) -> Unit,
     onOpenUpSpace: () -> Unit,
     onRefreshVideo: () -> Unit,
     onOpenDanmaku: () -> Unit,
@@ -239,13 +257,21 @@ fun ControllerVideoInfoBottom(
 ) {
     val scope = rememberCoroutineScope()
     var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var showSpeedDialog by remember { mutableStateOf(false) }
+    var speed by remember { mutableStateOf(playSpeed) }
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
-    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop) {
+    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed) {
         listOf(
             ControlButton(
                 id = "play",
                 icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                 onClick = { if (isPlaying) onPause() else onPlay() }
+            ),
+            ControlButton(
+                id = "speed",
+                text = formatSpeed(speed),
+                onClick = { showSpeedDialog = true },
+                width = 46
             ),
             ControlButton(
                 id = "upSpace",
@@ -313,17 +339,30 @@ fun ControllerVideoInfoBottom(
     }
 
     LaunchedEffect(show, focusedButtonId) {
-        if (show) {
-            hideVideoInfoJob?.cancel()
+        hideVideoInfoJob?.cancel()
+        hideVideoInfoJob = null
+        if (show && !showSpeedDialog) {
             hideVideoInfoJob = scope.launch {
                 delay(5000)
                 withContext(Dispatchers.Main) {
                     onHideInfo()
                 }
             }
-        }else{
+        }
+    }
+
+    LaunchedEffect(showSpeedDialog) {
+        if (showSpeedDialog) {
             hideVideoInfoJob?.cancel()
             hideVideoInfoJob = null
+        } else {
+            if (show) {
+                hideVideoInfoJob?.cancel()
+                hideVideoInfoJob = scope.launch {
+                    delay(5000)
+                    withContext(Dispatchers.Main) { onHideInfo() }
+                }
+            }
         }
     }
 
@@ -431,7 +470,8 @@ fun ControllerVideoInfoBottom(
             buttons.forEachIndexed { index, button ->
                 Button(
                     modifier = Modifier
-                        .size(32.dp)
+                        .height(32.dp)
+                        .width((button.width ?: 32).dp)
                         .focusRequester(focusRequesters[button.id] ?: FocusRequester())
                         .focusable()
                         .onFocusChanged { if (it.isFocused) focusedButtonId = button.id }
@@ -443,7 +483,15 @@ fun ControllerVideoInfoBottom(
                     contentPadding = PaddingValues(2.dp),
                     colors = ButtonDefaults.colors(containerColor = Color.Transparent)
                 ) {
-                    if (button.painterId != null) {
+                    if (button.text != null) {
+                        Text(
+                            text = button.text,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = button.tint,
+                            modifier = Modifier.ifElse(button.scale != 1f, Modifier.scale(button.scale))
+                        )
+                    } else if (button.painterId != null) {
                         Icon(
                             painter = painterResource(id = button.painterId),
                             contentDescription = null,
@@ -466,7 +514,7 @@ fun ControllerVideoInfoBottom(
                     Spacer(Modifier.width(12.dp))
                 }
             }
-            
+
             Spacer(Modifier.weight(1f))
             Text(
                 modifier = Modifier
@@ -474,6 +522,80 @@ fun ControllerVideoInfoBottom(
                 text = "${seekData.position.formatHourMinSec()} / ${seekData.duration.formatHourMinSec()}",
                 color = Color.White
             )
+        }
+    }
+    
+    SpeedDialog(
+        show = showSpeedDialog,
+        onHideDialog = { showSpeedDialog = false },
+        speed = speed,
+        onSpeedChange = {
+            speed = it
+            onPlaySpeedChange(it)
+        }
+    )
+}
+
+@Composable
+private fun SpeedDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onHideDialog: () -> Unit,
+    speed: Float,
+    step: Float = 0.25f,
+    min: Float = 0.25f,
+    max: Float = 3f,
+    onSpeedChange: (Float) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(show) {
+        if (show) focusRequester.requestFocus(scope)
+    }
+
+    if (show) {
+        Dialog(onDismissRequest = { onHideDialog() }) {
+            Surface(
+                modifier = modifier
+                    .width(240.dp),
+                color = Color.Black.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    Text(
+                        text = "播放速度",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            .fillMaxWidth()
+                            .onPreviewKeyEvent {
+                                if (it.key == Key.DirectionUp || it.key == Key.DirectionDown) {
+                                    if (it.type == KeyEventType.KeyDown) {
+                                        var newValue = if (it.key == Key.DirectionUp)
+                                            speed + step
+                                        else
+                                            speed - step
+                                        if (newValue < min) newValue = min
+                                        if (newValue > max) newValue = max
+                                        onSpeedChange(newValue)
+                                    }
+                                }
+                                false
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(imageVector = Icons.Rounded.ArrowDropUp, contentDescription = null, tint = Color.White)
+                        Text(text = "${speed}x", color = Color.White)
+                        Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null, tint = Color.White)
+                    }
+                }
+            }
         }
     }
 }
@@ -566,9 +688,11 @@ private fun ControllerVideoInfoPreview() {
             ControllerVideoInfo(
                 modifier = Modifier.fillMaxSize(),
                 show = show,
+                playSpeed = 1.25f,
                 onHideInfo = {},
                 onPlay = {},
                 onPause = {},
+                onPlaySpeedChange = {},
                 onOpenUpSpace = {},
                 onRefreshVideo = {},
                 onOpenDanmaku = {},
@@ -580,4 +704,16 @@ private fun ControllerVideoInfoPreview() {
             )
         }
     }
+}
+
+
+@Preview
+@Composable
+private fun SpeedDialogPreview() {
+    SpeedDialog(
+        speed = 1.25f,
+        show = true,
+        onHideDialog = {},
+        onSpeedChange = {}
+    )
 }

@@ -419,9 +419,11 @@ fun VideoPlayerController(
         )
         ControllerVideoInfo(
             show = showInfo,
+            playSpeed = videoPlayer.speed,
             onHideInfo = { showInfo = false },
             onPlay = onPlay,
             onPause = onPause,
+            onPlaySpeedChange = onPlaySpeedChange,
             onOpenUpSpace = onOpenUpSpace,
             onRefreshVideo = onRefreshVideo,
             onOpenDanmaku = onOpenDanmaku,
