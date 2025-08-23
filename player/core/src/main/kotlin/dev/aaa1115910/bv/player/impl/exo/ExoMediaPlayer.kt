@@ -69,7 +69,7 @@ class ExoMediaPlayer(
                 bufferConfig.minBufferMs, // 最小缓冲时间
                 bufferConfig.maxBufferMs, // 最大缓冲时间
                 DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, // 开始播放前的缓冲时间
-                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS // 重新缓冲后的播放缓冲
+                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS // 重新缓冲后的播放缓冲
             )
             // 优先考虑时间阈值还是缓冲大小。true：优先考虑时间阈值
             .setPrioritizeTimeOverSizeThresholds(bufferConfig.prioritizeTime)
@@ -145,8 +145,8 @@ class ExoMediaPlayer(
     override fun release() {
         try {
             mPlayer?.release()
-            mPlayer = null
             mMediaSource = null
+            mPlayer = null
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -74,7 +74,7 @@ fun VideosRow(
             ))
     ) {
         Text(
-            modifier = Modifier.padding(start = 32.dp, top = 3.dp, bottom = 3.dp),
+            modifier = Modifier.padding(start = 36.dp, top = 3.dp, bottom = 3.dp),
             text = header,
             fontSize = titleFontSize.sp
         )

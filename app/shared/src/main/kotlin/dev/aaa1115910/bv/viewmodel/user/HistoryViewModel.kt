@@ -70,8 +70,8 @@ class HistoryViewModel(
                         timeString = if (historyItem.progress == -1) context.getString(R.string.play_time_finish)
                         else context.getString(
                             R.string.play_time_history,
-                            (historyItem.progress * 1000L).formatMinSec(),
-                            (historyItem.duration * 1000L).formatMinSec()
+                            (historyItem.progress * 1000L).formatHourMinSec(),
+                            (historyItem.duration * 1000L).formatHourMinSec()
                         ),
                         pubTime = historyItem.viewAt.toSmartDate() + context.getString(R.string.view_at)
                     )

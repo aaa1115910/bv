@@ -41,7 +41,6 @@ import dev.aaa1115910.biliapi.entity.ugc.UgcTypeV2
 import dev.aaa1115910.biliapi.entity.ugc.region.UgcFeedPage
 import dev.aaa1115910.biliapi.repositories.UgcRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
-import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.UgcCarousel
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
@@ -66,16 +65,9 @@ fun UgcRegionScaffold(
     val context = LocalContext.current
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
-        derivedStateOf { state.ugcItems.size > 0 && (currentFocusedIndex + 12 > state.ugcItems.size) }
-    }
-    // 初始化数据
-    LaunchedEffect(Unit) {
-        if (!state.dataInitialized || state.ugcItems.isEmpty()) {
-            state.initUgcRegionData()
-        }
+        derivedStateOf { !ugcViewModel.ugcItems.isEmpty() && currentFocusedIndex + 12 > ugcViewModel.ugcItems.size }
     }
 
-    // 监听滚动位置，加载更多内容
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
             withContext(Dispatchers.IO) {
@@ -179,7 +171,7 @@ data class UgcScaffoldState(
     var updating by mutableStateOf(false)
     var dataInitialized by mutableStateOf(false)
     // var showCarousel by mutableStateOf(true)
-      init {
+    init {
         // 如果有缓存数据，则恢复
         dataCache[ugcType]?.let { cachedItems ->
             if (cachedItems.isNotEmpty()) {
@@ -266,28 +258,5 @@ data class UgcScaffoldState(
         }.also {
             updating = false
         }
-    }
-}
-
-@Composable
-fun rememberUgcScaffoldState(
-    context: Context = LocalContext.current,
-    scope: CoroutineScope = rememberCoroutineScope(),
-    lazyListState: LazyListState = rememberLazyListState(),
-    ugcType: UgcTypeV2,
-    ugcRepository: UgcRepository = koinInject()
-): UgcScaffoldState {
-    // 使用ugcType作为key，确保不同类型内容有独立状态
-    return remember(
-        ugcType,
-        ugcRepository
-    ) {
-        UgcScaffoldState(
-            context = context,
-            scope = scope,
-            lazyListState = lazyListState,
-            ugcType = ugcType,
-            ugcRepository = ugcRepository
-        )
     }
 }

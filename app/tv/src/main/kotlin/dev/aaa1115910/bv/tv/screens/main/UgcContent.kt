@@ -115,9 +115,54 @@ fun UgcContent(
         )
     }
 
-    // 当选中标签变化时，保存到全局状态
+    // 获取所有ViewModels的映射
+    val viewModelMap = remember {
+        mapOf(
+            UgcTopNavItem.Douga to ugcDougaViewModel,
+            UgcTopNavItem.Game to ugcGameViewModel,
+            UgcTopNavItem.Kichiku to ugcKichikuViewModel,
+            UgcTopNavItem.Music to ugcMusicViewModel,
+            UgcTopNavItem.Dance to ugcDanceViewModel,
+            UgcTopNavItem.Cinephile to ugcCinephileViewModel,
+            UgcTopNavItem.Ent to ugcEntViewModel,
+            UgcTopNavItem.Knowledge to ugcKnowledgeViewModel,
+            UgcTopNavItem.Tech to ugcTechViewModel,
+            UgcTopNavItem.Information to ugcInformationViewModel,
+            UgcTopNavItem.Food to ugcFoodViewModel,
+            UgcTopNavItem.ShortPlay to ugcShortplayViewModel,
+            UgcTopNavItem.Car to ugcCarViewModel,
+            UgcTopNavItem.Fashion to ugcFashionViewModel,
+            UgcTopNavItem.Sports to ugcSportsViewModel,
+            UgcTopNavItem.Animal to ugcAnimalViewModel,
+            UgcTopNavItem.Vlog to ugcVlogViewModel,
+            UgcTopNavItem.Painting to ugcPaintingViewModel,
+            UgcTopNavItem.Ai to ugcAiViewModel,
+            UgcTopNavItem.Home to ugcHomeViewModel,
+            UgcTopNavItem.Outdoors to ugcOutdoorsViewModel,
+            UgcTopNavItem.Gym to ugcGymViewModel,
+            UgcTopNavItem.Handmake to ugcHandmakeViewModel,
+            UgcTopNavItem.Travel to ugcTravelViewModel,
+            UgcTopNavItem.Rural to ugcRuralViewModel,
+            UgcTopNavItem.Parenting to ugcParentingViewModel,
+            UgcTopNavItem.Health to ugcHealthViewModel,
+            UgcTopNavItem.Emotion to ugcEmotionViewModel,
+            UgcTopNavItem.LifeJoy to ugcLifeJoyViewModel,
+            UgcTopNavItem.LifeExperience to ugcLifeExperienceViewModel,
+            UgcTopNavItem.Mysticism to ugcMysticismViewModel
+        )
+    }
+
+    // 当选中标签变化时，保存到全局状态并处理懒加载
     LaunchedEffect(selectedTab) {
         currentSelectedTabs[DrawerItem.UGC] = selectedTab.ordinal
+
+        // 取消所有其他ViewModel的延迟加载
+        viewModelMap.values.forEach { viewModel ->
+            viewModel.cancelDelayedLoad()
+        }
+
+        // 为当前选中的ViewModel开始延迟加载
+        viewModelMap[selectedTab]?.loadDataWithDelay(300L)
     }
 
     BackHandler(focusOnContent || topNavHasFocus) {
@@ -153,39 +198,8 @@ fun UgcContent(
 
                 },
                 onClick = { nav ->
-                    when (nav) {
-                        UgcTopNavItem.Douga -> ugcDougaViewModel.reloadAll()
-                        UgcTopNavItem.Game -> ugcGameViewModel.reloadAll()
-                        UgcTopNavItem.Kichiku -> ugcKichikuViewModel.reloadAll()
-                        UgcTopNavItem.Music -> ugcMusicViewModel.reloadAll()
-                        UgcTopNavItem.Dance -> ugcDanceViewModel.reloadAll()
-                        UgcTopNavItem.Cinephile -> ugcCinephileViewModel.reloadAll()
-                        UgcTopNavItem.Ent -> ugcEntViewModel.reloadAll()
-                        UgcTopNavItem.Knowledge -> ugcKnowledgeViewModel.reloadAll()
-                        UgcTopNavItem.Tech -> ugcTechViewModel.reloadAll()
-                        UgcTopNavItem.Information -> ugcInformationViewModel.reloadAll()
-                        UgcTopNavItem.Food -> ugcFoodViewModel.reloadAll()
-                        UgcTopNavItem.ShortPlay -> ugcShortplayViewModel.reloadAll()
-                        UgcTopNavItem.Car -> ugcCarViewModel.reloadAll()
-                        UgcTopNavItem.Fashion -> ugcFashionViewModel.reloadAll()
-                        UgcTopNavItem.Sports -> ugcSportsViewModel.reloadAll()
-                        UgcTopNavItem.Animal -> ugcAnimalViewModel.reloadAll()
-                        UgcTopNavItem.Vlog -> ugcVlogViewModel.reloadAll()
-                        UgcTopNavItem.Painting -> ugcPaintingViewModel.reloadAll()
-                        UgcTopNavItem.Ai -> ugcAiViewModel.reloadAll()
-                        UgcTopNavItem.Home -> ugcHomeViewModel.reloadAll()
-                        UgcTopNavItem.Outdoors -> ugcOutdoorsViewModel.reloadAll()
-                        UgcTopNavItem.Gym -> ugcGymViewModel.reloadAll()
-                        UgcTopNavItem.Handmake -> ugcHandmakeViewModel.reloadAll()
-                        UgcTopNavItem.Travel -> ugcTravelViewModel.reloadAll()
-                        UgcTopNavItem.Rural -> ugcRuralViewModel.reloadAll()
-                        UgcTopNavItem.Parenting -> ugcParentingViewModel.reloadAll()
-                        UgcTopNavItem.Health -> ugcHealthViewModel.reloadAll()
-                        UgcTopNavItem.Emotion -> ugcEmotionViewModel.reloadAll()
-                        UgcTopNavItem.LifeJoy -> ugcLifeJoyViewModel.reloadAll()
-                        UgcTopNavItem.LifeExperience -> ugcLifeExperienceViewModel.reloadAll()
-                        UgcTopNavItem.Mysticism -> ugcMysticismViewModel.reloadAll()
-                    }
+                    // 点击时立即加载数据
+                    viewModelMap[nav as UgcTopNavItem]?.reloadAll()
                 },
                 onLeftKeyEvent = {
                     // 顶部栏最左侧按左键时，跳转到左侧导航栏

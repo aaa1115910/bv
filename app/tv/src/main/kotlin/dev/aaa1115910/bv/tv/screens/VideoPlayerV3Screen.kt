@@ -2,6 +2,9 @@ package dev.aaa1115910.bv.tv.screens
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -217,7 +220,7 @@ fun VideoPlayerV3Screen(
                                     autoActionCountdownJob = null
                                     playerViewModel.title = nextVideo.title
                                     playerViewModel.partTitle = nextVideo.partTitle
-                                    if(nextVideo.seasonId == null) {
+                                    if(nextVideo.seasonId == null && playerViewModel.currentAid != nextVideo.aid) {
                                         VideoInfoActivity.actionStart(
                                             context = context,
                                             aid = nextVideo.aid,
@@ -273,7 +276,7 @@ fun VideoPlayerV3Screen(
                         is VideoListItemData -> {
                             playerViewModel.title = videoListItem.title
                             playerViewModel.partTitle = videoListItem.partTitle
-                            if(videoListItem.seasonId == null) {
+                            if(videoListItem.seasonId == null && playerViewModel.currentAid != videoListItem.aid) {
                                 VideoInfoActivity.actionStart(
                                     context = context,
                                     aid = videoListItem.aid,
@@ -331,7 +334,6 @@ fun VideoPlayerV3Screen(
                 onAudioChange = { audio, afterChange ->
                     playerViewModel.currentAudio = audio
                     scope.launch(Dispatchers.Default) {
-                        playerViewModel.updateAvailableCodec()
                         playerViewModel.playQuality(audio = audio)
                         afterChange()
                     }
@@ -390,18 +392,26 @@ fun VideoPlayerV3Screen(
             )
 
             // 显示跳过提示
-            if (autoActionTipVisible) {
+            AnimatedVisibility(
+                visible=autoActionTipVisible
+            ){
                 SkipTip(
                     show = true,
                     text = autoActionTipText,
                     align = Alignment.BottomEnd
                 )
             }
-            if (playerViewModel.showRelatedVideos) {
+            // 推荐视频
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth(),
+                visible = playerViewModel.showRelatedVideos,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+                label = "RelatedVideosForPlayer"
+            ) {
                 VideosRow(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth(),
                     header = stringResource(R.string.video_info_related_video_title),
                     videos = playerViewModel.relatedVideos,
                     showMore = {},

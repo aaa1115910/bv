@@ -1,6 +1,6 @@
 [versions]
-agp = "8.11.1"
-firebase-crashlytics = "3.0.5"
+agp = "8.9.3"
+firebase-crashlytics = "2.9.9"
 gms = "4.4.3"
 kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"

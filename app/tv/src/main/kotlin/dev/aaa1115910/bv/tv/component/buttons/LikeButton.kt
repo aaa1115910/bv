@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.component.buttons
+package dev.aaa1115910.bv.tv.component.buttons
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

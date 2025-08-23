@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,12 +47,6 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.LogCatcherUtil
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.toast
-import io.github.g0dkar.qrcode.QRCode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.Inet4Address
 import java.net.NetworkInterface
@@ -73,18 +66,9 @@ fun LogsScreen(
 
     var qrContent by remember { mutableStateOf("") }
 
-    val generateQRCode = {
-        scope.launch(Dispatchers.IO) {
-            qrImage = null
-            val output = ByteArrayOutputStream()
-            val url = "http://$host:$port/api/logs/${currentSelectFile?.name}"
-            QRCode(url).render().writeImage(output)
-            val input = ByteArrayInputStream(output.toByteArray())
-            var newQrImage = BitmapFactory.decodeStream(input).asImageBitmap()
-            withContext(Dispatchers.Main) {
-                qrImage = newQrImage
-            }
-        }
+    val updateQRCode = {
+        val url = "http://$host:$port/api/logs/${currentSelectFile?.name}"
+        qrContent = url
     }
 
     @Suppress("DEPRECATION")

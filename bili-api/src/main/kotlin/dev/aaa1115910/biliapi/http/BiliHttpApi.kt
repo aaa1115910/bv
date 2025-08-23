@@ -737,9 +737,26 @@ object BiliHttpApi {
             bvid?.let { parameter("bvid", it) }
             accessKey?.let { parameter("access_key", it) }
             sessData?.let { header("Cookie", "SESSDATA=$it;") }
-        }.body<BiliResponse<Int>>()
+        }
         return runCatching {
-            response.getResponseData() == 1
+            json.decodeFromString<BiliResponse<Int>>(response.bodyAsText()).getResponseData() == 1
+
+            /*
+                response.body<BiliResponse<Int>>()会找不到序列化器而报错
+                需要在初始化Json时显示注册序列化器，下面是注册的代码
+                引入依赖
+                import kotlinx.serialization.builtins.serializer
+                import kotlinx.serialization.modules.SerializersModule
+                import kotlinx.serialization.modules.contextual
+                给Json增加serializersModule：
+                Json {
+                    serializersModule = SerializersModule {
+                        // register serializer for BiliResponse<Int> directly using reified contextual API
+                        contextual<BiliResponse<Int>>(BiliResponse.serializer(Int.serializer()))
+                    }
+                }
+            */
+            // response.body<BiliResponse<Int>>().getResponseData() == 1
         }.getOrDefault(false)
     }
 

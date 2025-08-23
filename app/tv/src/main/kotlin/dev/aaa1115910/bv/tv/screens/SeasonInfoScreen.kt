@@ -96,6 +96,7 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.entity.VideoListPgcEpisode
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.tv.component.TvAlertDialog
 import dev.aaa1115910.bv.tv.component.buttons.SeasonInfoButtons
 import dev.aaa1115910.bv.tv.util.launchPlayerActivity
@@ -145,6 +146,7 @@ private fun generateEpisodeTitle(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SeasonInfoScreen(
     modifier: Modifier = Modifier,
@@ -257,17 +259,14 @@ fun SeasonInfoScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
+
         ) {
             if (seasonViewModel.tip == "Loading") {
-                LoadingIndicator(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.Center),
-                )
+                LoadingTip()
             } else {
                 Text(
-                    modifier = Modifier.align(Alignment.Center),
                     text = seasonViewModel.tip
                 )
             }

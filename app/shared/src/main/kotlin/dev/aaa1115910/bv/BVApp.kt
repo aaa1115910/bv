@@ -12,20 +12,6 @@ import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.BiliApiModule
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
-import dev.aaa1115910.biliapi.repositories.CommentRepository
-import dev.aaa1115910.biliapi.repositories.CoinRepository
-import dev.aaa1115910.biliapi.repositories.LikeRepository
-import dev.aaa1115910.biliapi.repositories.FavoriteRepository
-import dev.aaa1115910.biliapi.repositories.HistoryRepository
-import dev.aaa1115910.biliapi.repositories.LoginRepository
-import dev.aaa1115910.biliapi.repositories.PgcRepository
-import dev.aaa1115910.biliapi.repositories.RecommendVideoRepository
-import dev.aaa1115910.biliapi.repositories.SearchRepository
-import dev.aaa1115910.biliapi.repositories.SeasonRepository
-import dev.aaa1115910.biliapi.repositories.ToViewRepository
-import dev.aaa1115910.biliapi.repositories.UgcRepository
-import dev.aaa1115910.biliapi.repositories.VideoDetailRepository
-import dev.aaa1115910.biliapi.repositories.VideoPlayRepository
 import dev.aaa1115910.bv.dao.AppDatabase
 import dev.aaa1115910.bv.entity.AuthData
 import dev.aaa1115910.bv.entity.db.UserDB
@@ -150,56 +136,6 @@ class BVApp : Application() {
             BlacklistUtil.checkUid(Prefs.uid)
         }
     }
-}
-
-val appModule = module {
-    single { AuthRepository() }
-    single { UserRepository(get()) }
-    single { LoginRepository() }
-    single { VideoInfoRepository() }
-    single { ChannelRepository() }
-    single { LikeRepository(get()) }
-    single { CoinRepository(get()) }
-    single { FavoriteRepository(get()) }
-    single { HistoryRepository(get(), get()) }
-    single { ToViewRepository(get(), get()) }
-    single { SearchRepository(get(), get()) }
-    single { VideoPlayRepository(get(), get()) }
-    single { RecommendVideoRepository(get(), get()) }
-    single { VideoDetailRepository(get(), get(), get(), get(), get()) }
-    single { SeasonRepository(get()) }
-    single { dev.aaa1115910.biliapi.repositories.UserRepository(get(), get()) }
-    single { PgcRepository() }
-    single { UgcRepository(get()) }
-    single { CommentRepository(get(), get()) }
-    viewModel { DynamicViewModel(get(), get()) }
-    viewModel { RecommendViewModel(get()) }
-    viewModel { PopularViewModel(get()) }
-    viewModel { AppQrLoginViewModel(get(), get()) }
-    viewModel { SmsLoginViewModel(get(), get()) }
-    viewModel { UserViewModel(get()) }
-    viewModel { HistoryViewModel(get(), get()) }
-    viewModel { ToViewViewModel(get(), get()) }
-    viewModel { FavoriteViewModel(get()) }
-    viewModel { UserSpaceViewModel(get()) }
-    viewModel { FollowViewModel(get()) }
-    viewModel { SearchInputViewModel(get()) }
-    viewModel { SearchResultViewModel(get()) }
-    viewModel { FollowingSeasonViewModel(get()) }
-    viewModel { TagViewModel() }
-    viewModel { VideoPlayerV3ViewModel(get(), get()) }
-    viewModel { VideoDetailViewModel(get(), get()) }
-    viewModel { UserSwitchViewModel(get()) }
-    viewModel { PgcIndexViewModel(get()) }
-    viewModel { PgcAnimeViewModel(get()) }
-    viewModel { PgcGuoChuangViewModel(get()) }
-    viewModel { PgcDocumentaryViewModel(get()) }
-    viewModel { PgcMovieViewModel(get()) }
-    viewModel { PgcTvViewModel(get()) }
-    viewModel { PgcVarietyViewModel(get()) }
-    viewModel { CommentViewModel(get()) }
-    viewModel { DynamicDetailViewModel(get()) }
-    viewModel { SeasonViewModel(get(), get()) }
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Settings")

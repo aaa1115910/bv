@@ -2,15 +2,15 @@ package dev.aaa1115910.bv.tv.screens
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -45,7 +45,6 @@ import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -110,6 +109,7 @@ import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
 import dev.aaa1115910.biliapi.entity.ApiType
@@ -125,11 +125,6 @@ import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.biliapi.repositories.LikeRepository
 import dev.aaa1115910.biliapi.repositories.CoinRepository
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.component.UpIcon
-import dev.aaa1115910.bv.component.buttons.LikeButton
-import dev.aaa1115910.bv.component.buttons.CoinButton
-import dev.aaa1115910.bv.component.buttons.FavoriteButton
-import dev.aaa1115910.bv.component.videocard.VideosRow
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.entity.VideoListItem
 import dev.aaa1115910.bv.player.entity.VideoListPart
@@ -140,8 +135,11 @@ import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.TagActivity
 import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.tv.component.TvAlertDialog
 import dev.aaa1115910.bv.tv.component.UpIcon
+import dev.aaa1115910.bv.tv.component.buttons.LikeButton
+import dev.aaa1115910.bv.tv.component.buttons.CoinButton
 import dev.aaa1115910.bv.tv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.tv.util.launchPlayerActivity
@@ -152,7 +150,7 @@ import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
-import dev.aaa1115910.bv.util.formatMinSec
+import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.formatPubTimeString
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.onBackPressed
@@ -211,7 +209,7 @@ fun VideoInfoScreen(
     var lastPlayedCid by remember { mutableLongStateOf(0) }
     var lastPlayedTime by remember { mutableIntStateOf(0) }
 
-    var tip by remember { mutableStateOf("加载中...") }
+    var tip by remember { mutableStateOf("Loading") }
     var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
     var fromSeason by remember { mutableStateOf(false) }
     var fromPlayer by remember { mutableStateOf(false) }
@@ -515,7 +513,7 @@ fun VideoInfoScreen(
 
                     videoInfoRepository.relatedVideos.clear()
                     if (!fromSeason) {
-                        videoInfoRepository.relatedVideos.addAll(videoDetailViewModel.relatedVideos)
+                        videoInfoRepository.relatedVideos.addAll(videoDetailViewModel.relatedVideos.subList(0, videoDetailViewModel.relatedVideos.size.takeIf { it<12 } ?: 12))
                     }
                     // 从播放器推荐视频打开时 fromPlayer=true 并显示loading。300m后 fromPlayer改成false，此后从播放器返回详情页，正常显示详情内容
                     //如果是从剧集跳转过来的或设置不显示视频详情，就直接播放 P1
@@ -526,7 +524,7 @@ fun VideoInfoScreen(
                         if (videoDetailViewModel.videoDetail!!.ugcSeason !== null) {
                             val sectionIndex =
                                 videoDetailViewModel.videoDetail!!.ugcSeason!!.sections
-                                    .indexOfFirst { section -> section.episodes.any { it.cid == cid } }
+                                    .indexOfFirst { section -> section.episodes.any { it.cid == cid || it.pages.any{ it.cid == cid } } }
                             updateUgcSeasonSectionVideoList(sectionIndex)
                         }
 
@@ -673,13 +671,17 @@ fun VideoInfoScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = tip,
-                fontSize = 18.sp
-            )
+            if (tip == "Loading") {
+                LoadingTip()
+            }else{
+                Text(
+                    text = tip,
+                    fontSize = 20.sp
+                )
+            }
         }
     } else {
         Scaffold(
@@ -688,18 +690,25 @@ fun VideoInfoScreen(
             Box(
                 Modifier.padding(innerPadding)
             ) {
-                Image(
+                // 图片加载成功后，动画 alpha，从 0 -> 0.6f
+                val bgLoaded = remember { mutableStateOf(false) }
+                val animatedAlpha by animateFloatAsState(
+                    targetValue = if (bgLoaded.value) 0.6f else 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+                AsyncImage(
                     modifier = Modifier.fillMaxSize(),
-                    painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(if (videoDetailViewModel.videoDetail?.ugcSeason != null) videoDetailViewModel.videoDetail!!.ugcSeason!!.cover else videoDetailViewModel.videoDetail!!.cover)
-                            .transformations(BlurTransformation(LocalContext.current, 20f, 5f))
-                            .build()
-                    ),
+                    model = ImageRequest.Builder(LocalContext.current)
+                    .data(videoDetailViewModel.videoDetail?.cover)
+                    .transformations(BlurTransformation(LocalContext.current, 20f, 5f))
+                    .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    alpha = 0.6f
+                    alpha = animatedAlpha,
+                    onSuccess = { bgLoaded.value = true },
+                    onError = { bgLoaded.value = false }
                 )
+
                 LazyColumn(
                     modifier = Modifier
                         .onKeyEvent { event ->
@@ -761,7 +770,7 @@ fun VideoInfoScreen(
                                             videoDetailViewModel.videoDetail!!.pages.first().cid
                                         val sectionIndex =
                                             videoDetailViewModel.videoDetail!!.ugcSeason!!.sections
-                                                .indexOfFirst { section -> section.episodes.any { it.cid == cid } }
+                                                .indexOfFirst { section -> section.episodes.any { it.cid == cid || it.pages.any{ it.cid == cid } } }
                                         val section = videoDetailViewModel.videoDetail!!.ugcSeason!!.sections.getOrNull(sectionIndex)
                                         title = if (section?.title == "正片") section.episodes.find { it.cid == cid }!!.title else section?.title ?: ""
                                         partTitle = if (section?.title == "正片") "" else section?.episodes?.find { it.cid == cid }!!.title
@@ -1037,7 +1046,7 @@ fun ArgueTip(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = 36.dp),
         colors = SurfaceDefaults.colors(
             containerColor = Color.Yellow.copy(alpha = 0.2f),
             contentColor = Color.Yellow
@@ -1088,8 +1097,8 @@ fun VideoInfoData(
     onAddCoin: () -> Unit = {},
     onShowDescription: () -> Unit = {}
 ) {
-    val localDensity = LocalDensity.current
-    var heightIs by remember { mutableStateOf(0.dp) }
+//    val localDensity = LocalDensity.current
+//    var heightIs by remember { mutableStateOf(0.dp) }
     val isLogin by remember { mutableStateOf(Prefs.isLogin) }
     var coverHasFocus by remember { mutableStateOf(false) }
     val videoDuration = videoDetail.pages.sumOf { it.duration }.takeIf { videoDetail.pages.isNotEmpty() } ?: 0
@@ -1103,9 +1112,9 @@ fun VideoInfoData(
                 .focusRequester(defaultFocusRequester)
                 .width(260.dp)
                 .aspectRatio(1.6f)
-                .onGloballyPositioned { coordinates ->
-                    heightIs = with(localDensity) { coordinates.size.height.toDp() }
-                }
+//                .onGloballyPositioned { coordinates ->
+//                    heightIs = with(localDensity) { coordinates.size.height.toDp() }
+//                }
                 .onFocusChanged { coverHasFocus = it.hasFocus }
                 .padding(4.dp)
                 .shadow(
@@ -1125,28 +1134,19 @@ fun VideoInfoData(
                     elevation = 8.dp
                 )
             ),
-            border = if (Build.VERSION.SDK_INT < 28) {
-                ClickableSurfaceDefaults.border(
-                    focusedBorder = Border(
-                        border = BorderStroke(
-                            width = 3.dp,
-                            color = MaterialTheme.colorScheme.border
-                        ),
-                        shape = MaterialTheme.shapes.large
-                    )
+            border = ClickableSurfaceDefaults.border(
+                focusedBorder = Border(
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.border
+                    ),
+                    shape = MaterialTheme.shapes.large
                 )
-            } else {
-                ClickableSurfaceDefaults.border()
-            }
+            )
         ) {
             AsyncImage(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .border(
-                        width = if (coverHasFocus) 2.dp else 0.dp,
-                        color = if (coverHasFocus) Color.White else Color.Transparent,
-                        shape = MaterialTheme.shapes.large
-                    ),
+                    .fillMaxSize(),
                 // model = if (videoDetail.ugcSeason != null) videoDetail.ugcSeason!!.cover else videoDetail.cover,
                 model = videoDetail.cover,
                 contentDescription = null,
@@ -1216,8 +1216,8 @@ fun VideoInfoData(
         Spacer(modifier = Modifier.width(24.dp))
         Column(
             modifier = Modifier
-                .weight(7f)
-                .height(heightIs),
+                .fillMaxWidth(),
+//                .height(heightIs),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // 基本信息
@@ -1935,6 +1935,7 @@ private fun VideoUgcListDialog(
                             VideoPartButton(
                                 modifier = buttonModifier,
                                 index = selectedTabIndex * 20 + index + 1,
+                                type = VideoPartType.Episode,
                                 title = episode.title,
                                 played = 0,
                                 duration = episode.duration,

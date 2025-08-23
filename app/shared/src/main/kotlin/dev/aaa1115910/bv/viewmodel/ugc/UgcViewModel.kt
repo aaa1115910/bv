@@ -16,6 +16,8 @@ import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,15 +42,15 @@ abstract class UgcViewModel(
     var updating by mutableStateOf(false)
     var showCarousel by mutableStateOf(true)
 
+    private var loadJob: Job? = null
+
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            initUgcRegionData()
-        }
+        // 移除初始化时的自动加载
     }
 
     private suspend fun initUgcRegionData() {
         loadUgcRegionData()
-        loadMore()
+        // loadMore()
     }
 
     suspend fun loadUgcRegionData() {
@@ -82,6 +84,7 @@ abstract class UgcViewModel(
             showCarousel = true
             carouselItems.clear()
             ugcItems.clear()
+            loadJob?.cancel() // 取消任何正在进行的延迟加载
             initUgcRegionData()
         }
     }

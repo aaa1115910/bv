@@ -211,10 +211,10 @@ private fun UpdateDialogContent(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val confirmButtonFocusRequester = remember { FocusRequester() }
-    
+
     AlertDialog(
         modifier = modifier
-            .width(450.dp)
+            .width(420.dp)
             .heightIn(max = maxHeight),
         onDismissRequest = { onHideDialog() },
         title = {

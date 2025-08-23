@@ -48,10 +48,10 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.ui.theme.BVTheme
-import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.isDpadRight
 import dev.aaa1115910.bv.util.isKeyDown
 import dev.aaa1115910.bv.util.onDelayFocusChanged
+import kotlinx.coroutines.delay
 
 // 创建全局的FocusRequester映射表，方便外部使用
 val drawerItemFocusRequesters = mutableMapOf<DrawerItem, FocusRequester>().apply {
@@ -82,6 +82,7 @@ fun DrawerContent(
     var focusedItem by remember { mutableStateOf(DrawerItem.Home) }
 
     var focusOnContent by remember { mutableStateOf(true) }
+    var tabMoved by remember { mutableStateOf(true) }
 
     LaunchedEffect(selectedItem) {
         tabMoved = false
@@ -227,10 +228,10 @@ fun DrawerContent(
         }
         NavigationRailItem(
             modifier = Modifier.onFocusChanged {
-                    if (it.hasFocus && !focusOnContent) {
-                        focusedItem = DrawerItem.Settings
-                    }
-                },
+                if (it.hasFocus && !focusOnContent) {
+                    focusedItem = DrawerItem.Settings
+                }
+            },
             onClick = {
                 onOpenSettings()
                 focusedItem = DrawerItem.Settings
