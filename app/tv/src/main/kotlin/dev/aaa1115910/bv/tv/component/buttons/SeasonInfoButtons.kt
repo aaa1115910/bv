@@ -12,6 +12,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
@@ -81,7 +82,8 @@ fun FollowSeasonButton(
             if (following) {
                 Icon(
                     imageVector = Icons.Rounded.Favorite,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Color(0xfffb7299)
                 )
             } else {
                 Icon(

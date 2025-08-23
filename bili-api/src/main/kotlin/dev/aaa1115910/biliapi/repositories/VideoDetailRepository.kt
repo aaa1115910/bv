@@ -165,6 +165,10 @@ class VideoDetailRepository(
                     seasonId = seasonId,
                     sessData = authRepository.sessionData ?: ""
                 ).getResponseData()
+                webSeasonData.userStatus = BiliHttpApi.getSeasonUserStatus(
+                    seasonId = seasonId!!,
+                    sessData = authRepository.sessionData ?: ""
+                ).getResponseData()
                 val seasonDetail = SeasonDetail.fromSeasonData(webSeasonData)
                 val firstEp = webSeasonData.episodes.firstOrNull() ?: return seasonDetail
 

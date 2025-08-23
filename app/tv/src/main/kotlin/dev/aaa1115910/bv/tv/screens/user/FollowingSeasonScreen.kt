@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -142,7 +142,7 @@ fun FollowingSeasonScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.filter_dialog_open_tip),
-                                color = Color.White.copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                             if (noMore) {
                                 Text(
@@ -150,7 +150,7 @@ fun FollowingSeasonScreen(
                                         R.string.load_data_count_no_more,
                                         followingSeasonViewModel.followingSeasons.size
                                     ),
-                                    color = Color.White.copy(alpha = 0.6f)
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             } else {
                                 Text(
@@ -158,11 +158,22 @@ fun FollowingSeasonScreen(
                                         R.string.load_data_count,
                                         followingSeasonViewModel.followingSeasons.size
                                     ),
-                                    color = Color.White.copy(alpha = 0.6f)
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             }
                         }
                     }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(end = 24.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = stringResource(R.string.filter_dialog_open_tip),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        fontSize = 12.sp
+                    )
                 }
             }
         }

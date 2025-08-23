@@ -94,7 +94,7 @@ data class WebSeasonData(
     @SerialName("up_info")
     val upInfo: UpInfo? = null,
     @SerialName("user_status")
-    val userStatus: UserStatus
+    var userStatus: UserStatus
 
 ) {
     /**
