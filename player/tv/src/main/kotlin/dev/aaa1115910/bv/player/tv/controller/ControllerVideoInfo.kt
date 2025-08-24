@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
@@ -112,7 +113,8 @@ fun ControllerVideoInfo(
     onOpenPlayList: () -> Unit,
     onOpenRelatedVideo: () -> Unit,
     onOpenSetting: () -> Unit,
-    onLoopPlayModeChange: (Boolean) -> Unit
+    onLoopPlayModeChange: (Boolean) -> Unit,
+    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> }
 ) {
     val videoPlayerClockData = LocalVideoPlayerClockData.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
@@ -192,7 +194,8 @@ fun ControllerVideoInfo(
                 onOpenRelatedVideo = onOpenRelatedVideo,
                 onOpenSetting = onOpenSetting,
                 onLoopPlayModeChange = onLoopPlayModeChange,
-                fromSeason = videoPlayerVideoInfoData.fromSeason
+                fromSeason = videoPlayerVideoInfoData.fromSeason,
+                userActionContent = userActionContent
             )
         }
     }
@@ -253,10 +256,12 @@ fun ControllerVideoInfoBottom(
     onOpenRelatedVideo: () -> Unit,
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
-    fromSeason: Boolean = false
+    fromSeason: Boolean = false,
+    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> }
 ) {
     val scope = rememberCoroutineScope()
     var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var pauseAutoHide by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var speed by remember { mutableStateOf(playSpeed) }
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
@@ -321,53 +326,64 @@ fun ControllerVideoInfoBottom(
         }.toMutableMap()
     }
 
-    LaunchedEffect( Unit) {
-        // 初始聚焦第一个按钮
-        runCatching {
-            buttons.firstOrNull()?.let {
-                focusRequesters[it.id]?.requestFocus()
-                focusedButtonId = it.id
+    // user action focus requesters (由 Controller 提供给调用方)。创建默认的三项：like/fav/coin
+    val userActionFocusRequesters = remember {
+        mutableStateOf(
+            mapOf(
+                "like" to FocusRequester(),
+                "fav" to FocusRequester(),
+                "coin" to FocusRequester()
+            )
+        )
+    }
+
+    LaunchedEffect(show) {
+        if (show) {
+            // 初始聚焦 play 按钮
+            runCatching {
+                focusRequesters["play"]?.requestFocus()
+                focusedButtonId = "play"
             }
-        }
-        delay(300) // 有动画，确保在界面渲染后执行
-        runCatching {
-            buttons.firstOrNull()?.let {
-                focusRequesters[it.id]?.requestFocus()
-                focusedButtonId = it.id
+            delay(300)
+            runCatching {
+                focusRequesters["play"]?.requestFocus()
+                focusedButtonId = "play"
             }
         }
     }
 
-    LaunchedEffect(show, focusedButtonId) {
+    fun cancelHideJob() {
         hideVideoInfoJob?.cancel()
         hideVideoInfoJob = null
-        if (show && !showSpeedDialog) {
+    }
+
+    fun scheduleHideJob() {
+        cancelHideJob()
+        if (show && !showSpeedDialog && !pauseAutoHide) {
             hideVideoInfoJob = scope.launch {
                 delay(5000)
-                withContext(Dispatchers.Main) {
-                    onHideInfo()
-                }
+                withContext(Dispatchers.Main) { onHideInfo() }
             }
         }
     }
 
-    LaunchedEffect(showSpeedDialog) {
-        if (showSpeedDialog) {
-            hideVideoInfoJob?.cancel()
-            hideVideoInfoJob = null
-        } else {
-            if (show) {
-                hideVideoInfoJob?.cancel()
-                hideVideoInfoJob = scope.launch {
-                    delay(5000)
-                    withContext(Dispatchers.Main) { onHideInfo() }
-                }
-            }
-        }
+    LaunchedEffect(show, focusedButtonId, showSpeedDialog, pauseAutoHide) {
+        scheduleHideJob()
     }
 
     Column(
         modifier = modifier
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    // 当焦点在用户操作区，按下下键应回到 play 按钮
+                    if (focusedButtonId in userActionFocusRequesters.value.keys && event.key == Key.DirectionDown) {
+                        focusRequesters["play"]?.requestFocus()
+                        focusedButtonId = "play"
+                        return@onPreviewKeyEvent true
+                    }
+                }
+                false
+            }
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
@@ -420,6 +436,19 @@ fun ControllerVideoInfoBottom(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+        // 当前注入的是：点赞、收藏、投币
+        userActionContent(
+            userActionFocusRequesters.value,
+            { id ->
+                // 当用户 action 获得焦点时，设置当前聚焦 id 并重置自动隐藏计时
+                focusedButtonId = id
+                scheduleHideJob()
+            },
+            { pause ->
+                pauseAutoHide = pause
+                if (pause) cancelHideJob() else scheduleHideJob()
+            }
+        )
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -474,14 +503,18 @@ fun ControllerVideoInfoBottom(
                         .width((button.width ?: 32).dp)
                         .focusRequester(focusRequesters[button.id] ?: FocusRequester())
                         .focusable()
-                        .onFocusChanged { if (it.isFocused) focusedButtonId = button.id }
-                        .background(
-                            color = Color.White.copy(alpha = if (focusedButtonId == button.id) 0.25f else 0f),
-                            shape = MaterialTheme.shapes.small
-                        ),
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                focusedButtonId = button.id
+                                scheduleHideJob()
+                            }
+                        },
                     onClick = button.onClick,
+                    shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                     contentPadding = PaddingValues(2.dp),
-                    colors = ButtonDefaults.colors(containerColor = Color.Transparent)
+                    colors = ButtonDefaults.colors(
+                        containerColor = Color.White.copy(alpha = if (focusedButtonId == button.id) 0.3f else 0f)
+                    )
                 ) {
                     if (button.text != null) {
                         Text(
@@ -562,7 +595,7 @@ private fun SpeedDialog(
                 color = Color.Black.copy(alpha = 0.5f),
                 shape = MaterialTheme.shapes.medium
             ) {
-                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Text(
                         text = "播放速度",
                         color = Color.White,
@@ -700,7 +733,10 @@ private fun ControllerVideoInfoPreview() {
                 onOpenPlayList = {},
                 onOpenRelatedVideo = {},
                 onOpenSetting = {},
-                onLoopPlayModeChange = {}
+                onLoopPlayModeChange = {},
+                userActionContent = { _, _, _ ->
+                    // User action buttons go here
+                }
             )
         }
     }

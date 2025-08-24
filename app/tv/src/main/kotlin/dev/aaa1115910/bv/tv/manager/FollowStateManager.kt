@@ -1,4 +1,4 @@
-package dev.aaa1115910.bv.tv.util
+package dev.aaa1115910.bv.tv.manager
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

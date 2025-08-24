@@ -13,8 +13,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.ui.theme.BVTheme
@@ -24,21 +27,26 @@ fun LikeButton(
     modifier: Modifier = Modifier,
     isLike: Boolean,
     onToggleLike: () -> Unit = {},
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
+    colors: ButtonColors = ButtonDefaults.colors(),
 ) {
     Button(
         modifier = modifier,
         onClick = {onToggleLike()},
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
+        contentPadding = contentPadding,
         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)), // 设置为小圆角
+        colors = colors
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp), // 减小间距
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
+                modifier = Modifier
+                    .size(16.dp),
                 imageVector = if (isLike) Icons.Rounded.ThumbUp else Icons.Outlined.ThumbUp,
                 contentDescription = null,
-                tint = if (isLike) Color(0xfffb7299) else Color.Gray
+                tint = if (isLike) Color(0xfffb7299) else LocalContentColor.current
             )
             Text(
                 text = stringResource(R.string.like_button_text)

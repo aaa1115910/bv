@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -81,6 +82,7 @@ fun VideoPlayerController(
     onOpenDanmaku: () -> Unit,
     onHideDanmaku: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
+    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit,
 
     //menu events
     onResolutionChange: (Resolution) -> Unit,
@@ -444,7 +446,8 @@ fun VideoPlayerController(
                 showInfo = false
                 showMenuController = true
             },
-            onLoopPlayModeChange = onLoopPlayModeChange
+            onLoopPlayModeChange = onLoopPlayModeChange,
+            userActionContent = userActionContent
         )
         SeekController(
             show = showSeekController,

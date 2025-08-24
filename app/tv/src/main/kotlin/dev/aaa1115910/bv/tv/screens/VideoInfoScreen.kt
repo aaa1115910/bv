@@ -120,10 +120,7 @@ import dev.aaa1115910.biliapi.entity.video.VideoDetail
 import dev.aaa1115910.biliapi.entity.video.VideoPage
 import dev.aaa1115910.biliapi.entity.video.season.Episode
 import dev.aaa1115910.biliapi.http.BiliPlusHttpApi
-import dev.aaa1115910.biliapi.repositories.FavoriteRepository
 import dev.aaa1115910.biliapi.repositories.UserRepository
-import dev.aaa1115910.biliapi.repositories.LikeRepository
-import dev.aaa1115910.biliapi.repositories.CoinRepository
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.entity.VideoListItem
@@ -141,12 +138,13 @@ import dev.aaa1115910.bv.tv.component.UpIcon
 import dev.aaa1115910.bv.tv.component.buttons.LikeButton
 import dev.aaa1115910.bv.tv.component.buttons.CoinButton
 import dev.aaa1115910.bv.tv.component.buttons.FavoriteButton
+import dev.aaa1115910.bv.tv.manager.VideoUserActionManager
+import dev.aaa1115910.bv.tv.manager.VideoUserActionManager.getStateFlow
 import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.tv.util.launchPlayerActivity
-import dev.aaa1115910.bv.tv.util.FollowStateManager
+import dev.aaa1115910.bv.tv.manager.FollowStateManager
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
-import dev.aaa1115910.bv.util.fDebug
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.fWarn
 import dev.aaa1115910.bv.util.focusedBorder
@@ -169,7 +167,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import kotlin.math.ceil
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun VideoInfoScreen(
     modifier: Modifier = Modifier,
@@ -177,9 +174,6 @@ fun VideoInfoScreen(
     videoInfoRepository: VideoInfoRepository = getKoin().get(),
     videoDetailViewModel: VideoDetailViewModel = koinViewModel(),
     userRepository: UserRepository = getKoin().get(),
-    favoriteRepository: FavoriteRepository = getKoin().get(),
-    likeRepository: LikeRepository = getKoin().get(),
-    coinRepository: CoinRepository = getKoin().get(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -224,8 +218,26 @@ fun VideoInfoScreen(
     }
 
     var favorited by remember { mutableStateOf(false) }
+    // local copies for like / coin sync
+    var liked by remember { mutableStateOf(false) }
+    var isCoin by remember { mutableStateOf(false) }
     val favoriteFolderMetadataList = remember { mutableStateListOf<FavoriteFolderMetadata>() }
     val videoInFavoriteFolderIds = remember { mutableStateListOf<Long>() }
+
+    // subscribe shared action state by aid
+    val aid = videoDetailViewModel.videoDetail?.aid ?: 0L
+    val sharedActionStateFlow = remember(aid) { getStateFlow(aid, Prefs.uid) }
+    val sharedState by sharedActionStateFlow.collectAsState()
+
+    // keep local copies in sync with shared state
+    LaunchedEffect(sharedState) {
+        // sync favorite/like/coin from shared manager
+        favorited = sharedState.favorited
+        liked = sharedState.liked
+        isCoin = sharedState.coin
+        videoInFavoriteFolderIds.swapList(sharedState.favoriteFolderIds)
+        favoriteFolderMetadataList.swapList(sharedState.favoriteFolders)
+    }
 
     val setHistory = {
         logger.info { "play history: ${videoDetailViewModel.videoDetail?.history}" }
@@ -312,64 +324,38 @@ fun VideoInfoScreen(
     }
 
     val fetchFavoriteData: (Long) -> Unit = { avid ->
-        scope.launch(Dispatchers.IO) {
-            runCatching {
-                val favoriteFolderMetadataListResult =
-                    favoriteRepository.getAllFavoriteFolderMetadataList(
-                        mid = Prefs.uid,
-                        rid = avid,
-                        preferApiType = Prefs.apiType
-                    )
-                favoriteFolderMetadataList.swapListWithMainContext(favoriteFolderMetadataListResult)
-
-                val videoInFavoriteFolderIdsResult = favoriteFolderMetadataListResult
-                    .filter { it.videoInThisFav }
-                videoInFavoriteFolderIds.swapListWithMainContext(videoInFavoriteFolderIdsResult.map { it.id })
-
-                logger.fDebug { "Update favoriteFolders: ${favoriteFolderMetadataList.map { it.title }}" }
-                logger.fDebug { "Update videoInFavoriteFolderIds: ${videoInFavoriteFolderIdsResult.map { it.title }}" }
-            }
+        scope.launch {
+            VideoUserActionManager.fetchFavoriteData(avid, Prefs.uid)
         }
     }
 
     val updateVideoFavoriteData: (List<Long>) -> Unit = { folderIds ->
-        scope.launch(Dispatchers.IO) {
-            runCatching {
-                require(favoriteFolderMetadataList.isNotEmpty()) { "Not found favorite folder" }
-                require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
-                logger.info { "Update video av${videoDetailViewModel.videoDetail?.aid} to favorite folder $folderIds" }
-
-                favoriteRepository.updateVideoToFavoriteFolder(
-                    aid = videoDetailViewModel.videoDetail!!.aid,
-                    addMediaIds = folderIds,
-                    delMediaIds = favoriteFolderMetadataList.map { it.id } - folderIds.toSet()
-                )
-            }.onFailure {
-                logger.fInfo { "Update video to favorite folder failed: ${it.stackTraceToString()}" }
-                withContext(Dispatchers.Main) {
-                    it.message ?: "unknown error".toast(context)
-                }
-            }.onSuccess {
-                logger.fInfo { "Update video to favorite folder success" }
-                videoInFavoriteFolderIds.swapListWithMainContext(folderIds)
+        scope.launch {
+            val success = VideoUserActionManager.updateVideoFavoriteFolders(aid, folderIds, Prefs.uid)
+            if (!success) {
+                "收藏操作失败".toast(context)
             }
         }
     }
 
     val addVideoToDefaultFavoriteFolder: () -> Unit = {
-        runCatching {
-            val defaultFavoriteFolder =
-                favoriteFolderMetadataList.firstOrNull { it.title == "默认收藏夹" }
-            require(defaultFavoriteFolder != null) { "Not found default favorite folder" }
-            updateVideoFavoriteData(listOf(defaultFavoriteFolder.id))
-        }.onFailure {
-            logger.fInfo { "Add video to default favorite folder failed: ${it.stackTraceToString()}" }
-            it.message ?: "unknown error".toast(context)
+        scope.launch {
+            val success = VideoUserActionManager.addToDefaultFavoriteFolder(aid, Prefs.uid)
+            if (!success) {
+                "添加收藏失败".toast(context)
+            }
         }
     }
 
-    val updateVideoIsFavoured = {
-        favorited = videoDetailViewModel.videoDetail?.userActions?.favorite ?: false
+    val updateVideoUserActionData = {
+        // update shared state from loaded data
+        val configAid = videoDetailViewModel.videoDetail?.aid ?: 0L
+        VideoUserActionManager.updateFromLoadedData(
+            configAid,
+            liked = videoDetailViewModel.videoDetail?.userActions?.like ?: false,
+            favorited = videoDetailViewModel.videoDetail?.userActions?.favorite ?: false,
+            coin = videoDetailViewModel.videoDetail?.userActions?.coin ?: false
+        )
     }
 
     val updateUgcSeasonSectionVideoList: (Int) -> Unit = { sectionIndex ->
@@ -412,66 +398,21 @@ fun VideoInfoScreen(
         videoInfoRepository.videoList.addAll(partVideoList)
     }
 
-    var liked by remember { mutableStateOf(false) }
 
-    val updateVideoIsLiked = {
-        liked = videoDetailViewModel.videoDetail?.userActions?.like ?: false
+    suspend fun addVideoLike(): Boolean {
+        val configAid = videoDetailViewModel.videoDetail?.aid ?: 0L
+        return VideoUserActionManager.addLike(configAid, Prefs.uid)
     }
 
-   suspend fun addVideoLike(): Boolean {
-       return withContext(Dispatchers.IO) {
-           runCatching {
-               require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
-               logger.info { "Update video av${videoDetailViewModel.videoDetail?.aid} to liked" }
+    suspend fun delVideoLike(): Boolean {
+        val configAid = videoDetailViewModel.videoDetail?.aid ?: 0L
+        return VideoUserActionManager.delLike(configAid, Prefs.uid)
+    }
 
-               likeRepository.addVideoLike(
-                   aid = videoDetailViewModel.videoDetail!!.aid,
-               )
-           }.onFailure {
-               logger.fInfo { "Update video liked status failed" }
-           }.onSuccess {
-               logger.fInfo { "Update video liked status success" }
-           }.isSuccess // 返回成功与否
-       }
-   }
-   suspend fun delVideoLike(): Boolean {
-       return withContext(Dispatchers.IO) {
-           runCatching {
-               require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
-               logger.info { "Delete video av${videoDetailViewModel.videoDetail?.aid} liked status" }
-
-               likeRepository.delVideoLike(
-                   aid = videoDetailViewModel.videoDetail!!.aid,
-               )
-           }.onFailure {
-               logger.fInfo { "Delete video liked status failed" }
-           }.onSuccess {
-               logger.fInfo { "Delete video liked status success" }
-           }.isSuccess // 返回成功与否
-       }
-   }
-
-   var isCoin by remember { mutableStateOf(false) }
-
-   val updateVideoisCoin = {
-       isCoin = videoDetailViewModel.videoDetail?.userActions?.coin ?: false
-   }
 
   suspend fun addVideoCoin(): Boolean {
-      return withContext(Dispatchers.IO) {
-          runCatching {
-              require(videoDetailViewModel.videoDetail?.aid != null) { "Video info is null" }
-              logger.info { "Update video av${videoDetailViewModel.videoDetail?.aid} to coin" }
-
-              coinRepository.addVideoCoin(
-                  aid = videoDetailViewModel.videoDetail!!.aid,
-              )
-          }.onFailure {
-              logger.fInfo { "Update video coin status failed" }
-          }.onSuccess {
-              logger.fInfo { "Update video coin status success" }
-          }.isSuccess // 返回成功与否
-      }
+      val configAid = videoDetailViewModel.videoDetail?.aid ?: 0L
+      return VideoUserActionManager.addCoin(configAid, Prefs.uid)
   }
 
     LaunchedEffect(Unit) {
@@ -502,11 +443,9 @@ fun VideoInfoScreen(
                 }
 
                 runCatching {
-                    videoDetailViewModel.loadDetail(aid, fromSeason, withUserActions = showUGCVideoInfo)
+                    videoDetailViewModel.loadDetail(aid, fromSeason)
                     withContext(Dispatchers.Main) {
-                        updateVideoIsFavoured()
-                        updateVideoIsLiked()
-                        updateVideoisCoin()
+                        updateVideoUserActionData()
                         setHistory()
                     }
                     if (Prefs.isLogin) fetchFavoriteData(aid)

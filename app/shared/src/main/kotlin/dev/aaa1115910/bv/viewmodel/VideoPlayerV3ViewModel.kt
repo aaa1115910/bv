@@ -642,21 +642,38 @@ class VideoPlayerV3ViewModel(
     }
 
     private fun selectOfficialCdnUrl(urls: List<String>): String {
-        if (!Prefs.preferOfficialCdn) {
-            logger.fInfo { "doesn't need to filter official cdn url, select a random url" }
-            return urls.random()
-        }
         if (urls.isEmpty()) {
             logger.fInfo { "doesn't find any url, select a random url" }
-            return urls.first()
+            return urls.randomOrNull() ?: ""
         }
-        val filteredUrls = urls
-            .filter { !it.contains(".mcdn.bilivideo.") }
-            .filter { !it.contains(".szbdyd.com") }
-            .filter {
-                !Regex("^(https?://)?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(:\\d{1,5})?)(/[a-zA-Z0-9_./-]*)?(\\?.*)?$")
-                    .matches(it)
+
+        // 判定是否为“官方” CDN 的简单规则，和之前逻辑保持一致
+        val isOfficialCdn: (String) -> Boolean = {
+            !it.contains(".mcdn.bilivideo.") &&
+            !it.contains(".szbdyd.com") &&
+            !Regex("^(https?://)?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(:\\d{1,5})?)(/[a-zA-Z0-9_./-]*)?(\\?.*)?$")
+                .matches(it)
+        }
+
+        if (!Prefs.preferOfficialCdn) {
+            // 当用户不偏好官方 CDN 时，使用加权随机：官方权重 0.7，非官方权重 1.3（基准为 1）
+            logger.fInfo { "doesn't need to filter official cdn url, select a weighted random url (favor non-official)" }
+
+            val weights = urls.map { url -> if (isOfficialCdn(url)) 0.7 else 1.3 }
+            val total = weights.sum()
+            // 如果权重计算异常，退回随机
+            if (total <= 0.0) return urls.randomOrNull() ?: ""
+
+            val r = kotlin.random.Random.Default.nextDouble() * total
+            var acc = 0.0
+            for (i in urls.indices) {
+                acc += weights[i]
+                if (r <= acc) return urls[i]
             }
+            return urls.randomOrNull() ?: ""
+        }
+
+        val filteredUrls = urls.filter{isOfficialCdn(it)}
         if (filteredUrls.isEmpty()) {
             logger.fInfo { "doesn't find any official cdn url, select a random url" }
             return urls.random()

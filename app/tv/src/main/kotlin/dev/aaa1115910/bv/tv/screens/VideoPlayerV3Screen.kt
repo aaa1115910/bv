@@ -5,13 +5,20 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,12 +26,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.MaterialTheme
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
@@ -51,8 +64,16 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.tv.BvPlayer
 import dev.aaa1115910.bv.player.tv.controller.SkipTip
 import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
+import dev.aaa1115910.bv.tv.component.buttons.CoinButton
+import dev.aaa1115910.bv.tv.component.buttons.FavoriteButton
+import dev.aaa1115910.bv.tv.component.buttons.LikeButton
+import dev.aaa1115910.bv.tv.manager.VideoUserActionManager
+import dev.aaa1115910.bv.tv.manager.VideoUserActionManager.getStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import dev.aaa1115910.bv.tv.component.videocard.VideosRow
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.util.formatHourMinSec
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.viewmodel.VideoPlayerV3ViewModel
@@ -71,6 +92,11 @@ fun VideoPlayerV3Screen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val logger = KotlinLogging.logger { }
+
+    // subscribe shared action state by aid
+    val currentAid = playerViewModel.currentAid
+    val sharedActionFlow = remember(currentAid) { getStateFlow(currentAid, Prefs.uid) }
+    val sharedActionState by sharedActionFlow.collectAsState()
 
     // 倒计时相关状态
     var autoActionCountdownJob by remember { mutableStateOf<Job?>(null) }
@@ -388,6 +414,108 @@ fun VideoPlayerV3Screen(
                 onLoopPlayModeChange = {
                     Prefs.isLoop = it
                     playerViewModel.isLoop = it
+                },
+                userActionContent = { focusMap, onFocus, onPauseAutoHide ->
+                    if (Prefs.isLogin && !playerViewModel.fromSeason) {
+                        // 增加操作：点赞、收藏、投币。通过 focusMap 获取 focusRequester 并在 onFocusChanged 回调时通知 controller
+                        val likeFocus = focusMap["like"]
+                        val favFocus = focusMap["fav"]
+                        val coinFocus = focusMap["coin"]
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp)
+                                .offset(y = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            LikeButton(
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .onFocusChanged { if (it.isFocused) onFocus("like") }
+                                    .then(likeFocus?.let { Modifier.focusRequester(it) } ?: Modifier),
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.colors(
+                                    containerColor = Color.Transparent,
+                                    focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                ),
+                                // use shared state
+                                isLike = sharedActionState.liked,
+                                onToggleLike = {
+                                    val aid = playerViewModel.currentAid
+                                    scope.launch {
+                                        val flow = getStateFlow(aid, Prefs.uid)
+                                        val current = flow.value
+                                        if (current.liked) {
+                                            VideoUserActionManager.delLike(aid, Prefs.uid)
+                                        } else {
+                                            VideoUserActionManager.addLike(aid, Prefs.uid)
+                                        }
+                                    }
+                                }
+                            )
+                            FavoriteButton(
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .onFocusChanged { if (it.isFocused) onFocus("fav") }
+                                    .then(favFocus?.let { Modifier.focusRequester(it) } ?: Modifier),
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.colors(
+                                    containerColor = Color.Transparent,
+                                    focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                ),
+                                dialogContainerColor = Color.Black.copy(alpha = 0.5f),
+                                isFavorite = sharedActionState.favorited,
+                                // read shared state snapshot (UI will recompose when collectAsState in parent is implemented)
+                                userFavoriteFolders = sharedActionState.favoriteFolders,
+                                favoriteFolderIds = sharedActionState.favoriteFolderIds,
+                                onAddToDefaultFavoriteFolder = {
+                                    scope.launch {
+                                        val success = VideoUserActionManager.addToDefaultFavoriteFolder(playerViewModel.currentAid, Prefs.uid)
+                                        if (success) {
+                                            // OK
+                                        }
+                                    }
+                                },
+                                onUpdateFavoriteFolders = {
+                                    scope.launch {
+                                        val success = VideoUserActionManager.updateVideoFavoriteFolders(playerViewModel.currentAid, it, Prefs.uid)
+                                        if (success) {
+                                            // OK
+                                        }
+                                    }
+                                },
+                                onDialogVisibilityChanged = onPauseAutoHide
+                            )
+                            CoinButton(
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .onFocusChanged { if (it.isFocused) onFocus("coin") }
+                                    .then(coinFocus?.let { Modifier.focusRequester(it) } ?: Modifier),
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.colors(
+                                    containerColor = Color.Transparent,
+                                    focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                ),
+                                isCoin = sharedActionState.coin,
+                                onAddCoin = {
+                                    scope.launch {
+                                        val success = VideoUserActionManager.addCoin(playerViewModel.currentAid, Prefs.uid)
+                                        withContext(Dispatchers.Main) {
+                                            if (success) {
+                                                "投币成功".toast(context)
+                                            } else {
+                                                "投币失败".toast(context)
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             )
 

@@ -58,7 +58,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
-import dev.aaa1115910.bv.tv.util.FollowStateManager
+import dev.aaa1115910.bv.tv.manager.FollowStateManager
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -257,7 +257,7 @@ fun UpSpaceScreen(
                                 focusedBorder = Border(
                                     border = BorderStroke(
                                         width = 2.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                                     ),
                                     shape = MaterialTheme.shapes.small
                                 )

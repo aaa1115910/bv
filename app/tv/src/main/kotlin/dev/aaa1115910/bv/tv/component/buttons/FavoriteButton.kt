@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,10 +34,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
@@ -51,13 +54,22 @@ fun FavoriteButton(
     userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
     onAddToDefaultFavoriteFolder: () -> Unit,
-    onUpdateFavoriteFolders: (List<Long>) -> Unit
+    onUpdateFavoriteFolders: (List<Long>) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
+    colors: ButtonColors = ButtonDefaults.colors(),
+    onDialogVisibilityChanged: (Boolean) -> Unit = {},
+    dialogContainerColor: Color = AlertDialogDefaults.containerColor
 ) {
     var showFavoriteDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(showFavoriteDialog) {
+        onDialogVisibilityChanged(showFavoriteDialog)
+    }
+
     Button(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
+        contentPadding = contentPadding,
+        colors = colors,
         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)), // 设置为小圆角
         onClick = {
             if (showFavoriteDialog) return@Button
@@ -81,9 +93,11 @@ fun FavoriteButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
+                modifier = Modifier
+                    .size(16.dp),
                 imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                 contentDescription = null,
-                tint = if (isFavorite) Color(0xfffb7299) else Color.Gray
+                tint = if (isFavorite) Color(0xfffb7299) else LocalContentColor.current
             )
             Text(
                 text = stringResource(R.string.favorite_button_text)
@@ -96,7 +110,8 @@ fun FavoriteButton(
         onHideDialog = { showFavoriteDialog = false },
         userFavoriteFolders = userFavoriteFolders,
         favoriteFolderIds = favoriteFolderIds,
-        onUpdateFavoriteFolders = onUpdateFavoriteFolders
+        onUpdateFavoriteFolders = onUpdateFavoriteFolders,
+        dialogContainerColor = dialogContainerColor
     )
 }
 
@@ -108,7 +123,8 @@ private fun FavoriteDialog(
     onHideDialog: () -> Unit,
     userFavoriteFolders: List<FavoriteFolderMetadata> = emptyList(),
     favoriteFolderIds: List<Long> = emptyList(),
-    onUpdateFavoriteFolders: (List<Long>) -> Unit
+    onUpdateFavoriteFolders: (List<Long>) -> Unit,
+    dialogContainerColor: Color = AlertDialogDefaults.containerColor
 ) {
     val selectedFavoriteFolderIds = remember { mutableStateListOf<Long>() }
     val defaultFocusRequester = remember { FocusRequester() }
@@ -123,6 +139,7 @@ private fun FavoriteDialog(
     if (show) {
         TvAlertDialog(
             modifier = modifier,
+            containerColor = dialogContainerColor,
             onDismissRequest = onHideDialog,
             confirmButton = {},
             title = { Text(text = stringResource(R.string.favorite_dialog_title)) },

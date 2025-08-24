@@ -49,10 +49,11 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
   ![UGC详情](https://github.com/user-attachments/assets/09f76c5c-f494-44a7-9aa9-672da489a156)
 - 播放器页面增加“推荐视频”
   - 操作方式：双击下键，或者按下键显示视频信息后再按下键
-
+- 播放器控制条，增加点赞、收藏、投币
+  - 仅UGC视频且要登录才会显示
   ![视频播放-推荐视频](https://github.com/user-attachments/assets/2ea057f2-7e78-4b68-9bd4-5d4b2bb31d9e)
-- 播放器控制条增加功能按钮（播放/暂停、up空间、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
-  ![视频播放](https://github.com/user-attachments/assets/8d9e5c2c-66d1-4c63-aeb3-5ad0338cf71e)
+- 播放器控制条增加功能按钮（播放/暂停、播放速度、up空间、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
+  ![视频播放](https://github.com/user-attachments/assets/f6c8c5a8-408b-4290-8d2d-5051b81f6f08)
 - 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
   - 可以修改打开应用时首页默认选中的标签
 - 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
