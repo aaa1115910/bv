@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Button
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.video.Subtitle
@@ -80,6 +81,10 @@ fun VideoPlayerController(
     onSubtitleBottomPadding: (Dp) -> Unit,
 
     onRequestFocus: () -> Unit,
+
+    showSkipButton: Boolean,
+    onSkip: () -> Unit,
+
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -329,6 +334,17 @@ fun VideoPlayerController(
         }
         BottomSubtitle()
         SkipTips()
+        if (showSkipButton) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Button(onClick = onSkip) {
+                    Text(text = "跳过")
+                }
+            }
+        }
         PlayStateTips()
         ControllerVideoInfo(
             show = showInfo,

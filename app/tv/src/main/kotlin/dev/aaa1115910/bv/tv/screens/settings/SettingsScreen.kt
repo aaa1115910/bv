@@ -47,6 +47,7 @@ import dev.aaa1115910.bv.tv.screens.settings.content.NetworkSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.OtherSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.PlayerTypeSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.ResolutionSetting
+import dev.aaa1115910.bv.tv.screens.settings.content.SponsorBlockSettings
 import dev.aaa1115910.bv.tv.screens.settings.content.StorageSetting
 import dev.aaa1115910.bv.tv.screens.settings.content.UISetting
 import dev.aaa1115910.bv.tv.screens.settings.content.VideoCodecSetting
@@ -165,6 +166,7 @@ enum class SettingsMenuNavItem(private val strRes: Int) {
     VideoCodec(R.string.settings_item_codec),
     Audio(R.string.settings_item_audio),
     PlayerType(R.string.settings_item_player_type),
+    SponsorBlock(R.string.settings_item_sponsor_block),
     UI(R.string.settings_item_ui),
     Api(R.string.settings_item_api),
     Other(R.string.settings_item_other),
@@ -194,6 +196,7 @@ fun SettingContent(
         ) {
             when (currentMenu) {
                 SettingsMenuNavItem.Resolution -> ResolutionSetting()
+                SettingsMenuNavItem.SponsorBlock -> SponsorBlockSettings()
                 SettingsMenuNavItem.Info -> InfoSetting()
                 SettingsMenuNavItem.About -> AboutSetting()
                 SettingsMenuNavItem.VideoCodec -> VideoCodecSetting()

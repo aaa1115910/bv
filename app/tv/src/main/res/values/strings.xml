@@ -23,4 +23,5 @@
     <string name="title_activity_user_switch">用户切换</string>
     <string name="title_activity_video_info">视频信息</string>
     <string name="title_activity_video_player_v3">视频播放</string>
+    <string name="settings_item_sponsor_block">SponsorBlock</string>
 </resources>

@@ -22,6 +22,8 @@ import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoCodec
+import dev.aaa1115910.bv.sponsorblock.entity.SegmentCategory
+import dev.aaa1115910.bv.sponsorblock.entity.SponsorBlockSetting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -311,6 +313,21 @@ object Prefs {
     val themeTypeFlow: Flow<ThemeType>
         get() = dsm.getPreferenceFlow(PrefKeys.prefThemeTypeRequest)
             .transform { ordinal -> emit(ThemeType.entries[ordinal]) }
+
+    var enableSponsorBlock: Boolean
+        get() = runBlocking { dsm.getPreferenceFlow(PrefKeys.prefEnableSponsorBlockRequest).first() }
+        set(value) = runBlocking { dsm.editPreference(PrefKeys.prefEnableSponsorBlockKey, value) }
+
+    fun getSponsorBlockSetting(category: SegmentCategory): SponsorBlockSetting = runBlocking {
+        SponsorBlockSetting.entries[dsm.getPreferenceFlow(
+            PrefKeys.getSponsorBlockRequest(category)
+        ).first()]
+    }
+
+    fun setSponsorBlockSetting(category: SegmentCategory, setting: SponsorBlockSetting) =
+        runBlocking {
+            dsm.editPreference(PrefKeys.getSponsorBlockKey(category), setting.ordinal)
+        }
 }
 
 object PrefKeys {
@@ -356,6 +373,10 @@ object PrefKeys {
     val prefEnableFfmpegAudioRenderer = booleanPreferencesKey("enable_ffmpeg_audio_renderer")
     val prefBlacklistUserKey = booleanPreferencesKey("blacklist_user")
     val prefThemeTypeKey = intPreferencesKey("theme_type")
+
+    val prefEnableSponsorBlockKey = booleanPreferencesKey("enable_sponsor_block")
+    fun getSponsorBlockKey(category: SegmentCategory) =
+        intPreferencesKey("sponsor_block_${category.name.lowercase()}")
 
     val prefIsLoginRequest = PreferenceRequest(prefIsLoginKey, false)
     val prefUidRequest = PreferenceRequest(prefUidKey, 0)
@@ -413,4 +434,14 @@ object PrefKeys {
     val prefEnableFfmpegEndererRequest = PreferenceRequest(prefEnableFfmpegAudioRenderer, false)
     val prefBlacklistUserRequest = PreferenceRequest(prefBlacklistUserKey, false)
     val prefThemeTypeRequest = PreferenceRequest(prefThemeTypeKey, ThemeType.Auto.ordinal)
+
+    val prefEnableSponsorBlockRequest = PreferenceRequest(prefEnableSponsorBlockKey, false)
+    fun getSponsorBlockRequest(category: SegmentCategory) = PreferenceRequest(
+        key = getSponsorBlockKey(category),
+        defaultValue = when (category) {
+            SegmentCategory.Sponsor -> SponsorBlockSetting.Skip.ordinal
+            SegmentCategory.PoiHighlight -> SponsorBlockSetting.Off.ordinal
+            else -> SponsorBlockSetting.Confirm.ordinal
+        }
+    )
 }

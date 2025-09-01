@@ -163,6 +163,7 @@ dependencies {
     api(project(mapOf("path" to ":bili-subtitle")))
     api(project(mapOf("path" to ":player")))
     api(project(mapOf("path" to ":utils")))
+    api(project(mapOf("path" to ":sponsorblock")))
     testImplementation(androidx.room.testing)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(androidx.compose.ui.test.junit4)

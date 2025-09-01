@@ -62,6 +62,11 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.VideoPlayerStateData
 import dev.aaa1115910.bv.player.tv.controller.VideoPlayerController
 import dev.aaa1115910.bv.player.util.danmakuMask
+import dev.aaa1115910.bv.sponsorblock.entity.Segment
+import dev.aaa1115910.bv.sponsorblock.entity.SegmentCategory
+import dev.aaa1115910.bv.sponsorblock.entity.SponsorBlockSetting
+import dev.aaa1115910.bv.sponsorblock.net.SponsorBlockClient
+import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.countDownTimer
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.formatHourMinSec
@@ -149,6 +154,12 @@ fun BvPlayer(
     var hideBackToHistoryTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     var currentDanmakuMaskFrame: DanmakuMaskFrame? by remember { mutableStateOf(null) }
+
+    val sponsorBlockClient = remember { SponsorBlockClient() }
+    var segments by remember { mutableStateOf<List<Segment>>(emptyList()) }
+    var activeSegment by remember { mutableStateOf<Segment?>(null) }
+    var showSkipButton by remember { mutableStateOf(false) }
+    var skipTipTimer: CountDownTimer? by remember { mutableStateOf(null) }
 
     val updateSeek = {
         currentPosition = videoPlayer.currentPosition.coerceAtLeast(0L)
@@ -244,6 +255,52 @@ fun BvPlayer(
             videoPlayerVideoInfoData.width / videoPlayerVideoInfoData.height.toFloat()
         defaultAspectRatio = newAspectRatio.takeIf { it > 0 } ?: (16 / 9f)
         updateVideoAspectRatio()
+    }
+
+    LaunchedEffect(videoPlayerVideoInfoData.bvid) {
+        if (videoPlayerVideoInfoData.bvid.isNotEmpty() && Prefs.enableSponsorBlock) {
+            scope.launch(Dispatchers.IO) {
+                runCatching {
+                    val allSegments = sponsorBlockClient.getSkipSegments(
+                        videoPlayerVideoInfoData.bvid,
+                        videoPlayerVideoInfoData.cid
+                    )
+                    segments = allSegments.flatMap { it.segments }
+                }.onFailure {
+                    logger.error { "Failed to get segments: ${it.stackTraceToString()}" }
+                }
+            }
+        }
+    }
+
+    val showSkipTip: (String) -> Unit = {
+        skipTipTimer?.cancel()
+        // a little hack to show skip tip
+        // I don't want to add a new state to VideoPlayerLogsData
+        videoPlayerLogsData.logs = it
+        skipTipTimer = countDownTimer(3000, 1000, "skipTipTimer") {
+            videoPlayerLogsData.logs = ""
+        }
+    }
+
+    LaunchedEffect(activeSegment) {
+        activeSegment?.let { segment ->
+            val category = SegmentCategory.fromCategoryName(segment.category) ?: return@let
+            val setting = Prefs.getSponsorBlockSetting(category)
+            when (setting) {
+                SponsorBlockSetting.Skip -> {
+                    videoPlayer.seekTo((segment.segment[1] * 1000).toLong())
+                    showSkipTip("已为您跳过 ${category.description} 片段")
+                }
+
+                SponsorBlockSetting.Confirm -> {
+                    showSkipButton = true
+                }
+
+                SponsorBlockSetting.Off -> {
+                }
+            }
+        }
     }
 
     val updateBackToHistory: () -> Unit = {
@@ -348,7 +405,19 @@ fun BvPlayer(
 
     DisposableEffect(Unit) {
         val updateSeekTimer = timeTask(0, 100, "updateSeekTimer", false) {
-            scope.launch { updateSeek() }
+            scope.launch {
+                updateSeek()
+                if (segments.isNotEmpty()) {
+                    val currentSeek = currentPosition / 1000f
+                    val segment = segments.find { currentSeek in it.segment[0]..it.segment[1] }
+                    if (segment != null) {
+                        activeSegment = segment
+                    } else {
+                        activeSegment = null
+                        showSkipButton = false
+                    }
+                }
+            }
         }
         onDispose {
             updateSeekTimer.cancel()
@@ -629,6 +698,15 @@ fun BvPlayer(
                 onSubtitleBottomPadding(padding)
             },
             onRequestFocus = { focusRequester.requestFocus() },
+            showSkipButton = showSkipButton,
+            onSkip = {
+                activeSegment?.let {
+                    videoPlayer.seekTo((it.segment[1] * 1000).toLong())
+                    showSkipButton = false
+                    val category = SegmentCategory.fromCategoryName(it.category)
+                    showSkipTip("已为您跳过 ${category?.description} 片段")
+                }
+            }
         ) {
             LaunchedEffect(Unit) {
                 videoPlayer.setOptions()
