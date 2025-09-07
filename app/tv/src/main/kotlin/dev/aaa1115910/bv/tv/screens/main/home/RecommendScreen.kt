@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -30,6 +29,7 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.home.RecommendViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,40 +63,42 @@ fun RecommendScreen(
 
     val padding = dimensionResource(R.dimen.grid_padding)
     val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize(),
-        columns = GridCells.Fixed(4),
-        state = lazyGridState,
-        contentPadding = PaddingValues(padding),
-        verticalArrangement = Arrangement.spacedBy(spacedBy),
-        horizontalArrangement = Arrangement.spacedBy(spacedBy)
-    ) {
-        itemsIndexed(recommendViewModel.recommendVideoList) { index, item ->
-            SmallVideoCard(
-                data = remember(item.aid) {
-                    VideoCardData(
-                        avid = item.aid,
-                        title = item.title,
-                        cover = item.cover,
-                        play = with(item.play) { if (this == -1) null else this },
-                        danmaku = with(item.danmaku) { if (this == -1) null else this },
-                        upName = item.author,
-                        time = item.duration * 1000L,
-                        pubTime = item.pubTime
-                    )
-                },
-                onClick = { onClickVideo(item) },
-                onFocus = { currentFocusedIndex = index }
-            )
-        }
+    ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        LazyVerticalGrid(
+            modifier = modifier.fillMaxSize(),
+            columns = GridCells.Fixed(4),
+            state = lazyGridState,
+            contentPadding = PaddingValues(padding),
+            verticalArrangement = Arrangement.spacedBy(spacedBy),
+            horizontalArrangement = Arrangement.spacedBy(spacedBy)
+        ) {
+            itemsIndexed(recommendViewModel.recommendVideoList) { index, item ->
+                SmallVideoCard(
+                    data = remember(item.aid) {
+                        VideoCardData(
+                            avid = item.aid,
+                            title = item.title,
+                            cover = item.cover,
+                            play = with(item.play) { if (this == -1) null else this },
+                            danmaku = with(item.danmaku) { if (this == -1) null else this },
+                            upName = item.author,
+                            time = item.duration * 1000L,
+                            pubTime = item.pubTime
+                        )
+                    },
+                    onClick = { onClickVideo(item) },
+                    onFocus = { currentFocusedIndex = index }
+                )
+            }
 
-        if (recommendViewModel.loading) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingTip()
+            if (recommendViewModel.loading) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingTip()
+                    }
                 }
             }
         }

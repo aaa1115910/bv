@@ -97,8 +97,10 @@ fun AnimeTimelineScreen(
                         ApiType.Web -> 7
                         ApiType.App -> 6
                     }
-                    listState.animateScrollToItem(targetIndex, 0)
-                    defaultFocusRequester.requestFocus(scope)
+                    withContext(Dispatchers.Main) {
+                        listState.animateScrollToItem(targetIndex, 0)
+                        defaultFocusRequester.requestFocus(scope)
+                    }
                 }
             }.onFailure {
                 logger.fInfo { "Get timeline failed: ${it.stackTraceToString()}" }

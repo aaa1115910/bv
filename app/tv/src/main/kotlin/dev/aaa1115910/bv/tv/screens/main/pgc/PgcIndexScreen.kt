@@ -40,6 +40,7 @@ import dev.aaa1115910.bv.tv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
 import dev.aaa1115910.bv.viewmodel.index.PgcIndexViewModel
@@ -137,48 +138,50 @@ fun PgcIndexScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            columns = GridCells.Fixed(6),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            itemsIndexed(items = pgcItems) { index, pgcItem ->
-                SeasonCard(
-                    data = SeasonCardData.fromPgcItem(pgcItem),
-                    onFocus = {
-                        currentSeasonIndex = index
-                        if (index + 30 > pgcItems.size) {
-                            println("load more by focus")
-                            scope.launch(Dispatchers.IO) { pgcIndexViewModel.loadMore() }
-                        }
-                    },
-                    onClick = {
-                        SeasonInfoActivity.actionStart(
-                            context = context,
-                            seasonId = pgcItem.seasonId,
-                            proxyArea = ProxyArea.checkProxyArea(pgcItem.title)
-                        )
-                    },
-                    onLongClick = onLongClickSeason
-                )
-            }
-            if (pgcItems.isEmpty() && noMore) {
-                item(
-                    span = { GridItemSpan(6) }
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+        ProvideLazyListPivotOffset(parentFraction = 0.45f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                columns = GridCells.Fixed(6),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(items = pgcItems) { index, pgcItem ->
+                    SeasonCard(
+                        data = SeasonCardData.fromPgcItem(pgcItem),
+                        onFocus = {
+                            currentSeasonIndex = index
+                            if (index + 30 > pgcItems.size) {
+                                println("load more by focus")
+                                scope.launch(Dispatchers.IO) { pgcIndexViewModel.loadMore() }
+                            }
+                        },
+                        onClick = {
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                seasonId = pgcItem.seasonId,
+                                proxyArea = ProxyArea.checkProxyArea(pgcItem.title)
+                            )
+                        },
+                        onLongClick = onLongClickSeason
+                    )
+                }
+                if (pgcItems.isEmpty() && noMore) {
+                    item(
+                        span = { GridItemSpan(6) }
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(text = stringResource(R.string.no_data))
-                            OutlinedButton(onClick = { showFilter = true }) {
-                                Text(text = stringResource(R.string.filter_dialog_open_tip_click))
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(text = stringResource(R.string.no_data))
+                                OutlinedButton(onClick = { showFilter = true }) {
+                                    Text(text = stringResource(R.string.filter_dialog_open_tip_click))
+                                }
                             }
                         }
                     }

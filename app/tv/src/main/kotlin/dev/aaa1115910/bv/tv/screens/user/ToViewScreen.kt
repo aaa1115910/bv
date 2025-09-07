@@ -30,6 +30,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.user.ToViewViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -97,34 +98,36 @@ fun ToViewScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            itemsIndexed(ToViewViewModel.histories) { index, item ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        data = item,
-                        onClick = {
-                            VideoInfoActivity.actionStart(
-                                context = context,
-                                aid = item.avid,
-                                proxyArea = ProxyArea.checkProxyArea(item.title)
-                            )
-                        },
-                        onFocus = {
-                            currentIndex = index
-                            //预加载
-                            // if (index + 12 > ToViewViewModel.histories.size) {
-                            //     ToViewViewModel.update()
-                            // }
-                        }
-                    )
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(ToViewViewModel.histories) { index, item ->
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallVideoCard(
+                            data = item,
+                            onClick = {
+                                VideoInfoActivity.actionStart(
+                                    context = context,
+                                    aid = item.avid,
+                                    proxyArea = ProxyArea.checkProxyArea(item.title)
+                                )
+                            },
+                            onFocus = {
+                                currentIndex = index
+                                //预加载
+                                // if (index + 12 > ToViewViewModel.histories.size) {
+                                //     ToViewViewModel.update()
+                                // }
+                            }
+                        )
+                    }
                 }
             }
         }

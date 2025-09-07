@@ -60,6 +60,7 @@ import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.screens.user.UpCard
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.focusedScale
@@ -256,36 +257,37 @@ fun SearchResultScreen(
                     }
                 }
             }
-
-            LazyVerticalGrid(
-                modifier = Modifier.onPreviewKeyEvent {
-                    when (it.key) {
-                        Key.Back -> {
-                            if (it.type == KeyEventType.KeyUp) backToTabRow()
-                            return@onPreviewKeyEvent true
+            ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+                LazyVerticalGrid(
+                    modifier = Modifier.onPreviewKeyEvent {
+                        when (it.key) {
+                            Key.Back -> {
+                                if (it.type == KeyEventType.KeyUp) backToTabRow()
+                                return@onPreviewKeyEvent true
+                            }
                         }
+                        false
+                    },
+                    columns = GridCells.Fixed(rowSize),
+                    contentPadding = PaddingValues(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    itemsIndexed(
+                        items = when (searchResult.type) {
+                            SearchType.Video -> searchResult.videos
+                            SearchType.MediaBangumi -> searchResult.mediaBangumis
+                            SearchType.MediaFt -> searchResult.mediaFts
+                            SearchType.BiliUser -> searchResult.biliUsers
+                        }
+                    ) { index, searchResultItem ->
+                        SearchResultListItem(
+                            searchResult = searchResultItem,
+                            onClick = { onClickResult(searchResultItem) },
+                            onLongClick = onLongClickSearchResultItem,
+                            onFocus = { currentIndex = index }
+                        )
                     }
-                    false
-                },
-                columns = GridCells.Fixed(rowSize),
-                contentPadding = PaddingValues(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                itemsIndexed(
-                    items = when (searchResult.type) {
-                        SearchType.Video -> searchResult.videos
-                        SearchType.MediaBangumi -> searchResult.mediaBangumis
-                        SearchType.MediaFt -> searchResult.mediaFts
-                        SearchType.BiliUser -> searchResult.biliUsers
-                    }
-                ) { index, searchResultItem ->
-                    SearchResultListItem(
-                        searchResult = searchResultItem,
-                        onClick = { onClickResult(searchResultItem) },
-                        onLongClick = onLongClickSearchResultItem,
-                        onFocus = { currentIndex = index }
-                    )
                 }
             }
         }

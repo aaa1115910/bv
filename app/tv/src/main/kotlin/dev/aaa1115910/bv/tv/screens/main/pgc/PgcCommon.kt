@@ -62,6 +62,7 @@ import dev.aaa1115910.bv.tv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.resizedImageUrl
@@ -83,70 +84,72 @@ fun PgcScaffold(
     val carouselItems = pgcViewModel.carouselItems
     val pgcFeeds = pgcViewModel.feedItems
 
-    LazyColumn(
-        modifier = modifier
-                .fillMaxSize(),
-        state = lazyListState
-    ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                PgcCarousel(
-                    modifier = Modifier
-                        .width(880.dp)
-                        .padding(32.dp, 0.dp)
-                        .focusRequester(carouselFocusRequester),
-                    data = carouselItems,
-                    onClick = { item ->
-                        SeasonInfoActivity.actionStart(
-                            context = context,
-                            epId = item.episodeId,
-                            seasonId = item.seasonId,
-                            proxyArea = ProxyArea.checkProxyArea(item.title)
-                        )
-                    }
-                )
-            }
-        }
-        if (featureButtons != null) {
+    ProvideLazyListPivotOffset(parentFraction = 0.45f) {
+        LazyColumn(
+            modifier = modifier
+                    .fillMaxSize(),
+            state = lazyListState
+        ) {
             item {
-                featureButtons()
-            }
-        } else {
-            item {
-                Spacer(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(24.dp)
-                )
-            }
-        }
-        itemsIndexed(items = pgcFeeds) { index, feedListItem ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .onFocusChanged {
-                        if (it.hasFocus) {
-                            if (index + 10 > pgcFeeds.size) {
-                                pgcViewModel.loadMore()
-                            }
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    PgcCarousel(
+                        modifier = Modifier
+                            .width(880.dp)
+                            .padding(32.dp, 0.dp)
+                            .focusRequester(carouselFocusRequester),
+                        data = carouselItems,
+                        onClick = { item ->
+                            SeasonInfoActivity.actionStart(
+                                context = context,
+                                epId = item.episodeId,
+                                seasonId = item.seasonId,
+                                proxyArea = ProxyArea.checkProxyArea(item.title)
+                            )
                         }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                when (feedListItem.type) {
-                    FeedListType.Ep -> PgcFeedVideoRow(
-                        data = feedListItem.items!!
                     )
+                }
+            }
+            if (featureButtons != null) {
+                item {
+                    featureButtons()
+                }
+            } else {
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                    )
+                }
+            }
+            itemsIndexed(items = pgcFeeds) { index, feedListItem ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .onFocusChanged {
+                            if (it.hasFocus) {
+                                if (index + 10 > pgcFeeds.size) {
+                                    pgcViewModel.loadMore()
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    when (feedListItem.type) {
+                        FeedListType.Ep -> PgcFeedVideoRow(
+                            data = feedListItem.items!!
+                        )
 
-                    FeedListType.Rank -> PgcFeedRankRow(
-                        data = feedListItem.rank!!
-                    )
+                        FeedListType.Rank -> PgcFeedRankRow(
+                            data = feedListItem.rank!!
+                        )
+                    }
                 }
             }
         }

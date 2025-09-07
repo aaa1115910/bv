@@ -61,6 +61,7 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.manager.FollowStateManager
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -329,37 +330,39 @@ fun UpSpaceScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            itemsIndexed(
-                items = userSpaceViewModel.tvSpaceVideos,
-                key = { index, _ -> index }
-            ) { index, video ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(listFocusRequester)),
-                        data = video,
-                        onClick = {
-                            VideoInfoActivity.actionStart(
-                                context = context,
-                                aid = video.avid,
-                                proxyArea = ProxyArea.checkProxyArea(video.title)
-                            )
-                        },
-                        onFocus = {
-                            currentIndex = index
-                            if (index + 12 > userSpaceViewModel.tvSpaceVideos.size) {
-                                userSpaceViewModel.update()
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(
+                    items = userSpaceViewModel.tvSpaceVideos,
+                    key = { index, _ -> index }
+                ) { index, video ->
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallVideoCard(
+                            modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(listFocusRequester)),
+                            data = video,
+                            onClick = {
+                                VideoInfoActivity.actionStart(
+                                    context = context,
+                                    aid = video.avid,
+                                    proxyArea = ProxyArea.checkProxyArea(video.title)
+                                )
+                            },
+                            onFocus = {
+                                currentIndex = index
+                                if (index + 12 > userSpaceViewModel.tvSpaceVideos.size) {
+                                    userSpaceViewModel.update()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

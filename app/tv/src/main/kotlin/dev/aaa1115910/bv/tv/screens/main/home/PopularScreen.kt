@@ -30,6 +30,7 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.home.PopularViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,40 +63,42 @@ fun PopularScreen(
 
     val padding = dimensionResource(R.dimen.grid_padding)
     val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize(),
-        columns = GridCells.Fixed(4),
-        state = lazyGridState,
-        contentPadding = PaddingValues(padding),
-        verticalArrangement = Arrangement.spacedBy(spacedBy),
-        horizontalArrangement = Arrangement.spacedBy(spacedBy)
-    ) {
-        itemsIndexed(popularViewModel.popularVideoList) { index, item ->
-            SmallVideoCard(
-                data = remember(item.aid) {
-                    VideoCardData(
-                        avid = item.aid,
-                        title = item.title,
-                        cover = item.cover,
-                        play = item.play,
-                        danmaku = item.danmaku,
-                        upName = item.author,
-                        time = item.duration * 1000L,
-                        pubTime = item.pubTime
-                    )
-                },
-                onClick = { onClickVideo(item) },
-                onFocus = { currentFocusedIndex = index }
-            )
-        }
+    ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        LazyVerticalGrid(
+            modifier = modifier.fillMaxSize(),
+            columns = GridCells.Fixed(4),
+            state = lazyGridState,
+            contentPadding = PaddingValues(padding),
+            verticalArrangement = Arrangement.spacedBy(spacedBy),
+            horizontalArrangement = Arrangement.spacedBy(spacedBy)
+        ) {
+            itemsIndexed(popularViewModel.popularVideoList) { index, item ->
+                SmallVideoCard(
+                    data = remember(item.aid) {
+                        VideoCardData(
+                            avid = item.aid,
+                            title = item.title,
+                            cover = item.cover,
+                            play = item.play,
+                            danmaku = item.danmaku,
+                            upName = item.author,
+                            time = item.duration * 1000L,
+                            pubTime = item.pubTime
+                        )
+                    },
+                    onClick = { onClickVideo(item) },
+                    onFocus = { currentFocusedIndex = index }
+                )
+            }
 
-        if (popularViewModel.loading) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingTip()
+            if (popularViewModel.loading) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingTip()
+                    }
                 }
             }
         }

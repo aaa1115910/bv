@@ -46,6 +46,7 @@ import dev.aaa1115910.bv.tv.component.UgcCarousel
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.component.LoadingTip
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.ugc.UgcViewModel
@@ -78,66 +79,67 @@ fun UgcRegionScaffold(
 
     val padding = dimensionResource(R.dimen.grid_padding)
     val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
+    ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        LazyVerticalGrid(
+            modifier = modifier.fillMaxSize(),
+            columns = GridCells.Fixed(4),
+            state = lazyGridState,
+            contentPadding = PaddingValues(padding),
+            verticalArrangement = Arrangement.spacedBy(spacedBy),
+            horizontalArrangement = Arrangement.spacedBy(spacedBy)
+        ) {
+            // 轮播图组件
+            if (ugcViewModel.showCarousel && ugcViewModel.carouselItems.isNotEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    UgcCarousel(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        data = ugcViewModel.carouselItems,
+                        onClick = { item ->
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = item.avid!!
+                            )
+                        }
+                    )
+                }
+            }
 
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize(),
-        columns = GridCells.Fixed(4),
-        state = lazyGridState,
-        contentPadding = PaddingValues(padding),
-        verticalArrangement = Arrangement.spacedBy(spacedBy),
-        horizontalArrangement = Arrangement.spacedBy(spacedBy)
-    ) {
-        // 轮播图组件
-        if (ugcViewModel.showCarousel && ugcViewModel.carouselItems.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                UgcCarousel(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    data = ugcViewModel.carouselItems,
-                    onClick = { item ->
-                        VideoInfoActivity.actionStart(
-                            context = context,
-                            aid = item.avid!!
+            // 子区域按钮
+            // if (childRegionButtons != null) {
+            //     item(span = { GridItemSpan(maxLineSpan) }) {
+            //         childRegionButtons()
+            //     }
+            // }
+
+            itemsIndexed(ugcViewModel.ugcItems) { index, item ->
+                SmallVideoCard(
+                    data = remember(item.aid) {
+                        VideoCardData(
+                            avid = item.aid,
+                            title = item.title,
+                            cover = item.cover,
+                            play = item.play,
+                            danmaku = item.danmaku,
+                            upName = item.author,
+                            time = item.duration * 1000L,
+                            pubTime = item.pubTime
                         )
-                    }
+                    },
+                    onClick = { VideoInfoActivity.actionStart(context, item.aid) },
+                    onFocus = { currentFocusedIndex = index }
                 )
             }
-        }
 
-        // 子区域按钮
-        // if (childRegionButtons != null) {
-        //     item(span = { GridItemSpan(maxLineSpan) }) {
-        //         childRegionButtons()
-        //     }
-        // }
-
-        itemsIndexed(ugcViewModel.ugcItems) { index, item ->
-            SmallVideoCard(
-                data = remember(item.aid) {
-                    VideoCardData(
-                        avid = item.aid,
-                        title = item.title,
-                        cover = item.cover,
-                        play = item.play,
-                        danmaku = item.danmaku,
-                        upName = item.author,
-                        time = item.duration * 1000L,
-                        pubTime = item.pubTime
-                    )
-                },
-                onClick = { VideoInfoActivity.actionStart(context, item.aid) },
-                onFocus = { currentFocusedIndex = index }
-            )
-        }
-
-        if (ugcViewModel.updating) {
-            item(span = { GridItemSpan(maxLineSpan) }) {    // 网格里占整行
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp),
-                    contentAlignment = Alignment.Center
-                ) { LoadingTip() }
+            if (ugcViewModel.updating) {
+                item(span = { GridItemSpan(maxLineSpan) }) {    // 网格里占整行
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp),
+                        contentAlignment = Alignment.Center
+                    ) { LoadingTip() }
+                }
             }
         }
     }

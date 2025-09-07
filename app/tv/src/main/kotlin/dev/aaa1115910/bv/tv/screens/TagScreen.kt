@@ -31,6 +31,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.TagViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -96,30 +97,32 @@ fun TagScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            itemsIndexed(
-                items = tagViewModel.topVideos,
-                key = { index, _ -> index }
-            ) { index, video ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        data = video,
-                        onClick = { VideoInfoActivity.actionStart(context, video.avid) },
-                        onFocus = {
-                            currentIndex = index
-                            if (index + 20 > tagViewModel.topVideos.size) {
-                                tagViewModel.update()
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(
+                    items = tagViewModel.topVideos,
+                    key = { index, _ -> index }
+                ) { index, video ->
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallVideoCard(
+                            data = video,
+                            onClick = { VideoInfoActivity.actionStart(context, video.avid) },
+                            onFocus = {
+                                currentIndex = index
+                                if (index + 20 > tagViewModel.topVideos.size) {
+                                    tagViewModel.update()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

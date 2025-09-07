@@ -30,6 +30,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -97,34 +98,36 @@ fun HistoryScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            itemsIndexed(historyViewModel.histories) { index, history ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        data = history,
-                        onClick = {
-                            VideoInfoActivity.actionStart(
-                                context = context,
-                                aid = history.avid,
-                                proxyArea = ProxyArea.checkProxyArea(history.title)
-                            )
-                        },
-                        onFocus = {
-                            currentIndex = index
-                            //预加载
-                            if (index + 12 > historyViewModel.histories.size) {
-                                historyViewModel.update()
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                itemsIndexed(historyViewModel.histories) { index, history ->
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallVideoCard(
+                            data = history,
+                            onClick = {
+                                VideoInfoActivity.actionStart(
+                                    context = context,
+                                    aid = history.avid,
+                                    proxyArea = ProxyArea.checkProxyArea(history.title)
+                                )
+                            },
+                            onFocus = {
+                                currentIndex = index
+                                //预加载
+                                if (index + 12 > historyViewModel.histories.size) {
+                                    historyViewModel.update()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

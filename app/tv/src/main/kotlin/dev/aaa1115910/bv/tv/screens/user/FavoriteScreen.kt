@@ -45,6 +45,7 @@ import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.onDelayFocusChanged
 import dev.aaa1115910.bv.viewmodel.user.FavoriteViewModel
@@ -141,74 +142,76 @@ fun FavoriteScreen(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier.padding(innerPadding),
-            state = lazyGridState,
-            columns = GridCells.Fixed(4),
-            contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item(
-                span = { GridItemSpan(4) }
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(innerPadding),
+                state = lazyGridState,
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                TabRow(
-                    modifier = Modifier
-                        .focusRequester(defaultFocusRequester)
-                        .onFocusChanged { focusOnTabs = it.hasFocus }
-                        .onDelayFocusChanged(50) {
-                            if (focusOnTabs) {
-                                focusRequester.requestFocus()
-                            }
-                        },
-                    selectedTabIndex = currentTabIndex,
-                    separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                item(
+                    span = { GridItemSpan(4) }
                 ) {
-                    favoriteViewModel.favoriteFolderMetadataList.forEachIndexed { index, folderMetadata ->
-                        Tab(
-                            modifier = Modifier
-                                .onDelayFocusChanged {
-                                    if (it.isFocused && favoriteViewModel.currentFavoriteFolderMetadata != folderMetadata) {
-                                        updateCurrentFavoriteFolder(folderMetadata)
-                                    }
+                    TabRow(
+                        modifier = Modifier
+                            .focusRequester(defaultFocusRequester)
+                            .onFocusChanged { focusOnTabs = it.hasFocus }
+                            .onDelayFocusChanged(50) {
+                                if (focusOnTabs) {
+                                    focusRequester.requestFocus()
                                 }
-                                .ifElse(index == currentTabIndex, Modifier.focusRequester(focusRequester)),
-                            selected = currentTabIndex == index,
-                            onFocus = {},
-                            onClick = { updateCurrentFavoriteFolder(folderMetadata) }
-                        ) {
-                            Box(
-                                modifier = Modifier.height(32.dp),
-                                contentAlignment = Alignment.Center
+                            },
+                        selectedTabIndex = currentTabIndex,
+                        separator = { Spacer(modifier = Modifier.width(12.dp)) },
+                    ) {
+                        favoriteViewModel.favoriteFolderMetadataList.forEachIndexed { index, folderMetadata ->
+                            Tab(
+                                modifier = Modifier
+                                    .onDelayFocusChanged {
+                                        if (it.isFocused && favoriteViewModel.currentFavoriteFolderMetadata != folderMetadata) {
+                                            updateCurrentFavoriteFolder(folderMetadata)
+                                        }
+                                    }
+                                    .ifElse(index == currentTabIndex, Modifier.focusRequester(focusRequester)),
+                                selected = currentTabIndex == index,
+                                onFocus = {},
+                                onClick = { updateCurrentFavoriteFolder(folderMetadata) }
                             ) {
-                                Text(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                                    text = folderMetadata.title,
-                                    color = LocalContentColor.current,
-                                    style = MaterialTheme.typography.labelLarge
-                                )
+                                Box(
+                                    modifier = Modifier.height(32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                                        text = folderMetadata.title,
+                                        color = LocalContentColor.current,
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            itemsIndexed(favoriteViewModel.favorites) { index, history ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    SmallVideoCard(
-                        modifier = Modifier.onFocusChanged { focusOnGrid = it.isFocused },
-                        data = history,
-                        onClick = { VideoInfoActivity.actionStart(context, history.avid) },
-                        onFocus = {
-                            currentIndex = index
-                            //预加载
-                            if (index + 12 > favoriteViewModel.favorites.size) {
-                                favoriteViewModel.updateFolderItems()
+                itemsIndexed(favoriteViewModel.favorites) { index, history ->
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallVideoCard(
+                            modifier = Modifier.onFocusChanged { focusOnGrid = it.isFocused },
+                            data = history,
+                            onClick = { VideoInfoActivity.actionStart(context, history.avid) },
+                            onFocus = {
+                                currentIndex = index
+                                //预加载
+                                if (index + 12 > favoriteViewModel.favorites.size) {
+                                    favoriteViewModel.updateFolderItems()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

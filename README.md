@@ -75,7 +75,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等
 
-[更多修改内容](./CHANGELOG.md)
+[修改明细](./CHANGELOG.md)
 
 ## 构建
 自己动手丰衣足食

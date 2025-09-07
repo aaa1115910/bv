@@ -33,6 +33,7 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.R
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
+import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
 import dev.aaa1115910.bv.viewmodel.home.DynamicViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,50 +72,52 @@ fun DynamicsScreen(
     if (dynamicViewModel.isLogin) {
         val padding = dimensionResource(R.dimen.grid_padding)
         val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
-        LazyVerticalGrid(
-            modifier = modifier.fillMaxSize(),
-            columns = GridCells.Fixed(4),
-            state = lazyGridState,
-            contentPadding = PaddingValues(padding),
-            verticalArrangement = Arrangement.spacedBy(spacedBy),
-            horizontalArrangement = Arrangement.spacedBy(spacedBy)
-        ) {
-            itemsIndexed(dynamicViewModel.dynamicVideoList) { index, item ->
-                SmallVideoCard(
-                    data = remember(item.aid) {
-                        VideoCardData(
-                            avid = item.aid,
-                            title = item.title,
-                            cover = item.cover,
-                            play = item.play,
-                            danmaku = item.danmaku,
-                            upName = item.author,
-                            time = item.duration * 1000L,
-                            pubTime = item.pubTime
-                        )
-                    },
-                    onClick = { onClickVideo(item) },
-                    onFocus = { currentFocusedIndex = index }
-                )
-            }
+        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+            LazyVerticalGrid(
+                modifier = modifier.fillMaxSize(),
+                columns = GridCells.Fixed(4),
+                state = lazyGridState,
+                contentPadding = PaddingValues(padding),
+                verticalArrangement = Arrangement.spacedBy(spacedBy),
+                horizontalArrangement = Arrangement.spacedBy(spacedBy)
+            ) {
+                itemsIndexed(dynamicViewModel.dynamicVideoList) { index, item ->
+                    SmallVideoCard(
+                        data = remember(item.aid) {
+                            VideoCardData(
+                                avid = item.aid,
+                                title = item.title,
+                                cover = item.cover,
+                                play = item.play,
+                                danmaku = item.danmaku,
+                                upName = item.author,
+                                time = item.duration * 1000L,
+                                pubTime = item.pubTime
+                            )
+                        },
+                        onClick = { onClickVideo(item) },
+                        onFocus = { currentFocusedIndex = index }
+                    )
+                }
 
-            if (dynamicViewModel.loadingVideo) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LoadingTip()
+                if (dynamicViewModel.loadingVideo) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingTip()
+                        }
                     }
                 }
-            }
 
-            if (!dynamicViewModel.videoHasMore) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(
-                        text = "没有更多了捏",
-                        color = Color.White
-                    )
+                if (!dynamicViewModel.videoHasMore) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = "没有更多了捏",
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
