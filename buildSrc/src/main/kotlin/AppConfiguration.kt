@@ -16,7 +16,7 @@ object AppConfiguration {
         "$major.$minor.$patch${".$hotFix".takeIf { hotFix != 0 } ?: ""}" +
                 ".r${versionCode}.${"git rev-list HEAD --abbrev-commit --max-count=1".exec()}"
     }
-    val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() + 7 }
+    val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() + 4 }
     const val libVLCVersion = "3.0.18"
     var googleServicesAvailable = true
     const val blacklistUrl =

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,7 +39,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -48,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
@@ -62,6 +64,7 @@ import dev.aaa1115910.bv.tv.manager.FollowStateManager
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.user.UserSpaceViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -101,6 +104,11 @@ fun UpSpaceScreen(
                 isFollowing = following
             }
         }
+    }
+
+    val listFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(userSpaceViewModel.tvSpaceVideos.isNotEmpty()) {
+        listFocusRequester.requestFocus()
     }
 
     val updateFollowingState: () -> Unit = {
@@ -199,7 +207,7 @@ fun UpSpaceScreen(
                         val imageUrl = userSpaceViewModel.upFace+"@128w_128h_1c_1s.webp"
                         AsyncImage(
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(titleFontSize.dp)
                                 .clip(CircleShape),
                             model = imageUrl,
                             contentDescription = null,
@@ -222,6 +230,9 @@ fun UpSpaceScreen(
                     // 关注按钮
                     if (showFollowButton) {
                         Surface(
+                            modifier = Modifier
+                                .offset(y = if (showLargeTitle) 4.dp else 2.dp)
+                                .scale(if (showLargeTitle) 1f else 0.65f),
                             onClick = {
                                 if (isFollowing) {
                                     delFollow { success ->
@@ -333,6 +344,7 @@ fun UpSpaceScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     SmallVideoCard(
+                        modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(listFocusRequester)),
                         data = video,
                         onClick = {
                             VideoInfoActivity.actionStart(

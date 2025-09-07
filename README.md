@@ -6,7 +6,7 @@
 
 ~~Bug Video~~
 
-[![Android Sdk Require](https://img.shields.io/badge/Android-5.0%2B-informational?logo=android)](https://apilevels.com/#:~:text=Jetpack%20Compose%20requires%20a%20minSdk%20of%2021%20or%20higher)
+[![Android Sdk Require](https://img.shields.io/badge/Android-6.0%2B-informational?logo=android)](https://apilevels.com/#:~:text=Jetpack%20Compose%20requires%20a%20minSdk%20of%2021%20or%20higher)
 [![GitHub](https://img.shields.io/github/license/aaa1115910/bv)](https://github.com/aaa1115910/bv)
 
 **BV 无法在中国大陆地区内的智能电视上使用，如有相关使用需求请使用 [云视听小电视](https://app.bilibili.com)**
@@ -44,29 +44,32 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 ## 修改
 在原bv的基础上做了一些修改，包括：
 - 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
+- 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
+  - 可以修改打开应用时首页默认选中的标签
+
   ![首页](https://github.com/user-attachments/assets/2c38b5ed-6844-4cff-91ce-57f5e1cf6a74)
 - UGC视频详情页增加点赞、投币功能
+- 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
+  - 关闭后，点击非PGC视频卡片不显示详情页直接开始播放
+
   ![UGC详情](https://github.com/user-attachments/assets/09f76c5c-f494-44a7-9aa9-672da489a156)
 - 播放器页面增加“推荐视频”
   - 操作方式：双击下键，或者按下键显示视频信息后再按下键
 - 播放器控制条，增加点赞、收藏、投币
   - 仅UGC视频且要登录才会显示
+
   ![视频播放-推荐视频](https://github.com/user-attachments/assets/2ea057f2-7e78-4b68-9bd4-5d4b2bb31d9e)
 - 播放器控制条增加功能按钮（播放/暂停、播放速度、up空间、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
-  ![视频播放](https://github.com/user-attachments/assets/f6c8c5a8-408b-4290-8d2d-5051b81f6f08)
-- 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
-  - 可以修改打开应用时首页默认选中的标签
-- 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
-  - 关闭后，点击非PGC视频卡片不显示详情页直接开始播放
 - 增加设置“显示视频加载过程信息”（设置-更多设置，默认不显示）
-- 增加设置“设置竖屏视频播放时的最大清晰度为1080P”（设置-更多设置，默认禁用）
-  - 开启可解决部分设备竖屏视频变形/花屏的问题
+- 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
+
+  ![视频播放](https://github.com/user-attachments/assets/f6c8c5a8-408b-4290-8d2d-5051b81f6f08)
 - 增加是否“自动播放下一个视频”（设置-更多设置，默认开启）
 - 增加是否“都播完后退出播放器”（设置-更多设置，默认开启）
 - 增加默认播放速度配置（设置-更多设置，默认1倍）
 - 增加快进时间间隔配置（设置-更多设置，默认10秒）
 - 增加快退时间间隔配置（设置-更多设置，默认5秒）
-- 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
+
   ![设置](https://github.com/user-attachments/assets/16030082-af17-4f33-9ece-ce49041bda6e)
 - 优化列表、优化视频卡片、精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
@@ -80,7 +83,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
   - Android studio、Android SDK、JAVA等等
 
 - 补全构建需要的文件
-    - 在项目根目录用使用 Android SDK 中的 keytool 工具创建签名文件 keystore.jks。
+  - 在项目根目录用使用 Android SDK 中的 keytool 工具创建签名文件 keystore.jks。
     ```sh
     keytool -genkey -v -keystore keystore.jks -alias 别名 -keyalg RSA -keysize 2048 -validity 10000
     ```
@@ -109,7 +112,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
     # release
     ./gradlew clean assembleRelease
     ```
-    - 在根目录增加 signing.properties 文件。文件内容如下
+  - 在根目录增加 signing.properties 文件。文件内容如下
     ```properties
     keystore.path=./keystore.jks
     keystore.pwd=创建签名文件时设置的密码

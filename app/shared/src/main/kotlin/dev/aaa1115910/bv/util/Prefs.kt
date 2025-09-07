@@ -439,7 +439,7 @@ object PrefKeys {
         PreferenceRequest(prefDefaultDanmakuTypesKey, "0,1,2,3")
     val prefDefaultDanmakuAreaRequest = PreferenceRequest(prefDefaultDanmakuAreaKey, 0.2f)
     val prefDefaultVideoCodecRequest =
-        PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.AVC.ordinal)
+        PreferenceRequest(prefDefaultVideoCodecKey, VideoCodec.HEVC.ordinal)
     val prefEnabledFirebaseCollectionRequest =
         PreferenceRequest(prefEnabledFirebaseCollectionKey, false)
     val prefIncognitoModeRequest = PreferenceRequest(prefIncognitoModeKey, false)

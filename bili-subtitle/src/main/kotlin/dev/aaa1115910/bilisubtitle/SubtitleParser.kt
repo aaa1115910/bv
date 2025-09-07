@@ -11,6 +11,8 @@ object SubtitleParser {
         val result = mutableListOf<SubtitleItem>()
         val bccResult = runCatching {
             Json.decodeFromString<BiliSubtitle>(bcc)
+        }.onFailure { e ->
+            println("[SubtitleParser] BCC decode failed: ${e.message}")
         }.getOrNull()
         bccResult?.body?.forEach { bccItem ->
             result.add(

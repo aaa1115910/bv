@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -196,7 +197,7 @@ fun VideoPlayerV3Screen(
                         autoActionCountdownJob?.cancel()
                         autoActionCountdownJob = null
                         autoActionTipVisible = false
-                        return@onPreviewKeyEvent true
+                        return@onPreviewKeyEvent keyEvent.key == Key.Back
                     }
                     false
                 }
@@ -425,8 +426,8 @@ fun VideoPlayerV3Screen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 32.dp)
-                                .offset(y = 4.dp),
+                                .padding(start = 32.dp, bottom = 4.dp)
+                                .offset(y = 8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             LikeButton(
@@ -448,9 +449,15 @@ fun VideoPlayerV3Screen(
                                         val flow = getStateFlow(aid, Prefs.uid)
                                         val current = flow.value
                                         if (current.liked) {
-                                            VideoUserActionManager.delLike(aid, Prefs.uid)
+                                            val success = VideoUserActionManager.delLike(aid, Prefs.uid)
+                                            if (!success) {
+                                                "点赞失败".toast(context)
+                                            }
                                         } else {
-                                            VideoUserActionManager.addLike(aid, Prefs.uid)
+                                            val success = VideoUserActionManager.addLike(aid, Prefs.uid)
+                                            if (!success) {
+                                                "取消点赞失败".toast(context)
+                                            }
                                         }
                                     }
                                 }
@@ -474,16 +481,16 @@ fun VideoPlayerV3Screen(
                                 onAddToDefaultFavoriteFolder = {
                                     scope.launch {
                                         val success = VideoUserActionManager.addToDefaultFavoriteFolder(playerViewModel.currentAid, Prefs.uid)
-                                        if (success) {
-                                            // OK
+                                        if (!success) {
+                                            "收藏操作失败".toast(context)
                                         }
                                     }
                                 },
                                 onUpdateFavoriteFolders = {
                                     scope.launch {
                                         val success = VideoUserActionManager.updateVideoFavoriteFolders(playerViewModel.currentAid, it, Prefs.uid)
-                                        if (success) {
-                                            // OK
+                                        if (!success) {
+                                            "收藏操作失败".toast(context)
                                         }
                                     }
                                 },
@@ -505,9 +512,7 @@ fun VideoPlayerV3Screen(
                                     scope.launch {
                                         val success = VideoUserActionManager.addCoin(playerViewModel.currentAid, Prefs.uid)
                                         withContext(Dispatchers.Main) {
-                                            if (success) {
-                                                "投币成功".toast(context)
-                                            } else {
+                                            if (!success) {
                                                 "投币失败".toast(context)
                                             }
                                         }

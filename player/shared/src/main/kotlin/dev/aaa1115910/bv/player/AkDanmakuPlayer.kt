@@ -1,6 +1,8 @@
 package dev.aaa1115910.bv.player
 
-import androidx.compose.foundation.layout.Box
+import android.graphics.Color
+import android.os.Build
+import android.view.View.LAYER_TYPE_HARDWARE
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -30,18 +32,33 @@ fun AkDanmakuPlayer(
     }
 
     LaunchedEffect(danmakuPlayer) {
-        if (danmakuView != null) {
-            danmakuPlayer?.bindView(danmakuView!!)
+        danmakuView?.let { view ->
+            danmakuPlayer?.bindView(view)
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = {
-                danmakuView = DanmakuView(context)
-                danmakuView!!
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            danmakuView = DanmakuView(ctx).apply {
+                // 透明背景
+                setBackgroundColor(Color.TRANSPARENT)
+                
+                // 启用硬件加速
+                setLayerType(LAYER_TYPE_HARDWARE, null)
+                
+                // 确保View会被绘制
+                setWillNotDraw(false)
+                
+                // 兼容性优化：对于旧版本Android使用绘制缓存
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    @Suppress("DEPRECATION")
+                    isDrawingCacheEnabled = true
+                    @Suppress("DEPRECATION")
+                    setDrawingCacheBackgroundColor(Color.TRANSPARENT)
+                }
             }
-        )
-    }
+            danmakuView!!
+        }
+    )
 }

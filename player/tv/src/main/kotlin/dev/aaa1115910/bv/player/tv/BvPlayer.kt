@@ -149,6 +149,7 @@ fun BvPlayer(
     )
     var lastPlayed by remember { mutableLongStateOf(0L) }
     var defaultAspectRatio by remember { mutableFloatStateOf(16 / 9f) }
+    var showInfoProvider: () -> Boolean by remember { mutableStateOf({ false }) }
 
     var clock: Triple<Int, Int, Int> by remember { mutableStateOf(Triple(0, 0, 0)) }
 
@@ -342,8 +343,12 @@ fun BvPlayer(
             scope.launch(Dispatchers.Main) {
                 isPlaying = false
                 if (!videoPlayerConfigData.incognitoMode) sendHeartbeat()
-
-                onLoadNextVideo()
+                // 当控制信息面板显示时不自动播放下一集
+                if (!showInfoProvider()) {
+                    onLoadNextVideo()
+                } else {
+                    logger.info { "Skip auto next because info panel visible" }
+                }
             }
         }
 
@@ -549,6 +554,7 @@ fun BvPlayer(
             showBottomProgressBar = showBottomProgressBar,
             showRelatedVideos = videoPlayerConfigData.showRelatedVideos,
             onToggleRelatedVideos = onToggleRelatedVideos,
+            registerShowInfoProvider = { provider -> showInfoProvider = provider },
 
             onPlay = { videoPlayer.start() },
             onPause = {
@@ -721,7 +727,6 @@ fun BvPlayer(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .fillMaxHeight(videoPlayerConfigData.currentDanmakuArea)
-                    .fillMaxHeight()
                     .alpha(videoPlayerConfigData.currentDanmakuOpacity)
                     .ifElse(
                         { videoPlayerConfigData.currentDanmakuMask },

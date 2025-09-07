@@ -11,7 +11,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +42,6 @@ import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerDebugInfoData
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerHistoryData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.Resolution
@@ -68,6 +69,7 @@ fun VideoPlayerController(
 
     showRelatedVideos: Boolean = false,
     onToggleRelatedVideos: (Boolean) -> Unit,
+    registerShowInfoProvider: ((() -> Boolean) -> Unit) = {},
 
     //player events
     onPlay: () -> Unit,
@@ -105,7 +107,6 @@ fun VideoPlayerController(
 ) {
     val context = LocalContext.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
-    val videoPlayerHistoryData = LocalVideoPlayerHistoryData.current
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerDebugInfoData = LocalVideoPlayerDebugInfoData.current
     val logger = KotlinLogging.logger {}
@@ -183,6 +184,9 @@ fun VideoPlayerController(
         resetAutoSeekConfirmTimer()
         logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
+    
+    // 对外暴露 showInfo
+    LaunchedEffect(Unit) { registerShowInfoProvider { showInfo } }
 
     Box(
         modifier = modifier
@@ -258,7 +262,13 @@ fun VideoPlayerController(
 
                         logger.fInfo { "[${it.key}] short press" }
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
-                        if (videoPlayer.isPlaying) onPause() else onPlay()
+                        if (videoPlayer.isPlaying)
+                            onPause()
+                        else if (videoPlayer.currentPosition >= videoPlayer.duration) {
+                            goTime = 0
+                            onGoTime(0)
+                        } else
+                            onPlay()
                         return@onPreviewKeyEvent false
                     }
 
@@ -423,11 +433,25 @@ fun VideoPlayerController(
             show = showInfo,
             playSpeed = videoPlayer.speed,
             onHideInfo = { showInfo = false },
-            onPlay = onPlay,
+            onPlay = {
+                if (videoPlayer.currentPosition >= videoPlayer.duration) {
+                    goTime = 0
+                    onGoTime(0)
+                } else {
+                    onPlay()
+                }
+            },
             onPause = onPause,
             onPlaySpeedChange = onPlaySpeedChange,
             onOpenUpSpace = onOpenUpSpace,
-            onRefreshVideo = onRefreshVideo,
+            onRefreshVideo = {
+                if (videoPlayer.currentPosition >= videoPlayer.duration) {
+                    goTime = 0
+                    onGoTime(0)
+                } else {
+                    onRefreshVideo()
+                }
+            },
             onOpenDanmaku = onOpenDanmaku,
             onHideDanmaku = onHideDanmaku,
             onOpenPlayList = {
@@ -475,26 +499,48 @@ fun VideoPlayerController(
             onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
             onSubtitleBottomPadding = onSubtitleBottomPadding
         )
-        // 推荐视频组件（在连按两次下键时显示）, UI没写在这，在VideoPlayerV3Screen.kt中
+        // 缓存底部进度条显示条件，避免频繁计算
+        val shouldShowBottomProgressBar by remember { 
+            derivedStateOf { 
+                showBottomProgressBar && !showInfo && !showSeekController 
+            } 
+        }
+        
         // 底部常驻进度条组件
-        if (showBottomProgressBar && !showInfo && !showSeekController) {
+        if (shouldShowBottomProgressBar) {
+            // 优化后的进度条：真正实现1秒更新一次，减少重组
+            val throttledProgress by produceState(
+                initialValue = 0f,
+                key1 = videoPlayer.isPlaying // 只有播放状态变化时才重启协程
+            ) {
+                while (videoPlayer.isPlaying) {
+                    // 在协程内部获取最新的播放位置和时长，避免外部状态变化导致协程重启
+                    val currentPosition = videoPlayer.currentPosition
+                    val duration = videoPlayer.duration
+                    
+                    val currentProgress = if (duration > 0) {
+                        currentPosition.toFloat() / duration.toFloat()
+                    } else {
+                        0f
+                    }
+                    value = currentProgress.coerceIn(0f, 1f)
+                    
+                    delay(300L)
+                }
+            }
+            
             LinearProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .height(2.2.dp),
-                progress = { 
-                    if (videoPlayerSeekData.duration > 0) {
-                        videoPlayerSeekData.position.toFloat() / videoPlayerSeekData.duration.toFloat()
-                    } else {
-                        0f
-                    }
-                },
+                progress = { throttledProgress },
                 color = SliderDefaults.colors().activeTrackColor,
                 trackColor = Color.Black.copy(alpha = 0.3f),
                 gapSize = 0.dp,
                 drawStopIndicator = {}
             )
         }
+        // 推荐视频组件（在连按两次下键时显示）, UI实现在VideoPlayerV3Screen.kt中
     }
 }
