@@ -410,20 +410,20 @@ fun VideoPlayerController(
             }
     ) {
         content()
-        if (BuildConfig.DEBUG) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(Color.Black.copy(alpha = 0.3f))
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = videoPlayerDebugInfoData.debugInfo
-                )
-            }
-        }
+//        if (BuildConfig.DEBUG) {
+//            Box(
+//                modifier = Modifier
+//                    .align(Alignment.TopStart)
+//                    .padding(8.dp)
+//                    .clip(MaterialTheme.shapes.medium)
+//                    .background(Color.Black.copy(alpha = 0.3f))
+//            ) {
+//                Text(
+//                    modifier = Modifier.padding(8.dp),
+//                    text = videoPlayerDebugInfoData.debugInfo
+//                )
+//            }
+//        }
         BottomSubtitle()
         SkipTips()
         PlayStateTips(
@@ -445,7 +445,7 @@ fun VideoPlayerController(
             onPlaySpeedChange = onPlaySpeedChange,
             onOpenUpSpace = onOpenUpSpace,
             onRefreshVideo = {
-                if (videoPlayer.currentPosition >= videoPlayer.duration) {
+                if (videoPlayer.duration > 0 && videoPlayer.currentPosition >= videoPlayer.duration) {
                     goTime = 0
                     onGoTime(0)
                 } else {
@@ -508,24 +508,18 @@ fun VideoPlayerController(
         
         // 底部常驻进度条组件
         if (shouldShowBottomProgressBar) {
-            // 优化后的进度条：真正实现1秒更新一次，减少重组
-            val throttledProgress by produceState(
-                initialValue = 0f,
-                key1 = videoPlayer.isPlaying // 只有播放状态变化时才重启协程
-            ) {
-                while (videoPlayer.isPlaying) {
-                    // 在协程内部获取最新的播放位置和时长，避免外部状态变化导致协程重启
+            var throttledProgress by remember { mutableStateOf(0f) }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay( 1000L)
                     val currentPosition = videoPlayer.currentPosition
                     val duration = videoPlayer.duration
-                    
                     val currentProgress = if (duration > 0) {
                         currentPosition.toFloat() / duration.toFloat()
                     } else {
                         0f
                     }
-                    value = currentProgress.coerceIn(0f, 1f)
-                    
-                    delay(300L)
+                    throttledProgress = currentProgress
                 }
             }
             

@@ -156,6 +156,7 @@ import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
 import dev.aaa1115910.bv.util.swapListWithMainContext
 import dev.aaa1115910.bv.util.toast
+import dev.aaa1115910.bv.util.unifiedGlow
 import dev.aaa1115910.bv.viewmodel.video.VideoDetailViewModel
 import dev.aaa1115910.bv.viewmodel.video.VideoInfoState
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -475,7 +476,7 @@ fun VideoInfoScreen(
                             partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
                             played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                             fromSeason = fromSeason,
-                            isVerticalVideo = containsVerticalScreenVideo,
+                            isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.dimension.isVertical,
                             playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                 ?: "",
                             playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
@@ -744,7 +745,7 @@ fun VideoInfoScreen(
                                     partTitle = if (partTitle.isNotEmpty()) partTitle else if (videoDetailViewModel.videoDetail!!.pages.size == 1) "" else playPage.title,
                                     played = if (playPage.cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                     fromSeason = false,
-                                    isVerticalVideo = containsVerticalScreenVideo,
+                                    isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.first().dimension.isVertical,
                                     playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                         ?: "",
                                     playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
@@ -870,7 +871,7 @@ fun VideoInfoScreen(
                                         partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.dimension.isVertical,
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
@@ -906,7 +907,7 @@ fun VideoInfoScreen(
                                         partTitle = if (sectionTitle == "正片") if (episode!!.pages.size>1) episode.pages.first().title else "" else episode!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.first().dimension.isVertical,
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
@@ -930,7 +931,7 @@ fun VideoInfoScreen(
                                         partTitle = episode.pages.find { it.cid == cid }!!.title,
                                         played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
                                         fromSeason = false,
-                                        isVerticalVideo = containsVerticalScreenVideo,
+                                        isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.dimension.isVertical,
                                         playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
                                             ?: "",
                                         playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
@@ -1056,23 +1057,18 @@ fun VideoInfoData(
 //                }
                 .onFocusChanged { coverHasFocus = it.hasFocus }
                 .padding(4.dp)
-                .shadow(
-                    elevation = if (coverHasFocus) 20.dp else 0.dp,
+                .unifiedGlow(
+                    enabled = coverHasFocus,
                     shape = MaterialTheme.shapes.large,
-                    ambientColor = Color.White,
-                    spotColor = Color.White,
-                    clip = false
+                    glowColor = MaterialTheme.colorScheme.onSurface,
+                    glowRadius = 12.dp,
+                    glowAlpha = 0.5f
                 ),
             onClick = onClickCover,
             shape = ClickableSurfaceDefaults.shape(
                 shape = MaterialTheme.shapes.large,
             ),
-            glow = ClickableSurfaceDefaults.glow(
-                focusedGlow = Glow(
-                    elevationColor = MaterialTheme.colorScheme.inverseSurface,
-                    elevation = 8.dp
-                )
-            ),
+            scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1.05f),
             border = ClickableSurfaceDefaults.border(
                 focusedBorder = Border(
                     border = BorderStroke(

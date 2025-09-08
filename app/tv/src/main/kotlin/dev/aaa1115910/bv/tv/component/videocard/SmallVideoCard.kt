@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -41,8 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -54,6 +52,7 @@ import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.resizedImageUrl
+import dev.aaa1115910.bv.util.unifiedGlow
 
 @Composable
 fun SmallVideoCard(
@@ -61,45 +60,17 @@ fun SmallVideoCard(
     data: VideoCardData,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
-    onFocus: () -> Unit = {}
+    onFocus: () -> Unit = {},
+    initialFocus: Boolean = false
 ) {
-    var hasFocus by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
+    var hasFocus by remember { mutableStateOf(initialFocus) }
 
-    SmallVideoCardContent(
-        modifier = modifier
-            .onFocusChanged {
-                hasFocus = it.isFocused
-                if (hasFocus) onFocus()
-            },
-        data = data,
-        hasFocus = hasFocus,
-        interactionSource = interactionSource,
-        onClick = onClick,
-        onLongClick = onLongClick,
-        onFocusChanged = {
-            hasFocus = it
-            if (it) onFocus()
-        }
-    )
-}
-
-@Composable
-fun SmallVideoCardContent(
-    modifier: Modifier = Modifier,
-    data: VideoCardData,
-    hasFocus: Boolean,
-    interactionSource: MutableInteractionSource? = null,
-    onClick: () -> Unit = {},
-    onLongClick: () -> Unit = {},
-    onFocusChanged: (Boolean) -> Unit = {}
-) {
     // 缓存密度计算，避免重复计算
-    val finalOffsetY = LocalDensity.current.run { 7.dp.toPx() }
+    val finalOffsetY = LocalDensity.current.run { 5.dp.toPx() }
     val infoOffsetY by animateFloatAsState(
         targetValue = if (hasFocus) finalOffsetY else 0f,
         animationSpec = tween(
-            durationMillis = 250
+            durationMillis = 120
         ),
         label = "info offset y"
     )
@@ -107,19 +78,32 @@ fun SmallVideoCardContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .onFocusChanged {
+                hasFocus = it.isFocused
+                if (hasFocus) onFocus()
+            },
     ) {
-        Card(
+        Surface (
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .unifiedGlow(
+                    enabled = hasFocus,
+                    shape = MaterialTheme.shapes.large,
+                    glowColor = MaterialTheme.colorScheme.onSurface,
+                    glowRadius = 7.dp,
+                    glowAlpha = 0.32f,
+                    spreadMultiplier = 1f
+                ),
             onClick = onClick,
             onLongClick = onLongClick,
-            colors = CardDefaults.colors(
+            colors = ClickableSurfaceDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 pressedContainerColor = MaterialTheme.colorScheme.surface
             ),
-            shape = CardDefaults.shape(shape = MaterialTheme.shapes.large),
-            border = CardDefaults.border(
+            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+            scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1f),
+            border = ClickableSurfaceDefaults.border(
                 focusedBorder = Border(
                     border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
                     shape = MaterialTheme.shapes.large
@@ -311,10 +295,10 @@ fun SmallVideoCardWithoutFocusPreview() {
         Surface(
             modifier = Modifier.width(300.dp)
         ) {
-            SmallVideoCardContent(
+            SmallVideoCard(
                 modifier = Modifier.padding(20.dp),
                 data = data,
-                hasFocus = false
+                initialFocus = false
             )
         }
     }
@@ -338,10 +322,10 @@ fun SmallVideoCardWithFocusPreview() {
         Surface(
             modifier = Modifier.width(300.dp)
         ) {
-            SmallVideoCardContent(
+            SmallVideoCard(
                 modifier = Modifier.padding(20.dp),
                 data = data,
-                hasFocus = true
+                initialFocus = true
             )
         }
     }

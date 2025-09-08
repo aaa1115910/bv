@@ -82,7 +82,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -439,7 +438,7 @@ fun VideoPlayerV3Screen(
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 // use shared state
                                 isLike = sharedActionState.liked,
@@ -471,7 +470,7 @@ fun VideoPlayerV3Screen(
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 dialogContainerColor = Color.Black.copy(alpha = 0.5f),
                                 isFavorite = sharedActionState.favorited,
@@ -505,7 +504,7 @@ fun VideoPlayerV3Screen(
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                    focusedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                    focusedContentColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 isCoin = sharedActionState.coin,
                                 onAddCoin = {

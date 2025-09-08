@@ -42,6 +42,7 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.unifiedGlow
 
 @Composable
 fun SeasonCard(
@@ -54,9 +55,21 @@ fun SeasonCard(
 ) {
     val localDensity = LocalDensity.current
     var coverRealWidth by remember { mutableStateOf(0.dp) }
+    var hasFocus by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = modifier.onFocusChanged { if (it.hasFocus) onFocus() },
+        modifier = modifier
+            .unifiedGlow(
+                enabled = hasFocus,
+                shape = MaterialTheme.shapes.large,
+                glowColor = MaterialTheme.colorScheme.onSurface,
+                glowRadius = 12.dp,
+                glowAlpha = 0.5f
+            )
+            .onFocusChanged {
+                hasFocus = it.isFocused
+                if (it.hasFocus) onFocus()
+            },
         onClick = onClick,
         onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
@@ -65,6 +78,8 @@ fun SeasonCard(
             pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1.05f),
+        tonalElevation = 12.dp,
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),

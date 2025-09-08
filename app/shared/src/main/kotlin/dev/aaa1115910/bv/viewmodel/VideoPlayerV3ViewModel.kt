@@ -13,7 +13,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kuaishou.akdanmaku.data.DanmakuItemData
-import com.kuaishou.akdanmaku.render.SimpleRenderer
+import com.kuaishou.akdanmaku.render.TypedDanmakuRenderer
+import com.kuaishou.akdanmaku.render.DanmakuRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.PlayData
@@ -30,6 +31,7 @@ import dev.aaa1115910.bilisubtitle.SubtitleParser
 import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
+import dev.aaa1115910.bv.player.renderer.OptimizedTextRenderer
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
@@ -94,7 +96,7 @@ class VideoPlayerV3ViewModel(
     var errorMessage by mutableStateOf("")
 
     private var playData: PlayData? by mutableStateOf(null)
-    var danmakuData = mutableStateListOf<DanmakuItemData>()
+    val danmakuData: MutableList<DanmakuItemData> = ArrayList()
     val danmakuMasks = mutableStateListOf<DanmakuMaskSegment>()
     var videoShot: VideoShot? by mutableStateOf(null)
 
@@ -159,12 +161,10 @@ class VideoPlayerV3ViewModel(
     var currentCid by mutableLongStateOf(0L)
     private var currentEpid = 0
 
-    private suspend fun releaseDanmakuPlayer() = withContext(Dispatchers.Main) {
+    private suspend fun ensureDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
-    }
-
-    suspend fun initDanmakuPlayer() = withContext(Dispatchers.Main) {
-        danmakuPlayer = DanmakuPlayer(SimpleRenderer())
+        danmakuPlayer = DanmakuPlayer(TypedDanmakuRenderer(OptimizedTextRenderer()))
+        logger.fInfo { "(Re)create DanmakuPlayer" }
     }
 
     fun loadPlayUrl(
@@ -181,9 +181,8 @@ class VideoPlayerV3ViewModel(
         seasonId?.let { this.seasonId = it }
         viewModelScope.launch(Dispatchers.Default) {
             addLogs("加载视频中")
-            releaseDanmakuPlayer()
-            initDanmakuPlayer()
-            addLogs("初始化弹幕引擎")
+            ensureDanmakuPlayer()
+            addLogs("弹幕引擎已就绪")
             if (epid != null || seasonId != null) {
                 addLogs("av$avid，cid:$cid, epid:$epid, seasonId:$seasonId")
             } else {
@@ -395,6 +394,9 @@ class VideoPlayerV3ViewModel(
         audio: Audio = currentAudio
     ) {
         logger.fInfo { "Select resolution: $qn, codec: $codec, audio: $audio" }
+        if(playData == null) {
+            return
+        }
 
         val videoItem = playData!!.dashVideos.find {
             when (Prefs.apiType) {
@@ -468,28 +470,41 @@ class VideoPlayerV3ViewModel(
     suspend fun loadDanmaku(cid: Long) {
         runCatching {
             val danmakuXmlData = BiliHttpApi.getDanmakuXml(cid = cid, sessData = Prefs.sessData)
-
-            val danmakuItemDataList = danmakuXmlData.data.map {
-                DanmakuItemData(
-                    danmakuId = it.dmid,
-                    position = (it.time * 1000).toLong(),
-                    content = it.text,
-                    mode = when (it.type) {
-                        4 -> DanmakuItemData.DANMAKU_MODE_CENTER_TOP
-                        5 -> DanmakuItemData.DANMAKU_MODE_CENTER_BOTTOM
-                        else -> DanmakuItemData.DANMAKU_MODE_ROLLING
-                    },
-                    textSize = it.size,
-                    textColor = Color(it.color).toArgb()
-                )
+            val total = danmakuXmlData.data.size
+            val batchSize = 600 // 分批大小，可根据设备性能调节
+            withContext(Dispatchers.Main) {
+                danmakuData.clear()
             }
-            danmakuData.swapListWithMainContext(danmakuItemDataList)
-            danmakuPlayer?.updateData(danmakuData)
+            danmakuXmlData.data.asSequence()
+                .chunked(batchSize) // 按批次切分原始数据
+                .forEachIndexed { index, rawBatch ->
+                    val convertedBatch = rawBatch.map {
+                        DanmakuItemData(
+                            danmakuId = it.dmid,
+                            position = (it.time * 1000).toLong(),
+                            content = it.text,
+                            mode = when (it.type) {
+                                4 -> DanmakuItemData.DANMAKU_MODE_CENTER_TOP
+                                5 -> DanmakuItemData.DANMAKU_MODE_CENTER_BOTTOM
+                                else -> DanmakuItemData.DANMAKU_MODE_ROLLING
+                            },
+                            textSize = it.size,
+                            textColor = Color(it.color).toArgb()
+                        )
+                    }
+                    withContext(Dispatchers.Main) {
+                        danmakuData.addAll(convertedBatch)
+                        danmakuPlayer?.updateData(danmakuData)
+                        if (index == 0) addLogs("弹幕首批加载 ${convertedBatch.size}/$total")
+                        else if ((index + 1) * batchSize >= total) addLogs("弹幕加载完成 共 $total 条")
+                    }
+                    // 让出调度，避免长时间占用 IO/CPU
+                    withContext(Dispatchers.IO) { kotlinx.coroutines.delay(50) }
+                }
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
             logger.fWarn { "Load danmaku filed: ${it.stackTraceToString()}" }
         }.onSuccess {
-            addLogs("已加载 ${danmakuData.size} 条弹幕")
             logger.fInfo { "Load danmaku success, size=${danmakuData.size}" }
         }
     }

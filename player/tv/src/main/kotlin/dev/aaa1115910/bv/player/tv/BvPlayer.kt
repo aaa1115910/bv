@@ -303,7 +303,6 @@ fun BvPlayer(
         override fun onPlay() {
             logger.info { "onPlay" }
             mDanmakuPlayer?.start()
-            logger.info { "danmakuplayer null? ${danmakuPlayer == null}" }
             scope.launch(Dispatchers.Main) {
                 isPlaying = true
                 isBuffering = false
@@ -358,10 +357,12 @@ fun BvPlayer(
 
         override fun onSeekBack(seekBackIncrementMs: Long) {
             mDanmakuPlayer?.seekTo(currentPosition)
+            mDanmakuPlayer?.pause()
         }
 
         override fun onSeekForward(seekForwardIncrementMs: Long) {
             mDanmakuPlayer?.seekTo(currentPosition)
+            mDanmakuPlayer?.pause()
         }
     }
 
@@ -392,7 +393,7 @@ fun BvPlayer(
     }
 
     DisposableEffect(Unit) {
-        val updateSeekTimer = timeTask(0, 100, "updateSeekTimer", false) {
+        val updateSeekTimer = timeTask(0, 200, "updateSeekTimer", false) {
             scope.launch { updateSeek() }
         }
         onDispose {
