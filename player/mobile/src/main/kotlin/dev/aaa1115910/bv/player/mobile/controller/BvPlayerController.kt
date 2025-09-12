@@ -515,7 +515,7 @@ private fun BvPlayerControllerSettingsContent(
     MaterialTheme(colorScheme = colorScheme) {
         Surface(
             modifier = modifier,
-            shape = MaterialTheme.shapes.large.copy(
+            shape = MaterialTheme.shapes.medium.copy(
                 topEnd = CornerSize(0),
                 bottomEnd = CornerSize(0)
             ),

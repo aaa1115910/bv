@@ -11,57 +11,50 @@ import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.DanmakuRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuDisplayer
 import com.kuaishou.akdanmaku.utils.Size
+import java.util.LinkedHashMap
+import java.util.HashMap
 import kotlin.math.roundToInt
 
 /**
- * 极致优化版渲染器（单行文字场景）
- * 目标：减少 GC、降低 overdraw、降低测量成本。
- * 技术点：
- * 1. LRU 自清理宽度缓存（content + size + bold）
- * 2. 文本高度/基线缓存（按 size+bold）避免重复 fontMetrics 计算
- * 3. 可选 Shadow Outline 模式 -> 单次 draw 代替描边 + 填充双绘制
- * 4. 自适应描边宽度（屏幕密度 & 文本大小）
- * 5. ASCII 快速宽度估算（命中后免 measureText，回退保证正确性）
+ * 实用优化版弹幕文字渲染器（单行文本场景）
+ *
+ * 设计原则：
+ * - 优先“稳定 + 可读 + 真正收益”而非激进/复杂的“理论优化”。
+ * - 针对弹幕文本长度短、重复率有限的特征做轻量缓存，而不是过度工程化。
+ *
+ * 优化：
+ * 1. Paint 状态缓存：避免重复设置 textSize / typeface / color / shadow。
+ * 2. FontMetrics 缓存：按 (size,bold) 维度缓存高度与 baseline。
+ * 3. 轻量 LRU 宽度缓存：LinkedHashMap(accessOrder=true) 自动淘汰最旧项。
+ * 4. 单次绘制 Shadow Outline（可选）：减少 overdraw；低端机可关闭回退双 pass。
+ * 5. 最近一次请求快速路径：相同 (内容,size,bold) 直接返回宽度。
+ *
+ * 可选策略：skipCacheBelowLength，可在极短文本场景直接 measureText()（默认关闭）。
  */
 class OptimizedTextRenderer(
-    maxWidthCache: Int = 1024,
+    maxWidthCache: Int = 512,
     private val useShadowOutline: Boolean = true,
-    private val enableAsciiFastPath: Boolean = true,
-    private val asciiFastPathMinLen: Int = 3,
-    private val padding: Float = 6f
+    private val padding: Float = 6f,
+    private val enablePerformanceMonitor: Boolean = false,
+    private val skipCacheBelowLength: Int = 0 // 可选：对极短文本直接测量（0 表示不跳过）
 ) : DanmakuRenderer {
 
-    // ---- Cache Keys ----
-    private data class WidthKey(var text: String, var size: Float, var bold: Boolean) {
-        fun update(newText: String, newSize: Float, newBold: Boolean): WidthKey {
-            text = newText; size = newSize; bold = newBold
-            return this
-        }
-    }
-    private data class MetricsKey(var size: Float, var bold: Boolean) {
-        fun update(newSize: Float, newBold: Boolean): MetricsKey {
-            size = newSize; bold = newBold
-            return this
-        }
-    }
+    /**
+     * 轻量 LRU：LinkedHashMap(accessOrder = true) + 数据类 Key，简单、可靠、可读性高。
+     */
+    private data class WidthKey(val text: String, val size: Float, val bold: Boolean)
 
-    // ---- LRU Width Cache ----
-    private inner class WidthLru(max: Int) : LinkedHashMap<WidthKey, Float>(max, 0.75f, true) {
-        private val limit = max
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<WidthKey, Float>?): Boolean = size > limit
+    private val widthCache: LinkedHashMap<WidthKey, Float> = object : LinkedHashMap<WidthKey, Float>(maxWidthCache, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<WidthKey, Float>?): Boolean = size > maxWidthCache
     }
-    private val widthCache = WidthLru(maxWidthCache)
 
     // Height + baseline metrics cache per text size/bold
     private data class Metrics(val height: Float, val ascent: Float, val descent: Float, val baselineOffset: Float)
+    private data class MetricsKey(val size: Float, val bold: Boolean)
     private val metricsCache = HashMap<MetricsKey, Metrics>()
 
-    // ASCII average width cache per size/bold (for fast path)
-    private val asciiAvgWidthCache = HashMap<MetricsKey, Float>()
-    private val asciiSample = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".
-        plus("0123456789!@#%&()[]{}:;?+-_=<>,./")
 
-    // Reused paints
+    // Reused paints with state caching
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = Color.WHITE
@@ -72,165 +65,227 @@ class OptimizedTextRenderer(
         color = Color.BLACK
     }
 
-    // Working state (避免在 updatePaint 重复局部创建临时对象)
+    // Paint状态缓存 (避免重复JNI调用)
     private var currentBold = false
     private var currentSize = 0f
+    private var currentTextColor = Color.WHITE
+    private var currentStrokeColor = Color.BLACK
+    private var currentStrokeWidth = 3f
     private var currentShadowApplied = false
-    private var lastOutlineColor: Int = Color.BLACK
-    private var paintUpdateGeneration = 0L // 避免重复 updatePaint
 
-    // 最近一次测量快速路径（避免频繁构造 Key 与 HashMap 查找）
-    private var lastText: String? = null
+    // 超快速路径：最近一次完全相同的测量请求（避免频繁构造 Key 与 HashMap 查找）
+    private var lastTextHash: Int = 0
     private var lastSize: Float = -1f
     private var lastBold: Boolean = false
     private var lastWidth: Float = -1f
 
-    // 复用 Key 对象减少 GC
-    private val reuseWidthKey = WidthKey("", 0f, false)
-    private val reuseMetricsKey = MetricsKey(0f, false)
-
-    // 基础统计（可用于调试观察命中率）
+    // 性能监控（简化）
     private var statMeasureCalls = 0L
     private var statCacheHits = 0L
+    private var lastPerformanceReport = System.currentTimeMillis()
 
     override fun updatePaint(item: DanmakuItem, displayer: DanmakuDisplayer, config: DanmakuConfig) {
         val d = item.data
-        // 限制 size 范围并按密度缩放（与原 SimpleRenderer 逻辑一致略放宽上限）
+        // 限制 size 范围并按密度缩放
         val baseSize = d.textSize.coerceIn(12, 48).toFloat() * (displayer.density - 0.6f)
         val finalSize = baseSize * config.textSizeScale
         val bold = config.bold
-        val tf = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-
+        
+        // 只有在必要时才更新Paint属性
+        var needsUpdate = false
+        
         if (currentSize != finalSize || currentBold != bold) {
+            val tf = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             textPaint.textSize = finalSize
             strokePaint.textSize = finalSize
             textPaint.typeface = tf
             strokePaint.typeface = tf
             currentSize = finalSize
             currentBold = bold
-            currentShadowApplied = false // 尺寸变化需重新设置 shadow
-            paintUpdateGeneration++
+            currentShadowApplied = false
+            needsUpdate = true
         }
 
-        // 前景颜色 & Outline 颜色
-        textPaint.color = d.textColor or Color.BLACK
-        val dark = textPaint.color == DARK_COLOR
+        // 前景颜色优化 - 避免重复设置
+        val textColor = d.textColor or Color.BLACK
+        if (currentTextColor != textColor) {
+            textPaint.color = textColor
+            currentTextColor = textColor
+            needsUpdate = true
+        }
+        
+        val dark = textColor == DARK_COLOR
         val outlineColor = if (dark) Color.WHITE else Color.BLACK
-        val outlineChanged = strokePaint.color != outlineColor
-        strokePaint.color = outlineColor
+        if (currentStrokeColor != outlineColor) {
+            strokePaint.color = outlineColor
+            currentStrokeColor = outlineColor
+            needsUpdate = true
+        }
 
-        // Stroke width 动态
+        // 动态描边宽度优化
         val strokeW = (finalSize / 14f).coerceIn(2f, 4.5f)
-        strokePaint.strokeWidth = strokeW
+        if (currentStrokeWidth != strokeW) {
+            strokePaint.strokeWidth = strokeW
+            currentStrokeWidth = strokeW
+            needsUpdate = true
+        }
 
+        // Shadow outline 优化
         if (useShadowOutline) {
-            // 采用阴影模拟描边：单次 draw，减少 overdraw（硬件加速下大多数设备仍可接受）
-            // 只有在颜色或尺寸变化时重设，避免频繁 JNI 调用
-            if (!currentShadowApplied || outlineChanged) {
-                // radius 用 strokeW 的 ~0.9f，偏移 0
+            if (!currentShadowApplied || needsUpdate) {
                 textPaint.setShadowLayer(strokeW * 0.9f, 0f, 0f, outlineColor)
                 currentShadowApplied = true
-                lastOutlineColor = outlineColor
-                paintUpdateGeneration++
+                needsUpdate = true
             }
-        } else {
-            // 关闭时确保无 shadow，回退双 pass
-            if (currentShadowApplied) {
-                textPaint.clearShadowLayer()
-                currentShadowApplied = false
-                paintUpdateGeneration++
-            }
+        } else if (currentShadowApplied) {
+            textPaint.clearShadowLayer()
+            currentShadowApplied = false
+            needsUpdate = true
         }
     }
 
     override fun measure(item: DanmakuItem, displayer: DanmakuDisplayer, config: DanmakuConfig): Size {
         updatePaint(item, displayer, config)
         val data = item.data
-        val key = reuseWidthKey.update(data.content, textPaint.textSize, textPaint.typeface == Typeface.DEFAULT_BOLD)
-        val width = fastWidthLookup(key, data.content)
-        val metrics = obtainMetrics(textPaint.textSize, textPaint.typeface == Typeface.DEFAULT_BOLD)
+        val textSize = textPaint.textSize
+        val bold = textPaint.typeface == Typeface.DEFAULT_BOLD
+        
+    val width = fastWidthLookup(data.content, textSize, bold)
+        val metrics = obtainMetrics(textSize, bold)
         val totalW = (width + padding).roundToInt()
         val totalH = (metrics.height + padding).roundToInt()
         return Size(totalW, totalH)
     }
 
     override fun draw(item: DanmakuItem, canvas: Canvas, displayer: DanmakuDisplayer, config: DanmakuConfig) {
-        // 避免重复 updatePaint（若 measure 刚调用过）
+        // 只有在必要时才调用updatePaint（通常measure已经调用过）
         updatePaint(item, displayer, config)
         val d = item.data
         val metrics = obtainMetrics(textPaint.textSize, textPaint.typeface == Typeface.DEFAULT_BOLD)
         val x = padding * 0.5f
         val baseline = padding * 0.5f + metrics.baselineOffset
+        
         if (useShadowOutline) {
-            // 单次绘制（shadow 负责 outline）
+            // 单次绘制（shadow模拟描边）
             canvas.drawText(d.content, x, baseline, textPaint)
         } else {
+            // 传统双重绘制
             canvas.drawText(d.content, x, baseline, strokePaint)
             canvas.drawText(d.content, x, baseline, textPaint)
         }
+        
         if (d.danmakuStyle == DanmakuItemData.DANMAKU_STYLE_SELF_SEND) {
-            // 自发弹幕描边矩形区分（复用 strokePaint）
-            val saved = strokePaint.style
+            // 自发弹幕边框
+            val savedStyle = strokePaint.style
             strokePaint.style = Paint.Style.STROKE
             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), strokePaint)
-            strokePaint.style = saved
+            strokePaint.style = savedStyle
         }
     }
 
     // ---- Internal Helpers ----
-    private fun computeAndCacheWidth(key: WidthKey, text: String): Float {
-        val w = if (enableAsciiFastPath && text.length >= asciiFastPathMinLen && text.isAscii()) {
-            // 估算：平均宽 * 字符数；结果与真实测量差异大时回退真实读取
-            val mk = MetricsKey(key.size, key.bold)
-            val avg = asciiAvgWidthCache.getOrPut(mk) {
-                textPaint.measureText(asciiSample) / asciiSample.length
-            }
-            val estimated = avg * text.length
-            val real = textPaint.measureText(text)
-            // 校验：误差 >8% 则改用 real
-            if (kotlin.math.abs(real - estimated) / real > 0.08f) real else real // 使用真实值以确保布局准确
-        } else {
-            textPaint.measureText(text)
-        }
-        widthCache[key] = w
-        return w
-    }
-
-    private fun fastWidthLookup(key: WidthKey, text: String): Float {
+    
+    /**
+     * 简化的宽度查找：保持简洁高效
+     * 1. 快速路径：完全相同的文本+参数（避免hash和缓存查找）
+     * 2. 缓存路径：无锁缓存查找
+     * 3. 直接测量：measureText本身很快，不需要复杂的预计算
+     */
+    private fun fastWidthLookup(text: String, size: Float, bold: Boolean): Float {
         statMeasureCalls++
-        // 最近一次命中快速路径
-        if (text === lastText && key.size == lastSize && key.bold == lastBold && lastWidth >= 0f) {
-            statCacheHits++
+        reportPerformanceIfNeeded()
+        
+        // 快速路径：完全相同的请求
+        val textHash = text.hashCode()
+        if (textHash == lastTextHash && size == lastSize && bold == lastBold && lastWidth >= 0f) {
             return lastWidth
         }
-        val w = synchronized(widthCache) {
-            widthCache[key] ?: computeAndCacheWidth(key, text).also { widthCache[key] = it }
+        if (skipCacheBelowLength > 0 && text.length < skipCacheBelowLength) {
+            val w = textPaint.measureText(text)
+            updateLastLookup(textHash, size, bold, w)
+            return w
         }
-        lastText = text
-        lastSize = key.size
-        lastBold = key.bold
-        lastWidth = w
-        return w
+        val key = WidthKey(text, size, bold)
+        widthCache[key]?.let { cached ->
+            statCacheHits++
+            updateLastLookup(textHash, size, bold, cached)
+            return cached
+        }
+        val measured = textPaint.measureText(text)
+        widthCache[key] = measured
+        updateLastLookup(textHash, size, bold, measured)
+        return measured
     }
-
-    // 可选：外部调试调用（不暴露为接口，留注释方便需要时开启）
-    @Suppress("unused")
-    private fun dumpStats(): String = "widthCalls=$statMeasureCalls cacheHits=$statCacheHits hitRate=" +
-            (if (statMeasureCalls == 0L) "-" else String.format("%.2f%%", statCacheHits * 100f / statMeasureCalls))
-
+    
+    private fun updateLastLookup(textHash: Int, size: Float, bold: Boolean, width: Float) {
+        lastTextHash = textHash
+        lastSize = size
+        lastBold = bold
+        lastWidth = width
+    }
+    
     private fun obtainMetrics(size: Float, bold: Boolean): Metrics {
-        val mk = MetricsKey(size, bold)
-        return metricsCache[mk] ?: run {
+        val key = MetricsKey(size, bold)
+        return metricsCache[key] ?: run {
             val fm = textPaint.fontMetrics
             val height = fm.descent - fm.ascent + fm.leading
-            val baselineOffset = -fm.ascent // baseline 相对顶部 padding 内部的偏移
-            Metrics(height, fm.ascent, fm.descent, baselineOffset).also { metricsCache[mk] = it }
+            val baselineOffset = -fm.ascent
+            val m = Metrics(height, fm.ascent, fm.descent, baselineOffset)
+            metricsCache[key] = m
+            m
         }
     }
-
-    private fun String.isAscii(): Boolean = all { it.code in 32..126 }
+    
+    /**
+     * 性能统计报告（简化版）
+     */
+    @Suppress("unused")
+    private fun dumpPerformanceStats(): String {
+        val hitRate = if (statMeasureCalls == 0L) 0f else 
+            statCacheHits * 100f / statMeasureCalls
+        return "MeasureCalls:$statMeasureCalls CacheHits:$statCacheHits " +
+                "HitRate:${String.format("%.1f%%", hitRate)}"
+    }
+    
+    /**
+     * 定期输出性能报告（如果启用）
+     */
+    private fun reportPerformanceIfNeeded() {
+        if (!enablePerformanceMonitor) return
+        val now = System.currentTimeMillis()
+        if (now - lastPerformanceReport > 10000) { // 每10秒报告一次
+            println("[OptimizedTextRenderer] ${dumpPerformanceStats()}")
+            lastPerformanceReport = now
+        }
+    }
 
     companion object {
         private val DARK_COLOR = Color.argb(255, 0x22, 0x22, 0x22)
+        
+        /**
+         * 创建高性能配置的渲染器实例（简化版）
+         */
+        @JvmStatic
+        fun createHighPerformance(): OptimizedTextRenderer {
+            return OptimizedTextRenderer(
+                maxWidthCache = 2048,
+                useShadowOutline = true,
+                padding = 6f,
+                enablePerformanceMonitor = false
+            )
+        }
+        
+        /**
+         * 创建调试模式的渲染器实例（带性能监控）
+         */
+        @JvmStatic
+        fun createWithMonitoring(): OptimizedTextRenderer {
+            return OptimizedTextRenderer(
+                maxWidthCache = 1024,
+                useShadowOutline = true,
+                padding = 6f,
+                enablePerformanceMonitor = true
+            )
+        }
     }
 }

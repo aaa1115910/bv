@@ -88,7 +88,7 @@ fun AppQRLoginContent(
                     Box(
                         modifier = Modifier
                             .size(240.dp)
-                            .clip(MaterialTheme.shapes.large)
+                            .clip(MaterialTheme.shapes.medium)
                             .background(Color.White),
                         contentAlignment = Alignment.Center,
                     ) {

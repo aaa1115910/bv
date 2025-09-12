@@ -100,8 +100,8 @@ fun VideoShotImage(
     Image(
         modifier = modifier
             .height(100.dp)
-            .shadow(4.dp, MaterialTheme.shapes.large)
-            .clip(MaterialTheme.shapes.large)
+            .shadow(4.dp, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
             .drawBehind {
                 if (view.isInEditMode) {
                     drawLine(Color.White, Offset(center.x, 0f), Offset(center.x, size.height), 2f)

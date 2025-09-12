@@ -170,11 +170,11 @@ fun UpCard(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(width = 3.dp, color = Color.White),
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.medium
             )
         ),
         onClick = onClick,

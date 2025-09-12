@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kuaishou.akdanmaku.data.DanmakuItemData
-import com.kuaishou.akdanmaku.render.TypedDanmakuRenderer
 import com.kuaishou.akdanmaku.render.DanmakuRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
@@ -163,7 +162,7 @@ class VideoPlayerV3ViewModel(
 
     private suspend fun ensureDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
-        danmakuPlayer = DanmakuPlayer(TypedDanmakuRenderer(OptimizedTextRenderer()))
+        danmakuPlayer = DanmakuPlayer(OptimizedTextRenderer.createHighPerformance())
         logger.fInfo { "(Re)create DanmakuPlayer" }
     }
 
@@ -492,19 +491,16 @@ class VideoPlayerV3ViewModel(
                             textColor = Color(it.color).toArgb()
                         )
                     }
-                    withContext(Dispatchers.Main) {
-                        danmakuData.addAll(convertedBatch)
-                        danmakuPlayer?.updateData(danmakuData)
-                        if (index == 0) addLogs("弹幕首批加载 ${convertedBatch.size}/$total")
-                        else if ((index + 1) * batchSize >= total) addLogs("弹幕加载完成 共 $total 条")
-                    }
+                    danmakuData.addAll(convertedBatch)
                     // 让出调度，避免长时间占用 IO/CPU
-                    withContext(Dispatchers.IO) { kotlinx.coroutines.delay(50) }
+                    withContext(Dispatchers.IO) { kotlinx.coroutines.delay(16) }
                 }
+            danmakuPlayer?.updateData(danmakuData.sortedBy { it.position })
         }.onFailure {
             addLogs("加载弹幕失败：${it.localizedMessage}")
             logger.fWarn { "Load danmaku filed: ${it.stackTraceToString()}" }
         }.onSuccess {
+            addLogs("已加载 ${danmakuData.size} 条弹幕")
             logger.fInfo { "Load danmaku success, size=${danmakuData.size}" }
         }
     }
@@ -671,10 +667,10 @@ class VideoPlayerV3ViewModel(
         }
 
         if (!Prefs.preferOfficialCdn) {
-            // 当用户不偏好官方 CDN 时，使用加权随机：官方权重 0.7，非官方权重 1.3（基准为 1）
+            // 当用户不偏好官方 CDN 时，使用加权随机：官方权重 0.8，非官方权重 1.3（基准为 1）
             logger.fInfo { "doesn't need to filter official cdn url, select a weighted random url (favor non-official)" }
 
-            val weights = urls.map { url -> if (isOfficialCdn(url)) 0.7 else 1.3 }
+            val weights = urls.map { url -> if (isOfficialCdn(url)) 0.8 else 1.3 }
             val total = weights.sum()
             // 如果权重计算异常，退回随机
             if (total <= 0.0) return urls.randomOrNull() ?: ""

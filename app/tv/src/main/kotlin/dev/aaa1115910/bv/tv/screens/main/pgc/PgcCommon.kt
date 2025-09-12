@@ -62,7 +62,7 @@ import dev.aaa1115910.bv.tv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
-import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
+import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.resizedImageUrl
@@ -84,7 +84,7 @@ fun PgcScaffold(
     val carouselItems = pgcViewModel.carouselItems
     val pgcFeeds = pgcViewModel.feedItems
 
-    ProvideLazyListPivotOffset(parentFraction = 0.45f) {
+    ProvideListBringIntoViewSpec {
         LazyColumn(
             modifier = modifier
                     .fillMaxSize(),
@@ -396,7 +396,7 @@ fun PgcFeatureButton(
             focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
             pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Box(
@@ -431,7 +431,7 @@ fun PgcFeatureButton(
             focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
             pressedContainerColor = MaterialTheme.colorScheme.inverseSurface
         ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Box(

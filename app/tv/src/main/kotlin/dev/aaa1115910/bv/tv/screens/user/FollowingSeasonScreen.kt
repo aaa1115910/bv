@@ -38,7 +38,7 @@ import dev.aaa1115910.bv.tv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
-import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
+import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
@@ -179,7 +179,7 @@ fun FollowingSeasonScreen(
             }
         }
     ) { innerPadding ->
-        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        ProvideListBringIntoViewSpec {
             LazyVerticalGrid(
                 modifier = Modifier.padding(innerPadding),
                 columns = GridCells.Fixed(6),

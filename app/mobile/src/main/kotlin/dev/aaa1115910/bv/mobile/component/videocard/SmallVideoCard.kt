@@ -46,21 +46,21 @@ fun SmallVideoCard(
     Card(
         modifier = modifier,
         onClick = onClick,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
     ) {
         Column {
             Box(
-                modifier = Modifier.clip(MaterialTheme.shapes.large),
+                modifier = Modifier.clip(MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 AsyncImage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
-                        .clip(MaterialTheme.shapes.large),
+                        .clip(MaterialTheme.shapes.medium),
                     model = data.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds

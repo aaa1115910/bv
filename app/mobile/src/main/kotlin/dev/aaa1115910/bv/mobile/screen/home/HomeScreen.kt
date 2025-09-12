@@ -134,7 +134,7 @@ fun HomeScreenContent(
 
         Surface(
             color = MaterialTheme.colorScheme.surface,
-            shape = if (windowSize == WindowWidthSizeClass.Compact) RoundedCornerShape(0.dp) else MaterialTheme.shapes.large,
+            shape = if (windowSize == WindowWidthSizeClass.Compact) RoundedCornerShape(0.dp) else MaterialTheme.shapes.medium,
         ) {
             HorizontalPager(
                 modifier = Modifier,

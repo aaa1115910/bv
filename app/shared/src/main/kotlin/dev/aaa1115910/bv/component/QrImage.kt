@@ -47,7 +47,7 @@ fun QrImage(
     modifier: Modifier = Modifier,
     content: String,
     borderWidth: Dp = 24.dp,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = MaterialTheme.shapes.medium,
     showLoadingWhenContentChanged: Boolean = true
 ) {
     val scope = rememberCoroutineScope()

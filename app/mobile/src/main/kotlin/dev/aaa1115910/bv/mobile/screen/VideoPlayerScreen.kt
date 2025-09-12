@@ -290,7 +290,7 @@ fun VideoPlayerScreen(
                                     { windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded },
                                     Modifier
                                         .padding(12.dp, 0.dp, 12.dp, 12.dp)
-                                        .clip(MaterialTheme.shapes.large)
+                                        .clip(MaterialTheme.shapes.medium)
                                 )
                                 .fillMaxWidth()
                                 .aspectRatio(16f / 9f),
@@ -565,7 +565,7 @@ fun VideoPlayerScreen(
                             VideoPlayerPages(
                                 modifier = Modifier
                                     .padding(vertical = 12.dp)
-                                    .clip(MaterialTheme.shapes.large),
+                                    .clip(MaterialTheme.shapes.medium),
                                 currentCid = playerViewModel.currentCid,
                                 pages = videoDetailViewModel.videoDetail?.pages ?: emptyList(),
                                 ugcSeason = videoDetailViewModel.videoDetail?.ugcSeason,
@@ -599,7 +599,7 @@ fun VideoPlayerScreen(
                                     .ifElse(
                                         { index == 0 },
                                         Modifier.clip(
-                                            MaterialTheme.shapes.large.copy(
+                                            MaterialTheme.shapes.medium.copy(
                                                 bottomStart = CornerSize(0.dp),
                                                 bottomEnd = CornerSize(0.dp)
                                             )
@@ -611,7 +611,7 @@ fun VideoPlayerScreen(
                                                 ?: 0) - 1
                                         },
                                         Modifier.clip(
-                                            MaterialTheme.shapes.large.copy(
+                                            MaterialTheme.shapes.medium.copy(
                                                 topStart = CornerSize(0.dp),
                                                 topEnd = CornerSize(0.dp)
                                             )

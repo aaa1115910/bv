@@ -481,7 +481,7 @@ fun SeasonCover(
     Card(
         modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
         onClick = onClick,
-        shape = CardDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = CardDefaults.shape(shape = MaterialTheme.shapes.medium),
         glow = CardDefaults.glow(
             focusedGlow = Glow(
                 elevationColor = MaterialTheme.colorScheme.inverseSurface,

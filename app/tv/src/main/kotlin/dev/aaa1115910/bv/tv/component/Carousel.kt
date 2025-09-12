@@ -86,8 +86,8 @@ fun CarouselContent(
         itemCount = data.size,
         modifier = modifier
             .height(240.dp)
-            .clip(MaterialTheme.shapes.large)
-            .focusedBorder(),
+            .clip(MaterialTheme.shapes.medium)
+            .focusedBorder(MaterialTheme.shapes.medium),
         onClick = { itemIndex ->
             onClick(data[itemIndex])
         }
@@ -219,8 +219,8 @@ private fun CarouselPreview() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clip(MaterialTheme.shapes.large)
-                    .focusedBorder(),
+                    .clip(MaterialTheme.shapes.medium)
+                    .focusedBorder(MaterialTheme.shapes.medium),
                 onClick = {
 
                 }

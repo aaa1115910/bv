@@ -5,11 +5,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -51,6 +50,7 @@ import dev.aaa1115910.bv.tv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.resizedImageUrl
 import dev.aaa1115910.bv.util.unifiedGlow
 
@@ -75,60 +75,54 @@ fun SmallVideoCard(
         label = "info offset y"
     )
 
-    Column(
+    Surface (
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged {
                 hasFocus = it.isFocused
                 if (hasFocus) onFocus()
             },
+        onClick = onClick,
+        onLongClick = onLongClick,
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            pressedContainerColor = Color.Transparent
+        ),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1f)
     ) {
-        Surface (
-            modifier = Modifier
-                .fillMaxWidth()
-                .unifiedGlow(
-                    enabled = hasFocus,
-                    shape = MaterialTheme.shapes.large,
-                    glowColor = MaterialTheme.colorScheme.onSurface,
-                    glowRadius = 7.dp,
-                    glowAlpha = 0.32f,
-                    spreadMultiplier = 1f
-                ),
-            onClick = onClick,
-            onLongClick = onLongClick,
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                pressedContainerColor = MaterialTheme.colorScheme.surface
-            ),
-            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-            scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1f),
-            border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(
-                    border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
-                    shape = MaterialTheme.shapes.large
-                )
-            )
+        Column(
+            modifier = modifier
+                .fillMaxWidth(),
         ) {
             CardCover(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .ifElse(hasFocus, Modifier
+                        .border (
+                            border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                    ),
                 cover = data.cover,
                 play = data.playString,
                 danmaku = data.danmakuString,
                 time = data.timeString
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            CardInfo(
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationY = infoOffsetY
+                    }
+                    .fillMaxWidth()
+                    .height(80.dp),
+                title = data.title,
+                upName = data.upName,
+                pubTime = data.pubTime
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        CardInfo(
-            modifier = Modifier
-                .graphicsLayer {
-                    translationY = infoOffsetY
-                }
-                .fillMaxWidth()
-                .height(80.dp),
-            title = data.title,
-            upName = data.upName,
-            pubTime = data.pubTime
-        )
     }
 }
 
@@ -193,8 +187,7 @@ fun CardCover(
     time: String
 ) {
     BoxWithConstraints(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large),
+        modifier = modifier,
         contentAlignment = Alignment.BottomCenter
     ) {
         val showInfo = maxWidth > 160.dp
@@ -207,7 +200,6 @@ fun CardCover(
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
-        
         // 只有需要显示时才创建阴影和信息组件
         if (showInfo) {
             Box(
@@ -234,7 +226,7 @@ fun CardCover(
 }
 
 @Composable
-private fun ColumnScope.CardInfo(
+private fun CardInfo(
     modifier: Modifier = Modifier,
     title: String,
     upName: String,

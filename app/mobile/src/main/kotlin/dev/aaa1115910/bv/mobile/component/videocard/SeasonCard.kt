@@ -52,7 +52,7 @@ fun SeasonCard(
     Card(
         modifier = modifier,
         onClick = onClick,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
@@ -70,13 +70,13 @@ fun SeasonCard(
             }
 
             Box(
-                modifier = Modifier.clip(MaterialTheme.shapes.large),
+                modifier = Modifier.clip(MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 AsyncImage(
                     modifier = coverModifier
                         .aspectRatio(0.75f)
-                        .clip(MaterialTheme.shapes.large)
+                        .clip(MaterialTheme.shapes.medium)
                         .onGloballyPositioned { coordinates ->
                             coverRealWidth = with(localDensity) { coordinates.size.width.toDp() }
                         },

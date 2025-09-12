@@ -411,7 +411,7 @@ private fun UserInfo(
             .size(480.dp, 140.dp)
             .onFocusChanged { hasFocus = it.hasFocus },
         colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Row(
@@ -536,7 +536,7 @@ private fun IncognitoModeCardContent(
     Surface(
         modifier = modifier.height(140.dp),
         colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Column(
@@ -568,7 +568,7 @@ private fun FollowedUserCard(
     Surface(
         modifier = modifier.height(140.dp),
         colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Column(
@@ -598,7 +598,7 @@ private fun UserSwitchCard(
     Surface(
         modifier = modifier.height(140.dp),
         colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         onClick = onClick
     ) {
         Column(
@@ -757,7 +757,7 @@ private fun FollowingAnimeVideosRow(
             item {
                 Button(
                     modifier = Modifier.height(rowHeight),
-                    shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.large),
+                    shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.medium),
                     onClick = showMore
                 ) {
                     Column(

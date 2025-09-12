@@ -219,7 +219,7 @@ private fun SearchInput(
                 value = searchKeyword,
                 onValueChange = onSearchKeywordChange,
                 maxLines = 1,
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.medium,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSearch(searchKeyword) }),
                 colors = OutlinedTextFieldDefaults.colors(

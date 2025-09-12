@@ -30,7 +30,7 @@ import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
-import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
+import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.viewmodel.user.HistoryViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -98,7 +98,7 @@ fun HistoryScreen(
             }
         }
     ) { innerPadding ->
-        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        ProvideListBringIntoViewSpec(padding = 26.dp) {
             LazyVerticalGrid(
                 modifier = Modifier.padding(innerPadding),
                 columns = GridCells.Fixed(4),

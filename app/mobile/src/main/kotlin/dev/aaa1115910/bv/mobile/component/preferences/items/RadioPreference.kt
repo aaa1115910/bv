@@ -96,7 +96,7 @@ private fun <T> RadioDialog(
                 items(values.toList()) { (itemValue, label) ->
                     ListItem(
                         modifier = Modifier
-                            .clip(MaterialTheme.shapes.large)
+                            .clip(MaterialTheme.shapes.medium)
                             .clickable { onValueChange(itemValue) },
                         headlineContent = { Text(text = label) },
                         leadingContent = {

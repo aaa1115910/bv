@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,19 +54,10 @@ fun SeasonCard(
 ) {
     val localDensity = LocalDensity.current
     var coverRealWidth by remember { mutableStateOf(0.dp) }
-    var hasFocus by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier
-            .unifiedGlow(
-                enabled = hasFocus,
-                shape = MaterialTheme.shapes.large,
-                glowColor = MaterialTheme.colorScheme.onSurface,
-                glowRadius = 12.dp,
-                glowAlpha = 0.5f
-            )
             .onFocusChanged {
-                hasFocus = it.isFocused
                 if (it.hasFocus) onFocus()
             },
         onClick = onClick,
@@ -77,13 +67,16 @@ fun SeasonCard(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             pressedContainerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
-        scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1.05f),
-        tonalElevation = 12.dp,
+        tonalElevation = 8.dp,
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
+        scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1.04f),
         border = ClickableSurfaceDefaults.border(
+            border = Border(
+                BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border.copy(0.05f))
+            ),
             focusedBorder = Border(
                 border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.medium
             )
         )
     ) {
@@ -94,19 +87,17 @@ fun SeasonCard(
                 Modifier.fillMaxWidth()
             }
             val textBoxModifier = if (coverHeight != null) {
-                Modifier.width((0.75 * coverHeight.value).dp)
+                Modifier.width((0.765 * coverHeight.value).dp)
             } else {
                 Modifier
             }
 
             Box(
-                modifier = Modifier.clip(MaterialTheme.shapes.large),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 AsyncImage(
                     modifier = coverModifier
-                        .aspectRatio(0.75f)
-                        .clip(MaterialTheme.shapes.large)
+                        .aspectRatio(0.765f)
                         .onGloballyPositioned { coordinates ->
                             coverRealWidth = with(localDensity) { coordinates.size.width.toDp() }
                         },
@@ -146,7 +137,7 @@ fun SeasonCard(
             }
 
             Column(
-                modifier = textBoxModifier.padding(8.dp)
+                modifier = textBoxModifier.padding(8.dp, 6.dp, 8.dp, 8.dp)
             ) {
                 Text(
                     text = data.title,

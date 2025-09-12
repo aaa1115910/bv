@@ -203,7 +203,7 @@ fun DynamicVideoContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
-                        .clip(MaterialTheme.shapes.large),
+                        .clip(MaterialTheme.shapes.medium),
                     model = video.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
@@ -674,7 +674,7 @@ fun DynamicLiveRcmd(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.6f)
-                        .clip(MaterialTheme.shapes.large),
+                        .clip(MaterialTheme.shapes.medium),
                     model = liveRcmd.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds
@@ -730,7 +730,7 @@ fun DynamicPgc(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.6f)
-                    .clip(MaterialTheme.shapes.large),
+                    .clip(MaterialTheme.shapes.medium),
                 model = pgc.cover.resizedImageUrl(ImageSize.SmallVideoCardCover),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds
@@ -758,7 +758,7 @@ fun DynamicArticle(
             AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.large),
+                    .clip(MaterialTheme.shapes.medium),
                 model = article.covers.first().resizedImageUrl(ImageSize.SmallVideoCardCover),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds

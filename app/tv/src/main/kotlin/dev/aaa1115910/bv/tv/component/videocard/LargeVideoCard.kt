@@ -72,7 +72,7 @@ fun LargeVideoCard(
             .onFocusChanged { hasFocus = it.isFocused }
             .focusedBorder(MaterialTheme.shapes.medium)
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier
@@ -84,7 +84,7 @@ fun LargeVideoCard(
                         modifier = Modifier
                             .fillMaxHeight()
                             .aspectRatio(1.6f)
-                            .clip(MaterialTheme.shapes.large),
+                            .clip(MaterialTheme.shapes.medium),
                         model = data.cover,
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds
@@ -94,7 +94,7 @@ fun LargeVideoCard(
                         modifier = Modifier
                             .fillMaxHeight()
                             .aspectRatio(1.6f),
-                        shape = MaterialTheme.shapes.large,
+                        shape = MaterialTheme.shapes.medium,
                         colors = SurfaceDefaults.colors(
                             containerColor = Color.White
                         )

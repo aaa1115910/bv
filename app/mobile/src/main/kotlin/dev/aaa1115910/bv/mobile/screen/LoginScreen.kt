@@ -409,7 +409,7 @@ fun SmsLoginInputs(
             },
             label = { Text(text = stringResource(R.string.sms_login_phone_number)) },
             maxLines = 1,
-            shape = MaterialTheme.shapes.large,
+            shape = MaterialTheme.shapes.medium,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Send
@@ -441,7 +441,7 @@ fun SmsLoginInputs(
             onValueChange = { codeText = it },
             label = { Text(text = stringResource(R.string.sms_login_code)) },
             maxLines = 1,
-            shape = MaterialTheme.shapes.large,
+            shape = MaterialTheme.shapes.medium,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done

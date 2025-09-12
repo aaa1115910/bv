@@ -31,7 +31,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -130,12 +132,25 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(contentPadding)
         ) {
+            val borderColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            val borderWidth = 1.dp
             // Left side - NavigationRail
             NavigationRail(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .width(72.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    .width(72.dp)
+                    .padding(end = borderWidth)
+                    .drawBehind {
+                        val borderWidthPx = borderWidth.toPx()
+                        val x = size.width + borderWidthPx
+
+                        drawLine(
+                            color = borderColor,
+                            start = Offset(x = x, y = 0f),
+                            end = Offset(x = x, y = size.height),
+                            strokeWidth = borderWidthPx
+                        )
+                    },
             ) {
                 DrawerContent(
                     modifier = Modifier.fillMaxWidth(),

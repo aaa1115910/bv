@@ -40,7 +40,7 @@ import dev.aaa1115910.bv.tv.component.videocard.SeasonCard
 import dev.aaa1115910.bv.entity.carddata.SeasonCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.SeasonInfoActivity
-import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
+import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.util.fInfo
 import dev.aaa1115910.bv.util.getDisplayName
 import dev.aaa1115910.bv.viewmodel.index.PgcIndexViewModel
@@ -61,7 +61,7 @@ fun PgcIndexScreen(
     var currentSeasonIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember {
         derivedStateOf {
-            currentSeasonIndex < 5
+            currentSeasonIndex < 6
         }
     }
     val titleFontSize by animateFloatAsState(
@@ -138,7 +138,7 @@ fun PgcIndexScreen(
             }
         }
     ) { innerPadding ->
-        ProvideLazyListPivotOffset(parentFraction = 0.45f) {
+        ProvideListBringIntoViewSpec {
             LazyVerticalGrid(
                 modifier = Modifier.padding(innerPadding),
                 columns = GridCells.Fixed(6),

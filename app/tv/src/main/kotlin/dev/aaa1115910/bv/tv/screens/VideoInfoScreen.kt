@@ -1059,14 +1059,14 @@ fun VideoInfoData(
                 .padding(4.dp)
                 .unifiedGlow(
                     enabled = coverHasFocus,
-                    shape = MaterialTheme.shapes.large,
+                    shape = MaterialTheme.shapes.medium,
                     glowColor = MaterialTheme.colorScheme.onSurface,
                     glowRadius = 12.dp,
                     glowAlpha = 0.5f
                 ),
             onClick = onClickCover,
             shape = ClickableSurfaceDefaults.shape(
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.medium,
             ),
             scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1.05f),
             border = ClickableSurfaceDefaults.border(
@@ -1075,7 +1075,7 @@ fun VideoInfoData(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.border
                     ),
-                    shape = MaterialTheme.shapes.large
+                    shape = MaterialTheme.shapes.medium
                 )
             )
         ) {
@@ -1096,8 +1096,8 @@ fun VideoInfoData(
                         RoundedCornerShape(
                             topStart = 0.dp,
                             topEnd = 0.dp,
-                            bottomStart = 16.dp,
-                            bottomEnd = 16.dp
+                            bottomStart = 12.dp,
+                            bottomEnd = 12.dp
                         )
                     )
                     .background(

@@ -109,7 +109,7 @@ fun VideosRow(
                 item {
                     Button(
                         modifier = Modifier.height(rowHeight),
-                        shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.large),
+                        shape = ButtonDefaults.shape(shape = MaterialTheme.shapes.medium),
                         onClick = showMore
                     ) {
                         Column(

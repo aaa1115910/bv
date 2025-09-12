@@ -61,7 +61,7 @@ import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.manager.FollowStateManager
-import dev.aaa1115910.bv.tv.util.ProvideLazyListPivotOffset
+import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fInfo
@@ -330,7 +330,7 @@ fun UpSpaceScreen(
             }
         }
     ) { innerPadding ->
-        ProvideLazyListPivotOffset(parentFraction = 0.5f) {
+        ProvideListBringIntoViewSpec(padding = 26.dp) {
             LazyVerticalGrid(
                 modifier = Modifier.padding(innerPadding),
                 columns = GridCells.Fixed(4),
@@ -342,27 +342,23 @@ fun UpSpaceScreen(
                     items = userSpaceViewModel.tvSpaceVideos,
                     key = { index, _ -> index }
                 ) { index, video ->
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SmallVideoCard(
-                            modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(listFocusRequester)),
-                            data = video,
-                            onClick = {
-                                VideoInfoActivity.actionStart(
-                                    context = context,
-                                    aid = video.avid,
-                                    proxyArea = ProxyArea.checkProxyArea(video.title)
-                                )
-                            },
-                            onFocus = {
-                                currentIndex = index
-                                if (index + 12 > userSpaceViewModel.tvSpaceVideos.size) {
-                                    userSpaceViewModel.update()
-                                }
+                    SmallVideoCard(
+                        modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(listFocusRequester)),
+                        data = video,
+                        onClick = {
+                            VideoInfoActivity.actionStart(
+                                context = context,
+                                aid = video.avid,
+                                proxyArea = ProxyArea.checkProxyArea(video.title)
+                            )
+                        },
+                        onFocus = {
+                            currentIndex = index
+                            if (index + 12 > userSpaceViewModel.tvSpaceVideos.size) {
+                                userSpaceViewModel.update()
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

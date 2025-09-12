@@ -126,7 +126,7 @@ fun DynamicScreen(
                     .fillMaxSize()
                     .ifElse(
                         { windowSize != WindowWidthSizeClass.Compact },
-                        Modifier.clip(MaterialTheme.shapes.large)
+                        Modifier.clip(MaterialTheme.shapes.medium)
                     )
                     .background(MaterialTheme.colorScheme.surface),
                 columns = StaggeredGridCells.Adaptive(300.dp),
