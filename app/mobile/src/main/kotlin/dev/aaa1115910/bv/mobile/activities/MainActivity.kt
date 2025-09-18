@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 scope.launch(Dispatchers.IO) {
-                    isMainlandChina = NetworkUtil.isMainlandChina()
+                    isMainlandChina = false // NetworkUtil.isMainlandChina()
                     isCheckingNetwork = false
                     keepSplashScreen = false
                 }
@@ -41,8 +41,8 @@ class MainActivity : ComponentActivity() {
             BVMobileTheme {
                 if (isCheckingNetwork) {
                     // 避免提前加载内容
-                } else if (isMainlandChina) {
-                    RegionBlockScreen()
+//                } else if (isMainlandChina) {
+//                    RegionBlockScreen()
                 } else {
                     MobileMainScreen()
                 }

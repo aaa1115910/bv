@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.mobile.component.videocard.SmallVideoCard
@@ -134,7 +135,7 @@ fun UgcListItem(
                                 )
                                 Text(text = data.danmakuString)
                             }
-                            Text(text = data.pubTimeString)
+                            data.pubTime?.toLong()?.toSmartDate()?.let { Text(text = it) }
                         }
                     }
                 }
@@ -162,5 +163,5 @@ private val previewData = VideoCardData(
     play = 2333,
     danmaku = 66666,
     time = 2333 * 1000,
-    pubTime = 1234567890
+    pubTime = "3小时前"
 )

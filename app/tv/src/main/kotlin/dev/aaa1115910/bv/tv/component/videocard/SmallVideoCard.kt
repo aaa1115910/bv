@@ -52,7 +52,6 @@ import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
 import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.resizedImageUrl
-import dev.aaa1115910.bv.util.unifiedGlow
 
 @Composable
 fun SmallVideoCard(

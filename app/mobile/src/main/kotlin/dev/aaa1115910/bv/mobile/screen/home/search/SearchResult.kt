@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.aaa1115910.biliapi.entity.ugc.toSmartDate
 import dev.aaa1115910.biliapi.repositories.SearchType
 import dev.aaa1115910.biliapi.repositories.SearchTypeResult
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
@@ -231,7 +232,7 @@ private fun VideoSearchResult(
                         danmaku = video.danmaku,
                         upName = video.author,
                         time = video.duration * 1000L,
-                        pubTime = video.pubDate
+                        pubTime = video.pubDate.toLong().toSmartDate()
                     ),
                     onClick = { onClickVideo(video.aid) }
                 )
@@ -255,7 +256,7 @@ private fun VideoSearchResult(
                         danmaku = video.danmaku,
                         upName = video.author,
                         time = video.duration * 1000L,
-                        pubTime = video.pubDate
+                        pubTime = video.pubDate.toLong().toSmartDate()
                     ),
                     onClick = { onClickVideo(video.aid) }
                 )
