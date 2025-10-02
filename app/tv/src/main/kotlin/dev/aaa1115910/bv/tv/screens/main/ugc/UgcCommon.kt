@@ -45,6 +45,7 @@ import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.UgcCarousel
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.util.fInfo
@@ -67,6 +68,15 @@ fun UgcRegionScaffold(
     var currentFocusedIndex by remember { mutableIntStateOf(0) }
     val shouldLoadMore by remember {
         derivedStateOf { !ugcViewModel.ugcItems.isEmpty() && currentFocusedIndex + 12 > ugcViewModel.ugcItems.size }
+    }
+
+    val onLongClickVideo: (UgcItem) -> Unit = { ugcItem ->
+        UpInfoActivity.actionStart(
+            context,
+            mid = ugcItem.authorId,
+            name = ugcItem.author,
+            face = ugcItem.authorFace
+        )
     }
 
     LaunchedEffect(shouldLoadMore) {
@@ -127,6 +137,7 @@ fun UgcRegionScaffold(
                         )
                     },
                     onClick = { VideoInfoActivity.actionStart(context, item.aid) },
+                    onLongClick = {onLongClickVideo(item) },
                     onFocus = { currentFocusedIndex = index }
                 )
             }

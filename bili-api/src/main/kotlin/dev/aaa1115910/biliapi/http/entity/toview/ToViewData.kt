@@ -82,7 +82,9 @@ data class ToViewItem(
 ) {
     @Serializable
     data class Owner(
-        val name: String
+        val name: String,
+        val mid: Long,
+        val face: String
     )
     // @Serializable
     // data class HistoryInfo(

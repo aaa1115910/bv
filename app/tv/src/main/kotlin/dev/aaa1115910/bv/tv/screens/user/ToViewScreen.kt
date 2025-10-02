@@ -29,6 +29,7 @@ import androidx.tv.material3.Text
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
 import dev.aaa1115910.bv.viewmodel.user.ToViewViewModel
@@ -119,6 +120,7 @@ fun ToViewScreen(
                                     proxyArea = ProxyArea.checkProxyArea(item.title)
                                 )
                             },
+                            onLongClick = { UpInfoActivity.actionStart( context, mid = item.upId, name = item.upName, face = item.upFace ) },
                             onFocus = {
                                 currentIndex = index
                                 //预加载

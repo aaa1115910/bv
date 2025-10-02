@@ -105,6 +105,8 @@ class FavoriteViewModel(
                             play = favoriteItem.cntInfo.play,
                             danmaku = favoriteItem.cntInfo.danmaku,
                             upName = favoriteItem.upper.name,
+                            upId = favoriteItem.upper.mid,
+                            upFace = favoriteItem.upper.face,
                             time = favoriteItem.duration * 1000L,
                             pubTime = favoriteItem.favTime.toSmartDate() + context.getString(R.string.favorite_at)
                         )

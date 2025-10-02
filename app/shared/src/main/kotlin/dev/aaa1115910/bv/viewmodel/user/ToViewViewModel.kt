@@ -70,6 +70,8 @@ class ToViewViewModel(
                         // danmaku = ToViewItem.danmaku, // 视频时长>1小时时 显示不全，所以不显示弹幕数
                         pubTime = ToViewItem.pubdate.toSmartDate(),
                         upName = ToViewItem.author,
+                        upId = ToViewItem.authorId,
+                        upFace = ToViewItem.authorFace,
                         timeString = if (ToViewItem.progress == -1) context.getString(R.string.play_time_finish)
                         else context.getString(
                             R.string.play_time_history,

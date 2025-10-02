@@ -35,6 +35,8 @@ data class HistoryItem(
     val title: String,
     val cover: String,
     val author: String,
+    val authorId: Long = 0,
+    val authorFace: String = "",
     val duration: Int,
     val progress: Int,
     val type: HistoryItemType,
@@ -52,6 +54,8 @@ data class HistoryItem(
                 title = item.title,
                 cover = item.cover,
                 author = item.authorName,
+                authorId = item.authorMid,
+                authorFace = item.authorFace,
                 duration = item.duration,
                 progress = item.progress,
                 type = when (item.history.business) {
@@ -91,6 +95,11 @@ data class HistoryItem(
                 CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.name
                 CursorItem.CardItemCase.CARD_OGV -> ""
                 else -> ""
+            },
+            authorId =  when (item.cardItemCase) {
+                CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.mid
+                CursorItem.CardItemCase.CARD_OGV -> 0
+                else -> 0
             },
             duration = when (item.cardItemCase) {
                 CursorItem.CardItemCase.CARD_UGC -> item.cardUgc.duration.toInt()

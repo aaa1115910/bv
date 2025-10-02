@@ -2,6 +2,7 @@ package dev.aaa1115910.biliapi.repositories
 
 import bilibili.app.dynamic.v2.DynamicGrpcKt
 import bilibili.app.dynamic.v2.Refresh
+import bilibili.app.dynamic.v2.UserInfo
 import bilibili.app.dynamic.v2.dynAllReq
 import bilibili.app.dynamic.v2.dynDetailReq
 import bilibili.app.dynamic.v2.dynVideoReq
@@ -18,6 +19,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.RelationType
+import dev.aaa1115910.biliapi.http.entity.user.UserInfoData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -360,5 +362,13 @@ class UserRepository(
                 result
             }
         }
+    }
+    
+    suspend fun getUserInfo(mid: Long): UserInfoData {
+        val response = BiliHttpApi.getUserInfo(
+            uid = mid,
+            sessData = authRepository.sessionData ?: ""
+        ).getResponseData()
+        return response
     }
 }

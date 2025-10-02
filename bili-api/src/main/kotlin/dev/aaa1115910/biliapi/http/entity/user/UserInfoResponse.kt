@@ -77,7 +77,7 @@ data class UserInfoData(
     val topPhoto: String,
     //val theme: Any? = null,
     val sys_notice: SysNotice,
-    val live_room: LiveRoom,
+    val live_room: LiveRoom? = null,
     val birthday: String,
     val school: School? = null,
     val profession: Profession,

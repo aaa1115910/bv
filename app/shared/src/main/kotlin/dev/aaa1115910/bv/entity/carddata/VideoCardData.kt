@@ -8,6 +8,8 @@ data class VideoCardData(
     val title: String,
     val cover: String,
     val upName: String,
+    val upId: Long = 0,
+    val upFace: String = "",
     val reason: String = "",
     val play: Int? = null,
     var playString: String = "",

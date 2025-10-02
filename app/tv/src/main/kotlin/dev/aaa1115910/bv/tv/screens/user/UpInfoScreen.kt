@@ -70,6 +70,7 @@ import dev.aaa1115910.bv.util.toast
 import dev.aaa1115910.bv.viewmodel.user.UserSpaceViewModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
@@ -109,7 +110,11 @@ fun UpSpaceScreen(
 
     val listFocusRequester = remember { FocusRequester() }
     LaunchedEffect(userSpaceViewModel.tvSpaceVideos.isNotEmpty()) {
-        listFocusRequester.requestFocus()
+        delay(1200)
+        // 如果listFocusRequester还没有焦点，则请求焦点
+        if (!listFocusRequester.freeFocus()) {
+            listFocusRequester.requestFocus()
+        }
     }
 
     val updateFollowingState: () -> Unit = {
@@ -187,6 +192,21 @@ fun UpSpaceScreen(
             userSpaceViewModel.upMid = mid
             userSpaceViewModel.upName = name
             userSpaceViewModel.upFace = face
+            // 如果face为空，调用 getUserInfo 接口获取
+            if (face.isBlank()) {
+                scope.launch(Dispatchers.IO) {
+                    runCatching {
+                        val userInfo = userRepository.getUserInfo(
+                            mid = mid
+                        )
+                        withContext(Dispatchers.Main) {
+                            userSpaceViewModel.upFace = userInfo.face
+                        }
+                    }.onFailure {
+                        logger.fInfo { "Get user info failed: ${it.stackTraceToString()}" }
+                    }
+                }
+            }
             userSpaceViewModel.update()
             updateFollowingState()
         } else {

@@ -31,6 +31,7 @@ import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
@@ -59,6 +60,16 @@ fun DynamicsScreen(
             proxyArea = ProxyArea.checkProxyArea(dynamic.title)
         )
     }
+
+    val onLongClickVideo: (DynamicVideo) -> Unit = { dynamic ->
+        UpInfoActivity.actionStart(
+            context,
+            mid = dynamic.authorId,
+            name = dynamic.author,
+            face = dynamic.authorFace
+        )
+    }
+
 
     //不能直接使用 LaunchedEffect(currentFocusedIndex)，会导致整个页面重组
     LaunchedEffect(shouldLoadMore) {
@@ -96,6 +107,7 @@ fun DynamicsScreen(
                             )
                         },
                         onClick = { onClickVideo(item) },
+                        onLongClick = {onLongClickVideo(item) },
                         onFocus = { currentFocusedIndex = index }
                     )
                 }

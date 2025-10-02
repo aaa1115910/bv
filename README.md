@@ -21,14 +21,6 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
 **都是随心乱写的代码，能跑就行。**
 
-## 特色
-
-- :bug: 丰富多样的 Bug
-- :children_crossing: 反人类设计
-- :zap: 卡卡卡卡卡
-- :art: 异样审美
-- :disappointed: 巨难用
-
 ---
 
 <div align="center">
@@ -46,6 +38,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 - 把“浏览历史、我的收藏、我的追番、稍后再看”整合到“首页”下面
 - 增加“首页默认标签”设置 （设置-界面设置，默认“推荐”）
   - 可以修改打开应用时首页默认选中的标签
+- 首页-推荐、热门、动态、历史、收藏、稍后看以及UGC 这几个页面增加在视频卡片长按确认键进入up主空间页面
 
   ![首页](https://github.com/user-attachments/assets/2c38b5ed-6844-4cff-91ce-57f5e1cf6a74)
 - UGC视频详情页增加点赞、投币功能

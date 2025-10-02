@@ -43,6 +43,7 @@ import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import dev.aaa1115910.biliapi.entity.FavoriteFolderMetadata
 import dev.aaa1115910.bv.R
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
@@ -203,6 +204,7 @@ fun FavoriteScreen(
                             modifier = Modifier.onFocusChanged { focusOnGrid = it.isFocused },
                             data = history,
                             onClick = { VideoInfoActivity.actionStart(context, history.avid) },
+                            onLongClick = { UpInfoActivity.actionStart( context, mid = history.upId, name = history.upName, face = history.upFace ) },
                             onFocus = {
                                 currentIndex = index
                                 //预加载

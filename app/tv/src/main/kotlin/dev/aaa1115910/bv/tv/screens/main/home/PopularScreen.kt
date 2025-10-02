@@ -28,6 +28,7 @@ import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
@@ -51,6 +52,15 @@ fun PopularScreen(
 
     val onClickVideo: (UgcItem) -> Unit = { ugcItem ->
         VideoInfoActivity.actionStart(context, ugcItem.aid)
+    }
+
+    val onLongClickVideo: (UgcItem) -> Unit = { ugcItem ->
+        UpInfoActivity.actionStart(
+            context,
+            mid = ugcItem.authorId,
+            name = ugcItem.author,
+            face = ugcItem.authorFace
+        )
     }
 
     LaunchedEffect(shouldLoadMore) {
@@ -87,6 +97,7 @@ fun PopularScreen(
                         )
                     },
                     onClick = { onClickVideo(item) },
+                    onLongClick = {onLongClickVideo(item) },
                     onFocus = { currentFocusedIndex = index }
                 )
             }

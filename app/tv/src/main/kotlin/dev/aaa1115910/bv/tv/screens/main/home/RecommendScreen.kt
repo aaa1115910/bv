@@ -28,6 +28,7 @@ import dev.aaa1115910.biliapi.entity.ugc.UgcItem
 import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
 import dev.aaa1115910.bv.tv.util.ProvideListBringIntoViewSpec
@@ -51,6 +52,15 @@ fun RecommendScreen(
 
     val onClickVideo: (UgcItem) -> Unit = { ugcItem ->
         VideoInfoActivity.actionStart(context, ugcItem.aid)
+    }
+
+    val onLongClickVideo: (UgcItem) -> Unit = { ugcItem ->
+        UpInfoActivity.actionStart(
+            context,
+            mid = ugcItem.authorId,
+            name = ugcItem.author,
+            face = ugcItem.authorFace
+        )
     }
 
     //不能直接使用 LaunchedEffect(currentFocusedIndex)，会导致整个页面重组
@@ -88,6 +98,7 @@ fun RecommendScreen(
                         )
                     },
                     onClick = { onClickVideo(item) },
+                    onLongClick = {onLongClickVideo(item) },
                     onFocus = { currentFocusedIndex = index }
                 )
             }
