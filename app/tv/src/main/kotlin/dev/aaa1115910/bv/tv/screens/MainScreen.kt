@@ -138,7 +138,7 @@ fun MainScreen(
             NavigationRail(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .width(72.dp)
+                    .width(71.dp)
                     .padding(end = borderWidth)
                     .drawBehind {
                         val borderWidthPx = borderWidth.toPx()

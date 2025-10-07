@@ -1,8 +1,6 @@
 package dev.aaa1115910.bv.tv.component
 
 import android.content.Context
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +35,6 @@ import dev.aaa1115910.biliapi.entity.ugc.UgcTypeV2
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.util.getDisplayName
 import dev.aaa1115910.bv.util.ifElse
-import dev.aaa1115910.bv.util.isDpadLeft
 import dev.aaa1115910.bv.util.isKeyDown
 import kotlinx.coroutines.delay
 
@@ -66,11 +63,6 @@ fun TopNav(
         )
     }
 
-    val verticalPadding by animateDpAsState(
-        targetValue = if (isLargePadding) 24.dp else 12.dp,
-        label = "top nav vertical padding",
-        animationSpec = tween()
-    )
     var tabMoved by remember { mutableStateOf(true) }
 
     LaunchedEffect(selectedNav) {
@@ -84,7 +76,7 @@ fun TopNav(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(12.dp, verticalPadding),
+            .padding(top = 12.dp, bottom = 2.dp, start = 12.dp, end = 12.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         TabRow(

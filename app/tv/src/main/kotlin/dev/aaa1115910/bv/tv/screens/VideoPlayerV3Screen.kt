@@ -134,6 +134,9 @@ fun VideoPlayerV3Screen(
             partTitle = playerViewModel.partTitle,
             play = playerViewModel.play,
             danmaku = playerViewModel.danmaku,
+            like = playerViewModel.like,
+            coin = playerViewModel.coin,
+            favorite = playerViewModel.favorite,
             upName = playerViewModel.upName,
             pubTime = playerViewModel.pubTime,
             fromSeason = playerViewModel.fromSeason

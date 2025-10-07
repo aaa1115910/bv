@@ -1,10 +1,10 @@
 package dev.aaa1115910.bv.tv.screens.main.home
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -22,6 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,7 @@ import dev.aaa1115910.bv.tv.component.LoadingTip
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.tv.R
+import dev.aaa1115910.bv.tv.activities.user.FollowActivity
 import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.activities.video.VideoInfoActivity
 import dev.aaa1115910.bv.tv.component.videocard.SmallVideoCard
@@ -85,7 +91,15 @@ fun DynamicsScreen(
         val spacedBy = dimensionResource(R.dimen.grid_spacedBy)
         ProvideListBringIntoViewSpec {
             LazyVerticalGrid(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .onPreviewKeyEvent {
+                        if(it.type == KeyEventType.KeyUp && it.key == Key.Menu) {
+                            context.startActivity(Intent(context, FollowActivity::class.java))
+                            return@onPreviewKeyEvent true
+                        }
+                        false
+                    },
                 columns = GridCells.Fixed(4),
                 state = lazyGridState,
                 contentPadding = PaddingValues(padding),

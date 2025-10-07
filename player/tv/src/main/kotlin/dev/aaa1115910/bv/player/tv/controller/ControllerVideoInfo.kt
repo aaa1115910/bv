@@ -64,6 +64,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material3.Surface
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
@@ -91,6 +92,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import dev.aaa1115910.bv.util.requestFocus
+import kotlinx.coroutines.Job
 import kotlin.math.roundToInt
 
 private fun formatSpeed(speed: Float): String {
@@ -114,7 +116,9 @@ fun ControllerVideoInfo(
     onOpenRelatedVideo: () -> Unit,
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> }
+    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
+    onSeekBack: () -> Unit,
+    onSeekForward: () -> Unit
 ) {
     val videoPlayerClockData = LocalVideoPlayerClockData.current
     val videoPlayerSeekData = LocalVideoPlayerSeekData.current
@@ -178,6 +182,9 @@ fun ControllerVideoInfo(
                 movingIcon = videoPlayerSeekThumbData.movingIcon,
                 play = videoPlayerVideoInfoData.play,
                 danmaku = videoPlayerVideoInfoData.danmaku,
+                like = videoPlayerVideoInfoData.like,
+                coin = videoPlayerVideoInfoData.coin,
+                favorite = videoPlayerVideoInfoData.favorite,
                 upName = videoPlayerVideoInfoData.upName,
                 pubTime = videoPlayerVideoInfoData.pubTime,
                 isPlaying = videoPlayerStateData.isPlaying || videoPlayerStateData.isBuffering,
@@ -195,7 +202,9 @@ fun ControllerVideoInfo(
                 onOpenSetting = onOpenSetting,
                 onLoopPlayModeChange = onLoopPlayModeChange,
                 fromSeason = videoPlayerVideoInfoData.fromSeason,
-                userActionContent = userActionContent
+                userActionContent = userActionContent,
+                onSeekBack = onSeekBack,
+                onSeekForward = onSeekForward
             )
         }
     }
@@ -240,6 +249,9 @@ fun ControllerVideoInfoBottom(
     movingIcon: String,
     play: Int,
     danmaku: Int,
+    like: Int,
+    coin: Int,
+    favorite: Int,
     upName: String,
     pubTime: String,
     isPlaying: Boolean,
@@ -257,10 +269,12 @@ fun ControllerVideoInfoBottom(
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
     fromSeason: Boolean = false,
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> }
+    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
+    onSeekBack: () -> Unit,
+    onSeekForward: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var hideVideoInfoJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var hideVideoInfoJob by remember { mutableStateOf<Job?>(null) }
     var pauseAutoHide by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var speed by remember { mutableStateOf(playSpeed) }
@@ -319,7 +333,6 @@ fun ControllerVideoInfoBottom(
         ).filter { it.visible }
     }
 
-    var focusedButtonId by remember { mutableStateOf(buttons.firstOrNull()?.id ?: "") }
     val focusRequesters = remember(buttons) {
         buttons.associate { button ->
             button.id to FocusRequester()
@@ -337,17 +350,15 @@ fun ControllerVideoInfoBottom(
         )
     }
 
+    val seekbarFocusRequester = remember { FocusRequester() }
+    var seekbarHasFocus by remember { mutableStateOf(false) }
+
     LaunchedEffect(show) {
         if (show) {
             // 初始聚焦 play 按钮
+            delay(250)
             runCatching {
-                focusRequesters["play"]?.requestFocus()
-                focusedButtonId = "play"
-            }
-            delay(300)
-            runCatching {
-                focusRequesters["play"]?.requestFocus()
-                focusedButtonId = "play"
+                seekbarFocusRequester.requestFocus()
             }
         }
     }
@@ -367,7 +378,7 @@ fun ControllerVideoInfoBottom(
         }
     }
 
-    LaunchedEffect(show, focusedButtonId, showSpeedDialog, pauseAutoHide) {
+    LaunchedEffect(show, showSpeedDialog, pauseAutoHide) {
         scheduleHideJob()
     }
 
@@ -375,12 +386,7 @@ fun ControllerVideoInfoBottom(
         modifier = modifier
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown) {
-                    // 当焦点在用户操作区，按下下键应回到 play 按钮
-                    if (focusedButtonId in userActionFocusRequesters.value.keys && event.key == Key.DirectionDown) {
-                        focusRequesters["play"]?.requestFocus()
-                        focusedButtonId = "play"
-                        return@onPreviewKeyEvent true
-                    }
+                    scheduleHideJob()
                 }
                 false
             }
@@ -427,9 +433,9 @@ fun ControllerVideoInfoBottom(
                     .fillMaxWidth(),
                 text = "$upName · ${
                     if (play >= 10000) "${play / 10000}万" else "$play"
-                }次播放 · ${
+                }播放 · ${
                     if (danmaku >= 10000) "${danmaku / 10000}万" else "$danmaku"
-                }弹幕 · 发布于 $pubTime",
+                }弹幕 · ${like}点赞 · ${coin}投币 · ${favorite}收藏 · 发布于 $pubTime",
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -441,7 +447,6 @@ fun ControllerVideoInfoBottom(
             userActionFocusRequesters.value,
             { id ->
                 // 当用户 action 获得焦点时，设置当前聚焦 id 并重置自动隐藏计时
-                focusedButtonId = id
                 scheduleHideJob()
             },
             { pause ->
@@ -452,44 +457,45 @@ fun ControllerVideoInfoBottom(
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, bottom = 2.dp),
+                .padding(start = 30.dp, end = 30.dp, bottom = 2.dp)
+                .focusRequester(seekbarFocusRequester)
+                .onFocusChanged {
+                    scheduleHideJob()
+                    seekbarHasFocus = it.isFocused
+                }
+                .focusProperties{
+                    up = userActionFocusRequesters.value["like"] ?: FocusRequester()
+                    down = focusRequesters["speed"] ?: FocusRequester()
+                }
+                .focusable()
+                .onPreviewKeyEvent{
+                    if (seekbarHasFocus && it.type == KeyEventType.KeyUp) {
+                        when (it.key) {
+                            Key.DirectionLeft -> onSeekBack()
+                            Key.DirectionRight -> onSeekForward()
+                        }
+                    }
+                    false
+                },
             duration = seekData.duration,
             position = seekData.position,
             bufferedPercentage = seekData.bufferedPercentage,
             moveState = SeekMoveState.Idle,
             idleIcon = idleIcon,
-            movingIcon = movingIcon
+            movingIcon = movingIcon,
+            isFocused = seekbarHasFocus
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 32.dp, end = 32.dp, top = 0.dp, bottom = 10.dp)
+                .focusProperties{
+                    up = seekbarFocusRequester
+                }
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown) {
-                        val currentIndex = buttons.indexOfFirst { it.id == focusedButtonId }
-                        when (event.key) {
-                            Key.DirectionRight -> {
-                                if (currentIndex < buttons.size - 1) {
-                                    val nextButton = buttons[currentIndex + 1]
-                                    focusRequesters[nextButton.id]?.requestFocus()
-                                    focusedButtonId = nextButton.id
-                                    return@onPreviewKeyEvent true
-                                }
-                            }
-                            Key.DirectionLeft -> {
-                                if (currentIndex > 0) {
-                                    val prevButton = buttons[currentIndex - 1]
-                                    focusRequesters[prevButton.id]?.requestFocus()
-                                    focusedButtonId = prevButton.id
-                                    return@onPreviewKeyEvent true
-                                }
-                            }
-                            Key.DirectionDown -> {
-                                if (!fromSeason) {
-                                    onOpenRelatedVideo()
-                                    return@onPreviewKeyEvent true
-                                }
-                            }
+                        if (!fromSeason && event.key == Key.DirectionDown) {
+                            onOpenRelatedVideo()
                         }
                     }
                     false
@@ -501,19 +507,13 @@ fun ControllerVideoInfoBottom(
                     modifier = Modifier
                         .height(32.dp)
                         .width((button.width ?: 32).dp)
-                        .focusRequester(focusRequesters[button.id] ?: FocusRequester())
-                        .focusable()
-                        .onFocusChanged {
-                            if (it.isFocused) {
-                                focusedButtonId = button.id
-                                scheduleHideJob()
-                            }
-                        },
+                        .focusRequester(focusRequesters[button.id] ?: FocusRequester()),
                     onClick = button.onClick,
                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                     contentPadding = PaddingValues(2.dp),
                     colors = ButtonDefaults.colors(
-                        containerColor = Color.White.copy(alpha = if (focusedButtonId == button.id) 0.3f else 0f)
+                        containerColor = Color.Transparent,
+                        focusedContainerColor = Color.White.copy(alpha = 0.3f)
                     )
                 ) {
                     if (button.text != null) {
@@ -557,16 +557,18 @@ fun ControllerVideoInfoBottom(
             )
         }
     }
-    
-    SpeedDialog(
-        show = showSpeedDialog,
-        onHideDialog = { showSpeedDialog = false },
-        speed = speed,
-        onSpeedChange = {
-            speed = it
-            onPlaySpeedChange(it)
-        }
-    )
+
+    if (showSpeedDialog) {
+        SpeedDialog(
+            show = true,
+            onHideDialog = { showSpeedDialog = false },
+            speed = speed,
+            onSpeedChange = {
+                speed = it
+                onPlaySpeedChange(it)
+            }
+        )
+    }
 }
 
 @Composable
@@ -599,7 +601,8 @@ private fun SpeedDialog(
                     Text(
                         text = "播放速度",
                         color = Color.White,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 18.sp
                     )
 
                     Column(
@@ -624,7 +627,7 @@ private fun SpeedDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(imageVector = Icons.Rounded.ArrowDropUp, contentDescription = null, tint = Color.White)
-                        Text(text = "${speed}x", color = Color.White)
+                        Text(text = "${speed}x", color = Color.White, fontSize = 16.sp)
                         Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null, tint = Color.White)
                     }
                 }
@@ -736,7 +739,9 @@ private fun ControllerVideoInfoPreview() {
                 onLoopPlayModeChange = {},
                 userActionContent = { _, _, _ ->
                     // User action buttons go here
-                }
+                },
+                onSeekBack = {},
+                onSeekForward = {}
             )
         }
     }

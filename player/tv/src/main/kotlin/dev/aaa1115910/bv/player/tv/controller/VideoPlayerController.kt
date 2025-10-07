@@ -184,7 +184,7 @@ fun VideoPlayerController(
         resetAutoSeekConfirmTimer()
         logger.info { "onTimeBack: [current=${videoPlayer.currentPosition}, goTime=$goTime]" }
     }
-    
+
     // 对外暴露 showInfo
     LaunchedEffect(Unit) { registerShowInfoProvider { showInfo } }
 
@@ -293,7 +293,7 @@ fun VideoPlayerController(
                     Key.DirectionDown -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        
+
                         // 检查是否为连按两次（间隔小于300ms且上次按键时间不为0）
                         val currentTime = System.currentTimeMillis()
                         val isDoublePress = lastPressDown != 0L && currentTime - lastPressDown < 300
@@ -471,7 +471,21 @@ fun VideoPlayerController(
                 showMenuController = true
             },
             onLoopPlayModeChange = onLoopPlayModeChange,
-            userActionContent = userActionContent
+            userActionContent = userActionContent,
+            onSeekBack = {
+                scope.launch(Dispatchers.Main) {
+                    delay(100)
+                    openSeekController()
+                    onTimeBack()
+                }
+            },
+            onSeekForward = {
+                scope.launch(Dispatchers.Main) {
+                    delay(100)
+                    openSeekController()
+                    onTimeForward()
+                }
+            }
         )
         SeekController(
             show = showSeekController,

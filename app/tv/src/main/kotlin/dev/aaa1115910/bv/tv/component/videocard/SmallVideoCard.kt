@@ -1,11 +1,7 @@
 package dev.aaa1115910.bv.tv.component.videocard
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,9 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +44,6 @@ import dev.aaa1115910.bv.tv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
-import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.resizedImageUrl
 
 @Composable
@@ -64,16 +57,6 @@ fun SmallVideoCard(
 ) {
     var hasFocus by remember { mutableStateOf(initialFocus) }
 
-    // 缓存密度计算，避免重复计算
-    val finalOffsetY = LocalDensity.current.run { 5.dp.toPx() }
-    val infoOffsetY by animateFloatAsState(
-        targetValue = if (hasFocus) finalOffsetY else 0f,
-        animationSpec = tween(
-            durationMillis = 120
-        ),
-        label = "info offset y"
-    )
-
     Surface (
         modifier = modifier
             .fillMaxWidth()
@@ -85,25 +68,20 @@ fun SmallVideoCard(
         onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            pressedContainerColor = Color.Transparent
+            focusedContainerColor = if (hasFocus) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.23f) else Color.Transparent,
+            pressedContainerColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.23f)
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1f)
     ) {
         Column(
             modifier = modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(top= 3.dp, start = 3.dp, end = 3.dp),
         ) {
             CardCover(
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .ifElse(hasFocus, Modifier
-                        .border (
-                            border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
-                            shape = MaterialTheme.shapes.medium
-                        )
-                    ),
+                    .clip(MaterialTheme.shapes.medium),
                 cover = data.cover,
                 play = data.playString,
                 danmaku = data.danmakuString,
@@ -112,11 +90,9 @@ fun SmallVideoCard(
             Spacer(modifier = Modifier.height(8.dp))
             CardInfo(
                 modifier = Modifier
-                    .graphicsLayer {
-                        translationY = infoOffsetY
-                    }
                     .fillMaxWidth()
-                    .height(80.dp),
+                    .height(79.dp)
+                    .padding(horizontal = 1.dp),
                 title = data.title,
                 upName = data.upName,
                 pubTime = data.pubTime
@@ -231,7 +207,7 @@ private fun CardInfo(
     upName: String,
     pubTime: String?
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier) {
         Text(
             modifier = Modifier,
             text = title,

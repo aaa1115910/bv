@@ -34,6 +34,9 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             playerIconMoving: String = "",
             play: Int = 0,
             danmaku: Int = 0,
+            like: Int = 0,
+            coin: Int = 0,
+            favorite: Int = 0,
             upName: String = "",
             upId: Long = 0L,
             upFace: String = "",
@@ -56,6 +59,9 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
                     putExtra("playerIconMoving", playerIconMoving)
                     putExtra("play", play)
                     putExtra("danmaku", danmaku)
+                    putExtra("like", like)
+                    putExtra("coin", coin)
+                    putExtra("favorite", favorite)
                     putExtra("upName", upName)
                     putExtra("upId", upId)
                     putExtra("upFace", upFace)

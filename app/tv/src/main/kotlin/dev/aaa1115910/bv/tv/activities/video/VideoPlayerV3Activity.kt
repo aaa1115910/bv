@@ -43,6 +43,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
             playerIconMoving: String = "",
             play: Int = 0,
             danmaku: Int = 0,
+            like: Int = 0,
+            coin: Int = 0,
+            favorite: Int = 0,
             upName: String = "",
             upId: Long = 0L,
             upFace: String = "",
@@ -81,6 +84,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
                     putExtra("playerIconMoving", playerIconMoving)
                     putExtra("play", play)
                     putExtra("danmaku", danmaku)
+                    putExtra("like", like)
+                    putExtra("coin", coin)
+                    putExtra("favorite", favorite)
                     putExtra("upName", upName)
                     putExtra("upId", upId)
                     putExtra("upFace", upFace)
@@ -174,6 +180,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
             val play = intent.getIntExtra("play", 0)
             val danmaku = intent.getIntExtra("danmaku", 0)
+            val like = intent.getIntExtra("like", 0)
+            val coin = intent.getIntExtra("coin", 0)
+            val favorite = intent.getIntExtra("favorite", 0)
             val upName = intent.getStringExtra("upName") ?: ""
             val upId = intent.getLongExtra("upId", 0)
             val upFace = intent.getStringExtra("upFace") ?: ""
@@ -198,6 +207,9 @@ class VideoPlayerV3Activity : ComponentActivity() {
                 this.playerIconMoving = playerIconMoving
                 this.play = play
                 this.danmaku = danmaku
+                this.like = like
+                this.coin = coin
+                this.favorite = favorite
                 this.upName = upName
                 this.upId = upId
                 this.upFace = upFace

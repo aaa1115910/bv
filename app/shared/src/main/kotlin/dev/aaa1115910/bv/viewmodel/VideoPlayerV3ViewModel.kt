@@ -139,6 +139,9 @@ class VideoPlayerV3ViewModel(
     var proxyArea by mutableStateOf(ProxyArea.MainLand)
     var play by mutableStateOf(0)
     var danmaku by mutableStateOf(0)
+    var like by mutableStateOf(0)
+    var coin by mutableStateOf(0)
+    var favorite by mutableStateOf(0)
     var upName by mutableStateOf("")
     var upFace by mutableStateOf("")
     var pubTime by mutableStateOf("")
@@ -667,10 +670,10 @@ class VideoPlayerV3ViewModel(
         }
 
         if (!Prefs.preferOfficialCdn) {
-            // 当用户不偏好官方 CDN 时，使用加权随机：官方权重 0.8，非官方权重 1.3（基准为 1）
+            // 当用户不偏好官方 CDN 时，使用加权随机：官方权重 0.8，非官方权重 1.2（基准为 1）
             logger.fInfo { "doesn't need to filter official cdn url, select a weighted random url (favor non-official)" }
 
-            val weights = urls.map { url -> if (isOfficialCdn(url)) 0.8 else 1.3 }
+            val weights = urls.map { url -> if (isOfficialCdn(url)) 0.8 else 1.2 }
             val total = weights.sum()
             // 如果权重计算异常，退回随机
             if (total <= 0.0) return urls.randomOrNull() ?: ""

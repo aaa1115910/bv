@@ -34,6 +34,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.util.ifElse
 
 @Composable
@@ -61,6 +62,16 @@ fun VideosRow(
     )
     var rowHeight by remember { mutableStateOf(0.dp) }
 
+    val onLongClickVideo: (VideoCardData) -> Unit = { videoCard ->
+        if (videoCard.upId > 0)
+            UpInfoActivity.actionStart(
+                context,
+                mid = videoCard.upId,
+                name = videoCard.upName,
+                face = videoCard.upFace
+            )
+    }
+
     Column(
         modifier = modifier
             .onFocusChanged { hasFocus = it.hasFocus }
@@ -86,7 +97,7 @@ fun VideosRow(
                         it.size.height.toDp()
                     }
                 },
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalAlignment = Alignment.CenterVertically,
             contentPadding = PaddingValues(horizontal = 36.dp)
         ) {
@@ -102,7 +113,8 @@ fun VideosRow(
                         } else {
                             onOpenVideoInfo(videoData)
                         }
-                    }
+                    },
+                    onLongClick={onLongClickVideo(videoData)}
                 )
             }
             if (!hideShowMore) {

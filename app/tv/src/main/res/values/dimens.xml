@@ -4,6 +4,6 @@
     <dimen name="grid_padding">20dp</dimen>
 
     <!--视频 Grid 内部间距-->
-    <dimen name="grid_spacedBy">20dp</dimen>
+    <dimen name="grid_spacedBy">16dp</dimen>
 
 </resources>

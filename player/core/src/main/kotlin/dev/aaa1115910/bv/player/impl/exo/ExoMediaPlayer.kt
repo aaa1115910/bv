@@ -55,7 +55,7 @@ class ExoMediaPlayer(
         val renderersFactory = DefaultRenderersFactory(context).apply {
             setExtensionRendererMode(
                 when (options.enableFfmpegAudioRenderer) {
-                    true -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+                    true -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                     false -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
                 }
             )
