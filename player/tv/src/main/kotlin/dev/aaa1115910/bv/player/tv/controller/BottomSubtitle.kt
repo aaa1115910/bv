@@ -19,16 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekState
 
 @Composable
 fun BottomSubtitle(
     modifier: Modifier = Modifier
 ) {
     val videoPlayerConfigData = LocalVideoPlayerConfigData.current
-    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerSeekState = LocalVideoPlayerSeekState.current
     val subtitleData = videoPlayerConfigData.currentSubtitleData
-    val time = videoPlayerSeekData.position
+    val time = videoPlayerSeekState.position
 
     var currentText by remember { mutableStateOf("") }
 

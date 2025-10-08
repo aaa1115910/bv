@@ -42,7 +42,7 @@ import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerDebugInfoData
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekState
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
@@ -106,7 +106,7 @@ fun VideoPlayerController(
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
-    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerSeekState = LocalVideoPlayerSeekState.current
     val videoPlayerStateData = LocalVideoPlayerStateData.current
     val videoPlayerDebugInfoData = LocalVideoPlayerDebugInfoData.current
     val logger = KotlinLogging.logger {}
@@ -133,7 +133,7 @@ fun VideoPlayerController(
     var doublePressDownJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     val openSeekController = {
-        if (!showSeekController) goTime = videoPlayerSeekData.position
+        if (!showSeekController) goTime = videoPlayerSeekState.position
         showSeekController = true
         showInfo = false
     }
@@ -168,8 +168,8 @@ fun VideoPlayerController(
     val onTimeForward = {
         val baseTime = playerSeekForwardStep * 1000L // 转换为毫秒
         val targetTime = goTime + (baseTime + calCoefficient() * 5000)
-        goTime =
-            if (targetTime > videoPlayerSeekData.duration) videoPlayerSeekData.duration else targetTime
+        val duration = videoPlayerSeekState.duration
+        goTime = if (targetTime > duration) duration else targetTime
         lastSeekChangeTime = System.currentTimeMillis()
         moveState = SeekMoveState.Forward
         resetAutoSeekConfirmTimer()

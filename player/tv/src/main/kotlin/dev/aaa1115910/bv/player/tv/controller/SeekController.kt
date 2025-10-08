@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import dev.aaa1115910.biliapi.entity.video.VideoShot
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekState
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
@@ -36,7 +36,7 @@ fun SeekController(
     moveState: SeekMoveState,
 ) {
     val videoPlayerVideoShotData = LocalVideoPlayerVideoShotData.current
-    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerSeekState = LocalVideoPlayerSeekState.current
     val videoPlayerSeekThumbData = LocalVideoPlayerSeekThumbData.current
 
     Box(
@@ -50,7 +50,7 @@ fun SeekController(
             label = "SeekControllerVisible"
         ) {
             SeekController(
-                duration = videoPlayerSeekData.duration,
+                duration = videoPlayerSeekState.duration,
                 position = goTime,
                 moveState = moveState,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,

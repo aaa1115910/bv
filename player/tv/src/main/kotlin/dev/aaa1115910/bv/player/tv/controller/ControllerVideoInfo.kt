@@ -72,14 +72,14 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerClockData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerClockState
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
-import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekState
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerStateData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
-import dev.aaa1115910.bv.player.entity.VideoPlayerClockData
-import dev.aaa1115910.bv.player.entity.VideoPlayerSeekData
+import dev.aaa1115910.bv.player.entity.VideoPlayerClockState
+import dev.aaa1115910.bv.player.entity.VideoPlayerSeekState
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
@@ -120,8 +120,8 @@ fun ControllerVideoInfo(
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit
 ) {
-    val videoPlayerClockData = LocalVideoPlayerClockData.current
-    val videoPlayerSeekData = LocalVideoPlayerSeekData.current
+    val videoPlayerClockState = LocalVideoPlayerClockState.current
+    val videoPlayerSeekState = LocalVideoPlayerSeekState.current
     val videoPlayerSeekThumbData = LocalVideoPlayerSeekThumbData.current
     val videoPlayerVideoInfoData = LocalVideoPlayerVideoInfoData.current
     val videoPlayerStateData = LocalVideoPlayerStateData.current
@@ -158,9 +158,9 @@ fun ControllerVideoInfo(
         ) {
             ControllerVideoInfoTop(
                 clock = Triple(
-                    videoPlayerClockData.hour,
-                    videoPlayerClockData.minute,
-                    videoPlayerClockData.second
+                    videoPlayerClockState.hour,
+                    videoPlayerClockState.minute,
+                    videoPlayerClockState.second
                 )
             )
         }
@@ -174,7 +174,7 @@ fun ControllerVideoInfo(
             ControllerVideoInfoBottom(
                 show = show,
                 onHideInfo = onHideInfo,
-                seekData = videoPlayerSeekData,
+                seekData = videoPlayerSeekState,
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
                 playSpeed = playSpeed,
@@ -244,7 +244,7 @@ fun ControllerVideoInfoBottom(
     playSpeed: Float = 1f,
     title: String,
     partTitle: String,
-    seekData: VideoPlayerSeekData,
+    seekData: VideoPlayerSeekState,
     idleIcon: String,
     movingIcon: String,
     play: Int,
@@ -358,7 +358,8 @@ fun ControllerVideoInfoBottom(
             // 初始聚焦 play 按钮
             delay(250)
             runCatching {
-                seekbarFocusRequester.requestFocus()
+                // seekbarFocusRequester.requestFocus()
+                focusRequesters["play"]?.requestFocus()
             }
         }
     }
@@ -465,7 +466,7 @@ fun ControllerVideoInfoBottom(
                 }
                 .focusProperties{
                     up = userActionFocusRequesters.value["like"] ?: FocusRequester()
-                    down = focusRequesters["speed"] ?: FocusRequester()
+                    down = focusRequesters["play"] ?: FocusRequester()
                 }
                 .focusable()
                 .onPreviewKeyEvent{
@@ -686,12 +687,8 @@ private fun ClockPreview() {
 private fun ControllerVideoInfoPreview() {
     var show by remember { mutableStateOf(true) }
 
+    val clockState = VideoPlayerClockState(hour = 12, minute = 30, second = 30)
     CompositionLocalProvider(
-        LocalVideoPlayerSeekData provides VideoPlayerSeekData(
-            duration = 100,
-            position = 33,
-            bufferedPercentage = 66
-        ),
         LocalVideoPlayerVideoInfoData provides VideoPlayerVideoInfoData(
             title = "【A320】民航史上最佳逆袭！A320的前世今生！民航史上最佳逆袭！A320的前世今生！",
             partTitle = "2023车队车手介绍分析预测 2023车队车手介绍分析预测 2023车队车手介绍分析预测",
@@ -700,11 +697,7 @@ private fun ControllerVideoInfoPreview() {
             danmaku = 1,
             pubTime = "2025-08-05"
         ),
-        LocalVideoPlayerClockData provides VideoPlayerClockData(
-            hour = 12,
-            minute = 30,
-            second = 30
-        ),
+        LocalVideoPlayerClockState provides clockState,
         LocalVideoPlayerSeekThumbData provides VideoPlayerSeekThumbData(
             idleIcon = "",
             movingIcon = ""

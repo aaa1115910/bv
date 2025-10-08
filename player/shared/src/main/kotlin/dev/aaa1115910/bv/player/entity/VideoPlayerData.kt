@@ -1,6 +1,11 @@
 package dev.aaa1115910.bv.player.entity
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -15,6 +20,17 @@ data class VideoPlayerSeekData(
     val position: Long = 0,
     val bufferedPercentage: Int = 0
 )
+
+@Stable
+class VideoPlayerSeekState(
+    duration: Long = 1,
+    position: Long = 0,
+    bufferedPercentage: Int = 0
+) {
+    var duration by mutableLongStateOf(duration)
+    var position by mutableLongStateOf(position)
+    var bufferedPercentage by mutableIntStateOf(bufferedPercentage)
+}
 
 data class VideoPlayerSeekThumbData(
     val idleIcon: String = "",
@@ -42,6 +58,17 @@ data class VideoPlayerClockData(
     val minute: Int = 0,
     val second: Int = 0,
 )
+
+@Stable
+class VideoPlayerClockState(
+    hour: Int = 0,
+    minute: Int = 0,
+    second: Int = 0
+) {
+    var hour by mutableIntStateOf(hour)
+    var minute by mutableIntStateOf(minute)
+    var second by mutableIntStateOf(second)
+}
 
 data class VideoPlayerLogsData(
     val logs: String = "",
@@ -114,9 +141,11 @@ data class VideoPlayerDebugInfoData(
 )
 
 val LocalVideoPlayerSeekData = compositionLocalOf { VideoPlayerSeekData() }
+val LocalVideoPlayerSeekState = compositionLocalOf { VideoPlayerSeekState() }
 val LocalVideoPlayerSeekThumbData = compositionLocalOf { VideoPlayerSeekThumbData() }
 val LocalVideoPlayerVideoInfoData = compositionLocalOf { VideoPlayerVideoInfoData() }
 val LocalVideoPlayerClockData = compositionLocalOf { VideoPlayerClockData() }
+val LocalVideoPlayerClockState = compositionLocalOf { VideoPlayerClockState() }
 val LocalVideoPlayerLogsData = compositionLocalOf { VideoPlayerLogsData() }
 val LocalVideoPlayerHistoryData = compositionLocalOf { VideoPlayerHistoryData() }
 val LocalVideoPlayerPaymentData = compositionLocalOf { VideoPlayerPaymentData() }
