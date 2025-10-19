@@ -76,7 +76,7 @@ data class RegionDynamic(
         val like: Int? = null,
         val name: String? = null,
         val param: String,
-        val play: Int? = null,
+        val play: Long? = null,
         @SerialName("pubdate")
         val pubDate: Int,
         val reply: Int? = null,

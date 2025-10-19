@@ -42,7 +42,7 @@ data class ToViewItem(
     val progress: Int,
     val type: ToViewItemType,
     val pubdate: Long,
-    val play: Int,
+    val play: Long,
     val danmaku: Int
 ) {
     companion object {

@@ -323,7 +323,7 @@ private fun SearchResultListItem(
                     avid = searchResult.aid,
                     title = searchResult.title.removeHtmlTags(),
                     cover = searchResult.cover,
-                    play = with(searchResult.play) { if (this == -1) null else this },
+                    play = with(searchResult.play) { if (this == -1L) null else this },
                     danmaku = with(searchResult.danmaku) { if (this == -1) null else this },
                     upName = searchResult.author,
                     time = searchResult.duration * 1000L,

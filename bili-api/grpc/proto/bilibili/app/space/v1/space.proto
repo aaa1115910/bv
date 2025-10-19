@@ -71,7 +71,7 @@ message BiliSpaceVideo {
   //
   string danmaku = 7;
   //
-  int32 play = 8;
+  int64 play = 8;
   //
   int64 ctime = 9;
   //

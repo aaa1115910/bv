@@ -11,7 +11,7 @@ data class VideoCardData(
     val upId: Long = 0,
     val upFace: String = "",
     val reason: String = "",
-    val play: Int? = null,
+    val play: Long? = null,
     var playString: String = "",
     val danmaku: Int? = null,
     var danmakuString: String = "",

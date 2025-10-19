@@ -116,7 +116,7 @@ data class VideoDetail(
     }
 
     data class Stat(
-        val view: Int,
+        val view: Long,
         val danmaku: Int,
         val reply: Int,
         val favorite: Int,

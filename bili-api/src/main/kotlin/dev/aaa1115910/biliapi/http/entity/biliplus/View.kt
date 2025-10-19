@@ -24,7 +24,7 @@ data class View(
     val list: List<ListItem>,
     val mid: Long,
     val pic: String,
-    val play: Int,
+    val play: Long,
     val review: Int,
     val tag: String,
     val tid: Int,
@@ -353,7 +353,7 @@ data class View(
             val nowRank: Int,
             val reply: Int,
             val share: Int,
-            val view: Int,
+            val view: Long,
             val vt: Int,
             val vv: Int
         )

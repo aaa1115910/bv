@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CntInfo(
     val collect: Int,
-    val play: Int,
+    val play: Long,
     val danmaku: Int = 0,
     @SerialName("thumb_up")
     val thumbUp: Int = 0,

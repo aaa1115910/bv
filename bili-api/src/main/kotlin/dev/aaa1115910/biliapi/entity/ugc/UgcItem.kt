@@ -16,7 +16,7 @@ data class UgcItem(
     val author: String,
     val authorId: Long = 0,
     val authorFace: String = "",
-    val play: Int,
+    val play: Long,
     val danmaku: Int,
     val duration: Int,
     val idx: Int = -1,
@@ -34,9 +34,9 @@ data class UgcItem(
                 play = with(rcmdItem.coverLeftText1) {
                     runCatching {
                         if (this!!.endsWith("万")) {
-                            (this.substring(0, this.length - 1).toDouble() * 10000).toInt()
+                            (this.substring(0, this.length - 1).toDouble() * 10000).toLong()
                         } else {
-                            this.toInt()
+                            this.toLong()
                         }
                     }.getOrDefault(-1)
                 },
@@ -63,7 +63,7 @@ data class UgcItem(
                 author = rcmdItem.owner?.name ?: "",
                 authorId = rcmdItem.owner?.mid ?: 0,
                 authorFace = rcmdItem.owner?.face ?: "",
-                play = rcmdItem.stat?.view ?: -1,
+                play = rcmdItem.stat?.view ?: -1L,
                 danmaku = rcmdItem.stat?.danmaku ?: -1,
                 duration = rcmdItem.duration,
                 pubTime = rcmdItem.pubdate.smartDate

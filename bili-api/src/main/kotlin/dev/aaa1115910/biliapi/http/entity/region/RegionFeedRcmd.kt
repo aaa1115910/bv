@@ -25,7 +25,7 @@ data class RegionFeedRcmd(
     ) {
         @Serializable
         data class Stat(
-            val view: Int,
+            val view: Long,
             val like: Int,
             val danmaku: Int
         )

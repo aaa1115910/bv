@@ -210,7 +210,7 @@ private fun FavoriteContentPreview() {
                 avid = it.toLong(),
                 title = "folder$folderId video$it",
                 cover = "",
-                play = it * 1000,
+                play = it * 1000L,
                 danmaku = it * 100,
                 upName = "upName$it",
                 time = it * 1000L

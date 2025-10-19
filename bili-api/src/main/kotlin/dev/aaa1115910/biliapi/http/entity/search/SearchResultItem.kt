@@ -53,7 +53,7 @@ data class SearchArticleResult(
     @SerialName("sub_type")
     val subType: Int,
     val version: String,
-    val view: Int,
+    val view: Long,
     val reply: Int,
     @SerialName("rank_index")
     val rankIndex: Int,
@@ -385,7 +385,7 @@ data class SearchVideoResult(
     @SerialName("arcrank")
     val arcRank: String? = null,
     val pic: String,
-    val play: Int,
+    val play: Long,
     @SerialName("video_review")
     val videoReview: Int,
     val favorites: Int,

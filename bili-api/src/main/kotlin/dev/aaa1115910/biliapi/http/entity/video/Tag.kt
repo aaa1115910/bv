@@ -60,7 +60,7 @@ data class Tag(
      */
     @Serializable
     data class Count(
-        val view: Int,
+        val view: Long,
         val use: Int,
         val atten: Int
     )

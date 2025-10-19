@@ -28,7 +28,7 @@ message Item {
   // av:视频稿件
   string goto = 6;
   // 播放数
-  int32 play = 7;
+  int64 play = 7;
   // 弹幕数
   int32 danmaku = 8;
   // UP主mid

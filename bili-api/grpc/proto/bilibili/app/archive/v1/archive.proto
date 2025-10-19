@@ -182,7 +182,7 @@ message Stat {
   // 稿件avid
   int64 aid = 1;
   // 播放数(当屏蔽时为-1)
-  int32 view = 2;
+  int64 view = 2;
   // 弹幕数
   int32 danmaku = 3;
   // 评论数

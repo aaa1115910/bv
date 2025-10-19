@@ -2217,7 +2217,7 @@ message UgcSeasonStat {
   // 合集id
   int64 season_id = 1;
   // 观看数
-  int32 view = 2;
+  int64 view = 2;
   // 弹幕数
   int32 danmaku = 3;
   // 评论数

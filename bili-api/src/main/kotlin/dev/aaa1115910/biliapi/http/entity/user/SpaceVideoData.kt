@@ -97,7 +97,7 @@ data class WebSpaceVideoData(
             val length: String,
             val mid: Long,
             val pic: String,
-            val play: Int,
+            val play: Long,
             val review: Int,
             val subtitle: String,
             val title: String,
@@ -212,7 +212,7 @@ data class AppSpaceVideoData(
         val isPgc: Boolean,
         @SerialName("is_live_playback")
         val isLivePlayback: Boolean,
-        val play: Int,
+        val play: Long,
         val danmaku: Int,
         val ctime: Int,
         @SerialName("ugc_pay")

@@ -173,7 +173,7 @@ data class Episode(
         val coin: Int,
         val danmakus: Int,
         val likes: Int,
-        val play: Int,
+        val play: Long,
         val reply: Int,
         val vt: Int
     )

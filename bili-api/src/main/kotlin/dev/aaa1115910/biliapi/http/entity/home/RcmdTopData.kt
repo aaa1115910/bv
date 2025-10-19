@@ -176,7 +176,7 @@ data class RcmdTopData(
         data class Stat(
             val danmaku: Int,
             val like: Int,
-            val view: Int,
+            val view: Long,
             val vt: Int
         )
     }
@@ -261,7 +261,7 @@ data class RcmdTopData(
             val seriesFollow: Int? = null,
             @SerialName("series_view")
             val seriesView: Int? = null,
-            val view: Int
+            val view: Long
         )
     }
 }

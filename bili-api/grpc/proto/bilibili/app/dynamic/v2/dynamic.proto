@@ -3054,7 +3054,7 @@ message MdlDynArchive {
   // bvid
   string bvid = 26;
   // 播放数
-  int32 view = 27;
+  int64 view = 27;
   //
   bool show_premiere_badge = 28;
   //

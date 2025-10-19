@@ -168,7 +168,7 @@ message BKStat {
   //
   int32 share = 5;
   //
-  int32 view = 6;
+  int64 view = 6;
   //
   bool has_like = 7;
   //
@@ -576,7 +576,7 @@ message FavItemDetail {
 //
 message FavItemStat {
   //
-  int32 view = 1;
+  int64 view = 1;
   //
   int32 reply = 2;
 }

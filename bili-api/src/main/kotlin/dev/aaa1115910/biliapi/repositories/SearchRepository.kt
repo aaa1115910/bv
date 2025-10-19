@@ -318,7 +318,7 @@ data class SearchTypeResult(
         val cover: String,
         val author: String,
         val duration: Int,
-        val play: Int,
+        val play: Long,
         val danmaku: Int,
         val pubTime: Int,
         val pubDate: Int

@@ -702,7 +702,7 @@ fun VideoPlayerInfo(
     upFansCount: Int,
     title: String,
     description: String,
-    playCount: Int,
+    playCount: Long,
     danmakuCount: Int,
     date: String,
     avid: Long,

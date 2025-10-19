@@ -41,7 +41,7 @@ data class SpaceVideo(
     val author: String,
     val authorId: Long = 0,
     val duration: Int,
-    val play: Int,
+    val play: Long,
     val danmaku: Int,
     val publishDate: Date
 ) {

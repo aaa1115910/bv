@@ -137,7 +137,7 @@ class VideoPlayerV3ViewModel(
     var seasonId by mutableIntStateOf(0)
     var isVerticalVideo by mutableStateOf(false)
     var proxyArea by mutableStateOf(ProxyArea.MainLand)
-    var play by mutableStateOf(0)
+    var play by mutableLongStateOf(0)
     var danmaku by mutableStateOf(0)
     var like by mutableStateOf(0)
     var coin by mutableStateOf(0)

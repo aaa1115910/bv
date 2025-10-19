@@ -247,7 +247,7 @@ fun ControllerVideoInfoBottom(
     seekData: VideoPlayerSeekState,
     idleIcon: String,
     movingIcon: String,
-    play: Int,
+    play: Long,
     danmaku: Int,
     like: Int,
     coin: Int,

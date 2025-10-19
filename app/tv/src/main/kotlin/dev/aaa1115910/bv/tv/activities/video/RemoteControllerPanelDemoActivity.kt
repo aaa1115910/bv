@@ -32,7 +32,7 @@ class RemoteControllerPanelDemoActivity : ComponentActivity() {
             proxyArea: ProxyArea = ProxyArea.MainLand,
             playerIconIdle: String = "",
             playerIconMoving: String = "",
-            play: Int = 0,
+            play: Long = 0,
             danmaku: Int = 0,
             like: Int = 0,
             coin: Int = 0,

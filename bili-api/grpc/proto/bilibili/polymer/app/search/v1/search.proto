@@ -72,7 +72,7 @@ message AvItem {
   //
   string duration = 5;
   //
-  int32 play = 6;
+  int64 play = 6;
   //
   int64 danmaku = 7;
   //
@@ -935,7 +935,7 @@ message SearchArticleCard {
   //
   string cover = 2;
   //
-  int32 play = 3;
+  int64 play = 3;
   //
   int32 like = 4;
   //
@@ -955,7 +955,7 @@ message SearchArticleCard {
   //
   string desc = 12;
   //
-  int32 view = 13;
+  int64 view = 13;
 }
 
 //
@@ -1879,7 +1879,7 @@ message SearchVideoCard {
   //
   CardBusinessBadge card_business_badge = 7;
   //
-  int32 play = 8;
+  int64 play = 8;
   //
   int32 danmaku = 9;
   //
@@ -2071,7 +2071,7 @@ message SportsMatchItem {
 //
 message Stat {
   //
-  int32 play = 1;
+  int64 play = 1;
   //
   int32 like = 2;
   //

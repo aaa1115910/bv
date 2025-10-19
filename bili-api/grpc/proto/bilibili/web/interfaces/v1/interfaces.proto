@@ -1014,7 +1014,7 @@ message SeasonStat {
   //
   int64 season_id = 1;
   //
-  int32 view = 2;
+  int64 view = 2;
   //
   int32 danmaku = 3;
   //
@@ -1076,7 +1076,7 @@ message Stat {
   //
   int64 aid = 1;
   //
-  int32 view = 2;
+  int64 view = 2;
   //
   int32 danmaku = 3;
   //

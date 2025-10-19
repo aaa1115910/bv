@@ -41,7 +41,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             proxyArea: ProxyArea = ProxyArea.MainLand,
             playerIconIdle: String = "",
             playerIconMoving: String = "",
-            play: Int = 0,
+            play: Long = 0,
             danmaku: Int = 0,
             like: Int = 0,
             coin: Int = 0,
@@ -178,7 +178,7 @@ class VideoPlayerV3Activity : ComponentActivity() {
             val proxyArea = ProxyArea.entries[intent.getIntExtra("proxy_area", 0)]
             val playerIconIdle = intent.getStringExtra("playerIconIdle") ?: ""
             val playerIconMoving = intent.getStringExtra("playerIconMoving") ?: ""
-            val play = intent.getIntExtra("play", 0)
+            val play = intent.getLongExtra("play", 0)
             val danmaku = intent.getIntExtra("danmaku", 0)
             val like = intent.getIntExtra("like", 0)
             val coin = intent.getIntExtra("coin", 0)

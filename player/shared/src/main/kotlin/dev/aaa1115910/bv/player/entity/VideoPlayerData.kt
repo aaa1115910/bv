@@ -43,7 +43,7 @@ data class VideoPlayerVideoInfoData(
     val codec: String = "",
     val title: String = "Title",
     val partTitle: String = "PartTitle",
-    val play: Int = 0,
+    val play: Long = 0,
     val danmaku: Int = 0,
     val like: Int = 0,
     val coin: Int = 0,

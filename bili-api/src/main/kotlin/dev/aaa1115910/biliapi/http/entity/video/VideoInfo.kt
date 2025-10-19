@@ -234,7 +234,7 @@ data class VideoOwner(
 @Serializable
 data class VideoStat(
     val aid: Long = 0,
-    val view: Int = 0,
+    val view: Long = 0,
     val danmaku: Int = 0,
     val reply: Int = 0,
     val favorite: Int = 0,

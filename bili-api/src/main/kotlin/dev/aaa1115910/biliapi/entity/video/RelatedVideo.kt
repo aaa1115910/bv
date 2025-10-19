@@ -12,7 +12,7 @@ data class RelatedVideo(
     val author: Author?,
     val jumpToSeason: Boolean,
     val epid: Int?,
-    val view: Int,
+    val view: Long,
     val danmaku: Int,
     val pubTime: String? = null
 ) {
