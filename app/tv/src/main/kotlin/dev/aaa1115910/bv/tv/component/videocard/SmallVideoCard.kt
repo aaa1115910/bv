@@ -2,6 +2,7 @@ package dev.aaa1115910.bv.tv.component.videocard
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -40,10 +41,11 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.R
-import dev.aaa1115910.bv.tv.component.UpIcon
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
+import dev.aaa1115910.bv.tv.component.UpIcon
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.ImageSize
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.resizedImageUrl
 
 @Composable
@@ -57,19 +59,27 @@ fun SmallVideoCard(
 ) {
     var hasFocus by remember { mutableStateOf(initialFocus) }
 
-    Surface (
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged {
                 hasFocus = it.isFocused
                 if (hasFocus) onFocus()
-            },
+            }
+            .ifElse(
+                hasFocus,
+                Modifier.border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                    shape = MaterialTheme.shapes.medium
+                )
+            ),
         onClick = onClick,
         onLongClick = onLongClick,
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = if (hasFocus) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.23f) else Color.Transparent,
-            pressedContainerColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.23f)
+            focusedContainerColor = if (hasFocus) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f) else Color.Transparent,
+            pressedContainerColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
         ),
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         scale = ClickableSurfaceDefaults.scale(scale = 1f, focusedScale = 1f)
@@ -77,7 +87,7 @@ fun SmallVideoCard(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(top= 3.dp, start = 3.dp, end = 3.dp),
+                .padding(top = 3.dp, start = 3.dp, end = 3.dp),
         ) {
             CardCover(
                 modifier = Modifier
@@ -85,7 +95,8 @@ fun SmallVideoCard(
                 cover = data.cover,
                 play = data.playString,
                 danmaku = data.danmakuString,
-                time = data.timeString
+                time = data.timeString,
+                badge = if(data.isChargingArc) "⚡充电" else data.badgeText ?: ""
             )
             Spacer(modifier = Modifier.height(8.dp))
             CardInfo(
@@ -127,7 +138,7 @@ private fun CoverBottomInfo(
                 color = Color.White
             )
         }
-        
+
         if (danmaku.isNotBlank()) {
             if (play.isNotBlank()) Spacer(Modifier.width(8.dp))
             Icon(
@@ -142,7 +153,7 @@ private fun CoverBottomInfo(
                 color = Color.White
             )
         }
-        
+
         Spacer(Modifier.weight(1f))
         Text(
             text = time,
@@ -159,7 +170,8 @@ fun CardCover(
     cover: String,
     play: String,
     danmaku: String,
-    time: String
+    time: String,
+    badge: String = ""
 ) {
     BoxWithConstraints(
         modifier = modifier,
@@ -175,6 +187,22 @@ fun CardCover(
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
+        // 封面与徽章叠放，徽章绝对定位在右上角
+        if (badge.isNotEmpty()) {
+            Text(
+                modifier = Modifier
+                    .padding(5.dp)
+                    .align(Alignment.TopEnd)
+                    .background(
+                        color = Color.Black.copy(0.3f),
+                        shape = MaterialTheme.shapes.extraSmall
+                    )
+                    .padding(all = 2.dp),
+                text = badge,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White
+            )
+        }
         // 只有需要显示时才创建阴影和信息组件
         if (showInfo) {
             Box(
@@ -190,7 +218,7 @@ fun CardCover(
                         )
                     )
             )
-            
+
             CoverBottomInfo(
                 play = play,
                 danmaku = danmaku,
@@ -218,20 +246,24 @@ private fun CardInfo(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            UpIcon()
-            Text(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 2.dp),
-                text = upName,
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (upName.isNotEmpty()) {
+                UpIcon()
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 2.dp),
+                    text = upName,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             pubTime?.let {
                 Text(
                     text = it,
@@ -256,7 +288,8 @@ fun SmallVideoCardWithoutFocusPreview() {
         play = 2333,
         danmaku = 666,
         time = 2333 * 1000,
-        pubTime = "3小时前"
+        pubTime = "3小时前",
+        isChargingArc = true
     )
     BVTheme {
         Surface(

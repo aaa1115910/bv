@@ -281,11 +281,11 @@ fun ControllerVideoInfoBottom(
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
     val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed) {
         listOf(
-            ControlButton(
-                id = "play",
-                icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                onClick = { if (isPlaying) onPause() else onPlay() }
-            ),
+//            ControlButton(
+//                id = "play",
+//                icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+//                onClick = { if (isPlaying) onPause() else onPlay() }
+//            ),
             ControlButton(
                 id = "speed",
                 text = formatSpeed(speed),
@@ -353,13 +353,30 @@ fun ControllerVideoInfoBottom(
     val seekbarFocusRequester = remember { FocusRequester() }
     var seekbarHasFocus by remember { mutableStateOf(false) }
 
+    var statString by remember {
+        mutableStateOf(
+            if (upName.isNotEmpty()) {
+                "$upName  ·  ${
+                    if (play >= 10000) String.format("%.1f", play / 10000.0) + " 万" else "$play "
+                }播放  ·  ${
+                    if (danmaku >= 10000) String.format("%.1f", danmaku / 10000.0) + "万" else "$danmaku "
+                }弹幕  ·  ${
+                    if (like >= 10000) String.format("%.1f", like / 10000.0) + "万" else "$like "
+                }点赞  ·  ${
+                    if (favorite >= 10000) String.format("%.1f", favorite / 10000.0) + "万" else "$favorite "
+                }收藏  ·  ${
+                    if (coin >= 10000) String.format("%.1f", coin / 10000.0) + "万" else "$coin "
+                }投币  ·  发布于 $pubTime"
+            } else ""
+        )
+    }
+
     LaunchedEffect(show) {
         if (show) {
-            // 初始聚焦 play 按钮
-            delay(250)
+            // 初始聚焦 进度条
+            delay(150)
             runCatching {
-                // seekbarFocusRequester.requestFocus()
-                focusRequesters["play"]?.requestFocus()
+                seekbarFocusRequester.requestFocus()
             }
         }
     }
@@ -427,16 +444,12 @@ fun ControllerVideoInfoBottom(
             overflow = TextOverflow.Ellipsis,
             style = if (partTitle.isEmpty() || title == partTitle) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge,
         )
-        if(upName.isNotEmpty()) {
+        if (upName.isNotEmpty()) {
             Text(
                 modifier = Modifier
                     .padding(start = 32.dp, end = 32.dp, top = 8.dp, bottom = 0.dp)
                     .fillMaxWidth(),
-                text = "$upName · ${
-                    if (play >= 10000) "${play / 10000}万" else "$play"
-                }播放 · ${
-                    if (danmaku >= 10000) "${danmaku / 10000}万" else "$danmaku"
-                }弹幕 · ${like}点赞 · ${coin}投币 · ${favorite}收藏 · 发布于 $pubTime",
+                text = statString,
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -455,6 +468,18 @@ fun ControllerVideoInfoBottom(
                 if (pause) cancelHideJob() else scheduleHideJob()
             }
         )
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(48.dp)
+//                .padding(start = 32.dp, end = 32.dp, top = 14.dp, bottom = 6.dp),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Icon(
+//                imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+//                contentDescription = null,
+//                tint = Color.White.copy(alpha = 0.5f)
+//            )
         VideoSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -464,16 +489,18 @@ fun ControllerVideoInfoBottom(
                     scheduleHideJob()
                     seekbarHasFocus = it.isFocused
                 }
-                .focusProperties{
+                .focusProperties {
                     up = userActionFocusRequesters.value["like"] ?: FocusRequester()
-                    down = focusRequesters["play"] ?: FocusRequester()
+                    down = focusRequesters["speed"] ?: FocusRequester()
                 }
                 .focusable()
-                .onPreviewKeyEvent{
-                    if (seekbarHasFocus && it.type == KeyEventType.KeyUp) {
+                .onPreviewKeyEvent {
+                    if (seekbarHasFocus && it.type == KeyEventType.KeyDown) {
                         when (it.key) {
                             Key.DirectionLeft -> onSeekBack()
                             Key.DirectionRight -> onSeekForward()
+                            Key.Enter -> if (isPlaying) onPause() else onPlay()
+                            Key.DirectionCenter -> if (isPlaying) onPause() else onPlay()
                         }
                     }
                     false
@@ -490,7 +517,7 @@ fun ControllerVideoInfoBottom(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 32.dp, end = 32.dp, top = 0.dp, bottom = 10.dp)
-                .focusProperties{
+                .focusProperties {
                     up = seekbarFocusRequester
                 }
                 .onPreviewKeyEvent { event ->
@@ -523,7 +550,10 @@ fun ControllerVideoInfoBottom(
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             color = button.tint,
-                            modifier = Modifier.ifElse(button.scale != 1f, Modifier.scale(button.scale))
+                            modifier = Modifier.ifElse(
+                                button.scale != 1f,
+                                Modifier.scale(button.scale)
+                            )
                         )
                     } else if (button.painterId != null) {
                         Icon(
@@ -627,9 +657,17 @@ private fun SpeedDialog(
                             },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(imageVector = Icons.Rounded.ArrowDropUp, contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowDropUp,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                         Text(text = "${speed}x", color = Color.White, fontSize = 16.sp)
-                        Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowDropDown,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
                 }
             }

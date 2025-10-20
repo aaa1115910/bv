@@ -6,7 +6,7 @@
     <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
     <option name="DEPLOY_AS_INSTANT" value="false" />
     <option name="ARTIFACT_NAME" value="" />
-    <option name="PM_INSTALL_OPTIONS" value="" />
+    <option name="PM_INSTALL_OPTIONS" value="-r -d -t" />
     <option name="ALL_USERS" value="false" />
     <option name="ALWAYS_INSTALL_WITH_PM" value="true" />
     <option name="ALLOW_ASSUME_VERIFIED" value="false" />
@@ -16,6 +16,7 @@
     <option name="MODE" value="specific_activity" />
     <option name="RESTORE_ENABLED" value="false" />
     <option name="RESTORE_FILE" value="" />
+    <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" />
     <option name="CLEAR_LOGCAT" value="true" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
     <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />

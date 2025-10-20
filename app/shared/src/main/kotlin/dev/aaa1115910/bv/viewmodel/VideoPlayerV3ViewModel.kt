@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kuaishou.akdanmaku.data.DanmakuItemData
-import com.kuaishou.akdanmaku.render.DanmakuRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.biliapi.entity.ApiType
 import dev.aaa1115910.biliapi.entity.PlayData
@@ -31,6 +30,7 @@ import dev.aaa1115910.bilisubtitle.entity.SubtitleItem
 import dev.aaa1115910.bv.BVApp
 import dev.aaa1115910.bv.entity.proxy.ProxyArea
 import dev.aaa1115910.bv.player.renderer.OptimizedTextRenderer
+import dev.aaa1115910.bv.player.renderer.SimpleRenderer
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
@@ -165,7 +165,8 @@ class VideoPlayerV3ViewModel(
 
     private suspend fun ensureDanmakuPlayer() = withContext(Dispatchers.Main) {
         danmakuPlayer?.release()
-        danmakuPlayer = DanmakuPlayer(OptimizedTextRenderer.createHighPerformance())
+        danmakuPlayer = DanmakuPlayer(SimpleRenderer())
+        // danmakuPlayer = DanmakuPlayer(OptimizedTextRenderer.createHighPerformance())
         logger.fInfo { "(Re)create DanmakuPlayer" }
     }
 

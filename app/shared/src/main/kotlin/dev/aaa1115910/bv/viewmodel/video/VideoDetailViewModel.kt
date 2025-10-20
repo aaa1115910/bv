@@ -85,7 +85,8 @@ class VideoDetailViewModel(
                 epId = it.epid,
                 pubTime = it.pubTime,
                 upId = it.author?.mid ?: 0,
-                upFace = it.author?.face ?: ""
+                upFace = it.author?.face ?: "",
+                isChargingArc = it.isChargingArchive
             )
         } ?: emptyList()
         relatedVideos.swapListWithMainContext(relateVideoCardDataList)

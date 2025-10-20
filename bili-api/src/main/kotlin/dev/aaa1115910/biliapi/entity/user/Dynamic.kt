@@ -761,6 +761,7 @@ data class DynamicVideo(
     val avatar: String,
     val time: Long = 0L,
     val pubTime: String? = null,
+    val isChargingArc: Boolean = false
 ) {
     companion object {
         fun fromDynamicVideoItem(item: dev.aaa1115910.biliapi.http.entity.dynamic.DynamicItem): DynamicVideo {
@@ -780,7 +781,8 @@ data class DynamicVideo(
                 play = convertStringPlayCountToNumberPlayCount(archive.stat.play),
                 danmaku = convertStringPlayCountToNumberPlayCount(archive.stat.danmaku).toInt(),
                 avatar = author.face,
-                pubTime = author.pubTime
+                pubTime = author.pubTime,
+                isChargingArc = archive.badge.text.contains("充电")
             )
         }
 

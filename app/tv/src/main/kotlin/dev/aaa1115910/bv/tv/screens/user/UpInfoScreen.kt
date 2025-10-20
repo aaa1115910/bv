@@ -252,8 +252,7 @@ fun UpSpaceScreen(
                     if (showFollowButton) {
                         Surface(
                             modifier = Modifier
-                                .offset(y = if (showLargeTitle) 4.dp else 2.dp)
-                                .scale(if (showLargeTitle) 1f else 0.65f),
+                                .scale(if (showLargeTitle) 1f else 0.7f),
                             onClick = {
                                 if (isFollowing) {
                                     delFollow { success ->

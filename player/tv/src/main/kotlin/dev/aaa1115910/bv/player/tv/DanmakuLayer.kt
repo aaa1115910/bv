@@ -67,7 +67,7 @@ fun DanmakuLayer(
     handle: DanmakuLayerHandle,
 ) {
     val player = handle.danmakuPlayer
-    if (player == null || !handle.visible) return
+    if (player == null) return
 
     // 根据 maskFrame 动态应用蒙版 Modifier（避免无意义的额外 Modifier 组合）
     val maskModifier = if (handle.maskFrame != null) {

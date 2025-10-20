@@ -21,6 +21,8 @@ data class VideoCardData(
     val epId: Int? = null,
     val pubTime: String? = null,
     // var pubTimeString: String = "",
+    val isChargingArc: Boolean = false,
+    val badgeText: String = ""
 ) {
     init {
         play?.let {

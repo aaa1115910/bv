@@ -117,7 +117,8 @@ fun DynamicsScreen(
                                 danmaku = item.danmaku,
                                 upName = item.author,
                                 time = item.duration * 1000L,
-                                pubTime = item.pubTime
+                                pubTime = item.pubTime,
+                                isChargingArc = item.isChargingArc
                             )
                         },
                         onClick = { onClickVideo(item) },

@@ -35,7 +35,7 @@ fun VideoSeekBar(
     movingIcon: String = "",
     moveState: SeekMoveState = SeekMoveState.Idle,
     showPosition: Boolean = false,
-    isFocused: Boolean = false,
+    isFocused: Boolean? = null,
 ) {
     VideoSeekBar(
         modifier = modifier,
@@ -64,7 +64,7 @@ private fun VideoSeekBar(
     colors: SliderColors = SliderDefaults.colors(),
     showPosition: Boolean = false,
     thumb: (@Composable (Modifier) -> Unit)? = null,
-    isFocused: Boolean = false,
+    isFocused: Boolean? = null,
 ) {
     BoxWithConstraints(
         modifier = modifier
@@ -83,16 +83,13 @@ private fun VideoSeekBar(
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom, 8.dp)
                     }
-                    .border(
-                        width = 1.dp,
-                        color = if (isFocused) Color.White.copy(alpha = 0.35f) else Color.Transparent,
-                        shape = RoundedCornerShape(6.dp)
-                    )
                     .padding(horizontal = 6.dp, vertical = 1.dp),
                 duration = duration,
                 position = position,
                 bufferedPercentage = bufferedPercentage,
-                colors = colors
+                colors = colors,
+                height = 10.dp,
+                strokeWidth = if (isFocused != false) 10.dp else 3.dp
             )
             thumb?.invoke(
                 Modifier
@@ -138,7 +135,8 @@ private fun SeekWithThumbPreview(@PreviewParameter(ProgressProvider::class) data
                         idleJsonUrl = "https://i0.hdslb.com/bfs/garb/item/df917f079cd8175cc851cd1e19a197d810a1c6b7.json",
                         movingJsonUrl = "https://i0.hdslb.com/bfs/garb/item/b61bb387a4c895ef165798102ef322c631a9e4e1.json"
                     )
-                }
+                },
+                isFocused = true
             )
         }
 

@@ -114,7 +114,9 @@ data class WebSpaceVideoData(
             @Transient
             val isAvoided: Boolean = _isAvoided == 1,
             @SerialName("attribute")
-            val attribute: Int
+            val attribute: Int,
+            @SerialName("is_charging_arc")
+            val isChargingArc: Boolean = false
         ) {
             /**
              * 合集信息

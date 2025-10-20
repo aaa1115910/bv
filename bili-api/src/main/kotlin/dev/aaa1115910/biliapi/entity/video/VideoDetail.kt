@@ -27,7 +27,8 @@ data class VideoDetail(
     val tags: List<Tag>,
     val userActions: UserActions,
     var history: History,
-    var playerIcon: PlayerIcon? = null
+    var playerIcon: PlayerIcon? = null,
+    var isChargingArc: Boolean = false
 ) {
     companion object {
         fun fromViewReply(viewReply: ViewReply): VideoDetail {
@@ -111,7 +112,8 @@ data class VideoDetail(
                 tags = videoDetail.tags.map { Tag.fromTag(it) },
                 userActions = UserActions(),
                 history = History(0, 0),
-                playerIcon = null
+                playerIcon = null,
+                isChargingArc = videoDetail.view.isUpowerExclusive
             )
     }
 

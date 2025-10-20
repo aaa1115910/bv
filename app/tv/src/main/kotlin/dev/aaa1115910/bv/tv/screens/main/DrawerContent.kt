@@ -1,5 +1,6 @@
 package dev.aaa1115910.bv.tv.screens.main
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,6 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.OndemandVideo
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -43,11 +43,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import dev.aaa1115910.bv.ui.theme.BVTheme
+import dev.aaa1115910.bv.util.ifElse
 import dev.aaa1115910.bv.util.isDpadRight
 import dev.aaa1115910.bv.util.isKeyDown
 import dev.aaa1115910.bv.util.onDelayFocusChanged
@@ -137,43 +139,59 @@ fun DrawerContent(
             },
             selected = focusedItem == DrawerItem.User,
             colors = NavigationRailItemDefaults.colors(
-                indicatorColor = if (focusOnContent) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.inverseSurface
+                selectedIconColor = Color.Transparent,
+                indicatorColor = Color.Transparent
             ),
             icon = {
                 if (isLogin) {
-                    Surface(
+                    AsyncImage(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(52.dp)
+                            .ifElse(
+                                !focusOnContent && focusedItem == DrawerItem.User,
+                                Modifier
+                                    .border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.inverseSurface,
+                                        shape = CircleShape
+                                    )
+                            )
+                            .padding(3.dp)  // 边框和图片之间的1dp透明区域
                             .clip(CircleShape),
-                        colors = SurfaceDefaults.colors(
-                            containerColor = Color.Gray
-                        )
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            model = avatar,
-                            contentDescription = null,
-                            contentScale = ContentScale.FillBounds
-                        )
-                    }
+                        model = avatar,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds
+                    )
                 } else {
                     Icon(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .ifElse(
+                                !focusOnContent && focusedItem == DrawerItem.User,
+                                Modifier
+                                    .border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.inverseSurface,
+                                        shape = CircleShape
+                                    )
+                            )
+                            .clip(CircleShape),
                         imageVector = DrawerItem.User.displayIcon,
                         contentDescription = null,
                         tint = if (!focusOnContent && focusedItem == DrawerItem.User) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.inverseSurface
                     )
                 }
             },
-            label = { Text(
-                modifier = Modifier.offset(y = (-3).dp),
-                text = if (isLogin) username
-                else DrawerItem.User.displayName,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall
-            ) }
+            label = {
+                Text(
+                    modifier = Modifier.offset(y = (-3).dp),
+                    text = if (isLogin) username
+                    else DrawerItem.User.displayName,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         )
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
@@ -283,7 +301,7 @@ private fun DrawerContentPreview() {
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .width(72.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                containerColor = MaterialTheme.colorScheme.inverseOnSurface
             ) {
                 DrawerContent()
             }

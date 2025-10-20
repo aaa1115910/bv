@@ -74,5 +74,9 @@ data class RelatedVideoInfo(
     @SerialName("ogv_info")
     val ogvInfo: String? = null,
     @SerialName("rcmd_reason")
-    val rcmdReason: String
+    val rcmdReason: String,
+    @SerialName("is_charging_archive")
+    val isChargingArchive: Boolean = false,
+    @SerialName("charging_pay")
+    val chargingPay: ChargingPay? = null
 )

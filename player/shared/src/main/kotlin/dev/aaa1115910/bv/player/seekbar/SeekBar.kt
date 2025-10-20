@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -22,14 +23,15 @@ fun SeekBar(
     position: Long,
     bufferedPercentage: Int,
     colors: SliderColors = SliderDefaults.colors(),
+    height: Dp = 10.dp,
+    strokeWidth: Dp = height
 ) {
-    val trackWidth = 10.dp
     val density = LocalDensity.current
-    val strokeWidthPx = with(density) { trackWidth.roundToPx().toFloat() }
+    val strokeWidthPx = with(density) { strokeWidth.roundToPx().toFloat() }
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(trackWidth)
+            .height(height)
     ) {
         drawLine(
             color = colors.inactiveTrackColor,

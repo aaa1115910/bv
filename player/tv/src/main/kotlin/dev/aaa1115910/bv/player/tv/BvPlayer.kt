@@ -240,8 +240,11 @@ fun BvPlayer(
                 val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
                 //播放完后上报的时间应为 -1
                 if (currentTime >= totalTime) -1 else currentTime
+                if (totalTime == 0) -2 else currentTime
             }
-            onSendHeartbeat(time)
+            if (time > -2) {
+                onSendHeartbeat(time)
+            }
         }
     }
 
@@ -688,7 +691,6 @@ fun BvPlayer(
                 danmakuConfig.updateVisibility()
                 logger.info { "Update danmaku config: $danmakuConfig" }
                 mDanmakuPlayer?.updateConfig(danmakuConfig)
-                danmakuLayerHandle.update(visible = true)
             },
             onHideDanmaku = {
                 onShowDanmakuChange(false)
@@ -697,7 +699,6 @@ fun BvPlayer(
                 danmakuConfig.updateVisibility()
                 logger.info { "Update danmaku config: $danmakuConfig" }
                 mDanmakuPlayer?.updateConfig(danmakuConfig)
-                danmakuLayerHandle.update(visible = false)
             },
             onLoopPlayModeChange = {
                 videoPlayerConfigData.isLoop = it
