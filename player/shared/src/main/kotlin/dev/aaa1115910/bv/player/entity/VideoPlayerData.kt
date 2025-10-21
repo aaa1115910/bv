@@ -107,6 +107,7 @@ data class VideoPlayerConfigData(
     val currentResolution: Resolution = Resolution.R240P,
     val currentVideoCodec: VideoCodec = VideoCodec.AVC,
     val currentVideoAspectRatio: VideoAspectRatio = VideoAspectRatio.Default,
+    val currentVideoRotation: VideoRotation = VideoRotation.Original,
     val currentVideoSpeed: Float = 1f,
     val currentAudio: Audio = Audio.A192K,
     val currentDanmakuEnabled: Boolean = true,

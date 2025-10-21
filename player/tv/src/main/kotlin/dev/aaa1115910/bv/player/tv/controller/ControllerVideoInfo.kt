@@ -55,7 +55,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
+import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material3.Surface
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextAlign
@@ -82,6 +85,7 @@ import dev.aaa1115910.bv.player.entity.VideoPlayerClockState
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekState
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.VideoPlayerVideoInfoData
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
 import dev.aaa1115910.bv.player.shared.R
 import dev.aaa1115910.bv.player.tv.VideoSeekBar
@@ -116,6 +120,7 @@ fun ControllerVideoInfo(
     onOpenRelatedVideo: () -> Unit,
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit
@@ -178,6 +183,7 @@ fun ControllerVideoInfo(
                 title = videoPlayerVideoInfoData.title,
                 partTitle = videoPlayerVideoInfoData.partTitle,
                 playSpeed = playSpeed,
+                rotation = videoPlayerConfigData.currentVideoRotation,
                 idleIcon = videoPlayerSeekThumbData.idleIcon,
                 movingIcon = videoPlayerSeekThumbData.movingIcon,
                 play = videoPlayerVideoInfoData.play,
@@ -201,6 +207,7 @@ fun ControllerVideoInfo(
                 onOpenRelatedVideo = onOpenRelatedVideo,
                 onOpenSetting = onOpenSetting,
                 onLoopPlayModeChange = onLoopPlayModeChange,
+                onRotationChange = onRotationChange,
                 fromSeason = videoPlayerVideoInfoData.fromSeason,
                 userActionContent = userActionContent,
                 onSeekBack = onSeekBack,
@@ -242,6 +249,7 @@ fun ControllerVideoInfoBottom(
     onHideInfo: () -> Unit,
     modifier: Modifier = Modifier,
     playSpeed: Float = 1f,
+    rotation: VideoRotation,
     title: String,
     partTitle: String,
     seekData: VideoPlayerSeekState,
@@ -268,6 +276,7 @@ fun ControllerVideoInfoBottom(
     onOpenRelatedVideo: () -> Unit,
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     fromSeason: Boolean = false,
     userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
     onSeekBack: () -> Unit,
@@ -277,9 +286,10 @@ fun ControllerVideoInfoBottom(
     var hideVideoInfoJob by remember { mutableStateOf<Job?>(null) }
     var pauseAutoHide by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
+    var showRotationDialog by remember { mutableStateOf(false) }
     var speed by remember { mutableStateOf(playSpeed) }
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
-    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed) {
+    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed, rotation) {
         listOf(
 //            ControlButton(
 //                id = "play",
@@ -297,6 +307,12 @@ fun ControllerVideoInfoBottom(
                 icon = Icons.Rounded.Person,
                 onClick = onOpenUpSpace,
                 visible = !fromSeason
+            ),
+            ControlButton(
+                id = "rotation",
+                icon = Icons.Rounded.ScreenRotation,
+                onClick = { showRotationDialog = true },
+                scale = 0.7f
             ),
             ControlButton(
                 id = "refresh",
@@ -388,7 +404,7 @@ fun ControllerVideoInfoBottom(
 
     fun scheduleHideJob() {
         cancelHideJob()
-        if (show && !showSpeedDialog && !pauseAutoHide) {
+        if (show && !showSpeedDialog && !showRotationDialog && !pauseAutoHide) {
             hideVideoInfoJob = scope.launch {
                 delay(4000)
                 withContext(Dispatchers.Main) { onHideInfo() }
@@ -396,7 +412,7 @@ fun ControllerVideoInfoBottom(
         }
     }
 
-    LaunchedEffect(show, showSpeedDialog, pauseAutoHide) {
+    LaunchedEffect(show, showSpeedDialog, showRotationDialog, pauseAutoHide) {
         scheduleHideJob()
     }
 
@@ -591,7 +607,6 @@ fun ControllerVideoInfoBottom(
 
     if (showSpeedDialog) {
         SpeedDialog(
-            show = true,
             onHideDialog = { showSpeedDialog = false },
             speed = speed,
             onSpeedChange = {
@@ -600,12 +615,19 @@ fun ControllerVideoInfoBottom(
             }
         )
     }
+
+    if (showRotationDialog) {
+        RotationDialog(
+            onHideDialog = { showRotationDialog = false },
+            rotation = rotation,
+            onRotationChange = onRotationChange
+        )
+    }
 }
 
 @Composable
 private fun SpeedDialog(
     modifier: Modifier = Modifier,
-    show: Boolean,
     onHideDialog: () -> Unit,
     speed: Float,
     step: Float = 0.25f,
@@ -616,58 +638,121 @@ private fun SpeedDialog(
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(show) {
-        if (show) focusRequester.requestFocus(scope)
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus(scope)
     }
 
-    if (show) {
-        Dialog(onDismissRequest = { onHideDialog() }) {
-            Surface(
-                modifier = modifier
-                    .width(240.dp),
-                color = Color.Black.copy(alpha = 0.5f),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                    Text(
-                        text = "播放速度",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 18.sp
-                    )
+    Dialog(onDismissRequest = { onHideDialog() }) {
+        Surface(
+            modifier = modifier
+                .width(240.dp),
+            color = Color.Black.copy(alpha = 0.5f),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Text(
+                    text = "播放速度",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 18.sp
+                )
 
-                    Column(
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .focusable()
-                            .fillMaxWidth()
-                            .onPreviewKeyEvent {
-                                if (it.key == Key.DirectionUp || it.key == Key.DirectionDown) {
-                                    if (it.type == KeyEventType.KeyDown) {
-                                        var newValue = if (it.key == Key.DirectionUp)
-                                            speed + step
-                                        else
-                                            speed - step
-                                        if (newValue < min) newValue = min
-                                        if (newValue > max) newValue = max
-                                        onSpeedChange(newValue)
-                                    }
+                Column(
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .focusable()
+                        .fillMaxWidth()
+                        .onPreviewKeyEvent {
+                            if (it.key == Key.DirectionUp || it.key == Key.DirectionDown) {
+                                if (it.type == KeyEventType.KeyDown) {
+                                    var newValue = if (it.key == Key.DirectionUp)
+                                        speed + step
+                                    else
+                                        speed - step
+                                    if (newValue < min) newValue = min
+                                    if (newValue > max) newValue = max
+                                    onSpeedChange(newValue)
                                 }
-                                false
-                            },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowDropUp,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-                        Text(text = "${speed}x", color = Color.White, fontSize = 16.sp)
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowDropDown,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
+                            }
+                            false
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropUp,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Text(text = "${speed}x", color = Color.White, fontSize = 16.sp)
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropDown,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RotationDialog(
+    modifier: Modifier = Modifier,
+    rotation: VideoRotation,
+    onHideDialog: () -> Unit,
+    onRotationChange: (VideoRotation) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val options = remember { VideoRotation.entries }
+    val context = LocalContext.current
+    val focusRequesters = remember { options.associateWith { FocusRequester() } }
+
+    LaunchedEffect(rotation) {
+        focusRequesters[rotation]?.requestFocus(scope)
+    }
+
+    Dialog(onDismissRequest = { onHideDialog() }) {
+        Surface(
+            modifier = modifier
+                .width(240.dp),
+            color = Color.Black.copy(alpha = 0.5f),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Text(
+                    text = stringResource(R.string.video_player_menu_picture_rotation),
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 18.sp
+                )
+
+                Column {
+                    options.forEach { option ->
+                        val selected = option == rotation
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                                .focusRequester(focusRequesters[option]!!),
+                            shape = ButtonDefaults.shape(MaterialTheme.shapes.medium),
+                            scale = ButtonDefaults.scale(focusedScale = 1f),
+                            colors = ButtonDefaults.colors(
+                                containerColor = if (selected) MaterialTheme.colorScheme.inverseSurface.copy(
+                                    alpha = 0.4f
+                                ) else Color.Transparent,
+                                contentColor = Color.White,
+                                focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedContentColor = Color.Black
+                            ),
+                            onClick = { onRotationChange(option) }
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = option.getDisplayName(context),
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                 }
             }
@@ -768,6 +853,7 @@ private fun ControllerVideoInfoPreview() {
                 onOpenRelatedVideo = {},
                 onOpenSetting = {},
                 onLoopPlayModeChange = {},
+                onRotationChange = {},
                 userActionContent = { _, _, _ ->
                     // User action buttons go here
                 },
@@ -784,8 +870,17 @@ private fun ControllerVideoInfoPreview() {
 private fun SpeedDialogPreview() {
     SpeedDialog(
         speed = 1.25f,
-        show = true,
         onHideDialog = {},
         onSpeedChange = {}
+    )
+}
+
+@Preview
+@Composable
+private fun RotationDialogPreview() {
+    RotationDialog(
+        rotation = VideoRotation.Rotate90,
+        onHideDialog = {},
+        onRotationChange = {}
     )
 }

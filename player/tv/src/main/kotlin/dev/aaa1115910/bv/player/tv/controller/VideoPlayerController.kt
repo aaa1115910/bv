@@ -48,6 +48,7 @@ import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.player.entity.VideoListItem
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.player.seekbar.SeekMoveState
 import dev.aaa1115910.bv.player.shared.BuildConfig
 import dev.aaa1115910.bv.player.shared.R
@@ -90,6 +91,7 @@ fun VideoPlayerController(
     onResolutionChange: (Resolution) -> Unit,
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
     onAudioChange: (Audio) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
@@ -471,6 +473,7 @@ fun VideoPlayerController(
                 showMenuController = true
             },
             onLoopPlayModeChange = onLoopPlayModeChange,
+            onRotationChange = onRotationChange,
             userActionContent = userActionContent,
             onSeekBack = {
                 scope.launch(Dispatchers.Main) {
@@ -501,6 +504,7 @@ fun VideoPlayerController(
             onResolutionChange = onResolutionChange,
             onCodecChange = onCodecChange,
             onAspectRatioChange = onAspectRatioChange,
+            onRotationChange = onRotationChange,
             onPlaySpeedChange = onPlaySpeedChange,
             onAudioChange = onAudioChange,
             onDanmakuSwitchChange = onDanmakuSwitchChange,

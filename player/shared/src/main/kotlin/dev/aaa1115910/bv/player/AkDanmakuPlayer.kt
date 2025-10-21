@@ -2,7 +2,6 @@ package dev.aaa1115910.bv.player
 
 import android.graphics.Color
 import android.os.Build
-import android.view.View.LAYER_TYPE_HARDWARE
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,10 +49,7 @@ fun AkDanmakuPlayer(
             danmakuView = DanmakuView(ctx).apply {
                 // 透明背景
                 setBackgroundColor(Color.TRANSPARENT)
-                
-                // 启用硬件加速
-                setLayerType(LAYER_TYPE_HARDWARE, null)
-                
+
                 // 确保View会被绘制
                 setWillNotDraw(false)
                 

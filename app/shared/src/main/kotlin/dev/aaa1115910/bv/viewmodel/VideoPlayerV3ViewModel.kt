@@ -38,6 +38,7 @@ import dev.aaa1115910.bv.player.entity.RequestState
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.repository.VideoInfoRepository
 import dev.aaa1115910.bv.util.Prefs
 import dev.aaa1115910.bv.util.fError
@@ -113,6 +114,7 @@ class VideoPlayerV3ViewModel(
     var currentVideoCodec by mutableStateOf(Prefs.defaultVideoCodec)
     var currentPlaySpeed by mutableFloatStateOf(Prefs.currentPlaySpeed)
     var currentVideoAspectRatio by mutableStateOf(VideoAspectRatio.Default)
+    var currentVideoRotation by mutableStateOf(VideoRotation.Original)
     var currentAudio by mutableStateOf(Prefs.defaultAudio)
     var currentDanmakuScale by mutableFloatStateOf(Prefs.defaultDanmakuScale)
     var currentDanmakuOpacity by mutableFloatStateOf(Prefs.defaultDanmakuOpacity)

@@ -8,6 +8,7 @@ enum class VideoPlayerPictureMenuItem(private val strRes: Int) {
     Resolution(R.string.video_player_menu_picture_resolution),
     Codec(R.string.video_player_menu_picture_codec),
     Audio(R.string.video_player_menu_picture_audio),
+    Rotation(R.string.video_player_menu_picture_rotation),
     AspectRatio(R.string.video_player_menu_picture_aspect_ratio);
 
     fun getDisplayName(context: Context) = context.getString(strRes)

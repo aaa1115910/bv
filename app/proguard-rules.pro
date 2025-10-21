@@ -116,3 +116,35 @@
 
 # geetest
 -keep class com.geetest.sdk.** {*;}
+
+## Media3 - 保持核心类不被混淆
+#-keep class androidx.media3.common.** { *; }
+#-keep class androidx.media3.exoplayer.** { *; }
+#-keep class androidx.media3.decoder.** { *; }
+#-keep class androidx.media3.datasource.** { *; }
+#-keep class androidx.media3.ui.** { *; }
+#
+## Media3 Effect - 关键：保持视频效果相关类不被混淆
+#-keep class androidx.media3.effect.** { *; }
+#-keep interface androidx.media3.effect.** { *; }
+#
+## Media3 - 保持构造函数和 Builder 类
+#-keepclassmembers class androidx.media3.effect.*$Builder {
+#    public <init>(...);
+#    public ** build();
+#}
+#
+## Media3 - 保持视频帧处理器相关类
+#-keep class androidx.media3.effect.DefaultVideoFrameProcessor { *; }
+#-keep class androidx.media3.effect.DefaultVideoFrameProcessor$Factory { *; }
+#-keep class androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder { *; }
+#
+## Media3 - 避免 R8 优化导致的问题
+#-keepclassmembers class * extends androidx.media3.common.Player {
+#    public <methods>;
+#}
+#
+## Media3 - 保持反射调用的方法
+#-keepclassmembers class androidx.media3.exoplayer.ExoPlayer {
+#    public void setVideoEffects(java.util.List);
+#}

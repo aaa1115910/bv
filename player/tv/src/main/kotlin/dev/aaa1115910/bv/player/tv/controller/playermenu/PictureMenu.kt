@@ -32,6 +32,7 @@ import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.player.entity.VideoPlayerPictureMenuItem
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.player.tv.controller.LocalMenuFocusStateData
 import dev.aaa1115910.bv.player.tv.controller.MenuFocusState
 import dev.aaa1115910.bv.player.tv.controller.playermenu.component.MenuListItem
@@ -46,6 +47,7 @@ fun PictureMenuList(
     onResolutionChange: (Resolution) -> Unit,
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
     onAudioChange: (Audio) -> Unit,
     onFocusStateChange: (MenuFocusState) -> Unit
@@ -104,6 +106,18 @@ fun PictureMenuList(
                     selected = VideoAspectRatio.entries
                         .indexOf(videoPlayerConfigData.currentVideoAspectRatio),
                     onSelectedChanged = { onAspectRatioChange(VideoAspectRatio.entries[it]) },
+                    onFocusBackToParent = {
+                        onFocusStateChange(MenuFocusState.Menu)
+                        parentMenuFocusRequester.requestFocus()
+                    }
+                )
+
+                VideoPlayerPictureMenuItem.Rotation -> RadioMenuList(
+                    modifier = menuItemsModifier,
+                    items = VideoRotation.entries.map { it.getDisplayName(context) },
+                    selected = VideoRotation.entries
+                        .indexOf(videoPlayerConfigData.currentVideoRotation),
+                    onSelectedChanged = { onRotationChange(VideoRotation.entries[it]) },
                     onFocusBackToParent = {
                         onFocusStateChange(MenuFocusState.Menu)
                         parentMenuFocusRequester.requestFocus()

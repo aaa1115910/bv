@@ -50,13 +50,13 @@ import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerMenuNavItem
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.player.tv.controller.playermenu.ClosedCaptionMenuList
 import dev.aaa1115910.bv.player.tv.controller.playermenu.DanmakuMenuList
 import dev.aaa1115910.bv.player.tv.controller.playermenu.MenuNavList
 import dev.aaa1115910.bv.player.tv.controller.playermenu.PictureMenuList
 import dev.aaa1115910.bv.util.requestFocus
 import dev.aaa1115910.bv.util.swapList
-import kotlinx.coroutines.delay
 
 @Composable
 fun MenuController(
@@ -65,6 +65,7 @@ fun MenuController(
     onResolutionChange: (Resolution) -> Unit = {},
     onCodecChange: (VideoCodec) -> Unit = {},
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit = {},
     onAudioChange: (Audio) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
@@ -98,6 +99,7 @@ fun MenuController(
                 onResolutionChange = onResolutionChange,
                 onCodecChange = onCodecChange,
                 onAspectRatioChange = onAspectRatioChange,
+                onRotationChange = onRotationChange,
                 onPlaySpeedChange = onPlaySpeedChange,
                 onAudioChange = onAudioChange,
                 onDanmakuSwitchChange = onDanmakuSwitchChange,
@@ -121,6 +123,7 @@ fun MenuController(
     onResolutionChange: (Resolution) -> Unit = {},
     onCodecChange: (VideoCodec) -> Unit = {},
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
     onAudioChange: (Audio) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
@@ -158,6 +161,7 @@ fun MenuController(
                     onCodecChange = onCodecChange,
                     onPlaySpeedChange = onPlaySpeedChange,
                     onAspectRatioChange = onAspectRatioChange,
+                    onRotationChange = onRotationChange,
                     onAudioChange = onAudioChange,
                     onDanmakuSwitchChange = onDanmakuSwitchChange,
                     onDanmakuSizeChange = onDanmakuSizeChange,
@@ -199,6 +203,7 @@ private fun MenuList(
     onResolutionChange: (Resolution) -> Unit,
     onCodecChange: (VideoCodec) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
     onAudioChange: (Audio) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
@@ -222,6 +227,7 @@ private fun MenuList(
                     onResolutionChange = onResolutionChange,
                     onCodecChange = onCodecChange,
                     onAspectRatioChange = onAspectRatioChange,
+                    onRotationChange = onRotationChange,
                     onPlaySpeedChange = onPlaySpeedChange,
                     onAudioChange = onAudioChange,
                     onFocusStateChange = onFocusStateChange
@@ -261,6 +267,7 @@ fun MenuControllerPreview() {
     var currentResolution by remember { mutableStateOf(Resolution.R240P) }
     var currentCodec by remember { mutableStateOf(VideoCodec.HEVC) }
     var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    var currentVideoRotation by remember { mutableStateOf(VideoRotation.Original) }
     var currentPlaySpeed by remember { mutableFloatStateOf(1f) }
     var currentAudio by remember { mutableStateOf(Audio.A192K) }
 
@@ -337,6 +344,7 @@ fun MenuControllerPreview() {
                         currentResolution = currentResolution,
                         currentVideoCodec = currentCodec,
                         currentVideoAspectRatio = currentVideoAspectRatio,
+                        currentVideoRotation = currentVideoRotation,
                         currentVideoSpeed = currentPlaySpeed,
                         currentAudio = currentAudio,
 
@@ -360,6 +368,7 @@ fun MenuControllerPreview() {
                         onResolutionChange = { currentResolution = it },
                         onCodecChange = { currentCodec = it },
                         onAspectRatioChange = { currentVideoAspectRatio = it },
+                        onRotationChange = { currentVideoRotation = it },
                         onPlaySpeedChange = { currentPlaySpeed = it },
                         onAudioChange = { currentAudio = it },
                         onDanmakuSwitchChange = {

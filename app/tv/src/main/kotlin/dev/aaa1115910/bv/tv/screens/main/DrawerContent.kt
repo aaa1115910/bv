@@ -165,7 +165,7 @@ fun DrawerContent(
                 } else {
                     Icon(
                         modifier = Modifier
-                            .size(52.dp)
+                            .size(46.dp)
                             .ifElse(
                                 !focusOnContent && focusedItem == DrawerItem.User,
                                 Modifier

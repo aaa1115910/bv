@@ -56,6 +56,11 @@
     <string name="video_player_menu_picture_codec">视频编码</string>
     <string name="video_player_menu_picture_play_speed">播放速度</string>
     <string name="video_player_menu_picture_resolution">清晰度</string>
+    <string name="video_player_menu_picture_rotation">画面旋转</string>
+    <string name="video_rotation_original">原始</string>
+    <string name="video_rotation_90">90°</string>
+    <string name="video_rotation_negative_90">-90°</string>
+    <string name="video_rotation_180">180°</string>
     <string name="video_player_menu_subtitle_background_opacity">背景不透明度</string>
     <string name="video_player_menu_subtitle_bottom_padding">底部间距</string>
     <string name="video_player_menu_subtitle_size">字体大小</string>

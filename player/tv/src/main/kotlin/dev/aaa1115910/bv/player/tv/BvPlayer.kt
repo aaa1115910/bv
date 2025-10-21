@@ -1,16 +1,13 @@
 package dev.aaa1115910.bv.player.tv
 
 import android.os.CountDownTimer
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -53,6 +50,7 @@ import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
 import dev.aaa1115910.bv.player.entity.VideoCodec
 import dev.aaa1115910.bv.player.entity.VideoListItem
+import dev.aaa1115910.bv.player.entity.VideoRotation
 import dev.aaa1115910.bv.player.entity.VideoPlayerClockState
 import dev.aaa1115910.bv.player.entity.VideoPlayerDebugInfoData
 import dev.aaa1115910.bv.player.entity.VideoPlayerSeekState
@@ -90,6 +88,7 @@ fun BvPlayer(
     onResolutionChange: (Resolution, afterChange: suspend () -> Unit) -> Unit,
     onCodecChange: (VideoCodec, afterChange: suspend () -> Unit) -> Unit,
     onAspectRatioChange: (VideoAspectRatio) -> Unit,
+    onRotationChange: (VideoRotation) -> Unit,
     onPlaySpeedChange: (Float) -> Unit,
     onAudioChange: (Audio, afterChange: suspend () -> Unit) -> Unit,
     onDanmakuSwitchChange: (List<DanmakuType>) -> Unit,
@@ -143,14 +142,10 @@ fun BvPlayer(
     var danmakuConfig by remember { mutableStateOf(DanmakuConfig()) }
 
     val seekState = remember { VideoPlayerSeekState() }
-    var currentVideoAspectRatio by remember { mutableStateOf(VideoAspectRatio.Default) }
+    var currentVideoAspectRatio by remember { mutableStateOf(videoPlayerConfigData.currentVideoAspectRatio) }
+    var currentVideoRotation by remember { mutableStateOf(videoPlayerConfigData.currentVideoRotation) }
     var currentPlaySpeed by remember { mutableFloatStateOf(videoPlayerConfigData.currentVideoSpeed) }
     var aspectRatioValue by remember { mutableFloatStateOf(16f / 9f) }
-    val aspectRatio by animateFloatAsState(
-        targetValue = aspectRatioValue,
-        animationSpec = tween(),
-        label = "aspectRatio",
-    )
     var lastPlayed by remember { mutableLongStateOf(0L) }
     var defaultAspectRatio by remember { mutableFloatStateOf(16 / 9f) }
     var showInfoProvider: () -> Boolean by remember { mutableStateOf({ false }) }
@@ -336,6 +331,7 @@ fun BvPlayer(
                 scope.launch(Dispatchers.Main) {
                     videoPlayer.seekTo(0)
                     mDanmakuPlayer?.seekTo(0)
+                    mDanmakuPlayer?.pause()
                     videoPlayer.start()
                 }
                 return
@@ -627,6 +623,28 @@ fun BvPlayer(
                 onAspectRatioChange(currentVideoAspectRatio)
                 updateVideoAspectRatio()
             },
+            onRotationChange = { rotation ->
+//                if (videoPlayerConfigData.currentResolution > Resolution.R1080P60) {
+//                    // 4k及以上的视频旋转后画面很卡、hdr、杜比世界的视频旋转后色彩和对比度不对， 所以先切换到<=R1080P60
+//                    val tempList =
+//                        videoPlayerConfigData.availableResolutions.sortedByDescending { it.code }
+//                    val currentQuality = tempList.firstOrNull { it.code <= Resolution.R1080P60.code }
+//                        ?: tempList.last()
+//                    if (videoPlayerConfigData.currentResolution != currentQuality) {
+//                        videoPlayer.pause()
+//                        val current = videoPlayer.currentPosition
+//                        onResolutionChange(currentQuality) {
+//                            withContext(Dispatchers.Main) {
+//                                videoPlayer.seekTo(current)
+//                                videoPlayer.start()
+//                            }
+//                        }
+//                    }
+//                }
+
+                currentVideoRotation = rotation
+                onRotationChange(rotation)
+            },
             onPlaySpeedChange = { speed ->
                 logger.info { "Set default play speed: $speed" }
                 currentPlaySpeed = speed
@@ -721,11 +739,13 @@ fun BvPlayer(
 
             BvVideoPlayer(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(aspectRatio)
+//                    .fillMaxHeight()
+                    .aspectRatio(aspectRatioValue)
                     .align(Alignment.Center),
                 videoPlayer = videoPlayer,
                 playerListener = videoPlayerListener,
+                rotationDegrees = currentVideoRotation.degrees,
+                danmakuPlayer = danmakuPlayer
             )
 
             DanmakuLayer(
