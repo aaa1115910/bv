@@ -705,9 +705,9 @@ private fun SpeedDialog(
                         .focusable()
                         .fillMaxWidth()
                         .onPreviewKeyEvent {
-                            if (it.key == Key.DirectionUp || it.key == Key.DirectionDown) {
+                            if (it.key == Key.DirectionUp || it.key == Key.DirectionDown || it.key == Key.DirectionLeft || it.key == Key.DirectionRight) {
                                 if (it.type == KeyEventType.KeyDown) {
-                                    var newValue = if (it.key == Key.DirectionUp)
+                                    var newValue = if (it.key == Key.DirectionUp || it.key == Key.DirectionRight)
                                         speed + step
                                     else
                                         speed - step

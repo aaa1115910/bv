@@ -103,8 +103,8 @@ open class SimpleRenderer : DanmakuRenderer {
         val danmakuItemData = item.data
         val textWidth = textPaint.measureText(danmakuItemData.content)
         val textHeight = getCacheHeight(textPaint)
-        val canvasPadding = (CANVAS_PADDING * config.textSizeScale).roundToInt()
-        return Size(textWidth.roundToInt() + canvasPadding, textHeight.roundToInt() + canvasPadding)
+        val canvasPadding = CANVAS_PADDING * config.textSizeScale
+        return Size((textWidth + canvasPadding).roundToInt(), (textHeight + canvasPadding).roundToInt())
     }
 
     override fun draw(

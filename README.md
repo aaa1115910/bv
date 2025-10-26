@@ -60,7 +60,7 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
   - 此时，按确认键会触发“播放/暂停”、按左右键回触发“快进/快退”
 - 播放器控制条，增加功能按钮（播放速度、up空间、旋转画面、字幕开关、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
 
-  ![视频播放](https://github.com/user-attachments/assets/a5aaa20b-2c7e-4c7d-aa2a-f223665b0cc1)
+  ![视频播放](https://github.com/user-attachments/assets/e341b54e-3af9-4c9f-ab68-791335864267)
 - 调整设置，增加分类“播放设置”
   - 把 分辨率、视频编码、音频编码、启用音频软件 4个设置移入这个分类
   - 增加是否“显示UGC视频详情页”设置 （默认显示）

@@ -444,6 +444,8 @@ fun VideoInfoScreen(
 
                     videoInfoRepository.relatedVideos.clear()
                     if (!fromSeason) {
+                        if (Prefs.isLogin) updateFollowingState()
+
                         videoInfoRepository.relatedVideos.addAll(
                             videoDetailViewModel.relatedVideos.subList(
                                 0,
@@ -572,8 +574,6 @@ fun VideoInfoScreen(
                 logger.fInfo { "No redirection required" }
                 defaultFocusRequester.requestFocus(scope)
             }
-
-            if (!fromSeason && showUGCVideoInfo) updateFollowingState()
         }
     }
 
@@ -1067,7 +1067,7 @@ fun VideoInfoData(
 //    val localDensity = LocalDensity.current
 //    var heightIs by remember { mutableStateOf(0.dp) }
     val isLogin by remember { mutableStateOf(Prefs.isLogin) }
-    var coverHasFocus by remember { mutableStateOf(false) }
+//    var coverHasFocus by remember { mutableStateOf(false) }
     val videoDuration =
         videoDetail.pages.sumOf { it.duration }.takeIf { videoDetail.pages.isNotEmpty() } ?: 0
 
@@ -1083,7 +1083,7 @@ fun VideoInfoData(
 //                .onGloballyPositioned { coordinates ->
 //                    heightIs = with(localDensity) { coordinates.size.height.toDp() }
 //                }
-                .onFocusChanged { coverHasFocus = it.hasFocus }
+//                .onFocusChanged { coverHasFocus = it.hasFocus }
                 .padding(4.dp),
             onClick = onClickCover,
             shape = ClickableSurfaceDefaults.shape(
