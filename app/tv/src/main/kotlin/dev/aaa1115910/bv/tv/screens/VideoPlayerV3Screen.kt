@@ -68,6 +68,7 @@ import dev.aaa1115910.bv.tv.activities.video.UpInfoActivity
 import dev.aaa1115910.bv.tv.component.buttons.CoinButton
 import dev.aaa1115910.bv.tv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.tv.component.buttons.LikeButton
+import dev.aaa1115910.bv.tv.manager.FollowStateManager
 import dev.aaa1115910.bv.tv.manager.VideoUserActionManager
 import dev.aaa1115910.bv.tv.manager.VideoUserActionManager.getStateFlow
 import kotlinx.coroutines.launch
@@ -97,6 +98,18 @@ fun VideoPlayerV3Screen(
     val currentAid = playerViewModel.currentAid
     val sharedActionFlow = remember(currentAid) { getStateFlow(currentAid, Prefs.uid) }
     val sharedActionState by sharedActionFlow.collectAsState()
+    val followStateMap by FollowStateManager.followStateMap.collectAsState()
+
+    LaunchedEffect(followStateMap, playerViewModel.upId) {
+        val currentUpId = playerViewModel.upId
+        if (currentUpId > 0) {
+            FollowStateManager.getFollowState(currentUpId)?.let { following ->
+                if (playerViewModel.isFollowingUp != following) {
+                    playerViewModel.isFollowingUp = following
+                }
+            }
+        }
+    }
 
     // 倒计时相关状态
     var autoActionCountdownJob by remember { mutableStateOf<Job?>(null) }
@@ -139,7 +152,8 @@ fun VideoPlayerV3Screen(
             favorite = playerViewModel.favorite,
             upName = playerViewModel.upName,
             pubTime = playerViewModel.pubTime,
-            fromSeason = playerViewModel.fromSeason
+            fromSeason = playerViewModel.fromSeason,
+            isFollowingUp = playerViewModel.isFollowingUp
         ),
         LocalVideoPlayerLogsData provides VideoPlayerLogsData(
             logs = playerViewModel.logs
@@ -219,6 +233,11 @@ fun VideoPlayerV3Screen(
                 onSendHeartbeat = playerViewModel::uploadHistory,
                 onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
                 onLoadNextVideo = {
+                    if (playerViewModel.showRelatedVideos) {
+                        logger.info { "Related videos is shown, skip auto play next video" }
+                        return@BvPlayer
+                    }
+
                     val currentIndex = playerViewModel.availableVideoList
                         .indexOfFirst {
                             when (it) {
@@ -422,7 +441,11 @@ fun VideoPlayerV3Screen(
                     Prefs.isLoop = it
                     playerViewModel.isLoop = it
                 },
-                userActionContent = { focusMap, onFocus, onPauseAutoHide ->
+                userActionContent = { 
+                    modifier,
+                    focusMap, 
+                    onFocus, 
+                    onPauseAutoHide ->
                     if (Prefs.isLogin && !playerViewModel.fromSeason) {
                         // 增加操作：点赞、收藏、投币。通过 focusMap 获取 focusRequester 并在 onFocusChanged 回调时通知 controller
                         val likeFocus = focusMap["like"]
@@ -430,7 +453,7 @@ fun VideoPlayerV3Screen(
                         val coinFocus = focusMap["coin"]
 
                         Row(
-                            modifier = Modifier
+                            modifier = modifier
                                 .fillMaxWidth()
                                 .padding(start = 32.dp, bottom = 4.dp)
                                 .offset(y = 8.dp),

@@ -1339,8 +1339,7 @@ object BiliHttpApi {
             order?.let { parameter("order", it) }
             duration?.let { parameter("duration", it) }
             header("Cookie", "buvid3=$buvid3;")
-            header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36")
-            header("referer", "https://search.bilibili.com/")
+            header("referer", "https://search.bilibili.com")
 
             // val chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             // val len = 32

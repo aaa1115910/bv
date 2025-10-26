@@ -85,7 +85,12 @@ fun VideoPlayerController(
     onOpenDanmaku: () -> Unit,
     onHideDanmaku: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit,
+    userActionContent: @Composable (
+        modifier: Modifier,
+        focusMap: Map<String, FocusRequester>,
+        onFocus: (String) -> Unit,
+        onPauseAutoHide: (Boolean) -> Unit
+    ) -> Unit,
 
     //menu events
     onResolutionChange: (Resolution) -> Unit,
@@ -488,7 +493,8 @@ fun VideoPlayerController(
                     openSeekController()
                     onTimeForward()
                 }
-            }
+            },
+            onSubtitleChange = onSubtitleChange
         )
         SeekController(
             show = showSeekController,
@@ -548,7 +554,7 @@ fun VideoPlayerController(
                     .height(2.2.dp),
                 progress = { throttledProgress },
                 color = SliderDefaults.colors().activeTrackColor,
-                trackColor = Color.Black.copy(alpha = 0.3f),
+                trackColor = Color.Black.copy(alpha = 0.4f),
                 gapSize = 0.dp,
                 drawStopIndicator = {}
             )

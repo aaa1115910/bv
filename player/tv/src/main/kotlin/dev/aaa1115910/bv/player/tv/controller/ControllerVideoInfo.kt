@@ -21,9 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.RepeatOne
@@ -65,8 +62,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
-import androidx.compose.material.icons.rounded.ScreenRotation
+import androidx.compose.material.icons.twotone.ScreenRotation
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
@@ -75,6 +73,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import dev.aaa1115910.biliapi.entity.video.Subtitle
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerClockState
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekState
@@ -121,9 +120,15 @@ fun ControllerVideoInfo(
     onOpenSetting: () -> Unit,
     onLoopPlayModeChange: (Boolean) -> Unit,
     onRotationChange: (VideoRotation) -> Unit,
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
+    userActionContent: @Composable (
+        modifier: Modifier,
+        focusMap: Map<String, FocusRequester>,
+        onFocus: (String) -> Unit,
+        onPauseAutoHide: (Boolean) -> Unit
+    ) -> Unit = { _, _, _, _ -> },
     onSeekBack: () -> Unit,
-    onSeekForward: () -> Unit
+    onSeekForward: () -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit,
 ) {
     val videoPlayerClockState = LocalVideoPlayerClockState.current
     val videoPlayerSeekState = LocalVideoPlayerSeekState.current
@@ -211,7 +216,14 @@ fun ControllerVideoInfo(
                 fromSeason = videoPlayerVideoInfoData.fromSeason,
                 userActionContent = userActionContent,
                 onSeekBack = onSeekBack,
-                onSeekForward = onSeekForward
+                onSeekForward = onSeekForward,
+                availableSubtitleTracks = videoPlayerConfigData.availableSubtitleTracks,
+                currentSubtitleId = videoPlayerConfigData.currentSubtitleId,
+                onSubtitleChange = { id ->
+                    val track = videoPlayerConfigData.availableSubtitleTracks.firstOrNull { it.id == id }
+                    track?.let { onSubtitleChange(it) }
+                },
+                isFollowingUp = videoPlayerVideoInfoData.isFollowingUp
             )
         }
     }
@@ -278,24 +290,31 @@ fun ControllerVideoInfoBottom(
     onLoopPlayModeChange: (Boolean) -> Unit,
     onRotationChange: (VideoRotation) -> Unit,
     fromSeason: Boolean = false,
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> },
+    isFollowingUp: Boolean = false,
+    userActionContent: @Composable (
+        modifier: Modifier,
+        focusMap: Map<String, FocusRequester>,
+        onFocus: (String) -> Unit,
+        onPauseAutoHide: (Boolean) -> Unit
+    ) -> Unit = { _, _, _, _ -> },
     onSeekBack: () -> Unit,
-    onSeekForward: () -> Unit
+    onSeekForward: () -> Unit,
+    availableSubtitleTracks: List<Subtitle> = emptyList(),
+    currentSubtitleId: Long,
+    onSubtitleChange: (Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var hideVideoInfoJob by remember { mutableStateOf<Job?>(null) }
     var pauseAutoHide by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
     var showRotationDialog by remember { mutableStateOf(false) }
-    var speed by remember { mutableStateOf(playSpeed) }
+    var showSubtitleDialog by remember { mutableStateOf(false) }
+    var speed by remember { mutableFloatStateOf(playSpeed) }
     val danmakuIconId = if (showDanmaku) R.drawable.ic_danmaku_on else R.drawable.ic_danmaku_hide
-    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed, rotation) {
+    val subtitleIconId = if (currentSubtitleId > -1) R.drawable.ic_subtitle_on else R.drawable.ic_subtitle_off
+    val upSpaceIconId = if (isFollowingUp) R.drawable.person_following else R.drawable.person
+    val buttons = remember(fromSeason, showDanmaku, isPlaying, isLoop, speed, rotation, currentSubtitleId, isFollowingUp) {
         listOf(
-//            ControlButton(
-//                id = "play",
-//                icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-//                onClick = { if (isPlaying) onPause() else onPlay() }
-//            ),
             ControlButton(
                 id = "speed",
                 text = formatSpeed(speed),
@@ -304,20 +323,27 @@ fun ControllerVideoInfoBottom(
             ),
             ControlButton(
                 id = "upSpace",
-                icon = Icons.Rounded.Person,
+                painterId = upSpaceIconId,
+                scale = 0.73f,
                 onClick = onOpenUpSpace,
                 visible = !fromSeason
             ),
             ControlButton(
                 id = "rotation",
-                icon = Icons.Rounded.ScreenRotation,
+                icon = Icons.TwoTone.ScreenRotation,
                 onClick = { showRotationDialog = true },
-                scale = 0.7f
+                scale = 0.75f
             ),
             ControlButton(
                 id = "refresh",
                 icon = Icons.Rounded.Refresh,
                 onClick = onRefreshVideo
+            ),
+            ControlButton(
+                id = "subtitle",
+                painterId = subtitleIconId,
+                onClick = { showSubtitleDialog = true },
+                visible = availableSubtitleTracks.count() > 1
             ),
             ControlButton(
                 id = "danmaku",
@@ -369,7 +395,7 @@ fun ControllerVideoInfoBottom(
     val seekbarFocusRequester = remember { FocusRequester() }
     var seekbarHasFocus by remember { mutableStateOf(false) }
 
-    var statString by remember {
+    val statString by remember {
         mutableStateOf(
             if (upName.isNotEmpty()) {
                 "$upName  ·  ${
@@ -390,10 +416,7 @@ fun ControllerVideoInfoBottom(
     LaunchedEffect(show) {
         if (show) {
             // 初始聚焦 进度条
-            delay(150)
-            runCatching {
-                seekbarFocusRequester.requestFocus()
-            }
+            seekbarFocusRequester.requestFocus()
         }
     }
 
@@ -404,15 +427,15 @@ fun ControllerVideoInfoBottom(
 
     fun scheduleHideJob() {
         cancelHideJob()
-        if (show && !showSpeedDialog && !showRotationDialog && !pauseAutoHide) {
+        if (show && !showSpeedDialog && !showRotationDialog && !showSubtitleDialog && !pauseAutoHide) {
             hideVideoInfoJob = scope.launch {
-                delay(4000)
+                delay(5000)
                 withContext(Dispatchers.Main) { onHideInfo() }
             }
         }
     }
 
-    LaunchedEffect(show, showSpeedDialog, showRotationDialog, pauseAutoHide) {
+    LaunchedEffect(show, showSpeedDialog, showRotationDialog, showSubtitleDialog, pauseAutoHide) {
         scheduleHideJob()
     }
 
@@ -474,6 +497,9 @@ fun ControllerVideoInfoBottom(
         }
         // 当前注入的是：点赞、收藏、投币
         userActionContent(
+            Modifier.focusProperties {
+                down = seekbarFocusRequester
+            },
             userActionFocusRequesters.value,
             { id ->
                 // 当用户 action 获得焦点时，设置当前聚焦 id 并重置自动隐藏计时
@@ -573,6 +599,8 @@ fun ControllerVideoInfoBottom(
                         )
                     } else if (button.painterId != null) {
                         Icon(
+                            modifier = Modifier
+                                .ifElse(button.scale != 1f, Modifier.scale(button.scale)),
                             painter = painterResource(id = button.painterId),
                             contentDescription = null,
                             tint = button.tint
@@ -622,6 +650,20 @@ fun ControllerVideoInfoBottom(
             rotation = rotation,
             onRotationChange = onRotationChange
         )
+    }
+
+    if (showSubtitleDialog) {
+        val currentSubtitle = availableSubtitleTracks.firstOrNull { it.id == currentSubtitleId }
+        if (currentSubtitle != null) {
+            SubtitleDialog(
+                onHideDialog = { showSubtitleDialog = false },
+                subtitle = currentSubtitle,
+                availableSubtitleTracks = availableSubtitleTracks,
+                onSubtitleChange = { subtitle ->
+                    onSubtitleChange(subtitle.id)
+                }
+            )
+        }
     }
 }
 
@@ -761,6 +803,71 @@ private fun RotationDialog(
 }
 
 @Composable
+private fun SubtitleDialog(
+    modifier: Modifier = Modifier,
+    subtitle: Subtitle,
+    availableSubtitleTracks: List<Subtitle>,
+    onHideDialog: () -> Unit,
+    onSubtitleChange: (Subtitle) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val focusRequesters = remember { availableSubtitleTracks.map { it.id }.associateWith { FocusRequester() } }
+
+    LaunchedEffect(subtitle) {
+        focusRequesters[subtitle.id]?.requestFocus(scope)
+    }
+
+    Dialog(onDismissRequest = { onHideDialog() }) {
+        Surface(
+            modifier = modifier
+                .width(240.dp),
+            color = Color.Black.copy(alpha = 0.5f),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Text(
+                    text = stringResource(R.string.video_player_menu_subtitle_switch),
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 18.sp
+                )
+
+                Column {
+                    availableSubtitleTracks.forEach { option ->
+                        val selected = option == subtitle
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                                .focusRequester(focusRequesters[option.id]!!),
+                            shape = ButtonDefaults.shape(MaterialTheme.shapes.medium),
+                            scale = ButtonDefaults.scale(focusedScale = 1f),
+                            colors = ButtonDefaults.colors(
+                                containerColor = if (selected) MaterialTheme.colorScheme.inverseSurface.copy(
+                                    alpha = 0.4f
+                                ) else Color.Transparent,
+                                contentColor = Color.White,
+                                focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedContentColor = Color.Black
+                            ),
+                            onClick = { onSubtitleChange(option) }
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = option.langDoc,
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun Clock(
     modifier: Modifier = Modifier,
     hour: Int,
@@ -854,11 +961,12 @@ private fun ControllerVideoInfoPreview() {
                 onOpenSetting = {},
                 onLoopPlayModeChange = {},
                 onRotationChange = {},
-                userActionContent = { _, _, _ ->
+                userActionContent = { _, _, _, _ ->
                     // User action buttons go here
                 },
                 onSeekBack = {},
-                onSeekForward = {}
+                onSeekForward = {},
+                onSubtitleChange = {}
             )
         }
     }

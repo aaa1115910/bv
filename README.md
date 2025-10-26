@@ -8,6 +8,7 @@
 
 [![Android Sdk Require](https://img.shields.io/badge/Android-6.0%2B-informational?logo=android)](https://apilevels.com/#:~:text=Jetpack%20Compose%20requires%20a%20minSdk%20of%2021%20or%20higher)
 [![GitHub](https://img.shields.io/github/license/aaa1115910/bv)](https://github.com/aaa1115910/bv)
+[![Downloads](https://img.shields.io/github/downloads/fantasytyx/bv/total?logo=github&cacheSeconds=3600)](https://github.com/fantasytyx/bv/releases)
 
 **BV 无法在中国大陆地区内的智能电视上使用，如有相关使用需求请使用 [云视听小电视](https://app.bilibili.com)**
 
@@ -44,30 +45,34 @@ BV ~~(Bug Video)~~ 是一款 [哔哩哔哩](https://www.bilibili.com) 的第三�
 
   ![首页](https://github.com/user-attachments/assets/687891ea-b6f0-43c4-b4d6-cdd24b716f6f)
 - UGC视频详情页增加点赞、投币功能
-- 增加是否“显示UGC视频详情页” （设置-更多设置，默认开启）
+- 增加是否“显示UGC视频详情页”设置 （默认显示）
     - 关闭后，点击非PGC视频卡片不显示详情页直接开始播放
 
   ![UGC详情](https://github.com/user-attachments/assets/09f76c5c-f494-44a7-9aa9-672da489a156)
 - 播放器页面增加“推荐视频”
-    - 操作方式： 1）双击下键; 2）或者按方向键下显示视频信息、聚焦到底部那排按钮、再按下键
+    - 操作方式： 1）双击下键; 2）按下键显示视频信息，移动焦点在底部那排按钮后再按下键
 
   ![视频播放-推荐视频](https://github.com/user-attachments/assets/2ea057f2-7e78-4b68-9bd4-5d4b2bb31d9e)
 - 新增视频画面旋转功能
 - 播放器控制条，增加点赞、收藏、投币
     - 仅UGC视频且要登录才会显示
-- 播放器控制条，默认聚焦在进度条，按左右键“快进/快退”、按确认键“暂停/播放”
-- 播放器控制条，增加功能按钮（播放速度、up空间、旋转画面、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
+- 播放器控制条，默认聚焦在进度条
+  - 此时，按确认键会触发“播放/暂停”、按左右键回触发“快进/快退”
+- 播放器控制条，增加功能按钮（播放速度、up空间、旋转画面、字幕开关、刷新当前视频、弹幕开关、播放清单、推荐视频、播放器设置、循环播放）
 
-  ![视频播放](https://github.com/user-attachments/assets/a373138e-7fb7-4264-a46a-620757579cb8)
-- 增加设置“显示视频加载过程信息”（设置-更多设置，默认不显示）
-- 增加是否显示“播放器底部常驻进度条”配置（设置-更多设置，默认不显示）
-- 增加是否“自动播放下一个视频”（设置-更多设置，默认开启）
-- 增加是否“都播完后退出播放器”（设置-更多设置，默认开启）
-- 增加默认播放速度配置（设置-更多设置，默认1倍）
-- 增加快进时间间隔配置（设置-更多设置，默认10秒）
-- 增加快退时间间隔配置（设置-更多设置，默认5秒）
+  ![视频播放](https://github.com/user-attachments/assets/a5aaa20b-2c7e-4c7d-aa2a-f223665b0cc1)
+- 调整设置，增加分类“播放设置”
+  - 把 分辨率、视频编码、音频编码、启用音频软件 4个设置移入这个分类
+  - 增加是否“显示UGC视频详情页”设置 （默认显示）
+  - 增加是否显示“播放器底部常驻进度条”设置（默认不显示）
+  - 增加“显示视频加载过程信息”设置（默认不显示）
+  - 增加是否“自动播放下一个视频”设置（默认开启）
+  - 增加是否“都播完后退出播放器”设置（默认开启）
+  - 增加默认播放速度设置（默认1倍）
+  - 增加快进时间间隔设置（默认10秒）
+  - 增加快退时间间隔设置（默认5秒）
 
-  ![设置](https://github.com/user-attachments/assets/16030082-af17-4f33-9ece-ce49041bda6e)
+  ![设置](https://github.com/user-attachments/assets/5e721ec3-e584-4233-a112-e7a3ee5f1afd)
 - 优化列表、优化视频卡片、精简动画、增加数据缓存、减少非必要的请求
 - 按自己的喜好调整页面的布局、元素大小、交互方式、原有功能
 - 解决一些bug等等

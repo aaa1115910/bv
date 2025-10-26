@@ -16,7 +16,8 @@ fun SettingListItem(
     title: String,
     supportText: String,
     defaultHasFocus: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    valueText: String? = null
 ) {
     var hasFocus by remember { mutableStateOf(defaultHasFocus) }
 
@@ -24,7 +25,7 @@ fun SettingListItem(
         modifier = modifier.onFocusChanged { hasFocus = it.hasFocus },
         headlineContent = { Text(text = title) },
         supportingContent = { Text(text = supportText) },
-        trailingContent = { },
+        trailingContent = { if (valueText?.isNotEmpty() == true) Text(text = valueText) },
         onClick = onClick,
         selected = false
     )

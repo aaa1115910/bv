@@ -105,7 +105,12 @@ fun BvPlayer(
     onShowDanmakuChange: (Boolean) -> Unit = {},
     onLoopPlayModeChange: (Boolean) -> Unit = {},
     onRefreshVideo: () -> Unit = {},
-    userActionContent: @Composable (focusMap: Map<String, FocusRequester>, onFocus: (String) -> Unit, onPauseAutoHide: (Boolean) -> Unit) -> Unit = { _, _, _ -> }
+    userActionContent: @Composable (
+        modifier: Modifier,
+        focusMap: Map<String, FocusRequester>,
+        onFocus: (String) -> Unit,
+        onPauseAutoHide: (Boolean) -> Unit
+    ) -> Unit = { _, _, _, _ -> }
 ) {
 //    // 调试重组次数: AtomicInteger，不被 Compose 追踪，只记录真实由外部状态引起的重组次数。
 //    val recomposeCounter = remember { java.util.concurrent.atomic.AtomicInteger(0) }
@@ -233,9 +238,14 @@ fun BvPlayer(
             val time = withContext(Dispatchers.Main) {
                 val currentTime = (videoPlayer.currentPosition.coerceAtLeast(0L) / 1000).toInt()
                 val totalTime = (videoPlayer.duration.coerceAtLeast(0L) / 1000).toInt()
-                //播放完后上报的时间应为 -1
-                if (currentTime >= totalTime) -1 else currentTime
-                if (totalTime == 0) -2 else currentTime
+
+                if (totalTime == 0) {
+                    -2 // 无法正常博凡
+                } else if (currentTime >= totalTime - 1) {
+                    -1 // 播放完后上报的时间应为 -1
+                } else {
+                    currentTime // 播放中上报单签时间
+                }
             }
             if (time > -2) {
                 onSendHeartbeat(time)
@@ -326,6 +336,14 @@ fun BvPlayer(
         }
 
         override fun onEnd() {
+            if (videoPlayerConfigData.showRelatedVideos) {
+                logger.info { "onEnd: show related videos, skip auto next" }
+                scope.launch(Dispatchers.Main) {
+                    isPlaying = false
+                }
+                return
+            }
+
             if (videoPlayerConfigData.isLoop) {
                 logger.info { "onEnd: replay" }
                 scope.launch(Dispatchers.Main) {

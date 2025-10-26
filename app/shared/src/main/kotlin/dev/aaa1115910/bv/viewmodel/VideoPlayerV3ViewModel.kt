@@ -151,6 +151,7 @@ class VideoPlayerV3ViewModel(
     var isLoop by mutableStateOf(Prefs.isLoop)
     var showDanmaku by mutableStateOf(Prefs.showDanmaku)
     var showRelatedVideos by mutableStateOf(false)
+    var isFollowingUp by mutableStateOf(false)
 
     var needPay by mutableStateOf(false)
 

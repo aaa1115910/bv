@@ -115,9 +115,9 @@ open class SimpleRenderer : DanmakuRenderer {
     ) {
         updatePaint(item, displayer, config)
         val danmakuItemData = item.data
-        val canvasPadding = CANVAS_PADDING * config.textSizeScale
-        val x = canvasPadding * 0.5f
-        val y = canvasPadding * 0.5f - textPaint.ascent()
+        val canvasPadding = CANVAS_PADDING * config.textSizeScale * 0.5f
+        val x = canvasPadding
+        val y = canvasPadding - textPaint.ascent()
         canvas.drawText(danmakuItemData.content, x, y, strokePaint)
         canvas.drawText(danmakuItemData.content, x, y, textPaint)
         if (danmakuItemData.danmakuStyle == DanmakuItemData.DANMAKU_STYLE_SELF_SEND) {

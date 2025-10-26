@@ -24,7 +24,6 @@ import dev.aaa1115910.bv.BuildConfig
 import dev.aaa1115910.bv.R
 import dev.aaa1115910.bv.tv.component.settings.SettingListItem
 import dev.aaa1115910.bv.tv.component.settings.SettingSwitchListItem
-import dev.aaa1115910.bv.tv.component.settings.SettingNumberListItem
 import dev.aaa1115910.bv.tv.activities.settings.LogsActivity
 import dev.aaa1115910.bv.tv.screens.settings.SettingsMenuNavItem
 import dev.aaa1115910.bv.util.FirebaseUtil
@@ -38,16 +37,6 @@ fun OtherSetting(
 
     var showFps by remember { mutableStateOf(Prefs.showFps) }
     var updateAlpha by remember { mutableStateOf(Prefs.updateAlpha) }
-    var enableFfmpegAudioRenderer by remember { mutableStateOf(Prefs.enableFfmpegAudioRenderer) }
-    var portraitVideoQualityLimitMax1080P by remember { mutableStateOf(Prefs.portraitVideoQualityLimitMax1080P) }
-    var playerAutoPlayNextVideo by remember { mutableStateOf(Prefs.playerAutoPlayNextVideo) }
-    var playerExitWhenAllIsPlayed by remember { mutableStateOf(Prefs.playerExitWhenAllIsPlayed) }
-    var playerShowBottomProgressBar by remember { mutableStateOf(Prefs.playerShowBottomProgressBar) }
-    var defaultPlaybackSpeed by remember { mutableStateOf(Prefs.defaultPlaySpeed.toDouble()) }
-    var playerSeekForwardStep by remember { mutableStateOf(Prefs.playerSeekForwardStep.toDouble()) }
-    var playerSeekBackwardStep by remember { mutableStateOf(Prefs.playerSeekBackwardStep.toDouble()) }
-    var showUGCVideoInfo by remember { mutableStateOf(Prefs.showUGCVideoInfo) }
-    var playerShowDebugInfo by remember { mutableStateOf(Prefs.playerShowDebugInfo) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -118,128 +107,6 @@ fun OtherSetting(
                         }
                     )
                 }
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_other_ffmpeg_audio_renderer_title),
-                    supportText = stringResource(R.string.settings_other_ffmpeg_audio_renderer_text),
-                    checked = enableFfmpegAudioRenderer,
-                    onCheckedChange = {
-                        enableFfmpegAudioRenderer = it
-                        Prefs.enableFfmpegAudioRenderer = it
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_show_ugc_video_info_title),
-                    supportText = stringResource(R.string.settings_show_ugc_video_info_text),
-                    checked = showUGCVideoInfo,
-                    onCheckedChange = {
-                        showUGCVideoInfo = it
-                        Prefs.showUGCVideoInfo = it
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_player_show_debug_info_title),
-                    supportText = stringResource(R.string.settings_player_show_debug_info_text),
-                    checked = playerShowDebugInfo,
-                    onCheckedChange = {
-                        playerShowDebugInfo = it
-                        Prefs.playerShowDebugInfo = it
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_other_portrait_video_quality_title),
-                    supportText = stringResource(R.string.settings_other_portrait_video_quality_text),
-                    checked = portraitVideoQualityLimitMax1080P,
-                    onCheckedChange = {
-                        portraitVideoQualityLimitMax1080P = it
-                        Prefs.portraitVideoQualityLimitMax1080P = it
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_player_auto_play_next_video_title),
-                    supportText = stringResource(R.string.settings_player_auto_play_next_video_text),
-                    checked = playerAutoPlayNextVideo,
-                    onCheckedChange = {
-                        playerAutoPlayNextVideo = it
-                        Prefs.playerAutoPlayNextVideo = it
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_player_exit_when_all_is_played_title),
-                    supportText = stringResource(R.string.settings_player_exit_when_all_is_played_text),
-                    checked = playerExitWhenAllIsPlayed,
-                    onCheckedChange = {
-                        playerExitWhenAllIsPlayed = it
-                        Prefs.playerExitWhenAllIsPlayed = it
-                    }
-                )
-            }
-            item {
-                SettingNumberListItem(
-                    title = stringResource(R.string.settings_player_default_playback_speed_title),
-                    supportText = stringResource(R.string.settings_player_default_playback_speed_text),
-                    value = defaultPlaybackSpeed,
-                    minValue = 0.25,
-                    maxValue = 2.5,
-                    isInteger = false,
-                    step = 0.25,
-                    onValueChange = {
-                        defaultPlaybackSpeed = it
-                        Prefs.defaultPlaySpeed = it.toFloat()
-                    }
-                )
-            }
-            item {
-                SettingNumberListItem(
-                    title = stringResource(R.string.settings_player_seek_forward_step_title),
-                    supportText = stringResource(R.string.settings_player_seek_forward_step_text),
-                    value = playerSeekForwardStep,
-                    minValue = 5.0,
-                    maxValue = 30.0,
-                    isInteger = true,
-                    step = 1.0,
-                    onValueChange = {
-                        playerSeekForwardStep = it
-                        Prefs.playerSeekForwardStep = it.toInt()
-                    }
-                )
-            }
-            item {
-                SettingNumberListItem(
-                    title = stringResource(R.string.settings_player_seek_backward_step_title),
-                    supportText = stringResource(R.string.settings_player_seek_backward_step_text),
-                    value = playerSeekBackwardStep,
-                    minValue = 5.0,
-                    maxValue = 30.0,
-                    isInteger = true,
-                    step = 1.0,
-                    onValueChange = {
-                        playerSeekBackwardStep = it
-                        Prefs.playerSeekBackwardStep = it.toInt()
-                    }
-                )
-            }
-            item {
-                SettingSwitchListItem(
-                    title = stringResource(R.string.settings_player_show_bottom_progress_bar_title),
-                    supportText = stringResource(R.string.settings_player_show_bottom_progress_bar_text),
-                    checked = playerShowBottomProgressBar,
-                    onCheckedChange = {
-                        playerShowBottomProgressBar = it
-                        Prefs.playerShowBottomProgressBar = it
-                    }
-                )
             }
         }
     }

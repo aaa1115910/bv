@@ -88,6 +88,7 @@ fun UISetting(
                     SettingListItem(
                         title = stringResource(R.string.settings_ui_density_title),
                         supportText = stringResource(R.string.settings_ui_density_text),
+                        valueText = density.toString(),
                         onClick = { showDensityDialog = true }
                     )
                 }
@@ -95,6 +96,7 @@ fun UISetting(
                     SettingListItem(
                         title = stringResource(R.string.settings_ui_theme_type_title),
                         supportText = stringResource(R.string.settings_ui_theme_type_text),
+                        valueText = themeType.getDisplayName(context),
                         onClick = { showThemeTypeDialog = true }
                     )
                 }
@@ -102,6 +104,7 @@ fun UISetting(
                     SettingListItem(
                         title = stringResource(R.string.settings_ui_default_home_tab_title),
                         supportText = stringResource(R.string.settings_ui_default_home_tab_text),
+                        valueText = defaultHomeTab.getDisplayName(context),
                         onClick = { showDefaultHomeTabDialog = true }
                     )
                 }

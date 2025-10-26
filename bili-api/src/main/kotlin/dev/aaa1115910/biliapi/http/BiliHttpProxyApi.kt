@@ -117,5 +117,6 @@ object BiliHttpProxyApi {
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
         header("Cookie", "buvid3=$buvid3;")
+        header("referer", "https://search.bilibili.com")
     }?.body() ?: throw IllegalStateException("no proxy server")
 }

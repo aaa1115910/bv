@@ -462,29 +462,32 @@ fun VideoInfoScreen(
                             updateUgcSeasonSectionVideoList(sectionIndex)
                         }
 
-                        launchPlayerActivity(
-                            context = context,
-                            avid = videoDetailViewModel.videoDetail!!.aid,
-                            cid = cid,
-                            title = videoDetailViewModel.videoDetail!!.title,
-                            partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
-                            played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
-                            fromSeason = fromSeason,
-                            isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.dimension.isVertical,
-                            playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
-                                ?: "",
-                            playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
-                                ?: "",
-                            play = videoDetailViewModel.videoDetail!!.stat.view,
-                            danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
-                            like = videoDetailViewModel.videoDetail!!.stat.like,
-                            coin = videoDetailViewModel.videoDetail!!.stat.coin,
-                            favorite = videoDetailViewModel.videoDetail!!.stat.favorite,
-                            upName = videoDetailViewModel.videoDetail!!.author.name,
-                            upId = videoDetailViewModel.videoDetail!!.author.mid,
-                            upFace = videoDetailViewModel.videoDetail!!.author.face,
-                            pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
-                        )
+                        // 检查Activity是否已经finish，如果已关闭则不启动播放器
+                        if (!context.isFinishing && !context.isDestroyed) {
+                            launchPlayerActivity(
+                                context = context,
+                                avid = videoDetailViewModel.videoDetail!!.aid,
+                                cid = cid,
+                                title = videoDetailViewModel.videoDetail!!.title,
+                                partTitle = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.title,
+                                played = if (cid == lastPlayedCid) lastPlayedTime * 1000 else 0,
+                                fromSeason = fromSeason,
+                                isVerticalVideo = videoDetailViewModel.videoDetail!!.pages.find { it.cid == cid }!!.dimension.isVertical,
+                                playerIconIdle = videoDetailViewModel.videoDetail!!.playerIcon?.idle
+                                    ?: "",
+                                playerIconMoving = videoDetailViewModel.videoDetail!!.playerIcon?.moving
+                                    ?: "",
+                                play = videoDetailViewModel.videoDetail!!.stat.view,
+                                danmaku = videoDetailViewModel.videoDetail!!.stat.danmaku,
+                                like = videoDetailViewModel.videoDetail!!.stat.like,
+                                coin = videoDetailViewModel.videoDetail!!.stat.coin,
+                                favorite = videoDetailViewModel.videoDetail!!.stat.favorite,
+                                upName = videoDetailViewModel.videoDetail!!.author.name,
+                                upId = videoDetailViewModel.videoDetail!!.author.mid,
+                                upFace = videoDetailViewModel.videoDetail!!.author.face,
+                                pubTime = videoDetailViewModel.videoDetail!!.publishDate.formatPubTimeString()
+                            )
+                        }
                         if (fromPlayer) {
                             // 清除标记, 以便从播放器返回过来的可以进入详情页
                             scope.launch {

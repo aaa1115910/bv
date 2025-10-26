@@ -156,7 +156,7 @@
     <string name="remote_control_panel_demo_tip_back">退出</string>
     <string name="remote_control_panel_demo_tip_bottom">按下 [CENTER] 键以继续</string>
     <string name="remote_control_panel_demo_tip_center">【短按】播放/暂停\n【长按】打开菜单</string>
-    <string name="remote_control_panel_demo_tip_down">视频播放信息</string>
+    <string name="remote_control_panel_demo_tip_down">【短按】视频播放信息\n【双击】打开视频推荐列表</string>
     <string name="remote_control_panel_demo_tip_lr">后退/前进</string>
     <string name="remote_control_panel_demo_tip_up">剧集/合集/分 P 列表</string>
 
@@ -212,6 +212,7 @@
     <string name="settings_item_resolution">默认分辨率</string>
     <string name="settings_item_storage">存储管理</string>
     <string name="settings_item_ui">界面设置</string>
+    <string name="settings_item_player">播放设置</string>
     <string name="settings_network_enable_proxy_text">使用自定义代理服务器获取部分视频播放地址</string>
     <string name="settings_network_enable_proxy_title">启用代理</string>
     <string name="settings_network_prefer_official_cdn_text">优先使用获取到的官方 CDN</string>
@@ -697,8 +698,8 @@
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
 
-    <string name="settings_other_portrait_video_quality_text">设置竖屏视频播放时的最大清晰度为1080P</string>
-    <string name="settings_other_portrait_video_quality_title">竖屏视频最大清晰度为1080P</string>
+    <string name="settings_other_portrait_video_quality_text">播放时自动切换到小于等于1080P的清晰度，能解决部分设备画面花屏/比例错误的问题</string>
+    <string name="settings_other_portrait_video_quality_title">自动切换竖屏视频的清晰度</string>
     <string name="settings_player_show_debug_info_text">在视频播放页面左下角显示视频加载过程信息</string>
     <string name="settings_player_show_debug_info_title">显示视频加载过程信息</string>
     <string name="settings_player_exit_when_all_is_played_text">都播完后退出播放器回视频详情页</string>

@@ -1,7 +1,6 @@
 package dev.aaa1115910.bv.tv.component.buttons
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -173,7 +172,7 @@ private fun FavoriteDialog(
                             },
                             leadingIcon = {
                                 Row {
-                                    AnimatedVisibility(visible = selected) {
+                                    if(selected) {
                                         Icon(
                                             modifier = Modifier.size(20.dp),
                                             imageVector = Icons.Rounded.Done,
