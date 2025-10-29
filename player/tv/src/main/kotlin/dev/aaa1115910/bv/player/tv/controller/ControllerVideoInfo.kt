@@ -324,7 +324,7 @@ fun ControllerVideoInfoBottom(
             ControlButton(
                 id = "upSpace",
                 painterId = upSpaceIconId,
-                scale = 0.73f,
+                scale = 0.72f,
                 onClick = onOpenUpSpace,
                 visible = !fromSeason
             ),
@@ -342,6 +342,7 @@ fun ControllerVideoInfoBottom(
             ControlButton(
                 id = "subtitle",
                 painterId = subtitleIconId,
+                scale = 0.97f,
                 onClick = { showSubtitleDialog = true },
                 visible = availableSubtitleTracks.count() > 1
             ),

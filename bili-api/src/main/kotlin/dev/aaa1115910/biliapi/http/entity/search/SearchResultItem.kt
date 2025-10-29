@@ -59,7 +59,7 @@ data class SearchArticleResult(
     val rankIndex: Int,
     val desc: String,
     @SerialName("rank_score")
-    val rankScore: Int,
+    val rankScore: Int? = null,
     val type: String,
     val id: Int,
     @SerialName("category_name")
@@ -320,7 +320,7 @@ data class SearchTopicResult(
     @SerialName("arcurl")
     val arcUrl: String,
     @SerialName("rank_score")
-    val rankScore: Int
+    val rankScore: Int? = null
 ) : SearchResultItem()
 
 /**

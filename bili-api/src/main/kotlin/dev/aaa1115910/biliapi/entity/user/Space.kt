@@ -65,10 +65,10 @@ data class SpaceVideo(
         fun fromSpaceVideoItem(spaceVideoItem: dev.aaa1115910.biliapi.http.entity.user.AppSpaceVideoData.SpaceVideoItem) =
             SpaceVideo(
                 aid = spaceVideoItem.param.toLong(),
-                bvid = spaceVideoItem.bvid,
+                bvid = spaceVideoItem.bvid?: "",
                 title = spaceVideoItem.title,
                 cover = spaceVideoItem.cover,
-                author = spaceVideoItem.author,
+                author = spaceVideoItem.author?: "",
                 duration = spaceVideoItem.duration,
                 play = spaceVideoItem.play,
                 danmaku = spaceVideoItem.danmaku,

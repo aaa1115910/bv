@@ -135,7 +135,7 @@ data class WebSpaceVideoData(
                 @SerialName("ep_count")
                 val epCount: Int,
                 @SerialName("first_aid")
-                val firstAid: Long,
+                val firstAid: Long? = null,
                 val ptime: Int,
                 @SerialName("ep_num")
                 val epNum: Int
@@ -219,14 +219,14 @@ data class AppSpaceVideoData(
         val ctime: Int,
         @SerialName("ugc_pay")
         val ugcPay: Int,
-        val author: String,
+        val author: String? = null,
         val state: Boolean,
-        val bvid: String,
+        val bvid: String? = null,
         val videos: Int,
         @SerialName("three_point")
         val threePoint: List<ThreePointItem> = emptyList(),
         @SerialName("first_cid")
-        val firstcid: Long,
+        val firstcid: Long? = null,
         @SerialName("cursor_attr")
         val cursorAttr: CursorAttr,
         @SerialName("icon_type")
