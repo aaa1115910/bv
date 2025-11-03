@@ -87,8 +87,12 @@ fun UpSpaceScreen(
     var currentIndex by remember { mutableIntStateOf(0) }
     val showLargeTitle by remember { derivedStateOf { currentIndex < 4 } }
     val titleFontSize by animateFloatAsState(
-        targetValue = if (showLargeTitle) 38f else 24f,
+        targetValue = if (showLargeTitle) 40f else 24f,
         label = "title font size"
+    )
+    val infoFontSize by animateFloatAsState(
+        targetValue = if (showLargeTitle) 15f else 12f,
+        label = "info font size"
     )
 
     var showFollowButton by remember { mutableStateOf(false) }
@@ -229,7 +233,7 @@ fun UpSpaceScreen(
                         if (showFollowButton) {
                             Surface(
                                 modifier = Modifier
-                                    .padding(start = 8.dp)
+                                    .padding(start = if (showLargeTitle) 24.dp else 4.dp, top = 2.dp)
                                     .scale(if (showLargeTitle) 1f else 0.7f),
                                 onClick = {
                                     if (isFollowing) {
@@ -319,7 +323,7 @@ fun UpSpaceScreen(
                     }
                     Row {
                         Text(
-                            modifier = Modifier.padding(top = 2.dp),
+                            modifier = Modifier.padding(top =  if (showLargeTitle) 6.dp else 4.dp),
                             text = stringResource(
                                 R.string.friend_count,
                                 if (userSpaceViewModel.friend >= 10000) String.format(
@@ -332,11 +336,12 @@ fun UpSpaceScreen(
                                     "%.2f",
                                     userSpaceViewModel.fans / 10000.0
                                 ) + " 万" else userSpaceViewModel.fans.toString()
-                            ) + "${if (userSpaceViewModel.sign.isNotEmpty()) "  |  " + userSpaceViewModel.sign else ""}",
+                            ) + "${if (userSpaceViewModel.sign.isNotEmpty()) "   |   " + userSpaceViewModel.sign else ""}",
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                            fontSize = 15.sp,
+                            fontSize = infoFontSize.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
+                            lineHeight = (infoFontSize * 1.4).sp
                         )
                     }
                 }

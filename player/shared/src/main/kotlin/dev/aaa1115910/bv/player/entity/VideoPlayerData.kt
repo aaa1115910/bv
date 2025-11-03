@@ -129,6 +129,7 @@ data class VideoPlayerConfigData(
     var isLoop: Boolean = false,
     var showDanmaku: Boolean = true,
     var showRelatedVideos: Boolean = false,
+    var showNextVideoBtn: Boolean = false,
 )
 
 data class VideoPlayerDanmakuMasksData(

@@ -108,6 +108,7 @@ fun VideoPlayerController(
     onSubtitleSizeChange: (TextUnit) -> Unit,
     onSubtitleBackgroundOpacityChange: (Float) -> Unit,
     onSubtitleBottomPadding: (Dp) -> Unit,
+    onLoadNextVideo: (Boolean) -> Unit,
 
     onRequestFocus: () -> Unit,
     content: @Composable BoxScope.() -> Unit
@@ -494,7 +495,8 @@ fun VideoPlayerController(
                     onTimeForward()
                 }
             },
-            onSubtitleChange = onSubtitleChange
+            onSubtitleChange = onSubtitleChange,
+            onLoadNextVideo = onLoadNextVideo
         )
         SeekController(
             show = showSeekController,

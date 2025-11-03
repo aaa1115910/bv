@@ -83,7 +83,7 @@ fun BvPlayer(
     useTextureViewFixPortraitVideo: Boolean = false,
     onSendHeartbeat: suspend (Int) -> Unit,
     onClearBackToHistoryData: () -> Unit,
-    onLoadNextVideo: () -> Unit,
+    onLoadNextVideo: (Boolean) -> Unit,
     onExit: () -> Unit,
     onLoadNewVideo: (VideoListItem) -> Unit,
     onResolutionChange: (Resolution, afterChange: suspend () -> Unit) -> Unit,
@@ -363,7 +363,7 @@ fun BvPlayer(
                 if (!videoPlayerConfigData.incognitoMode) sendHeartbeat()
                 // 当控制信息面板显示时不自动播放下一集
                 if (!showInfoProvider()) {
-                    onLoadNextVideo()
+                    onLoadNextVideo(false)
                 } else {
                     logger.info { "Skip auto next because info panel visible" }
                 }
@@ -741,7 +741,8 @@ fun BvPlayer(
                 videoPlayerConfigData.isLoop = it
                 onLoopPlayModeChange(it)
             },
-            userActionContent = userActionContent
+            userActionContent = userActionContent,
+            onLoadNextVideo = onLoadNextVideo
         ) {
             LaunchedEffect(Unit) {
                 videoPlayer.setOptions()
