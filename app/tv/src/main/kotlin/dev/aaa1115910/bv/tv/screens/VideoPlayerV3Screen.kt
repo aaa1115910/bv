@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,6 +38,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import dev.aaa1115910.bv.R
@@ -52,7 +54,11 @@ import dev.aaa1115910.bv.player.entity.LocalVideoPlayerPaymentData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerSeekThumbData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoInfoData
 import dev.aaa1115910.bv.player.entity.LocalVideoPlayerVideoShotData
+import dev.aaa1115910.bv.player.entity.PortraitVideoFixMode
+import dev.aaa1115910.bv.player.entity.PlayerLoadNextAction
+import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoListItemData
+import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.player.entity.VideoPlayerConfigData
 import dev.aaa1115910.bv.player.entity.VideoPlayerDanmakuMasksData
 import dev.aaa1115910.bv.player.entity.VideoPlayerHistoryData
@@ -69,6 +75,7 @@ import dev.aaa1115910.bv.tv.component.buttons.CoinButton
 import dev.aaa1115910.bv.tv.component.buttons.FavoriteButton
 import dev.aaa1115910.bv.tv.component.buttons.LikeButton
 import dev.aaa1115910.bv.tv.manager.FollowStateManager
+import dev.aaa1115910.bv.tv.manager.PlayedAidsCache
 import dev.aaa1115910.bv.tv.manager.VideoUserActionManager
 import dev.aaa1115910.bv.tv.manager.VideoUserActionManager.getStateFlow
 import kotlinx.coroutines.launch
@@ -88,7 +95,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun VideoPlayerV3Screen(
     modifier: Modifier = Modifier,
-    playerViewModel: VideoPlayerV3ViewModel = koinViewModel()
+    playerViewModel: VideoPlayerV3ViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -115,10 +122,10 @@ fun VideoPlayerV3Screen(
     var autoActionCountdownJob by remember { mutableStateOf<Job?>(null) }
     var autoActionTipVisible by remember { mutableStateOf(false) }
     var autoActionTipText by remember { mutableStateOf("") }
-    
+
     // 焦点管理
     val relatedVideosFocusRequester = remember { FocusRequester() }
-    
+
     // 当显示相关视频时，自动将焦点转移到VideosRow的第一个卡片
     LaunchedEffect(playerViewModel.showRelatedVideos) {
         if (playerViewModel.showRelatedVideos) {
@@ -128,7 +135,7 @@ fun VideoPlayerV3Screen(
             }
         }
     }
-    
+
     // 处理back键，当推荐视频有焦点时隐藏推荐视频并将焦点返回到播放器
     BackHandler(enabled = playerViewModel.showRelatedVideos) {
         playerViewModel.showRelatedVideos = false
@@ -153,7 +160,8 @@ fun VideoPlayerV3Screen(
             upName = playerViewModel.upName,
             pubTime = playerViewModel.pubTime,
             fromSeason = playerViewModel.fromSeason,
-            isFollowingUp = playerViewModel.isFollowingUp
+            isFollowingUp = playerViewModel.isFollowingUp,
+            isVerticalVideo = playerViewModel.isVerticalVideo
         ),
         LocalVideoPlayerLogsData provides VideoPlayerLogsData(
             logs = playerViewModel.logs
@@ -227,6 +235,7 @@ fun VideoPlayerV3Screen(
                 playerSeekForwardStep = Prefs.playerSeekForwardStep,
                 playerSeekBackwardStep = Prefs.playerSeekBackwardStep,
                 showBottomProgressBar = Prefs.playerShowBottomProgressBar,
+                useTextureViewFixPortraitVideo = Prefs.portraitVideoFixMode == PortraitVideoFixMode.UseTextureView && playerViewModel.isVerticalVideo && playerViewModel.currentQuality >= Resolution.R4K,
                 onToggleRelatedVideos = { state ->
                     playerViewModel.showRelatedVideos = if (playerViewModel.relatedVideos.isNotEmpty()) state else false
                 },
@@ -234,98 +243,148 @@ fun VideoPlayerV3Screen(
                 onClearBackToHistoryData = { playerViewModel.lastPlayed = 0 },
                 onLoadNextVideo = {
                     if (playerViewModel.showRelatedVideos) {
-                        logger.info { "Related videos is shown, skip auto play next video" }
+                        logger.info { "Related videos is shown, skip auto action" }
                         return@BvPlayer
                     }
 
-                    val currentIndex = playerViewModel.availableVideoList
-                        .indexOfFirst {
-                            when (it) {
-                                is VideoListItemData -> it.cid == playerViewModel.currentCid
-                                else -> false
-                            }
+                    // 找出下一个剧集/分P
+                    val currentIndex = playerViewModel.availableVideoList.indexOfFirst {
+                        when (it) {
+                            is VideoListItemData -> it.cid == playerViewModel.currentCid
+                            else -> false
                         }
-                    val nextVideo = if (currentIndex >= 0 && currentIndex + 1 < playerViewModel.availableVideoList.size) {
-                        playerViewModel.availableVideoList
-                            .drop(currentIndex + 1)
-                            .firstOrNull { it is VideoListItemData } as? VideoListItemData
-                    } else {
-                        null
                     }
+                    val nextEp =
+                        if (currentIndex >= 0 && currentIndex + 1 < playerViewModel.availableVideoList.size) {
+                            playerViewModel.availableVideoList
+                                .drop(currentIndex + 1)
+                                .firstOrNull { it is VideoListItemData } as? VideoListItemData
+                        } else null
 
-                    if (nextVideo != null && Prefs.playerAutoPlayNextVideo) {
-                        logger.info { "Play next video: $nextVideo" }
-                        // 启动倒计时 toast 提示
+                    // 标记当前稿件已播放
+                    PlayedAidsCache.markPlayed(playerViewModel.currentAid)
+
+                    // 找出下一个推荐视频（非充电、非播放过的aid）
+                    // 需求：推荐视频需满足：1. 非充电稿件 2. 未在全局已播放缓存中出现
+                    // 使用 Application 级单例 PlayedAidsCache，退出播放的时候清空缓存，避免重复播放
+                    val candidates = playerViewModel.relatedVideos
+                        .filter { related -> !related.isChargingArc && !PlayedAidsCache.hasPlayed(related.avid) }
+                        .take(5)
+                    val nextRelatedVideo = if (candidates.isNotEmpty()) candidates.random() else null
+
+                    // nextVideo 可以是分P/剧集(VideoListItemData) 或 推荐卡片(VideoCardData)
+                    var nextVideo: Any? = null
+
+                    // 根据配置执行不同逻辑
+                    when (Prefs.playerLoadNextAction) {
+                        PlayerLoadNextAction.PlayRecommend -> {
+                            // 显示推荐视频列表（如果已经有数据）
+                            nextVideo = nextRelatedVideo
+                        }
+
+                        PlayerLoadNextAction.PlayNextPart -> {
+                            nextVideo = nextEp
+                        }
+
+                        PlayerLoadNextAction.PlayNextPartOrRecommend -> {
+                            nextVideo = nextEp ?: nextRelatedVideo
+                        }
+
+                        PlayerLoadNextAction.DoNothing -> {}
+                    }
+                    if (nextVideo != null) {
                         autoActionCountdownJob = scope.launch {
                             try {
-                                // 更新 SkipTip 文本和显示状态
                                 autoActionTipText = "播放结束，即将播放下一集"
                                 autoActionTipVisible = true
-                                delay(1500)
-
-                                // 如果没有被取消，切换到下一个视频
+                                delay(1600)
                                 autoActionTipVisible = false
                                 if (autoActionCountdownJob != null) {
                                     autoActionCountdownJob = null
-                                    playerViewModel.title = nextVideo.title
-                                    playerViewModel.partTitle = nextVideo.partTitle
-                                    if(nextVideo.seasonId == null && playerViewModel.currentAid != nextVideo.aid) {
-                                        VideoInfoActivity.actionStart(
-                                            context = context,
-                                            aid = nextVideo.aid,
-                                            cid = nextVideo.cid,
-                                            fromPlayer = true
-                                        )
-                                    } else {
-                                        playerViewModel.loadPlayUrl(
-                                            avid = nextVideo.aid,
-                                            cid = nextVideo.cid,
-                                            epid = nextVideo.epid,
-                                            seasonId = nextVideo.seasonId,
-                                            continuePlayNext = true
-                                        )
+                                    when (nextVideo) {
+                                        is VideoListItemData -> {
+                                            PlayedAidsCache.markPlayed(nextVideo.aid)
+                                            playerViewModel.title = nextVideo.title
+                                            playerViewModel.partTitle = nextVideo.partTitle
+                                            if (nextVideo.seasonId == null && playerViewModel.currentAid != nextVideo.aid) {
+                                                VideoInfoActivity.actionStart(
+                                                    context = context,
+                                                    aid = nextVideo.aid,
+                                                    cid = nextVideo.cid,
+                                                    fromPlayer = true
+                                                )
+                                            } else {
+                                                playerViewModel.loadPlayUrl(
+                                                    avid = nextVideo.aid,
+                                                    cid = nextVideo.cid!!,
+                                                    epid = nextVideo.epid,
+                                                    seasonId = nextVideo.seasonId,
+                                                    continuePlayNext = true
+                                                )
+                                            }
+                                        }
+
+                                        is VideoCardData -> {
+                                            // 推荐视频卡片：跳转到视频详情（再进入播放器）
+                                            PlayedAidsCache.markPlayed(nextVideo.avid)
+                                            if (nextVideo.jumpToSeason) {
+                                                SeasonInfoActivity.actionStart(
+                                                    context = context,
+                                                    epId = nextVideo.epId!!,
+                                                    proxyArea = ProxyArea.checkProxyArea(nextVideo.title)
+                                                )
+                                            } else {
+                                                VideoInfoActivity.actionStart(
+                                                    context = context,
+                                                    aid = nextVideo.avid,
+                                                    fromPlayer = true
+                                                )
+                                            }
+                                        }
                                     }
                                 }
-                            } catch (e: Exception) {
-                                // 倒计时被取消
+                            } catch (_: Exception) {
                                 autoActionTipVisible = false
                                 autoActionCountdownJob = null
                             }
                         }
                     } else if (Prefs.playerExitWhenAllIsPlayed) {
-                        // 启动倒计时提示
+                        // 没有下一个：退出
                         autoActionCountdownJob = scope.launch {
                             try {
-                                // 更新 SkipTip 文本和显示状态
                                 autoActionTipText = "播放结束，即将退出"
                                 autoActionTipVisible = true
-                                delay(1500)
-
-                                // 如果没有被取消，退出播放
+                                delay(1600)
                                 autoActionTipVisible = false
                                 if (autoActionCountdownJob != null) {
                                     autoActionCountdownJob = null
                                     Prefs.currentPlaySpeed = Prefs.defaultPlaySpeed
+                                    // 自动退出时也清空缓存
+                                    PlayedAidsCache.clear()
                                     (context as Activity).finish()
                                 }
-                            } catch (e: Exception) {
-                                // 倒计时被取消
+                            } catch (_: Exception) {
                                 autoActionTipVisible = false
                                 autoActionCountdownJob = null
                             }
                         }
                     }
+                    // 什么都不做
                 },
                 onExit = {
                     Prefs.currentPlaySpeed = Prefs.defaultPlaySpeed
+                    // 退出时清空播放缓存
+                    PlayedAidsCache.clear()
                     (context as Activity).finish()
                 },
                 onLoadNewVideo = { videoListItem ->
                     when (videoListItem) {
                         is VideoListItemData -> {
+                            // 手动选择新视频时也标记播放
+                            PlayedAidsCache.markPlayed(videoListItem.aid)
                             playerViewModel.title = videoListItem.title
                             playerViewModel.partTitle = videoListItem.partTitle
-                            if(videoListItem.seasonId == null && playerViewModel.currentAid != videoListItem.aid) {
+                            if (videoListItem.seasonId == null && playerViewModel.currentAid != videoListItem.aid) {
                                 VideoInfoActivity.actionStart(
                                     context = context,
                                     aid = videoListItem.aid,
@@ -335,7 +394,7 @@ fun VideoPlayerV3Screen(
                             } else {
                                 playerViewModel.loadPlayUrl(
                                     avid = videoListItem.aid,
-                                    cid = videoListItem.cid,
+                                    cid = videoListItem.cid!!,
                                     epid = videoListItem.epid,
                                     seasonId = videoListItem.seasonId,
                                     continuePlayNext = true
@@ -344,8 +403,8 @@ fun VideoPlayerV3Screen(
                         }
                     }
                 },
-                onRefreshVideo= {
-                    val time = playerViewModel.videoPlayer?.currentPosition ?:0
+                onRefreshVideo = {
+                    val time = playerViewModel.videoPlayer?.currentPosition ?: 0
                     logger.info { "Reload video and back to time: ${time.formatHourMinSec()}" }
                     scope.launch {
                         playerViewModel.playQuality()
@@ -461,14 +520,28 @@ fun VideoPlayerV3Screen(
                         ) {
                             LikeButton(
                                 modifier = Modifier
-                                    .height(24.dp)
+                                    .height(26.dp)
                                     .onFocusChanged { if (it.isFocused) onFocus("like") }
                                     .then(likeFocus?.let { Modifier.focusRequester(it) } ?: Modifier),
-                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     focusedContentColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                border = ButtonDefaults.border(
+                                    border = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.Transparent
+                                        )
+                                    ),
+                                    focusedBorder = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.White.copy(alpha = 0.45f)
+                                        )
+                                    )
                                 ),
                                 // use shared state
                                 isLike = sharedActionState.liked,
@@ -502,6 +575,20 @@ fun VideoPlayerV3Screen(
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     focusedContentColor = MaterialTheme.colorScheme.onSurface
                                 ),
+                                border = ButtonDefaults.border(
+                                    border = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.Transparent
+                                        )
+                                    ),
+                                    focusedBorder = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.White.copy(alpha = 0.45f)
+                                        )
+                                    )
+                                ),
                                 dialogContainerColor = Color.Black.copy(alpha = 0.5f),
                                 isFavorite = sharedActionState.favorited,
                                 // read shared state snapshot (UI will recompose when collectAsState in parent is implemented)
@@ -527,14 +614,28 @@ fun VideoPlayerV3Screen(
                             )
                             CoinButton(
                                 modifier = Modifier
-                                    .height(24.dp)
+                                    .height(26.dp)
                                     .onFocusChanged { if (it.isFocused) onFocus("coin") }
                                     .then(coinFocus?.let { Modifier.focusRequester(it) } ?: Modifier),
-                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                                 colors = ButtonDefaults.colors(
                                     containerColor = Color.Transparent,
                                     focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     focusedContentColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                border = ButtonDefaults.border(
+                                    border = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.Transparent
+                                        )
+                                    ),
+                                    focusedBorder = Border(
+                                        border = BorderStroke(
+                                            width = 1.dp,
+                                            color = Color.White.copy(alpha = 0.45f)
+                                        )
+                                    )
                                 ),
                                 isCoin = sharedActionState.coin,
                                 onAddCoin = {

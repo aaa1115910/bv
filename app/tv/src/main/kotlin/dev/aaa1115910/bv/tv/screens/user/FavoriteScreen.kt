@@ -77,7 +77,9 @@ fun FavoriteScreen(
 
     val currentTabIndex by remember {
         derivedStateOf {
-            if (favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata) >= 0) favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata) else 0
+            if (favoriteViewModel.favoriteFolderMetadataList.indexOf(favoriteViewModel.currentFavoriteFolderMetadata) >= 0) favoriteViewModel.favoriteFolderMetadataList.indexOf(
+                favoriteViewModel.currentFavoriteFolderMetadata
+            ) else 0
         }
     }
 
@@ -94,8 +96,8 @@ fun FavoriteScreen(
     ) {
         scope.launch(Dispatchers.Main) {
             lazyGridState.scrollToItem(0)
-            delay(50)
             defaultFocusRequester.requestFocus()
+            focusOnGrid = false
         }
     }
 
@@ -143,12 +145,17 @@ fun FavoriteScreen(
             }
         }
     ) { innerPadding ->
-        ProvideListBringIntoViewSpec(padding = 26.dp) {
+        ProvideListBringIntoViewSpec(padding = 24.dp) {
             LazyVerticalGrid(
                 modifier = Modifier.padding(innerPadding),
                 state = lazyGridState,
                 columns = GridCells.Fixed(4),
-                contentPadding = PaddingValues(24.dp),
+                contentPadding = PaddingValues(
+                    top = if (showPageTitle) 24.dp else 8.dp,
+                    bottom = 24.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -175,7 +182,10 @@ fun FavoriteScreen(
                                             updateCurrentFavoriteFolder(folderMetadata)
                                         }
                                     }
-                                    .ifElse(index == currentTabIndex, Modifier.focusRequester(focusRequester)),
+                                    .ifElse(
+                                        index == currentTabIndex,
+                                        Modifier.focusRequester(focusRequester)
+                                    ),
                                 selected = currentTabIndex == index,
                                 onFocus = {},
                                 onClick = { updateCurrentFavoriteFolder(folderMetadata) }
@@ -197,23 +207,26 @@ fun FavoriteScreen(
                     }
                 }
                 itemsIndexed(favoriteViewModel.favorites) { index, history ->
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SmallVideoCard(
-                            modifier = Modifier.onFocusChanged { focusOnGrid = it.isFocused },
-                            data = history,
-                            onClick = { VideoInfoActivity.actionStart(context, history.avid) },
-                            onLongClick = { UpInfoActivity.actionStart( context, mid = history.upId, name = history.upName, face = history.upFace ) },
-                            onFocus = {
-                                currentIndex = index
-                                //预加载
-                                if (index + 12 > favoriteViewModel.favorites.size) {
-                                    favoriteViewModel.updateFolderItems()
-                                }
+                    SmallVideoCard(
+                        data = history,
+                        onClick = { VideoInfoActivity.actionStart(context, history.avid) },
+                        onLongClick = {
+                            UpInfoActivity.actionStart(
+                                context,
+                                mid = history.upId,
+                                name = history.upName,
+                                face = history.upFace
+                            )
+                        },
+                        onFocus = {
+                            focusOnGrid = true
+                            currentIndex = index
+                            //预加载
+                            if (index + 12 > favoriteViewModel.favorites.size) {
+                                favoriteViewModel.updateFolderItems()
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

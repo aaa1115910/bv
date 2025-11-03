@@ -384,9 +384,19 @@ object BiliHttpApi {
     suspend fun getUserInfo(
         uid: Long,
         sessData: String = ""
-    ): BiliResponse<UserInfoData> = client.get("/x/space/acc/info") {
+    ): BiliResponse<UserInfoData> = client.get("/x/space/wbi/acc/info") {
         parameter("mid", uid)
         header("Cookie", "SESSDATA=$sessData;")
+
+        // 风控
+        parameter("dm_img_list", "[]")
+        parameter("dm_img_str", "V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ")
+        parameter(
+            "dm_cover_img_str",
+            "QU5HTEUgKEFNRCwgQU1EIFJhZGVvbiA3ODBNIEdyYXBoaWNzICgweDAwMDAxNUJGKSBEaXJlY3QzRDExIHZzXzVfMCBwc181XzAsIEQzRDExKUdvb2dsZSBJbmMuIChBTU"
+        )
+        parameter("dm_img_inter", "{\"ds\":[],\"wh\":[4769,2793,43],\"of\":[285,570,285]}")
+        header("referer", "https://space.bilibili.com")
     }.body()
 
 
@@ -397,11 +407,11 @@ object BiliHttpApi {
      * @param photo 是否请求用户主页头图
      */
     suspend fun getUserCardInfo(
-        uid: Long,
+        mid: Long,
         photo: Boolean = false,
         sessData: String = ""
     ): BiliResponse<UserCardData> = client.get("/x/web-interface/card") {
-        parameter("mid", uid)
+        parameter("mid", mid)
         parameter("photo", photo)
         header("Cookie", "SESSDATA=$sessData;")
     }.body()
@@ -1329,6 +1339,7 @@ object BiliHttpApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        sessData: String? = null,
         buvid3: String? = null
     ): BiliResponse<SearchResultData> {
         val response = client.get("/x/web-interface/wbi/search/type") {
@@ -1338,21 +1349,12 @@ object BiliHttpApi {
             tid?.let { parameter("tids", it) }
             order?.let { parameter("order", it) }
             duration?.let { parameter("duration", it) }
-            header("Cookie", "buvid3=$buvid3;")
+            if (sessData != null) {
+                header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3;")
+            } else {
+                header("Cookie", "buvid3=$buvid3;")
+            }
             header("referer", "https://search.bilibili.com/")
-
-            // val chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            // val len = 32
-            // val qvid = buildString {
-            //     repeat(len) {
-            //         val r = Math.random()
-            //         val index = (r * chars.length).toInt()
-            //         append(chars[index])
-            //     }
-            // }
-            // parameter("qv_id", qvid)
-            // parameter("from_spmid", "333.337")
-            // parameter("platform", "pc")
         }
 
         return try {

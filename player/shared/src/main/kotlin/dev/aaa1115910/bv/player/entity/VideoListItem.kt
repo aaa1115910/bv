@@ -4,7 +4,7 @@ interface VideoListItem
 
 open class VideoListItemData(
     open val aid: Long,
-    open val cid: Long,
+    open val cid: Long? = null,
     open val epid: Int? = null,
     open val seasonId: Int? = null,
     open val title: String,

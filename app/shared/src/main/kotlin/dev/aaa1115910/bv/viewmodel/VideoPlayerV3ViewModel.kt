@@ -34,6 +34,7 @@ import dev.aaa1115910.bv.player.renderer.SimpleRenderer
 import dev.aaa1115910.bv.player.AbstractVideoPlayer
 import dev.aaa1115910.bv.player.entity.Audio
 import dev.aaa1115910.bv.player.entity.DanmakuType
+import dev.aaa1115910.bv.player.entity.PortraitVideoFixMode
 import dev.aaa1115910.bv.player.entity.RequestState
 import dev.aaa1115910.bv.player.entity.Resolution
 import dev.aaa1115910.bv.player.entity.VideoAspectRatio
@@ -290,7 +291,11 @@ class VideoPlayerV3ViewModel(
             availableAudio.swapListWithMainContext(audioList)
 
             // 确定使用哪个默认分辨率
-            val defaultQualityToUse = if (isVerticalVideo && Prefs.portraitVideoQualityLimitMax1080P && Prefs.defaultQuality >= Resolution.R4K) {
+            val defaultQualityToUse = if (
+                isVerticalVideo &&
+                Prefs.portraitVideoFixMode == PortraitVideoFixMode.LimitResolution1080P &&
+                Prefs.defaultQuality >= Resolution.R4K
+            ) {
                 // 如果是竖屏视频且用户设置了竖屏视频限制最高使用1080P
                 Resolution.R1080P60
             } else {

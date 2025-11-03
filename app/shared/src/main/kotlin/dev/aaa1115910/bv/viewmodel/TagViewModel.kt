@@ -65,7 +65,7 @@ class TagViewModel : ViewModel() {
                         upName = tagVideoItem.owner.name,
                         play = tagVideoItem.stat.view,
                         danmaku = tagVideoItem.stat.danmaku,
-                        time = tagVideoItem.duration.toLong(),
+                        time = tagVideoItem.duration * 1000L,
                         pubTime = tagVideoItem.pubdate.toLong().toSmartDate()
                     )
                 )

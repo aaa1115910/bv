@@ -108,6 +108,7 @@ object BiliHttpProxyApi {
         tid: Int? = null,
         order: String? = null,
         duration: Int? = null,
+        sessData: String? = null,
         buvid3: String? = null
     ): BiliResponse<SearchResultData> = client?.get("/x/web-interface/wbi/search/type") {
         parameter("keyword", keyword)
@@ -116,7 +117,11 @@ object BiliHttpProxyApi {
         tid?.let { parameter("tids", it) }
         order?.let { parameter("order", it) }
         duration?.let { parameter("duration", it) }
-        header("Cookie", "buvid3=$buvid3;")
+        if (sessData != null) {
+            header("Cookie", "SESSDATA=$sessData;buvid3=$buvid3;")
+        } else {
+            header("Cookie", "buvid3=$buvid3;")
+        }
         header("referer", "https://search.bilibili.com/")
     }?.body() ?: throw IllegalStateException("no proxy server")
 }

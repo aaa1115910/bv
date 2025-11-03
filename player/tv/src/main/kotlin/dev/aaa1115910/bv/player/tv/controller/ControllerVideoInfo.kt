@@ -4,6 +4,7 @@ import android.os.CountDownTimer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +69,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
+import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
@@ -371,7 +373,8 @@ fun ControllerVideoInfoBottom(
             ControlButton(
                 id = "settings",
                 icon = Icons.Outlined.Settings,
-                onClick = onOpenSetting
+                onClick = onOpenSetting,
+                scale = 0.9f
             )
         ).filter { it.visible }
     }
@@ -576,8 +579,8 @@ fun ControllerVideoInfoBottom(
             buttons.forEachIndexed { index, button ->
                 Button(
                     modifier = Modifier
-                        .height(32.dp)
-                        .width((button.width ?: 32).dp)
+                        .height(30.dp)
+                        .width((button.width ?: 30).dp)
                         .focusRequester(focusRequesters[button.id] ?: FocusRequester()),
                     onClick = button.onClick,
                     shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
@@ -585,6 +588,20 @@ fun ControllerVideoInfoBottom(
                     colors = ButtonDefaults.colors(
                         containerColor = Color.Transparent,
                         focusedContainerColor = Color.White.copy(alpha = 0.3f)
+                    ),
+                    border = ButtonDefaults.border(
+                        border = Border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = Color.Transparent
+                            )
+                        ),
+                        focusedBorder = Border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = Color.White.copy(alpha = 0.45f)
+                            )
+                        )
                     )
                 ) {
                     if (button.text != null) {
@@ -680,9 +697,22 @@ private fun SpeedDialog(
 ) {
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
+    // 记录最后一次交互时间，用于自动关闭
+    var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    // 每次速度变化或获得焦点按键交互时更新交互时间
+    fun touch() { lastInteractionTime = System.currentTimeMillis() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus(scope)
+    }
+
+    // 15s 无操作自动关闭
+    LaunchedEffect(lastInteractionTime) {
+        val base = lastInteractionTime
+        delay(15000)
+        // 如果期间没有新的交互，则关闭
+        if (base == lastInteractionTime) onHideDialog()
     }
 
     Dialog(onDismissRequest = { onHideDialog() }) {
@@ -708,6 +738,7 @@ private fun SpeedDialog(
                         .onPreviewKeyEvent {
                             if (it.key == Key.DirectionUp || it.key == Key.DirectionDown || it.key == Key.DirectionLeft || it.key == Key.DirectionRight) {
                                 if (it.type == KeyEventType.KeyDown) {
+                                    touch()
                                     var newValue = if (it.key == Key.DirectionUp || it.key == Key.DirectionRight)
                                         speed + step
                                     else
@@ -749,9 +780,19 @@ private fun RotationDialog(
     val options = remember { VideoRotation.entries }
     val context = LocalContext.current
     val focusRequesters = remember { options.associateWith { FocusRequester() } }
+    var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    fun touch() { lastInteractionTime = System.currentTimeMillis() }
 
     LaunchedEffect(rotation) {
         focusRequesters[rotation]?.requestFocus(scope)
+    }
+
+    // 自动关闭逻辑：15秒无交互
+    LaunchedEffect(lastInteractionTime) {
+        val base = lastInteractionTime
+        delay(15000)
+        if (base == lastInteractionTime) onHideDialog()
     }
 
     Dialog(onDismissRequest = { onHideDialog() }) {
@@ -787,7 +828,7 @@ private fun RotationDialog(
                                 focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
                                 focusedContentColor = Color.Black
                             ),
-                            onClick = { onRotationChange(option) }
+                            onClick = { touch(); onRotationChange(option); }
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
@@ -814,9 +855,18 @@ private fun SubtitleDialog(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val focusRequesters = remember { availableSubtitleTracks.map { it.id }.associateWith { FocusRequester() } }
+    var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    fun touch() { lastInteractionTime = System.currentTimeMillis() }
 
     LaunchedEffect(subtitle) {
         focusRequesters[subtitle.id]?.requestFocus(scope)
+    }
+
+    LaunchedEffect(lastInteractionTime) {
+        val base = lastInteractionTime
+        delay(15000)
+        if (base == lastInteractionTime) onHideDialog()
     }
 
     Dialog(onDismissRequest = { onHideDialog() }) {
@@ -852,7 +902,7 @@ private fun SubtitleDialog(
                                 focusedContainerColor = MaterialTheme.colorScheme.inverseSurface,
                                 focusedContentColor = Color.Black
                             ),
-                            onClick = { onSubtitleChange(option) }
+                            onClick = { touch(); onSubtitleChange(option) }
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),

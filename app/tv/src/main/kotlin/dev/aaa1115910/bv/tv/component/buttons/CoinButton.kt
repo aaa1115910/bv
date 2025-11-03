@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonBorder
 import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
@@ -29,11 +30,13 @@ fun CoinButton(
     onAddCoin: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // 减小内边距
     colors: ButtonColors = ButtonDefaults.colors(),
+    border: ButtonBorder = ButtonDefaults.border()
 ) {
     Button(
         modifier = modifier,
         contentPadding = contentPadding,
         colors = colors,
+        border = border,
         shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)), // 设置为小圆角
         onClick = {onAddCoin()}
     ) {

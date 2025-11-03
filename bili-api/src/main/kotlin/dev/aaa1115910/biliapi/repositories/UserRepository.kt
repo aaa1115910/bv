@@ -19,6 +19,7 @@ import dev.aaa1115910.biliapi.http.BiliHttpApi
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
 import dev.aaa1115910.biliapi.http.entity.user.RelationType
+import dev.aaa1115910.biliapi.http.entity.user.UserCardData
 import dev.aaa1115910.biliapi.http.entity.user.UserInfoData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -367,6 +368,14 @@ class UserRepository(
     suspend fun getUserInfo(mid: Long): UserInfoData {
         val response = BiliHttpApi.getUserInfo(
             uid = mid,
+            sessData = authRepository.sessionData ?: ""
+        ).getResponseData()
+        return response
+    }
+
+    suspend fun getUserCardInfo(mid: Long): UserCardData {
+        val response = BiliHttpApi.getUserCardInfo(
+            mid = mid,
             sessData = authRepository.sessionData ?: ""
         ).getResponseData()
         return response

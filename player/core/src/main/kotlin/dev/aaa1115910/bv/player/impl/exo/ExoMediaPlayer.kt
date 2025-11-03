@@ -59,6 +59,8 @@ class ExoMediaPlayer(
                     false -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
                 }
             )
+            // setMediaCodecSelector(MediaCodecSelector.PREFER_SOFTWARE)
+            setEnableDecoderFallback(true)
         }
 
         // 创建智能缓冲策略，根据设备性能和视频质量动态调整

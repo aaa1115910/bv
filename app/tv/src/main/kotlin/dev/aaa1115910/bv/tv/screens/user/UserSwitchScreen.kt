@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -560,7 +562,15 @@ fun UserItem(
                             elevation = 16.dp
                         )
                     ),
-                    onClick = onClick
+                    onClick = onClick,
+                    border = ClickableSurfaceDefaults.border(
+                        focusedBorder = Border(
+                            BorderStroke(
+                                width = 3.dp,
+                                color = MaterialTheme.colorScheme.border.copy(alpha = 0.7f)
+                            )
+                        )
+                    )
                 ) {
                     AsyncImage(
                         modifier = Modifier
@@ -635,7 +645,15 @@ private fun AddUserItem(
                     elevation = 16.dp
                 )
             ),
-            onClick = onClick
+            onClick = onClick,
+            border = ClickableSurfaceDefaults.border(
+                focusedBorder = Border(
+                    BorderStroke(
+                        width = 3.dp,
+                        color = MaterialTheme.colorScheme.border.copy(alpha = 0.7f)
+                    )
+                )
+            )
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),

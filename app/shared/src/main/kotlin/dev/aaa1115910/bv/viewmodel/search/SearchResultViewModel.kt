@@ -39,7 +39,7 @@ class SearchResultViewModel(
     var mediaFtSearchResult by mutableStateOf(SearchResult(SearchType.MediaFt))
     var biliUserSearchResult by mutableStateOf(SearchResult(SearchType.BiliUser))
 
-    var selectedOrder by mutableStateOf(SearchFilterOrderType.MostClicks)
+    var selectedOrder by mutableStateOf(SearchFilterOrderType.ComprehensiveSort)
     var selectedDuration by mutableStateOf(SearchFilterDuration.All)
     var selectedPartition: Partition? by mutableStateOf(null)
     var selectedChildPartition: Partition? by mutableStateOf(null)

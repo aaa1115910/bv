@@ -66,4 +66,8 @@
     <string name="video_player_menu_subtitle_size">字体大小</string>
     <string name="video_player_menu_subtitle_switch">选择字幕</string>
     <string name="video_player_press_back_again_to_exit">再次按下返回键退出播放</string>
+
+    <string name="pvf_mode_none">不做处理</string>
+    <string name="pvf_mode_limit_1080p">自动限制到 ≤1080P</string>
+    <string name="pvf_mode_use_texture_view">使用 TextureView 渲染</string>
 </resources>

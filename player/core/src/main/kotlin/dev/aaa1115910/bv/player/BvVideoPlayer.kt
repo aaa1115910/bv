@@ -19,6 +19,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import dev.aaa1115910.bv.player.impl.exo.ExoMediaPlayer
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -27,8 +28,10 @@ fun BvVideoPlayer(
     videoPlayer: AbstractVideoPlayer,
     playerListener: VideoPlayerListener,
     rotationDegrees: Float = 0f, // 新增参数，视频旋转角度
-    danmakuPlayer: DanmakuPlayer? = null
+    danmakuPlayer: DanmakuPlayer? = null,
+    forceUseTextureView: Boolean = false,
 ) {
+    val logger = logger("BvVideoPlayer")
     val context = LocalContext.current
     val density = LocalDensity.current
     val screenHeight = with(density) { context.resources.displayMetrics.heightPixels.toFloat() }
@@ -58,13 +61,12 @@ fun BvVideoPlayer(
                 }
             }
 
-            if (rotationDegrees != 0f) {
+            if (forceUseTextureView || rotationDegrees != 0f) {
                 fun applyTextureTransform(tv: TextureView?, degreesRaw: Float) {
                     tv ?: return
                     if (rotationDegrees != lastRotationDegrees) {
                         val time = videoPlayer.currentPosition
                         videoPlayer.stop()
-                        lastRotationDegrees = rotationDegrees
                         tv.postDelayed({
                             val viewWidth = tv.width.toFloat()
                             val viewHeight = tv.height.toFloat()
@@ -93,7 +95,9 @@ fun BvVideoPlayer(
                             danmakuPlayer?.seekTo(time)
                             danmakuPlayer?.pause()
                             videoPlayer.start()
-                        }, 50L)
+
+                            lastRotationDegrees = rotationDegrees
+                        }, 80)
                     }
                 }
 
@@ -106,6 +110,8 @@ fun BvVideoPlayer(
                             videoPlayer.mPlayer?.setVideoTextureView(tv)
                             // 切换到 TextureView 当帧即尝试应用旋转
                             applyTextureTransform(tv, rotationDegrees)
+
+                            logger.info { "Current view type is TextureView" }
                         }
                     },
                     update = { tv ->
@@ -121,6 +127,8 @@ fun BvVideoPlayer(
                         SurfaceView(ctx).also { sv ->
                             surfaceView = sv
                             videoPlayer.mPlayer?.setVideoSurfaceView(sv)
+
+                            logger.info { "Current view type is SurfaceView" }
                         }
                     }
                 )

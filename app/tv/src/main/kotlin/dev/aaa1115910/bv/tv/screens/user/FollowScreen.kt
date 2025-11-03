@@ -3,19 +3,31 @@ package dev.aaa1115910.bv.tv.screens.user
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,6 +81,24 @@ fun FollowScreen(
         targetValue = if (showLargeTitle) 48f else 24f,
         label = "title font size"
     )
+    val searchState: TextFieldState = rememberTextFieldState()
+    // 根据搜索关键字筛选用户（用户名或签名包含关键字，不区分大小写）
+    val filteredUsers by remember {
+        derivedStateOf {
+            val keyword = searchState.text.toString().trim()
+            if (keyword.isEmpty()) followViewModel.followedUsers
+            else {
+                // 按字符匹配：关键字中的每个非空白字符都必须在用户名或签名中出现
+                val chars = keyword.filter { !it.isWhitespace() }.map { it.toString() }
+                followViewModel.followedUsers.filter { up ->
+                    chars.all { ch ->
+                        up.name.contains(ch, ignoreCase = true) ||
+                                up.sign.contains(ch, ignoreCase = true)
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(followViewModel.updating) {
         if (!followViewModel.updating) {
@@ -88,19 +119,46 @@ fun FollowScreen(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = stringResource(R.string.user_homepage_follow),
                         fontSize = titleFontSize.sp
                     )
-                    Text(
-                        text = stringResource(
-                            R.string.load_data_count,
-                            followViewModel.followedUsers.size
+                    OutlinedTextField(
+                        state = searchState,
+                        modifier = Modifier
+                            .offset(y = (-2).dp)
+                            .width(258.dp)
+                            .height(36.dp),
+                        shape = MaterialTheme.shapes.small,
+                        contentPadding = PaddingValues(
+                            start = 0.dp,
+                            end = 8.dp,
+                            top = 4.dp,
+                            bottom = 4.dp
                         ),
-                        color = Color.White.copy(alpha = 0.6f)
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                            cursorColor = MaterialTheme.colorScheme.inverseSurface
+                        ),
+                        leadingIcon = (@Composable {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = null
+                            )
+                        })
+                    )
+                    Text(
+                        modifier = Modifier.offset(y = 8.dp),
+                        text = stringResource(
+                            R.string.load_data_count_no_more,
+                            filteredUsers.size
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -114,7 +172,7 @@ fun FollowScreen(
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (!followViewModel.updating) {
-                itemsIndexed(items = followViewModel.followedUsers) { index, up ->
+                itemsIndexed(items = filteredUsers) { index, up ->
                     val upCardModifier =
                         if (index == 0) Modifier.focusRequester(defaultFocusRequester) else Modifier
                     UpCard(
@@ -164,7 +222,7 @@ fun UpCard(
     Surface(
         modifier = modifier
             .onFocusChanged { onFocusChange(it.hasFocus) }
-            .size(280.dp, 80.dp),
+            .size(280.dp, 100.dp),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface,
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -173,7 +231,7 @@ fun UpCard(
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.medium),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(width = 3.dp, color = Color.White),
+                border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
                 shape = MaterialTheme.shapes.medium
             )
         ),
@@ -209,7 +267,7 @@ fun UpCard(
                 )
                 Text(
                     text = sign,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }

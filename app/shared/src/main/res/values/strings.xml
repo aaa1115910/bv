@@ -698,16 +698,16 @@
     <string name="video_player_user_agent_client">Bilibili Freedoooooom/MarkII</string>
     <string name="video_player_user_agent_http">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36</string>
 
-    <string name="settings_other_portrait_video_quality_text">播放时自动切换到小于等于1080P的清晰度，能解决部分设备画面花屏/比例错误的问题</string>
-    <string name="settings_other_portrait_video_quality_title">自动切换竖屏视频的清晰度</string>
+    <string name="fans_count">粉丝 %1$s</string>
+    <string name="friend_count">关注 %1$s</string>
+    <string name="settings_portrait_video_fix_mode_title">竖屏视频播放异常时的处理方式</string>
+    <string name="settings_portrait_video_fix_mode_text">用来解决部分设备播放大于1080P的竖屏视频出现画面花屏/比例错误的问题</string>
     <string name="settings_player_show_debug_info_text">在视频播放页面左下角显示视频加载过程信息</string>
     <string name="settings_player_show_debug_info_title">显示视频加载过程信息</string>
-    <string name="settings_player_exit_when_all_is_played_text">都播完后退出播放器回视频详情页</string>
+    <string name="settings_player_exit_when_all_is_played_text">没有下一个要播放的视频时，退出播放器回视频详情页</string>
     <string name="settings_player_exit_when_all_is_played_title">都播完后退出播放器</string>
     <string name="settings_show_ugc_video_info_text">关闭后，点击非PGC视频卡片不显示详情页直接开始播放</string>
     <string name="settings_show_ugc_video_info_title">显示UGC视频详情页</string>
-    <string name="settings_player_auto_play_next_video_text">视频播放完后是否自动播放下一个分P视频（或合集视频）</string>
-    <string name="settings_player_auto_play_next_video_title">自动播放下一个视频</string>
     <string name="settings_player_default_playback_speed_text">设置视频播放的默认速度</string>
     <string name="settings_player_default_playback_speed_title">默认播放速度</string>
     <string name="settings_player_seek_forward_step_text">设置视频快进时间间隔（秒）</string>
@@ -716,5 +716,11 @@
     <string name="settings_player_seek_backward_step_title">视频快退时间间隔（秒）</string>
     <string name="settings_player_show_bottom_progress_bar_text">在播放器底部显示常驻进度条</string>
     <string name="settings_player_show_bottom_progress_bar_title">显示常驻进度条</string>
+    <string name="settings_player_load_next_action_title">下一个播放</string>
+    <string name="settings_player_load_next_action_text">设置播放完后是否自动播放、播放哪一个</string>
+    <string name="settings_player_load_next_action_do_nothing">无，不播了</string>
+    <string name="settings_player_load_next_action_play_recommend">推荐视频</string>
+    <string name="settings_player_load_next_action_play_next_part">剧集和分P的下一个</string>
+    <string name="settings_player_load_next_action_play_next_part_or_recommend">剧集和分P的下一个或推荐视频</string>
     <string name="about_statement">此项目是个人为了学习安卓开发而fork, 仅用于学习和测试，禁止在中国境内传播、宣传、分发，如有相关使用需求请使用 [哔哩哔哩官方APP](https://app.bilibili.com)，否则后果自负</string>
 </resources>

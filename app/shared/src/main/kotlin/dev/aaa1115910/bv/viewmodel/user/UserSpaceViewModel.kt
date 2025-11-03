@@ -1,6 +1,7 @@
 package dev.aaa1115910.bv.viewmodel.user
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,9 @@ class UserSpaceViewModel(
 
     var upFace by mutableStateOf("")
     var upName by mutableStateOf("")
+    var sign by mutableStateOf("") // 个性签名
+    var fans by mutableIntStateOf(0) // 粉丝数
+    var friend by mutableIntStateOf(0) // 关注数
     var upMid by mutableLongStateOf(0L)
     var tvSpaceVideos = mutableStateListOf<VideoCardData>()
     var spaceVideos = mutableStateListOf<SpaceVideo>()
