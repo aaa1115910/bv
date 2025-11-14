@@ -1,22 +1,20 @@
 name: Release Build
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - master
 
 jobs:
   build-release:
     name: Build Release Apk
     runs-on: macos-latest
-    if: github.repository == 'aaa1115910/bv'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: master
           fetch-depth: 0
           submodules: 'true'
 
@@ -47,7 +45,7 @@ jobs:
           base64 -Dd -i encoded_key > key.jks
 
       - name: Build apk
-        run: ./gradlew assembleDefaultRelease assembleDefaultDebug
+        run: ./gradlew assembleDefaultRelease
 
       - name: Read release apk output metadata
         id: apk-meta-release
@@ -55,44 +53,11 @@ jobs:
         with:
           path: app/build/outputs/apk/default/release/output-metadata.json
 
-      - name: Read debug apk output metadata
-        id: apk-meta-release-debug
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: app/build/outputs/apk/default/debug/output-metadata.json
-
       - name: Parse apk infos
         id: apk-infos
         run: |
           echo "release_info_version_code=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
           echo "release_info_version_name=${{ fromJson(steps.apk-meta-release.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-          echo "release_debug_info_version_code=${{ fromJson(steps.apk-meta-release-debug.outputs.content).elements[0].versionCode }}" >> $GITHUB_ENV
-          echo "release_debug_info_version_name=${{ fromJson(steps.apk-meta-release-debug.outputs.content).elements[0].versionName }}" >> $GITHUB_ENV
-
-      - name: Get changelog
-        id: changelog
-        run: |
-          {
-            echo "changelog<<EOF"
-            echo "$(git log --pretty=format:"- %s (%h)" ${{ github.event.before }}..${{ github.sha }})"
-            echo "EOF"
-          } >> "$GITHUB_ENV"
-
-      # upload artifacts release debug
-
-      - name: Archive release debug build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Release debug build artifact
-          path: app/build/outputs/apk/default/debug/BV_${{ env.release_debug_info_version_code }}_${{ env.release_debug_info_version_name }}_default_universal.apk
-
-      # upload artifacts release
-
-      - name: Archive release build mappings
-        uses: actions/upload-artifact@v4
-        with:
-          name: Release build mappings
-          path: app/build/outputs/mapping/defaultRelease
 
       - name: Archive release build artifacts
         uses: actions/upload-artifact@v4
@@ -100,22 +65,4 @@ jobs:
           name: Release build artifact
           path: app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
 
-      # zip mapping because softprops/action-gh-release can't upload folder
 
-      - name: Zip mapping
-        run: zip -rj mapping.zip app/build/outputs/mapping/defaultRelease
-
-      # upload to github release
-
-      - name: Publish Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            app/build/outputs/apk/default/debug/BV_${{ env.release_debug_info_version_code }}_${{ env.release_debug_info_version_name }}_default_universal.apk
-            app/build/outputs/apk/default/release/BV_${{ env.release_info_version_code }}_${{ env.release_info_version_name }}_default_universal.apk
-            mapping.zip
-          tag_name: ${{ github.ref_name }}
-          name: ${{ env.release_info_version_name }}
-          prerelease: false
-          body: ${{ env.changelog }}
-          target_commitish: ${{ github.sha }}
