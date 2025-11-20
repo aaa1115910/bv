@@ -92,10 +92,10 @@ fun VideoPlayerController(
     val logger = KotlinLogging.logger {}
 
     var showListController by remember { mutableStateOf(false) }
-    var showMenuController by remember { mutableStateOf(false) }
+    var showVideoInfo by remember { mutableStateOf(false) }
+    var showBottomMenu by remember { mutableStateOf(false) }
     var showSeekController by remember { mutableStateOf(false) }
-    var showInfo by remember { mutableStateOf(false) }
-    val showClickableControllers by remember { derivedStateOf { showListController || showMenuController } }
+    val showClickableControllers by remember { derivedStateOf { showListController || showBottomMenu } }
 
     var lastPressBack by remember { mutableLongStateOf(0L) }
     var hasFocus by remember { mutableStateOf(false) }
@@ -105,7 +105,7 @@ fun VideoPlayerController(
     var lastSeekChangeTime by remember { mutableLongStateOf(0L) }
     var moveState by remember { mutableStateOf(SeekMoveState.Idle) }
 
-    var hideVideoInfoTimer: CountDownTimer? by remember { mutableStateOf(null) }
+
 
     val openSeekController = {
         if (!showSeekController) goTime = videoPlayerSeekData.position
@@ -150,9 +150,10 @@ fun VideoPlayerController(
                     if (listOf(Key.Back, Key.Menu).contains(it.key)) {
                         if (it.type == KeyEventType.KeyUp) {
                             logger.fInfo { "[${it.key}] hide all controllers" }
-                            showMenuController = false
+                            showBottomMenu = false
                             showListController = false
                             showSeekController = false
+                            showVideoInfo = false
                         }
                         onRequestFocus()
                         return@onPreviewKeyEvent true
@@ -192,24 +193,13 @@ fun VideoPlayerController(
                             return@onPreviewKeyEvent true
                         }
 
-                        if (it.nativeKeyEvent.isLongPress) {
-                            logger.fInfo { "[${it.key}] long press" }
-                            showMenuController = true
-                            return@onPreviewKeyEvent true
-                        }
-
                         logger.fInfo { "[${it.key}] short press" }
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         if (videoPlayer.isPlaying) onPause() else onPlay()
                         return@onPreviewKeyEvent false
                     }
 
-                    // KEYCODE_CENTER_LONG
-                    // 一切设备上长按 DirectionCenter 键会是这个按键事件
-                    Key(763) -> {
-                        showMenuController = true
-                        return@onPreviewKeyEvent true
-                    }
+
 
                     Key.DirectionUp -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
@@ -221,13 +211,11 @@ fun VideoPlayerController(
                     Key.DirectionDown -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showInfo = !showInfo
-                        if (showInfo) {
-                            hideVideoInfoTimer = countDownTimer(3000, 1000, "hideVideoInfoTimer") {
-                                showInfo = false
-                            }
+                        if (!showVideoInfo) {
+                            showVideoInfo = true
+                            showBottomMenu = false
                         } else {
-                            hideVideoInfoTimer?.cancel()
+                            showBottomMenu = !showBottomMenu
                         }
                         return@onPreviewKeyEvent true
                     }
@@ -235,7 +223,7 @@ fun VideoPlayerController(
                     Key.Menu -> {
                         if (it.type == KeyEventType.KeyDown) return@onPreviewKeyEvent true
                         logger.info { "[${it.key} press]" }
-                        showMenuController = !showMenuController
+                        showBottomMenu = !showBottomMenu
                         onRequestFocus()
                         return@onPreviewKeyEvent true
                     }
@@ -332,10 +320,6 @@ fun VideoPlayerController(
         BottomSubtitle()
         SkipTips()
         PlayStateTips()
-        ControllerVideoInfo(
-            show = showInfo,
-            onHideInfo = { showInfo = false }
-        )
         SeekController(
             show = showSeekController,
             goTime = goTime,
@@ -345,8 +329,12 @@ fun VideoPlayerController(
             show = showListController,
             onPlayNewVideo = onPlayNewVideo
         )
-        MenuController(
-            show = showMenuController,
+        ControllerVideoInfo(
+            show = showVideoInfo,
+            onHideInfo = { showVideoInfo = false }
+        )
+        BottomMenuController(
+            show = showBottomMenu,
             onResolutionChange = onResolutionChange,
             onCodecChange = onCodecChange,
             onAspectRatioChange = onAspectRatioChange,
@@ -356,11 +344,8 @@ fun VideoPlayerController(
             onDanmakuSizeChange = onDanmakuSizeChange,
             onDanmakuOpacityChange = onDanmakuOpacityChange,
             onDanmakuAreaChange = onDanmakuAreaChange,
-            onDanmakuMaskChange = onDanmakuMaskChange,
             onSubtitleChange = onSubtitleChange,
             onSubtitleSizeChange = onSubtitleSizeChange,
-            onSubtitleBackgroundOpacityChange = onSubtitleBackgroundOpacityChange,
-            onSubtitleBottomPadding = onSubtitleBottomPadding,
             onPlayModeChange = onPlayModeChange
         )
     }
