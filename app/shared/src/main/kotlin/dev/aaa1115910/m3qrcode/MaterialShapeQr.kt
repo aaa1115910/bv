@@ -56,16 +56,7 @@ fun MaterialShapeQr(
         iterations = LottieConstants.IterateForever
     )
 
-    val lottieDynamicProperties = rememberLottieDynamicProperties(
-        *(state.colorMap).map { (key, color) ->
-            rememberLottieDynamicProperty(
-                property = LottieProperty.COLOR_FILTER,
-                keyPath = arrayOf("**", key, "**"),
-            ) {
-                PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-            }
-        }.toTypedArray()
-    )
+    val lottieDynamicProperties = rememberMaterialShapeQrLottieDynamicProperties(state.colorMap)
 
     LaunchedEffect(content, ecLevel) {
         state.updateContent(content, ecLevel.level)
@@ -213,6 +204,23 @@ fun FinderPatternsCanvas(
             drawShapeListOnCanvas(finderPatternShapeList, this, elapsed)
         }
     }
+}
+
+@Composable
+private fun rememberMaterialShapeQrLottieDynamicProperties(
+    colorMap: Map<String, Int>
+): com.airbnb.lottie.compose.LottieDynamicProperties {
+    val sortedKeys = remember(colorMap) { colorMap.keys.sorted() }
+    val properties = sortedKeys.map { key ->
+        val color = colorMap[key] ?: return@map null
+        val filter = remember(color) { PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN) }
+        rememberLottieDynamicProperty(
+            property = LottieProperty.COLOR_FILTER,
+            keyPath = arrayOf("**", key, "**"),
+            value = filter
+        )
+    }.filterNotNull().toTypedArray()
+    return rememberLottieDynamicProperties(*properties)
 }
 
 private fun drawShapeListOnCanvas(
