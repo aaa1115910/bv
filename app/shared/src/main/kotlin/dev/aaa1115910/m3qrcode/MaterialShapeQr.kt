@@ -210,16 +210,15 @@ fun FinderPatternsCanvas(
 private fun rememberMaterialShapeQrLottieDynamicProperties(
     colorMap: Map<String, Int>
 ): com.airbnb.lottie.compose.LottieDynamicProperties {
-    val sortedKeys = remember(colorMap) { colorMap.keys.sorted() }
-    val properties = sortedKeys.map { key ->
-        val color = colorMap[key] ?: return@map null
+    val properties = colorMap.map { (key, color) ->
         val filter = remember(color) { PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN) }
         rememberLottieDynamicProperty(
             property = LottieProperty.COLOR_FILTER,
             keyPath = arrayOf("**", key, "**"),
-            value = filter
-        )
-    }.filterNotNull().toTypedArray()
+        ) {
+            filter
+        }
+    }.toTypedArray()
     return rememberLottieDynamicProperties(*properties)
 }
 
