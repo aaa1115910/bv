@@ -1,6 +1,7 @@
 package dev.aaa1115910.biliapi.http
 
 import com.tfowl.ktor.client.plugins.JsoupPlugin
+import dev.aaa1115910.biliapi.BiliApiConstants
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.http.BiliHttpApi.getRegionDynamic
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
@@ -73,8 +74,8 @@ import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.BrowserUserAgent
 import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -125,7 +126,9 @@ object BiliHttpApi {
 
     private fun createClient() {
         client = HttpClient(OkHttp) {
-            BrowserUserAgent()
+            install(UserAgent) {
+                agent = BiliApiConstants.USER_AGENT_WEB
+            }
             install(ContentNegotiation) {
                 json(json)
             }
@@ -202,7 +205,8 @@ object BiliHttpApi {
         otype: String = "json",
         type: String = "",
         platform: String = "oc",
-        sessData: String? = null
+        sessData: String? = null,
+        dedeUserID: Long? = null
     ): BiliResponse<PlayUrlData> = client.get("/x/player/playurl") {
         require(av != null || bv != null) { "av and bv cannot be null at the same time" }
         parameter("avid", av)
@@ -216,7 +220,7 @@ object BiliHttpApi {
         parameter("otype", otype)
         parameter("type", type)
         parameter("platform", platform)
-        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;DedeUserID=$dedeUserID") }
     }.body()
 
     /**
