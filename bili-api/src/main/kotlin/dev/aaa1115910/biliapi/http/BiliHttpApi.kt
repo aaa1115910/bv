@@ -1,7 +1,6 @@
 package dev.aaa1115910.biliapi.http
 
 import com.tfowl.ktor.client.plugins.JsoupPlugin
-import dev.aaa1115910.biliapi.BiliApiConstants
 import dev.aaa1115910.biliapi.entity.pgc.PgcType
 import dev.aaa1115910.biliapi.http.BiliHttpApi.getRegionDynamic
 import dev.aaa1115910.biliapi.http.entity.BiliResponse
@@ -69,13 +68,13 @@ import dev.aaa1115910.biliapi.http.entity.video.VideoInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoMoreInfo
 import dev.aaa1115910.biliapi.http.entity.video.VideoShot
 import dev.aaa1115910.biliapi.http.entity.web.NavResponseData
+import dev.aaa1115910.biliapi.http.plugins.BiliUserAgent
 import dev.aaa1115910.biliapi.http.util.BiliAppConf
 import dev.aaa1115910.biliapi.http.util.encApiSign
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -126,9 +125,7 @@ object BiliHttpApi {
 
     private fun createClient() {
         client = HttpClient(OkHttp) {
-            install(UserAgent) {
-                agent = BiliApiConstants.USER_AGENT_WEB
-            }
+            BiliUserAgent()
             install(ContentNegotiation) {
                 json(json)
             }

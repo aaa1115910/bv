@@ -3,12 +3,16 @@ package dev.aaa1115910.bv
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.webkit.WebViewCompat
 import de.schnettler.datastore.manager.DataStoreManager
 import dev.aaa1115910.biliapi.http.BiliHttpProxyApi
+import dev.aaa1115910.biliapi.http.util.BiliAppConf
+import dev.aaa1115910.biliapi.http.util.BiliWebConf
 import dev.aaa1115910.biliapi.repositories.AuthRepository
 import dev.aaa1115910.biliapi.repositories.BiliApiModule
 import dev.aaa1115910.biliapi.repositories.ChannelRepository
@@ -62,6 +66,7 @@ class BVApp : Application() {
         }
         initFirebase()
         LogCatcherUtil.installLogCatcher()
+        initApiConfig()
         initRepository()
         initProxy()
         instance = this
@@ -76,6 +81,15 @@ class BVApp : Application() {
             "debug" -> {}
             else -> FirebaseUtil.setCrashlyticsCollectionEnabled(Prefs.enableFirebaseCollection)
         }
+    }
+
+    private fun initApiConfig() {
+        BiliAppConf.osVersion = Build.VERSION.RELEASE
+        BiliAppConf.model = Build.MODEL
+        BiliWebConf.webViewVersion = runCatching {
+            WebViewCompat.getCurrentLoadedWebViewPackage()!!.versionName!!
+                .substringBefore(".").toInt()
+        }.getOrDefault(144)
     }
 
     fun initRepository() {
