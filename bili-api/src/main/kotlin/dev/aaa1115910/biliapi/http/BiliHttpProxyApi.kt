@@ -80,7 +80,8 @@ object BiliHttpProxyApi {
         supportMultiAudio: Boolean? = null,
         drmTechType: Int? = null,
         fromClient: String? = null,
-        sessData: String? = null
+        sessData: String? = null,
+        dedeUserID: Long? = null
     ): BiliResponse<PlayUrlData> = client?.get("/pgc/player/web/playurl") {
         require(av != null || bv != null) { "av and bv cannot be null at the same time" }
         require(epid != null || cid != null) { "epid and cid cannot be null at the same time" }
@@ -96,7 +97,7 @@ object BiliHttpProxyApi {
         supportMultiAudio?.let { parameter("support_multi_audio", it) }
         drmTechType?.let { parameter("drm_tech_type", it) }
         fromClient?.let { parameter("from_client", it) }
-        sessData?.let { header("Cookie", "SESSDATA=$sessData;") }
+        sessData?.let { header("Cookie", "SESSDATA=$sessData;DedeUserID=$dedeUserID") }
         //必须得加上 referer 才能通过账号身份验证
         header("referer", "https://www.bilibili.com")
     }?.body() ?: throw IllegalStateException("no proxy server")
