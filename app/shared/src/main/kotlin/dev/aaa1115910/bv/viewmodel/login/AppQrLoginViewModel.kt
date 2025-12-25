@@ -49,7 +49,7 @@ class AppQrLoginViewModel(
                 logger.info { qrLoginData.url }
                 runCatching { timer.cancel() }
                 timer = timeTask(1000, 1000, "check qr login result") {
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         checkLoginResult()
                     }
                 }

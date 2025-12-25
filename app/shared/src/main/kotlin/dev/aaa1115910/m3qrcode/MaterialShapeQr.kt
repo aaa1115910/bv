@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -69,8 +70,12 @@ fun MaterialShapeQr(
                 delay(50)
                 continue
             }
-            state.frameElapsed = System.currentTimeMillis() - state.qrStartTime
-            delay(16)
+            withFrameMillis {
+                state.frameElapsed = System.currentTimeMillis() - state.qrStartTime
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && state.hasFinalDataImage) {
+                break
+            }
         }
     }
 
