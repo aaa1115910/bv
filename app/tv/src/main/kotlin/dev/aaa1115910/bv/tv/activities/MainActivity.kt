@@ -18,7 +18,6 @@ import dev.aaa1115910.bv.tv.screens.user.lock.UnlockUserScreen
 import dev.aaa1115910.bv.ui.theme.BVTheme
 import dev.aaa1115910.bv.util.NetworkUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -52,7 +51,11 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(Unit) {
-                scope.launch(Dispatchers.Default) {
+                scope.launch {
+                    // NetworkUtil.isMainlandChina() 内部已经 withContext(Dispatchers.IO)，
+                    // 无需（也不能）再切到 Dispatchers.Default：在后台线程写 Compose
+                    // 状态会抛出
+                    // Detected multithreaded access to SnapshotStateObserver（见 #132）。
                     isMainlandChina = NetworkUtil.isMainlandChina()
                     isCheckingNetwork = false
                     keepSplashScreen = false

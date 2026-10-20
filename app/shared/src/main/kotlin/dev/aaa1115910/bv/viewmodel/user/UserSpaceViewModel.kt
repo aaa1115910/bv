@@ -12,6 +12,7 @@ import dev.aaa1115910.biliapi.entity.user.SpaceVideoPage
 import dev.aaa1115910.biliapi.repositories.UserRepository
 import dev.aaa1115910.bv.entity.carddata.VideoCardData
 import dev.aaa1115910.bv.util.Prefs
+import dev.aaa1115910.bv.util.addAllWithMainContext
 import dev.aaa1115910.bv.util.addWithMainContext
 import dev.aaa1115910.bv.util.fInfo
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -52,7 +53,7 @@ class UserSpaceViewModel(
                 page = page,
                 preferApiType = Prefs.apiType
             )
-            spaceVideos.addAll(spaceVideoData.videos)
+            spaceVideos.addAllWithMainContext(spaceVideoData.videos)
             spaceVideoData.videos.forEach { spaceVideoItem ->
                 tvSpaceVideos.addWithMainContext(
                     VideoCardData(
